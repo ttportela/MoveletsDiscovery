@@ -1,0 +1,74 @@
+{
+   "attributes": [
+		{
+	          "order": 1,
+	          "type": "space2d",
+	          "text": "space",
+	          "comparator": {
+	            "distance": "euclidean",
+	            "maxValue": -1
+	          }
+	    },
+	    /* {
+	          "order": 2,
+	          "type": "nominal",
+	          "text": "datetime",
+	          "comparator": {
+	            "distance": "difference",
+	            "maxValue": -1
+	          }
+	    }, */
+	    {
+	          "order": 3,
+	          "type": "numeric",
+	          "text": "time",
+	          "comparator": {
+	            "distance": "difference",
+	            "maxValue": -1
+	          }
+	    },
+	    {
+	          "order": 4,
+	          "type": "nominal",
+	          "text": "day",
+	          "comparator": {
+	            "distance": "weekday",
+	            "maxValue": -1
+	          }
+	    },
+	    {
+	          "order": 5,
+	          "type": "foursquarevenue",
+	          "text": "poi",
+	          "comparator": {
+	            "distance": "equals"
+	          }
+	    },
+	    {
+	          "order": 6,
+	          "type": "numeric",
+	          "text": "price",
+	          "comparator": {
+	            "distance": "difference",
+	            "maxValue": -1
+	          }
+	    },
+	    {
+	          "order": 7,
+	          "type": "numeric",
+	          "text": "rating",
+	          "comparator": {
+	            "distance": "difference",
+	            "maxValue": -1
+	          }
+	    },
+	    {
+	          "order": 8,
+	          "type": "nominal",
+	          "text": "weather",
+	          "comparator": {
+	            "distance": "equals"
+	          }
+	    }
+	]	
+}
