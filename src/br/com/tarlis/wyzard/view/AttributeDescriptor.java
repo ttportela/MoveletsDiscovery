@@ -21,7 +21,7 @@ package br.com.tarlis.wyzard.view;
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  *
  */
-public class Attribute {
+public class AttributeDescriptor {
 	
 	private Integer order;
     private String type;

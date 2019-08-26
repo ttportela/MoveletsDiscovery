@@ -17,8 +17,15 @@
  */
 package br.com.tarlis.wyzard.view;
 
-import java.util.Iterator;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 /**
  * @author Tarlis Portela <tarlis@tarlis.com.br>
@@ -26,36 +33,98 @@ import java.util.List;
  */	
 public class Descriptor {
 	
-	private List<Attribute> attributes = null;
+	private AttributeDescriptor idFeature = null;
+	private AttributeDescriptor labelFeature = null;
+	private List<AttributeDescriptor> attributes = null;
+	private List<String> inputFiles = null;
 
+	/**
+	 * @return the idFeature
+	 */
+	public AttributeDescriptor getIdFeature() {
+		return idFeature;
+	}
+	
+	/**
+	 * @param idFeature the idFeature to set
+	 */
+	public void setIdFeature(AttributeDescriptor idFeature) {
+		this.idFeature = idFeature;
+	}
+	
+	/**
+	 * @return the labelFeature
+	 */
+	public AttributeDescriptor getLabelFeature() {
+		return labelFeature;
+	}
+	
+	/**
+	 * @param labelFeature the labelFeature to set
+	 */
+	public void setLabelFeature(AttributeDescriptor labelFeature) {
+		this.labelFeature = labelFeature;
+	}
+	
 	/**
 	 * @return the attributes
 	 */
-	public List<Attribute> getAttributes() {
+	public List<AttributeDescriptor> getAttributes() {
 		return attributes;
 	}
 
 	/**
 	 * @param attributes the attributes to set
 	 */
-	public void setAttributes(List<Attribute> attributes) {
+	public void setAttributes(List<AttributeDescriptor> attributes) {
 		this.attributes = attributes;
+	}
+
+	/**
+	 * @return the inputFiles
+	 */
+	public List<String> getInputFiles() {
+		return inputFiles;
+	}
+
+	/**
+	 * @param inputFiles the inputFiles to set
+	 */
+	public void setInputFiles(List<String> inputFiles) {
+		this.inputFiles = inputFiles;
 	}
 
 	/**
 	 * 
 	 */
 	public void configure() {
-		
+		for (AttributeDescriptor attr : attributes) {
+			attr.setType(attr.getType().toLowerCase());
+			if (attr.getComparator() != null && attr.getComparator().getDistance() != null) {
+				attr.getComparator().setDistance(
+						attr.getComparator().getDistance().toLowerCase());
+			}
+		}
 	}
 	
 	@Override
 	public String toString() {
 		String s = "";
-		for (Attribute attribute : attributes) {
+		for (AttributeDescriptor attribute : attributes) {
 			s += attribute + "\n";
 		}
 		return s;
+	}
+	
+	public static Descriptor load(String fileName) throws UnsupportedEncodingException, FileNotFoundException {
+		Reader reader = new InputStreamReader(
+				new FileInputStream(fileName), "UTF-8");
+        Gson gson = new GsonBuilder().create();
+        Descriptor descriptor = gson.fromJson(reader, Descriptor.class);
+        descriptor.configure();
+
+		System.out.println(descriptor);
+		return descriptor;
 	}
 
 }

@@ -1,25 +1,35 @@
 {
+   "idFeature": {
+          "order": 3,
+          "type": "numeric",
+          "text": "tid"
+    },
+   "labelFeature": {
+          "order": 14,
+          "type": "nominal",
+          "text": "label"
+    },
    "attributes": [
 		{
-	          "order": 1,
+	          "order": 4,
 	          "type": "space2d",
-	          "text": "space",
+	          "text": "lat_lon",
 	          "comparator": {
 	            "distance": "euclidean",
 	            "maxValue": -1
 	          }
 	    },
-	    /* {
-	          "order": 2,
+	    {
+	          "order": 5,
 	          "type": "nominal",
-	          "text": "datetime",
+	          "text": "date_time",
 	          "comparator": {
 	            "distance": "difference",
 	            "maxValue": -1
 	          }
-	    }, */
+	    },
 	    {
-	          "order": 3,
+	          "order": 6,
 	          "type": "numeric",
 	          "text": "time",
 	          "comparator": {
@@ -28,7 +38,7 @@
 	          }
 	    },
 	    {
-	          "order": 4,
+	          "order": 7,
 	          "type": "nominal",
 	          "text": "day",
 	          "comparator": {
@@ -37,7 +47,7 @@
 	          }
 	    },
 	    {
-	          "order": 5,
+	          "order": 8,
 	          "type": "foursquarevenue",
 	          "text": "poi",
 	          "comparator": {
@@ -45,7 +55,7 @@
 	          }
 	    },
 	    {
-	          "order": 6,
+	          "order": 11,
 	          "type": "numeric",
 	          "text": "price",
 	          "comparator": {
@@ -54,7 +64,7 @@
 	          }
 	    },
 	    {
-	          "order": 7,
+	          "order": 12,
 	          "type": "numeric",
 	          "text": "rating",
 	          "comparator": {
@@ -63,12 +73,15 @@
 	          }
 	    },
 	    {
-	          "order": 8,
+	          "order": 13,
 	          "type": "nominal",
 	          "text": "weather",
 	          "comparator": {
 	            "distance": "equals"
 	          }
 	    }
-	]	
+	],
+	"inputFiles": [
+		"data/foursquare.csv"
+	]
 }
