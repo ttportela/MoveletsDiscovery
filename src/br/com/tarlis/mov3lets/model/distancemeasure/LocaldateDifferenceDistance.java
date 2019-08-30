@@ -1,5 +1,5 @@
 /**
- * Wizard - Multiple Aspect Trajectory (MASTER) Classification. 
+ * Mov3lets - Multiple Aspect Trajectory (MASTER) Classification Version 3. 
  * Copyright (C) 2019  Tarlis Portela <tarlis@tarlis.com.br>
  * 
  *  This program is free software: you can redistribute it and/or modify
@@ -15,30 +15,23 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package br.com.tarlis.wyzard.model.mat;
+package br.com.tarlis.mov3lets.model.distancemeasure;
 
-import java.util.List;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+
+import br.com.tarlis.mov3lets.model.mat.aspect.Aspect;
+import br.com.tarlis.mov3lets.view.AttributeDescriptor;
 
 /**
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  *
  */
-public class Point {
-	
-	private List<?> aspects = null;
-	
-	/**
-	 * @return the aspects
-	 */
-	public List<?> getAspects() {
-		return aspects;
-	}
-	
-	/**
-	 * @param aspects the aspects to set
-	 */
-	public void setAspects(List<?> aspects) {
-		this.aspects = aspects;
+public class LocaldateDifferenceDistance extends DistanceInterface<Aspect<LocalDate>> {
+
+	@Override
+	public double distance(Aspect<LocalDate> asp0, Aspect<LocalDate> asp1, AttributeDescriptor attr) {
+		return ChronoUnit.MILLIS.between(asp0.getValue(), asp1.getValue()) / 1000;
 	}
 
 }

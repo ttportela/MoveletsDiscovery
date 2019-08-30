@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package br.com.tarlis.wyzard.run;
+package br.com.tarlis.mov3lets.run;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -24,6 +24,8 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -32,18 +34,18 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
-import br.com.tarlis.wyzard.model.mat.MAT;
-import br.com.tarlis.wyzard.model.mat.MovingObject;
-import br.com.tarlis.wyzard.model.mat.aspect.Aspect;
-import br.com.tarlis.wyzard.model.mat.aspect.Space2DAspect;
-import br.com.tarlis.wyzard.view.AttributeDescriptor;
-import br.com.tarlis.wyzard.view.Descriptor;
+import br.com.tarlis.mov3lets.model.mat.MAT;
+import br.com.tarlis.mov3lets.model.mat.MovingObject;
+import br.com.tarlis.mov3lets.model.mat.aspect.Aspect;
+import br.com.tarlis.mov3lets.model.mat.aspect.Space2DAspect;
+import br.com.tarlis.mov3lets.view.AttributeDescriptor;
+import br.com.tarlis.mov3lets.view.Descriptor;
 
 /**
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  *
  */
-public class Wyzard<MO> {
+public class Mov3lets<MO> {
 	
 	// CONFIG:
 	private Descriptor descriptor = null;
@@ -59,7 +61,7 @@ public class Wyzard<MO> {
 	 * @throws FileNotFoundException 
 	 * @throws UnsupportedEncodingException 
 	 */
-	public void wyzard(String descriptorFile) throws IOException {
+	public void mov3lets(String descriptorFile) throws IOException {
 				
 		// STEP 1 - Input:
 		this.descriptor = Descriptor.load(descriptorFile);
@@ -78,18 +80,11 @@ public class Wyzard<MO> {
 	
 	public List<MAT> loadTrajectories(String inputFile) throws IOException {
 		List<MAT> trajectories = new ArrayList<MAT>();
-//		String row;
 		MO mo = instantiateMovingObject("");
-		
-		// Load File:
-//		BufferedReader csvReader = new BufferedReader(new FileReader(inputFile));
-//		csvReader.readLine();
-//		while ((row = csvReader.readLine()) != null) {
 			
 		CSVParser csvParser = CSVFormat.DEFAULT.parse(new InputStreamReader((new FileInputStream(inputFile))));
 		csvParser.iterator().next();
 		for (CSVRecord line : csvParser) {
-//			line = row.split(",");
 			
 			// Create a MO:
 			String label = line.get(this.descriptor.getLabelFeature().getOrder()-1);
@@ -101,7 +96,8 @@ public class Wyzard<MO> {
 			mat.setMovingObject(mo);
 		    trajectories.add(mat);
 		}
-//		csvReader.close();
+		csvParser.close();
+
 		return trajectories;
 	}
 	
@@ -128,6 +124,8 @@ public class Wyzard<MO> {
 				return new Aspect<Double>(Double.parseDouble(value));
 			case "space2d":
 				return new Space2DAspect(value);
+			case "time":
+				return new Aspect<Integer>(Integer.parseInt(value));
 			case "datetime":
 				try {
 					return new Aspect<Date>(formatter.parse(value));
@@ -135,6 +133,10 @@ public class Wyzard<MO> {
 					trace("Atribute datetime '"+value+"' in wrong format, must be yyyy/MM/dd HH:mm:ss");
 					return new Aspect<Date>(new Date());
 				}
+			case "localdate":
+				return new Aspect<LocalDate>(LocalDate.parse(value));
+			case "localtime":
+				return new Aspect<LocalTime>(LocalTime.parse(value));
 			case "foursquarevenue":
 			case "gowallacheckin":
 			case "nominal":

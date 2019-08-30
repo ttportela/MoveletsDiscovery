@@ -15,12 +15,20 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package br.com.tarlis.wyzard.model.distancemeasure;
+package br.com.tarlis.mov3lets.model.distancemeasure;
+
+import br.com.tarlis.mov3lets.view.AttributeDescriptor;
+import br.com.tarlis.mov3lets.model.mat.aspect.Aspect;
 
 /**
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  *
  */
-public class WeekdayDistance implements DistanceInterface {
+public class TimeDifferenceDistance extends DistanceInterface<Aspect<Integer>> {
+
+	@Override
+	public double distance(Aspect<Integer> asp0, Aspect<Integer> asp1, AttributeDescriptor attr) {
+		return Math.abs(asp0.getValue() - asp1.getValue());
+	}
 
 }

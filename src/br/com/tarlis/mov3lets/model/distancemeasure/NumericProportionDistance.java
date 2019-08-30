@@ -15,61 +15,23 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package br.com.tarlis.wyzard.model.mat;
+package br.com.tarlis.mov3lets.model.distancemeasure;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import br.com.tarlis.mov3lets.view.AttributeDescriptor;
+import br.com.tarlis.mov3lets.model.mat.aspect.Aspect;
 
 /**
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  *
  */
-public class MAT<MO> {
-
-	private int tid;
-	private MO movingObject;
-	private List<?> aspects = new ArrayList<>();
+public class NumericProportionDistance extends NumericDifferenceDistance {
 	
-	/**
-	 * @return the tid
-	 */
-	public int getTid() {
-		return tid;
-	}
-	
-	/**
-	 * @param tid the tid to set
-	 */
-	public void setTid(int tid) {
-		this.tid = tid;
-	}
-	
-	/**
-	 * @return the movingObject
-	 */
-	public MO getMovingObject() {
-		return movingObject;
-	}
-	/**
-	 * @param movingObject the movingObject to set
-	 */
-	public void setMovingObject(MO movingObject) {
-		this.movingObject = movingObject;
-	}
-	
-	/**
-	 * @return the aspects
-	 */
-	public List<?> getAspects() {
-		return aspects;
-	}
-	
-	/**
-	 * @param aspects the aspects to set
-	 */
-	public void setAspects(List<?> aspects) {
-		this.aspects = aspects;
+	@Override
+	public double distance(Aspect<Double> asp0, Aspect<Double> asp1, AttributeDescriptor attr) {
+		if (asp0.getValue() == 0 && asp1.getValue() == 0)
+			return 1;
+		else 
+			return Math.abs(asp0.getValue() - asp1.getValue()) / Math.abs(asp0.getValue() + asp1.getValue());
 	}
 
 }

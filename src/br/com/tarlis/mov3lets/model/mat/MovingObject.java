@@ -15,12 +15,35 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package br.com.tarlis.wyzard.model.distancemeasure;
+package br.com.tarlis.mov3lets.model.mat;
 
 /**
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  *
  */
-public class DifferenceDistance implements DistanceInterface {
+public class MovingObject<L> {
+	
+	private L label;
+	
+	/**
+	 * @param label2
+	 */
+	public MovingObject(L label) {
+		this.label = label;
+	}
+
+	/**
+	 * @return the label
+	 */
+	public L getLabel() {
+		return label;
+	}
+	
+	/**
+	 * @param label the label to set
+	 */
+	public void setLabel(L label) {
+		this.label = label;
+	}
 
 }

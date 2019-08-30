@@ -15,12 +15,30 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package br.com.tarlis.wyzard.utils;
+package br.com.tarlis.mov3lets.model.mat;
+
+import java.util.List;
 
 /**
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  *
  */
-public class ParserUtils {
+public class Point {
 	
+	private List<?> aspects = null;
+	
+	/**
+	 * @return the aspects
+	 */
+	public List<?> getAspects() {
+		return aspects;
+	}
+	
+	/**
+	 * @param aspects the aspects to set
+	 */
+	public void setAspects(List<?> aspects) {
+		this.aspects = aspects;
+	}
+
 }

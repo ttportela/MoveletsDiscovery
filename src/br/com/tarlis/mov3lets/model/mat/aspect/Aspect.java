@@ -15,14 +15,40 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package br.com.tarlis.wyzard.model.distancemeasure;
+package br.com.tarlis.mov3lets.model.mat.aspect;
 
 /**
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  *
  */
-public interface DistanceInterface {
-	
-	
+public class Aspect<T> {
 
+	private T value;
+	
+	/**
+	 * 
+	 */
+	public Aspect(T value) {
+		this.value = value;
+	}
+	
+	/**
+	 * @return the value
+	 */
+	public T getValue() {
+		return value;
+	}
+	
+	/**
+	 * @param value the value to set
+	 */
+	public void setValue(T value) {
+		this.value = value;
+	}
+	
+	@Override
+	public String toString() {
+		return getValue().toString();
+	}
+	
 }

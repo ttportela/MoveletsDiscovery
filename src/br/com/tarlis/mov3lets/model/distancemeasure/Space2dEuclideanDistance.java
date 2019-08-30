@@ -15,35 +15,29 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package br.com.tarlis.wyzard.model.mat;
+package br.com.tarlis.mov3lets.model.distancemeasure;
+
+import br.com.tarlis.mov3lets.view.AttributeDescriptor;
+import br.com.tarlis.mov3lets.model.mat.aspect.Space2DAspect;
 
 /**
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  *
  */
-public class MovingObject<L> {
-	
-	private L label;
-	
-	/**
-	 * @param label2
-	 */
-	public MovingObject(L label) {
-		this.label = label;
+public class Space2dEuclideanDistance extends DistanceInterface<Space2DAspect> {
+
+	@Override
+	public double distance(Space2DAspect asp0, Space2DAspect asp1, AttributeDescriptor attr) {
+		return normalizeDistance(euclideanDistance(asp0, asp1), attr.getComparator().getMaxValue());
 	}
 
-	/**
-	 * @return the label
-	 */
-	public L getLabel() {
-		return label;
+	public double euclideanDistance(Space2DAspect asp0, Space2DAspect asp1){
+		
+		double diffLat = Math.abs(asp0.getX() - asp1.getX());
+		double diffLon = Math.abs(asp0.getY() - asp1.getY());
+		
+		return Math.sqrt( diffLat * diffLat + diffLon * diffLon );
+
 	}
 	
-	/**
-	 * @param label the label to set
-	 */
-	public void setLabel(L label) {
-		this.label = label;
-	}
-
 }

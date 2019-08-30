@@ -15,43 +15,29 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package br.com.tarlis.wyzard.model.mat.aspect;
+package br.com.tarlis.mov3lets.model.distancemeasure;
+
+import br.com.tarlis.mov3lets.view.AttributeDescriptor;
+import br.com.tarlis.mov3lets.model.mat.aspect.Space2DAspect;
 
 /**
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  *
  */
-public class Space2DAspect extends Aspect<String> {
+public class Space2dManhattanDistance extends Space2dEuclideanDistance {
 
-	private double x;
-	private double y;
+	@Override
+	public double distance(Space2DAspect asp0, Space2DAspect asp1, AttributeDescriptor attr) {
+		return normalizeDistance(manhattanDistance(asp0, asp1), attr.getComparator().getMaxValue());
+	}
 	
-	/**
-	 * @param value
-	 */
-	public Space2DAspect(String value) {
-		super(value);
+	public double manhattanDistance(Space2DAspect asp0, Space2DAspect asp1){
 		
-		String[] row = value.split(" ");
+		double diffLat = Math.abs(asp0.getX() - asp1.getX());
+		double diffLon = Math.abs(asp0.getY() - asp1.getY());
 		
-		this.x = Double.parseDouble(row[0]);
-		this.y = Double.parseDouble(row[1]);
-	}
-
-	public double getX() {
-		return x;
-	}
-
-	public void setX(double x) {
-		this.x = x;
-	}
-
-	public double getY() {
-		return y;
-	}
-
-	public void setY(double y) {
-		this.y = y;
+		return diffLat + diffLon;
+	
 	}
 
 }

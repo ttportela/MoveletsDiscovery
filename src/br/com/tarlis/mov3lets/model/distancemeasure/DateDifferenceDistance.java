@@ -1,5 +1,5 @@
 /**
- * Wizard - Multiple Aspect Trajectory (MASTER) Classification. 
+ * Mov3lets - Multiple Aspect Trajectory (MASTER) Classification Version 3. 
  * Copyright (C) 2019  Tarlis Portela <tarlis@tarlis.com.br>
  * 
  *  This program is free software: you can redistribute it and/or modify
@@ -15,44 +15,25 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package br.com.tarlis.wyzard.view;
+package br.com.tarlis.mov3lets.model.distancemeasure;
+
+import java.util.Date;
+
+import br.com.tarlis.mov3lets.model.mat.aspect.Aspect;
+import br.com.tarlis.mov3lets.view.AttributeDescriptor;
 
 /**
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  *
  */
-public class Comparator {
+public class DateDifferenceDistance extends DistanceInterface<Aspect<Date>> {
 
-	private String distance;
-    private Double maxValue = -1.0;
-	/**
-	 * @return the distance
-	 */
-	public String getDistance() {
-		return distance;
-	}
-	/**
-	 * @param distance the distance to set
-	 */
-	public void setDistance(String distance) {
-		this.distance = distance;
-	}
-	/**
-	 * @return the maxValue
-	 */
-	public Double getMaxValue() {
-		return maxValue;
-	}
-	/**
-	 * @param maxValue the maxValue to set
-	 */
-	public void setMaxValue(Double maxValue) {
-		this.maxValue = maxValue;
-	}
-	
 	@Override
-	public String toString() {
-		return getDistance() +"/"+ getMaxValue();
+	public double distance(Aspect<Date> asp0, Aspect<Date> asp1, AttributeDescriptor attr) {
+		return normalizeDistance(
+				  Math.abs( (double)(asp1.getValue().getTime() - asp1.getValue().getTime()))/1000, 
+					attr.getComparator().getMaxValue()
+			   );
 	}
 
 }

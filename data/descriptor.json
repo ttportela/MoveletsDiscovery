@@ -1,4 +1,7 @@
 {
+	"inputFiles": [
+		"data/foursquare.csv"
+	],
    "idFeature": {
           "order": 3,
           "type": "numeric",
@@ -21,7 +24,7 @@
 	    },
 	    {
 	          "order": 5,
-	          "type": "nominal",
+	          "type": "datetime",
 	          "text": "date_time",
 	          "comparator": {
 	            "distance": "difference",
@@ -48,7 +51,7 @@
 	    },
 	    {
 	          "order": 8,
-	          "type": "foursquarevenue",
+	          "type": "nominal",
 	          "text": "poi",
 	          "comparator": {
 	            "distance": "equals"
@@ -80,8 +83,5 @@
 	            "distance": "equals"
 	          }
 	    }
-	],
-	"inputFiles": [
-		"data/foursquare.csv"
 	]
 }

@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package br.com.tarlis.wyzard.run;
+package br.com.tarlis.mov3lets.run;
 
 import java.io.IOException;
 
@@ -23,7 +23,7 @@ import java.io.IOException;
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  *
  */
-public class WizardRun {
+public class Mov3letsRun {
 	
 	public static void main(String[] args) throws IOException {
 		
@@ -32,8 +32,8 @@ public class WizardRun {
 		String inputFile = (args.length > 1? args[1] : "data/foursquare.csv");
 		
 		// 2 - RUN
-		Wyzard wiz = new Wyzard();
-		wiz.wyzard(descFile);
+		Mov3lets mov = new Mov3lets();
+		mov.mov3lets(descFile);
 		
 		// TODO Auto-generated method stub
 		System.out.println(inputFile);

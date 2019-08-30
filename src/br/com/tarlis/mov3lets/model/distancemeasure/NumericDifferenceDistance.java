@@ -15,35 +15,20 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package br.com.tarlis.wyzard.model.mat.aspect;
+package br.com.tarlis.mov3lets.model.distancemeasure;
+
+import br.com.tarlis.mov3lets.view.AttributeDescriptor;
+import br.com.tarlis.mov3lets.model.mat.aspect.Aspect;
 
 /**
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  *
  */
-public class Aspect<T> {
+public class NumericDifferenceDistance extends DistanceInterface<Aspect<Double>> {
 
-	private T value;
-	
-	/**
-	 * 
-	 */
-	public Aspect(T value) {
-		this.value = value;
+	@Override
+	public double distance(Aspect<Double> asp0, Aspect<Double> asp1, AttributeDescriptor attr) {
+		return normalizeDistance( Math.abs(asp0.getValue() - asp1.getValue()), attr.getComparator().getMaxValue());
 	}
-	
-	/**
-	 * @return the value
-	 */
-	public T getValue() {
-		return value;
-	}
-	
-	/**
-	 * @param value the value to set
-	 */
-	public void setValue(T value) {
-		this.value = value;
-	}
-	
+
 }
