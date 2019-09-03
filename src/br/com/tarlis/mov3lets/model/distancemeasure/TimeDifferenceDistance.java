@@ -24,7 +24,7 @@ import br.com.tarlis.mov3lets.model.mat.aspect.Aspect;
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  *
  */
-public class TimeDifferenceDistance extends DistanceInterface<Aspect<Integer>> {
+public class TimeDifferenceDistance extends DistanceMeasure<Aspect<Integer>> {
 
 	@Override
 	public double distance(Aspect<Integer> asp0, Aspect<Integer> asp1, AttributeDescriptor attr) {

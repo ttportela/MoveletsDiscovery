@@ -24,11 +24,14 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -51,9 +54,7 @@ public class Mov3lets<MO> {
 	private Descriptor descriptor = null;
 	
 	// TRAJS:
-	private List<MAT> trajectories = null;
-
-	// LOAD TRAJ
+	private List<MAT> train = null;
 
 	/**
 	 * @param args
@@ -62,22 +63,53 @@ public class Mov3lets<MO> {
 	 * @throws UnsupportedEncodingException 
 	 */
 	public void mov3lets(String descriptorFile) throws IOException {
-				
+
 		// STEP 1 - Input:
+		Instant begin = Instant.now();
+		Instant start = begin;
 		this.descriptor = Descriptor.load(descriptorFile);
 
-		List<MAT> trajectories = new ArrayList<MAT>();
+		train = new ArrayList<MAT>();
 		for (String file : descriptor.getInputFiles()) {
-			trajectories.addAll(loadTrajectories(file));
+			train.addAll(loadTrajectories(file));
 		}
 		
+		if (train.isEmpty()) { traceW("empty training set"); return; }
+		Instant end = Instant.now();
+	    Mov3lets.trace("STEP 1 - runned in: " + Duration.between(start, end));
+		
 		// STEP 2 - Select Candidates:
+		start = Instant.now();
+	    selectCandidates();
+	    end = Instant.now();
+	    Mov3lets.trace("STEP 2 - runned in: " + Duration.between(start, end));
 		
 		// STEP 3 - Qualify Candidates:
+		start = Instant.now();
+	    
+	    end = Instant.now();
+	    Mov3lets.trace("STEP 3 - runned in: " + Duration.between(start, end));
 		
 		// STEP 4 - Output:
+		start = Instant.now();
+	    
+	    end = Instant.now();
+	    Mov3lets.trace("STEP 4 - runned in: " + Duration.between(start, end));
+	    Mov3lets.trace("Mov3lets - runned in: " + Duration.between(begin, end));
 	}
 	
+	/**
+	 * STEP 2
+	 */
+	private void selectCandidates() {
+		List<MO> classes = train.stream().map(e -> (MO) e.getMovingObject()).distinct().collect(Collectors.toList());
+		
+		for (MO myclass : classes) {			
+			trace("\tClass: " + myclass + ". Discovering movelets."); // Might be saved in HD
+			
+		}
+	}
+
 	public List<MAT> loadTrajectories(String inputFile) throws IOException {
 		List<MAT> trajectories = new ArrayList<MAT>();
 		MO mo = instantiateMovingObject("");
@@ -117,7 +149,7 @@ public class Mov3lets<MO> {
 		return mat;
 	}
 	
-	private SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+	private SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	public Aspect<?> instantiateAspect(AttributeDescriptor attr, String value) {
 		switch (attr.getType()) {
 			case "numeric":
@@ -130,7 +162,7 @@ public class Mov3lets<MO> {
 				try {
 					return new Aspect<Date>(formatter.parse(value));
 				} catch (ParseException e) {
-					trace("Atribute datetime '"+value+"' in wrong format, must be yyyy/MM/dd HH:mm:ss");
+					trace("Atribute datetime '"+value+"' in wrong format, must be yyyy-MM-dd HH:mm:ss");
 					return new Aspect<Date>(new Date());
 				}
 			case "localdate":
@@ -145,8 +177,44 @@ public class Mov3lets<MO> {
 		}
 	}
 	
+//	public Class<?> aspectClass(AttributeDescriptor attr) {
+//		switch (attr.getType()) {
+//			case "numeric":
+//				return Class.forName(Aspect.class.getCanonicalName() + "<Double>");
+//			case "space2d":
+//				return new Space2DAspect(value);
+//			case "time":
+//				return new Aspect<Integer>(Integer.parseInt(value));
+//			case "datetime":
+//				try {
+//					return new Aspect<Date>(formatter.parse(value));
+//				} catch (ParseException e) {
+//					trace("Atribute datetime '"+value+"' in wrong format, must be yyyy/MM/dd HH:mm:ss");
+//					return new Aspect<Date>(new Date());
+//				}
+//			case "localdate":
+//				return new Aspect<LocalDate>(LocalDate.parse(value));
+//			case "localtime":
+//				return new Aspect<LocalTime>(LocalTime.parse(value));
+//			case "foursquarevenue":
+//			case "gowallacheckin":
+//			case "nominal":
+//			default:
+//				return new Aspect<String>(value);
+//		}
+//	}
+	
 	public static void trace(String s) {
 		System.out.println(s);
+	}
+	
+	public static void traceW(String s) {
+		trace("Warning: " + s);
+	}
+	
+	public static void traceE(String s, Exception e) {
+		System.err.println("Error: " + s);
+		e.printStackTrace();
 	}
 
 }

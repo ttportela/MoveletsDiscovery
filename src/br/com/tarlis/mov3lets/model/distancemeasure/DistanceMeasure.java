@@ -24,7 +24,7 @@ import br.com.tarlis.mov3lets.view.AttributeDescriptor;
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  *
  */
-public abstract class DistanceInterface<A extends Aspect<?>> {
+public abstract class DistanceMeasure<A extends Aspect<?>> {
 	
 	/**
 	 * MEASURES OF DISTANCE (so far)

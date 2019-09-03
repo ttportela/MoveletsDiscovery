@@ -17,6 +17,8 @@
  */
 package br.com.tarlis.mov3lets.view;
 
+import br.com.tarlis.mov3lets.model.distancemeasure.DistanceMeasure;
+
 /**
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  *
@@ -27,6 +29,7 @@ public class AttributeDescriptor {
     private String type;
     private String text;
     private Comparator comparator;
+    private DistanceMeasure<?> distanceComparator = null;
     
 	/**
 	 * @return the order
@@ -50,7 +53,7 @@ public class AttributeDescriptor {
 	 * @param type the type to set
 	 */
 	public void setType(String type) {
-		this.type = type;
+		this.type = type != null? type.trim().toLowerCase() : type;
 	}
 	/**
 	 * @return the text
@@ -75,6 +78,18 @@ public class AttributeDescriptor {
 	 */
 	public void setComparator(Comparator comparator) {
 		this.comparator = comparator;
+	}
+	/**
+	 * @return the distanceComparator
+	 */
+	public DistanceMeasure<?> getDistanceComparator() {
+		return distanceComparator;
+	}
+	/**
+	 * @param distanceComparator the distanceComparator to set
+	 */
+	public void setDistanceComparator(DistanceMeasure<?> distanceComparator) {
+		this.distanceComparator = distanceComparator;
 	}
 	
 	@Override

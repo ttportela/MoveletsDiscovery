@@ -13,7 +13,7 @@ import br.com.tarlis.mov3lets.view.AttributeDescriptor;
  * @author tarlis
  *
  */
-public class LocaltimeDifferenceDistance extends DistanceInterface<Aspect<LocalTime>> {
+public class LocaltimeDifferenceDistance extends DistanceMeasure<Aspect<LocalTime>> {
 
 	@Override
 	public double distance(Aspect<LocalTime> asp0, Aspect<LocalTime> asp1, AttributeDescriptor attr) {

@@ -22,10 +22,15 @@ import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
+import br.com.tarlis.mov3lets.model.distancemeasure.DistanceMeasure;
+import br.com.tarlis.mov3lets.model.distancemeasure.NominalEqualsDistance;
+import br.com.tarlis.mov3lets.run.Mov3lets;
 
 /**
  * @author Tarlis Portela <tarlis@tarlis.com.br>
@@ -99,14 +104,36 @@ public class Descriptor {
 	 */
 	public void configure() {
 		for (AttributeDescriptor attr : attributes) {
-			attr.setType(attr.getType().toLowerCase());
 			if (attr.getComparator() != null && attr.getComparator().getDistance() != null) {
-				attr.getComparator().setDistance(
-						attr.getComparator().getDistance().toLowerCase());
+				instantiateDistanceMeasure(attr);
 			}
 		}
 	}
 	
+	/**
+	 * @param attr
+	 */
+	private void instantiateDistanceMeasure(AttributeDescriptor attr) {
+		String className = attr.getType();
+		className = "br.com.tarlis.mov3lets.model.distancemeasure." 
+				+ className.substring(0, 1).toUpperCase() + className.substring(1).toLowerCase();
+		className += attr.getComparator().getDistance().substring(0, 1).toUpperCase() 
+				+ attr.getComparator().getDistance().substring(1).toLowerCase();
+		className += "Distance";
+		try {
+			attr.setDistanceComparator((DistanceMeasure<?>) Class.forName(className).getConstructor().newInstance());
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+				| NoSuchMethodException | SecurityException | ClassNotFoundException e) {
+			// Sets DEFAULT in case of error:
+			attr.setDistanceComparator(new NominalEqualsDistance());
+			Mov3lets.traceW("default comparator was set for {" 
+					+ attr.getOrder() + " , "
+					+ attr.getType() + " , "
+					+ attr.getText() + "}.");
+			Mov3lets.traceE("default comparator was set:", e);
+		}
+	}
+
 	@Override
 	public String toString() {
 		String s = "";

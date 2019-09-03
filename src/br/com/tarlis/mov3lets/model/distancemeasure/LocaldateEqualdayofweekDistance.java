@@ -12,7 +12,7 @@ import br.com.tarlis.mov3lets.view.AttributeDescriptor;
  * @author tarlis
  *
  */
-public class LocaldateEqualdayofweekDistance extends DistanceInterface<Aspect<LocalDate>> {
+public class LocaldateEqualdayofweekDistance extends DistanceMeasure<Aspect<LocalDate>> {
 
 	@Override
 	public double distance(Aspect<LocalDate> asp0, Aspect<LocalDate> asp1, AttributeDescriptor attr) {

@@ -26,7 +26,7 @@ import br.com.tarlis.mov3lets.view.AttributeDescriptor;
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  *
  */
-public class DateDifferenceDistance extends DistanceInterface<Aspect<Date>> {
+public class DatetimeDifferenceDistance extends DistanceMeasure<Aspect<Date>> {
 
 	@Override
 	public double distance(Aspect<Date> asp0, Aspect<Date> asp1, AttributeDescriptor attr) {

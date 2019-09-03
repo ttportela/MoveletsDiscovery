@@ -34,9 +34,7 @@ public class Mov3letsRun {
 		// 2 - RUN
 		Mov3lets mov = new Mov3lets();
 		mov.mov3lets(descFile);
-		
-		// TODO Auto-generated method stub
-		System.out.println(inputFile);
+//		System.out.println(inputFile);
 	}
 
 }

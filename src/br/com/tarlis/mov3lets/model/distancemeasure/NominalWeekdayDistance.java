@@ -24,7 +24,7 @@ import br.com.tarlis.mov3lets.model.mat.aspect.Aspect;
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  *
  */
-public class NominalWeekdayDistance extends DistanceInterface<Aspect<String>> {
+public class NominalWeekdayDistance extends DistanceMeasure<Aspect<String>> {
 
 	@Override
 	public double distance(Aspect<String> asp0, Aspect<String> asp1, AttributeDescriptor attr) {

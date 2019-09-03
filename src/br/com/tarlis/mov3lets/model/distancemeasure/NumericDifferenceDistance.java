@@ -24,7 +24,7 @@ import br.com.tarlis.mov3lets.model.mat.aspect.Aspect;
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  *
  */
-public class NumericDifferenceDistance extends DistanceInterface<Aspect<Double>> {
+public class NumericDifferenceDistance extends DistanceMeasure<Aspect<Double>> {
 
 	@Override
 	public double distance(Aspect<Double> asp0, Aspect<Double> asp1, AttributeDescriptor attr) {

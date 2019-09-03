@@ -45,5 +45,10 @@ public class MovingObject<L> {
 	public void setLabel(L label) {
 		this.label = label;
 	}
+	
+	@Override
+	public String toString() {
+		return getLabel().toString();
+	}
 
 }

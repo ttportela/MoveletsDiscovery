@@ -24,7 +24,7 @@ import br.com.tarlis.mov3lets.model.mat.aspect.Space2DAspect;
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  *
  */
-public class Space2dEuclideanDistance extends DistanceInterface<Space2DAspect> {
+public class Space2dEuclideanDistance extends DistanceMeasure<Space2DAspect> {
 
 	@Override
 	public double distance(Space2DAspect asp0, Space2DAspect asp1, AttributeDescriptor attr) {

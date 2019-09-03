@@ -12,6 +12,9 @@
           "type": "nominal",
           "text": "label"
     },
+	/* "configure": [
+		"data/foursquare.csv"
+	], */
    "attributes": [
 		{
 	          "order": 4,
