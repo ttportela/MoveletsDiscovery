@@ -23,14 +23,15 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
 import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import br.com.tarlis.mov3lets.method.Mov3lets;
 import br.com.tarlis.mov3lets.model.distancemeasure.DistanceMeasure;
 import br.com.tarlis.mov3lets.model.distancemeasure.NominalEqualsDistance;
-import br.com.tarlis.mov3lets.run.Mov3lets;
 
 /**
  * @author Tarlis Portela <tarlis@tarlis.com.br>
@@ -42,6 +43,8 @@ public class Descriptor {
 	private AttributeDescriptor labelFeature = null;
 	private List<AttributeDescriptor> attributes = null;
 	private List<String> inputFiles = null;
+	
+	private HashMap<String, Object> params = new HashMap<String, Object>();
 
 	/**
 	 * @return the idFeature
@@ -152,6 +155,63 @@ public class Descriptor {
 
 		System.out.println(descriptor);
 		return descriptor;
+	}
+	
+	/**
+	 * 
+	 */
+	public void setParam(String key, Object value) {
+		params.put(key, value);
+	}
+	
+	/**
+	 * 
+	 */
+	public void setFlag(String key, boolean value) {
+		params.put(key, value);
+	}
+	
+	/**
+	 * 
+	 */
+	public Object getParam(String key) {
+		if (params.containsKey(key))
+			return params.get(key);
+		else
+			return null;
+	}
+	
+	public boolean getFlag(String key) {
+		if (params.containsKey(key))
+			return (boolean) params.get(key);
+		else
+			return false;
+	}
+
+	/**
+	 * @param string
+	 * @return
+	 */
+	public int getParamAsInt(String key) {
+		if (params.containsKey(key))
+			return (int) params.get(key);
+		else 
+			return 0;
+	}
+
+	/**
+	 * @param params2
+	 */
+	public void addParams(HashMap<String, Object> params) {
+		this.params.putAll(params);
+	}
+
+	/**
+	 * @param string
+	 * @return
+	 */
+	public boolean hasParam(String key) {
+		return params.containsKey(key);
 	}
 
 }

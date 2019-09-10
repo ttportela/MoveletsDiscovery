@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package br.com.tarlis.mov3lets.run;
+package br.com.tarlis.mov3lets.method;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -31,16 +31,25 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
+import br.com.tarlis.mov3lets.method.discovery.DiscoveryAdapter;
+import br.com.tarlis.mov3lets.method.discovery.MoveletsDiscovery;
+import br.com.tarlis.mov3lets.method.discovery.MoveletsPivotsDiscovery;
 import br.com.tarlis.mov3lets.model.mat.MAT;
 import br.com.tarlis.mov3lets.model.mat.MovingObject;
 import br.com.tarlis.mov3lets.model.mat.aspect.Aspect;
 import br.com.tarlis.mov3lets.model.mat.aspect.Space2DAspect;
+import br.com.tarlis.mov3lets.utils.ProgressBar;
+import br.com.tarlis.mov3lets.utils.TimerUtils;
 import br.com.tarlis.mov3lets.view.AttributeDescriptor;
 import br.com.tarlis.mov3lets.view.Descriptor;
 
@@ -51,10 +60,19 @@ import br.com.tarlis.mov3lets.view.Descriptor;
 public class Mov3lets<MO> {
 	
 	// CONFIG:
-	private Descriptor descriptor = null;
+	private static Descriptor descriptor = null;
 	
 	// TRAJS:
-	private List<MAT> train = null;
+//	private List<MAT> train = null;
+
+	/**
+	 * @param descFile
+	 * @throws FileNotFoundException 
+	 * @throws UnsupportedEncodingException 
+	 */
+	public Mov3lets(String descriptorFile) throws UnsupportedEncodingException, FileNotFoundException {
+		this.descriptor = Descriptor.load(descriptorFile);
+	}
 
 	/**
 	 * @param args
@@ -62,14 +80,13 @@ public class Mov3lets<MO> {
 	 * @throws FileNotFoundException 
 	 * @throws UnsupportedEncodingException 
 	 */
-	public void mov3lets(String descriptorFile) throws IOException {
+	public void mov3lets() throws IOException {
 
 		// STEP 1 - Input:
 		Instant begin = Instant.now();
 		Instant start = begin;
-		this.descriptor = Descriptor.load(descriptorFile);
 
-		train = new ArrayList<MAT>();
+		List<MAT> train = new ArrayList<MAT>();
 		for (String file : descriptor.getInputFiles()) {
 			train.addAll(loadTrajectories(file));
 		}
@@ -80,7 +97,7 @@ public class Mov3lets<MO> {
 		
 		// STEP 2 - Select Candidates:
 		start = Instant.now();
-	    selectCandidates();
+	    selectCandidates(train);
 	    end = Instant.now();
 	    Mov3lets.trace("STEP 2 - runned in: " + Duration.between(start, end));
 		
@@ -100,13 +117,48 @@ public class Mov3lets<MO> {
 	
 	/**
 	 * STEP 2
+	 * @param train 
 	 */
-	private void selectCandidates() {
+	private void selectCandidates(List<MAT> train) {
 		List<MO> classes = train.stream().map(e -> (MO) e.getMovingObject()).distinct().collect(Collectors.toList());
 		
+		int N_THREADS = this.getDescriptor().getParamAsInt("nthreads");
+		ThreadPoolExecutor executor = (ThreadPoolExecutor) 
+				Executors.newFixedThreadPool(N_THREADS == 0? 1 : N_THREADS);
+		List<Future<Integer>> resultList = new ArrayList<>();
+		
 		for (MO myclass : classes) {			
+			// TODO: MoveletsRunUnit:304
+//			if ( ! (new File(resultDirPath + myclass + "/test.csv").exists()) ) {
 			trace("\tClass: " + myclass + ". Discovering movelets."); // Might be saved in HD
 			
+			TimerUtils.getInstance().startTimer("Class >> " + myclass);
+			/** STEP 2.1: It starts at discovering movelets */
+			for (MAT trajectory : train) {
+				DiscoveryAdapter moveletsDiscovery =  this.getDescriptor().getFlag("PIVOTS")?
+						new MoveletsPivotsDiscovery(trajectory, train) : 
+						new MoveletsDiscovery(trajectory, train);
+				resultList.add(executor.submit(moveletsDiscovery));
+			}
+			/** STEP 2.1: --------------------------------- */
+			TimerUtils.getInstance().stopTimer("Class >> " + myclass);
+			
+			
+		}
+		
+		/* Keeping up with Progress output */
+		ProgressBar progressBar = new ProgressBar("Movelet Discovery");
+		int progress = 0;
+		progressBar.update(progress, train.size());
+		List<Integer> results = new ArrayList<>();
+		for (Future<Integer> future : resultList) {
+			try {
+				results.add(future.get());
+				progressBar.update(progress++, train.size());
+				Executors.newCachedThreadPool();
+			} catch (InterruptedException | ExecutionException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -217,4 +269,11 @@ public class Mov3lets<MO> {
 		e.printStackTrace();
 	}
 
+	/**
+	 * @return the descriptor
+	 */
+	public static Descriptor getDescriptor() {
+		return descriptor;
+	}
+	
 }
