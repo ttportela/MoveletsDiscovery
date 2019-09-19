@@ -24,8 +24,6 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Duration;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -45,11 +43,13 @@ import br.com.tarlis.mov3lets.method.discovery.DiscoveryAdapter;
 import br.com.tarlis.mov3lets.method.discovery.MoveletsDiscovery;
 import br.com.tarlis.mov3lets.method.discovery.MoveletsPivotsDiscovery;
 import br.com.tarlis.mov3lets.model.mat.MAT;
-import br.com.tarlis.mov3lets.model.mat.MovingObject;
+import br.com.tarlis.mov3lets.model.mat.Point;
 import br.com.tarlis.mov3lets.model.mat.aspect.Aspect;
 import br.com.tarlis.mov3lets.model.mat.aspect.Space2DAspect;
+import br.com.tarlis.mov3lets.model.qualitymeasure.LeftSidePureCVLigth;
+import br.com.tarlis.mov3lets.model.qualitymeasure.QualityMeasure;
+import br.com.tarlis.mov3lets.utils.Mov3letsUtils;
 import br.com.tarlis.mov3lets.utils.ProgressBar;
-import br.com.tarlis.mov3lets.utils.TimerUtils;
 import br.com.tarlis.mov3lets.view.AttributeDescriptor;
 import br.com.tarlis.mov3lets.view.Descriptor;
 
@@ -60,7 +60,7 @@ import br.com.tarlis.mov3lets.view.Descriptor;
 public class Mov3lets<MO> {
 	
 	// CONFIG:
-	private static Descriptor descriptor = null;
+	private Descriptor descriptor = null;
 	
 	// TRAJS:
 //	private List<MAT> train = null;
@@ -82,47 +82,45 @@ public class Mov3lets<MO> {
 	 */
 	public void mov3lets() throws IOException {
 
-		// STEP 1 - Input:
-		Instant begin = Instant.now();
-		Instant start = begin;
-
-		List<MAT> train = new ArrayList<MAT>();
+		// [1] - Input:
+		Mov3letsUtils.getInstance().startTimer("[1] ==> LOADING INPUT");
+		List<MAT<MO>> train = new ArrayList<MAT<MO>>();
 		for (String file : descriptor.getInputFiles()) {
 			train.addAll(loadTrajectories(file));
 		}
 		
-		if (train.isEmpty()) { traceW("empty training set"); return; }
-		Instant end = Instant.now();
-	    Mov3lets.trace("STEP 1 - runned in: " + Duration.between(start, end));
+		if (train.isEmpty()) { Mov3letsUtils.traceW("empty training set"); return; }
+		Mov3letsUtils.getInstance().stopTimer("[1] ==> LOADING INPUT");
 		
 		// STEP 2 - Select Candidates:
-		start = Instant.now();
-	    selectCandidates(train);
-	    end = Instant.now();
-	    Mov3lets.trace("STEP 2 - runned in: " + Duration.between(start, end));
+		Mov3letsUtils.getInstance().startTimer("[2] ==> Select Candidates");
+		// TODO: QualityMeasure instance:
+	    selectCandidates(train, new LeftSidePureCVLigth(train, 
+	    		getDescriptor().getParamAsInt("samples"), 
+	    		getDescriptor().getParamAsDouble("sampleSize"), 
+	    		getDescriptor().getParamAsText("medium")));
+		Mov3letsUtils.getInstance().startTimer("[2] ==> Select Candidates");
 		
 		// STEP 3 - Qualify Candidates:
-		start = Instant.now();
-	    
-	    end = Instant.now();
-	    Mov3lets.trace("STEP 3 - runned in: " + Duration.between(start, end));
+		Mov3letsUtils.getInstance().startTimer("[3] ==> Qualify Candidates");
+
+		Mov3letsUtils.getInstance().startTimer("[3] ==> Qualify Candidates");
 		
 		// STEP 4 - Output:
-		start = Instant.now();
-	    
-	    end = Instant.now();
-	    Mov3lets.trace("STEP 4 - runned in: " + Duration.between(start, end));
-	    Mov3lets.trace("Mov3lets - runned in: " + Duration.between(begin, end));
+		Mov3letsUtils.getInstance().startTimer("[4] ==> Output");
+
+		Mov3letsUtils.getInstance().startTimer("[4] ==> Output");
 	}
 	
 	/**
 	 * STEP 2
 	 * @param train 
+	 * @param leftSidePureCVLigth 
 	 */
-	private void selectCandidates(List<MAT> train) {
+	private void selectCandidates(List<MAT<MO>> train, QualityMeasure qualityMeasure) {
 		List<MO> classes = train.stream().map(e -> (MO) e.getMovingObject()).distinct().collect(Collectors.toList());
 		
-		int N_THREADS = this.getDescriptor().getParamAsInt("nthreads");
+		int N_THREADS = getDescriptor().getParamAsInt("nthreads");
 		ThreadPoolExecutor executor = (ThreadPoolExecutor) 
 				Executors.newFixedThreadPool(N_THREADS == 0? 1 : N_THREADS);
 		List<Future<Integer>> resultList = new ArrayList<>();
@@ -130,75 +128,63 @@ public class Mov3lets<MO> {
 		for (MO myclass : classes) {			
 			// TODO: MoveletsRunUnit:304
 //			if ( ! (new File(resultDirPath + myclass + "/test.csv").exists()) ) {
-			trace("\tClass: " + myclass + ". Discovering movelets."); // Might be saved in HD
+			Mov3letsUtils.trace("\tClass: " + myclass + ". Discovering movelets."); // Might be saved in HD
 			
-			TimerUtils.getInstance().startTimer("Class >> " + myclass);
+			Mov3letsUtils.getInstance().startTimer("\tClass >> " + myclass);
 			/** STEP 2.1: It starts at discovering movelets */
-			for (MAT trajectory : train) {
-				DiscoveryAdapter moveletsDiscovery =  this.getDescriptor().getFlag("PIVOTS")?
-						new MoveletsPivotsDiscovery(trajectory, train) : 
-						new MoveletsDiscovery(trajectory, train);
+			for (MAT<MO> trajectory : train) {
+				DiscoveryAdapter<MO> moveletsDiscovery =  getDescriptor().getFlag("PIVOTS")?
+						new MoveletsPivotsDiscovery<MO>(trajectory, train, qualityMeasure, getDescriptor()) : 
+						new MoveletsDiscovery<MO>(trajectory, train, qualityMeasure, getDescriptor());
 				resultList.add(executor.submit(moveletsDiscovery));
 			}
 			/** STEP 2.1: --------------------------------- */
-			TimerUtils.getInstance().stopTimer("Class >> " + myclass);
+			Mov3letsUtils.getInstance().stopTimer("\tClass >> " + myclass);
 			
 			
 		}
 		
 		/* Keeping up with Progress output */
-		ProgressBar progressBar = new ProgressBar("Movelet Discovery");
-		int progress = 0;
-		progressBar.update(progress, train.size());
-		List<Integer> results = new ArrayList<>();
-		for (Future<Integer> future : resultList) {
-			try {
-				results.add(future.get());
-				progressBar.update(progress++, train.size());
-				Executors.newCachedThreadPool();
-			} catch (InterruptedException | ExecutionException e) {
-				e.printStackTrace();
-			}
-		}
+		trackProgress(train, resultList);
 	}
 
-	public List<MAT> loadTrajectories(String inputFile) throws IOException {
-		List<MAT> trajectories = new ArrayList<MAT>();
-		MO mo = instantiateMovingObject("");
+	public List<MAT<MO>> loadTrajectories(String inputFile) throws IOException {
+		List<MAT<MO>> trajectories = new ArrayList<MAT<MO>>();
+		// IF MO type is String:
+		MO mo = (MO) "";
+		MAT<MO> mat = null;
 			
 		CSVParser csvParser = CSVFormat.DEFAULT.parse(new InputStreamReader((new FileInputStream(inputFile))));
 		csvParser.iterator().next();
 		for (CSVRecord line : csvParser) {
+			int tid = Integer.parseInt(line.get(getDescriptor().getIdFeature().getOrder()-1));
 			
 			// Create a MO:
-			String label = line.get(this.descriptor.getLabelFeature().getOrder()-1);
+			String label = line.get(getDescriptor().getLabelFeature().getOrder()-1);
 			if (!mo.equals(label)) {
-				mo = instantiateMovingObject(label);
+				if (mat != null) 
+				    trajectories.add(mat);
+				// Can use like this:
+//				mo = (MO) new MovingObject<String>(label);
+//				mat = new MAT<MovingObject<String>>();
+				// OR -- this for typing String:
+				mo = (MO) label;
+				mat = (MAT<MO>) new MAT<String>();
+				mat.setMovingObject(mo);
+				mat.setTid(tid);
 			}
 			
-			MAT mat = instantiateMAT(line);
-			mat.setMovingObject(mo);
-		    trajectories.add(mat);
+			// For each attribute of POI
+			Point poi = new Point();	
+			poi.setTrajectory(mat);
+			for (AttributeDescriptor attr : getDescriptor().getAttributes()) {
+				poi.getAspects().put(attr.getText(), instantiateAspect(attr, line.get(attr.getOrder()-1)));
+				mat.getPoints().add(poi);
+			}
 		}
 		csvParser.close();
 
 		return trajectories;
-	}
-	
-	public MO instantiateMovingObject(String label) {
-		return (MO) new MovingObject<String>(label);
-	}
-	
-	public MAT instantiateMAT(CSVRecord line) {
-		MAT mat = new MAT<MovingObject<String>>();
-		mat.setTid(Integer.parseInt(line.get(this.descriptor.getIdFeature().getOrder()-1)));
-		mat.setAspects(new ArrayList<Aspect<?>>());
-		
-		for (AttributeDescriptor attr : this.descriptor.getAttributes()) {
-			mat.getAspects().add(instantiateAspect(attr, line.get(attr.getOrder()-1)));
-		}
-		
-		return mat;
 	}
 	
 	private SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -214,7 +200,7 @@ public class Mov3lets<MO> {
 				try {
 					return new Aspect<Date>(formatter.parse(value));
 				} catch (ParseException e) {
-					trace("Atribute datetime '"+value+"' in wrong format, must be yyyy-MM-dd HH:mm:ss");
+					Mov3letsUtils.trace("\tAtribute datetime '"+value+"' in wrong format, must be yyyy-MM-dd HH:mm:ss");
 					return new Aspect<Date>(new Date());
 				}
 			case "localdate":
@@ -255,24 +241,31 @@ public class Mov3lets<MO> {
 //				return new Aspect<String>(value);
 //		}
 //	}
-	
-	public static void trace(String s) {
-		System.out.println(s);
-	}
-	
-	public static void traceW(String s) {
-		trace("Warning: " + s);
-	}
-	
-	public static void traceE(String s, Exception e) {
-		System.err.println("Error: " + s);
-		e.printStackTrace();
+
+	/**
+	 * @param train
+	 * @param result
+	 */
+	private void trackProgress(List<MAT<MO>> train, List<Future<Integer>> result) {
+		ProgressBar progressBar = new ProgressBar("\tMovelet Discovery");
+		int progress = 0;
+		progressBar.update(progress, train.size());
+		List<Integer> results = new ArrayList<>();
+		for (Future<Integer> future : result) {
+			try {
+				results.add(future.get());
+				progressBar.update(progress++, train.size());
+				Executors.newCachedThreadPool();
+			} catch (InterruptedException | ExecutionException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	/**
 	 * @return the descriptor
 	 */
-	public static Descriptor getDescriptor() {
+	public Descriptor getDescriptor() {
 		return descriptor;
 	}
 	

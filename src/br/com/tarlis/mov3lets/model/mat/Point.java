@@ -17,7 +17,11 @@
  */
 package br.com.tarlis.mov3lets.model.mat;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import br.com.tarlis.mov3lets.model.mat.aspect.Aspect;
 
 /**
  * @author Tarlis Portela <tarlis@tarlis.com.br>
@@ -25,19 +29,49 @@ import java.util.List;
  */
 public class Point {
 	
-	private List<?> aspects = null;
+	private int id;
+	private MAT trajectory;
+	private Map<String, Aspect<?>> aspects = new HashMap<String, Aspect<?>>();
+	
+	/**
+	 * @return the id
+	 */
+	public int getId() {
+		return id;
+	}
+	
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(int id) {
+		this.id = id;
+	}
+	
+	/**
+	 * @return the trajectory
+	 */
+	public MAT getTrajectory() {
+		return trajectory;
+	}
+	
+	/**
+	 * @param trajectory the trajectory to set
+	 */
+	public void setTrajectory(MAT trajectory) {
+		this.trajectory = trajectory;
+	}
 	
 	/**
 	 * @return the aspects
 	 */
-	public List<?> getAspects() {
+	public Map<String, Aspect<?>> getAspects() {
 		return aspects;
 	}
 	
 	/**
 	 * @param aspects the aspects to set
 	 */
-	public void setAspects(List<?> aspects) {
+	public void setAspects(Map<String, Aspect<?>> aspects) {
 		this.aspects = aspects;
 	}
 

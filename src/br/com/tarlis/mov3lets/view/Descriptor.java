@@ -29,9 +29,9 @@ import java.util.List;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import br.com.tarlis.mov3lets.method.Mov3lets;
 import br.com.tarlis.mov3lets.model.distancemeasure.DistanceMeasure;
 import br.com.tarlis.mov3lets.model.distancemeasure.NominalEqualsDistance;
+import br.com.tarlis.mov3lets.utils.Mov3letsUtils;
 
 /**
  * @author Tarlis Portela <tarlis@tarlis.com.br>
@@ -129,11 +129,11 @@ public class Descriptor {
 				| NoSuchMethodException | SecurityException | ClassNotFoundException e) {
 			// Sets DEFAULT in case of error:
 			attr.setDistanceComparator(new NominalEqualsDistance());
-			Mov3lets.traceW("default comparator was set for {" 
+			Mov3letsUtils.traceW("default comparator was set for {" 
 					+ attr.getOrder() + " , "
 					+ attr.getType() + " , "
 					+ attr.getText() + "}.");
-			Mov3lets.traceE("default comparator was set:", e);
+			Mov3letsUtils.traceE("default comparator was set:", e);
 		}
 	}
 
@@ -196,7 +196,18 @@ public class Descriptor {
 		if (params.containsKey(key))
 			return (int) params.get(key);
 		else 
-			return 0;
+			return 1;
+	}
+
+	/**
+	 * @param string
+	 * @return
+	 */
+	public double getParamAsDouble(String key) {
+		if (params.containsKey(key))
+			return (double) params.get(key);
+		else 
+			return 1.0;
 	}
 
 	/**
@@ -212,6 +223,17 @@ public class Descriptor {
 	 */
 	public boolean hasParam(String key) {
 		return params.containsKey(key);
+	}
+
+	/**
+	 * @param string
+	 * @return
+	 */
+	public String getParamAsText(String key) {
+		if (params.containsKey(key))
+			return params.get(key).toString();
+		else 
+			return null;
 	}
 
 }

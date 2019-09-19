@@ -34,15 +34,45 @@ public class Mov3letsRun {
 		
 		// PARAMS:
 		String descFile = (params.containsKey("descfile")? params.get("descfile").toString() : "data/descriptor.json");
-		String inputFile = (args.length > 1? args[1] : "data/foursquare.csv");
+//		String inputFile = (args.length > 1? args[1] : "data/foursquare.csv");
 		
 		// 2 - RUN
-		Mov3lets mov = new Mov3lets(descFile);
+		Mov3lets<String> mov = new Mov3lets<String>(descFile);
+		mov.getDescriptor().addParams(defaultParams());
 		mov.getDescriptor().addParams(params);
 		System.out.println(showConfiguration(mov.getDescriptor()));
 		
 		mov.mov3lets();
 //		System.out.println(inputFile);
+	}
+	
+public static HashMap<String, Object> defaultParams() {
+		
+		HashMap<String, Object> params = new HashMap<String, Object>();
+
+//		params.put("curpath", 					 null);
+//		params.put("respath",					 null);
+//		params.put("descfile",					 null);
+//		params.put("outside_pivots",			 null);
+		params.put("nthreads",					 1);
+		params.put("min_size",					 2);
+		params.put("max_size",					 -1); // unlimited maxSize
+		params.put("str_quality_measure",		 "LSP");
+//		params.put("cache",						 true); // Deprecated: Cache Always.	
+		params.put("explore_dimensions",		 false);
+		params.put("max_number_of_features",	 -1);
+		params.put("samples",					 1);			
+		params.put("sample_size",				 1);			
+		params.put("medium",					 "none"); // Other values minmax, sd, interquartil
+		params.put("output",					 "numeric"); // Other values numeric discretized				
+		params.put("pivots",					 false);				
+		params.put("movelets_per_trajectory",	 -1);	// Filtering		
+		params.put("lowm_memory",				 false);		
+		params.put("last_prunning",				 false);		
+		params.put("pivot_porcentage",			 10);
+		params.put("only_pivots",				 false);
+		
+		return params;
 	}
 	
 	public static HashMap<String, Object> configure(String[] args) {
@@ -83,9 +113,9 @@ public class Mov3letsRun {
 			case "-strQualityMeasure":
 				params.put("str_quality_measure", value);
 				break;
-			case "-cache":
-				params.put("cache", Boolean.valueOf(value));		
-				break;
+//			case "-cache": // => Deprecated
+//				params.put("cache", Boolean.valueOf(value));		
+//				break;
 			case "-ed":
 			case "-exploreDimensions":
 			case "-explore_dimensions":
@@ -117,7 +147,7 @@ public class Mov3letsRun {
 			case "-movelets_per_trajectory":
 			case "-moveletsPerTrajectory":
 			case "-movelets_per_traj":
-				params.put("respath", Integer.valueOf(value));			
+				params.put("movelets_per_trajectory", Integer.valueOf(value));			
 				break;
 			case "-lowm":
 			case "-lowm_memory":

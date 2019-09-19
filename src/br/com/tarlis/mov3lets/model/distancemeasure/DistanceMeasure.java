@@ -69,15 +69,23 @@ public abstract class DistanceMeasure<A extends Aspect<?>> {
 	public abstract double distance(A asp0, A asp1, AttributeDescriptor attr);
 	
 	/** SAME as Original Movelets */
-	public double normalizeDistance(double distance, double maxValue ){
+	public double normalizeDistance(double distance, double maxValue){
 		/* If maxValue was not defined */
 		if (maxValue == -1)
 			return distance;
 	
 		if (distance >= maxValue)
-			return Double.MAX_VALUE;	
+			return Double.POSITIVE_INFINITY;	
 		
 		return distance / maxValue;
+	}
+	
+	public double enhance(double distance) {
+		return distance * distance; // TRUE for: Double.POSITIVE_INFINITY == (Double.POSITIVE_INFINITY * Double.POSITIVE_INFINITY)
+	}
+	
+	public double calculateDistance(Aspect<?> asp0, Aspect<?> asp1, AttributeDescriptor attr) {
+		return enhance(distance((A) asp0, (A) asp1, attr));
 	}
 	
 }

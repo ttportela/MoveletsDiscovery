@@ -23,22 +23,22 @@ import java.util.HashMap;
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  *
  */
-public class TimerUtils {
+public class Mov3letsUtils {
 	
-	private static TimerUtils instance = null;
+	private static Mov3letsUtils instance = null;
 	
 	private HashMap<String, Long> timers = new HashMap<String, Long>();
 	
-	private TimerUtils() {
+	private Mov3letsUtils() {
 		
 	}
 	
 	/**
 	 * @return the instance
 	 */
-	public static TimerUtils getInstance() {
+	public static Mov3letsUtils getInstance() {
 		if (instance == null)
-			instance = new TimerUtils();
+			instance = new Mov3letsUtils();
 		return instance;
 	}
 	
@@ -68,11 +68,24 @@ public class TimerUtils {
 		if (timers.containsKey(timer))
 			printTimer(timer, (System.nanoTime() - timers.get(timer)));
 		else
-			System.out.println("No timer found: " + timer);
+			trace("No timer found: " + timer);
 	}
 	
 	public void printTimer(String timer, long time) {
-		System.out.println(timer + ": " + time/1000000);
+		trace(timer + ": " + time/1000000);
+	}
+	
+	public static void trace(String s) {
+		System.out.println(s);
+	}
+	
+	public static void traceW(String s) {
+		trace("Warning: " + s);
+	}
+	
+	public static void traceE(String s, Exception e) {
+		System.err.println("Error: " + s);
+		e.printStackTrace();
 	}
 
 }

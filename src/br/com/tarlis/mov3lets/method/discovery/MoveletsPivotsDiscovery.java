@@ -20,25 +20,21 @@ package br.com.tarlis.mov3lets.method.discovery;
 import java.util.List;
 
 import br.com.tarlis.mov3lets.model.mat.MAT;
+import br.com.tarlis.mov3lets.model.qualitymeasure.QualityMeasure;
+import br.com.tarlis.mov3lets.view.Descriptor;
 
 /**
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  *
  */
-public class MoveletsPivotsDiscovery extends MoveletsDiscovery {
+public class MoveletsPivotsDiscovery<MO> extends MoveletsDiscovery<MO> {
 
 	/**
 	 * @param trajectory
 	 * @param train
 	 */
-	public MoveletsPivotsDiscovery(MAT trajectory, List<MAT> train) {
-		super(trajectory, train);
-	}
-
-	@Override
-	public Integer call() throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+	public MoveletsPivotsDiscovery(MAT<MO> trajectory, List<MAT<MO>> train, QualityMeasure qualityMeasure, Descriptor descriptor) {
+		super(trajectory, train, qualityMeasure, descriptor);
 	}
 
 }

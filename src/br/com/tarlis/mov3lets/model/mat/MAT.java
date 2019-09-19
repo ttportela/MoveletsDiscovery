@@ -22,6 +22,9 @@ import java.util.List;
 
 
 /**
+ * 
+ * Moving object can be anything, including an instance of MovingObject.
+ * 
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  *
  */
@@ -29,7 +32,8 @@ public class MAT<MO> {
 
 	private int tid;
 	private MO movingObject;
-	private List<?> aspects = new ArrayList<>();
+	private List<?> aspects = null;
+	private List<Point> points = new ArrayList<Point>();
 	
 	/**
 	 * @return the tid
@@ -70,6 +74,20 @@ public class MAT<MO> {
 	 */
 	public void setAspects(List<?> aspects) {
 		this.aspects = aspects;
+	}
+	
+	/**
+	 * @return the points
+	 */
+	public List<Point> getPoints() {
+		return points;
+	}
+	
+	/**
+	 * @param points the points to set
+	 */
+	public void setPoints(List<Point> points) {
+		this.points = points;
 	}
 
 }

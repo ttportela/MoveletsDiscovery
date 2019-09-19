@@ -18,38 +18,41 @@
 package br.com.tarlis.mov3lets.method.discovery;
 
 import java.util.List;
-import java.util.Random;
 import java.util.stream.Collectors;
 
 import br.com.tarlis.mov3lets.model.mat.MAT;
-import br.com.tarlis.mov3lets.model.mat.SubMAT;
+import br.com.tarlis.mov3lets.model.mat.Subtrajectory;
+import br.com.tarlis.mov3lets.model.qualitymeasure.QualityMeasure;
+import br.com.tarlis.mov3lets.view.Descriptor;
 
 /**
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  *
  */
-public class MoveletsSupervisedDiscovery extends MoveletsDiscovery {
+public class MoveletsSupervisedDiscovery<MO> extends MoveletsDiscovery<MO> {
 	
 	/**
 	 * @param train
 	 */
-	public MoveletsSupervisedDiscovery(MAT trajectory, List<MAT> train) {
-		super(trajectory, train);
+	public MoveletsSupervisedDiscovery(MAT<MO> trajectory, List<MAT<MO>> train, QualityMeasure qualityMeasure, Descriptor descriptor) {
+		super(trajectory, train, qualityMeasure, descriptor);
 	}
 
 	/**
 	 * First find candidates in its Class, then compares with every other trajectory
 	 */
-	protected void discover() {
-		List<SubMAT<?>> candidates;
+	protected List<Subtrajectory> discover() {
+		List<Subtrajectory> candidates = null;
 		
-		List<MAT> trajectories = data.stream()                				 // convert list to stream
+		List<MAT<?>> trajectories = data.stream()                				 // convert list to stream
                 .filter(e -> e.getMovingObject().equals(					 // Only of this trajectory class
                 		     this.trajectory.getMovingObject()))       	 		
                 .collect(Collectors.toList());
-		for (MAT trajectory : trajectories) {	
+		for (MAT<?> trajectory : trajectories) {	
 			// TODO: my way, prunning by classes (Tarlis)
 		}
+		
+		return candidates;
 		
 	}
 

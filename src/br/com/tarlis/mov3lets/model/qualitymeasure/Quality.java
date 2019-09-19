@@ -15,12 +15,22 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package br.com.tarlis.mov3lets.model.mat;
+package br.com.tarlis.mov3lets.model.qualitymeasure;
+
+import java.util.Map;
 
 /**
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  *
  */
-public class SubMAT<MO> extends MAT<MO> {
+public abstract class Quality {
+	
+	public abstract void setData(Map<String,Double> data);
+	
+	public abstract Map<String,Double> getData();
+	
+	public abstract boolean hasZeroQuality();
+	
+	public abstract <Q extends Quality> int compareTo(Q other);	
 
 }

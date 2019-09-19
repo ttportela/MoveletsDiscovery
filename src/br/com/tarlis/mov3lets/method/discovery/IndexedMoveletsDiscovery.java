@@ -1,5 +1,5 @@
 /**
- * Wizard - Multiple Aspect Trajectory (MASTER) Classification. 
+ * Mov3lets - Multiple Aspect Trajectory (MASTER) Classification Version 3. 
  * Copyright (C) 2019  Tarlis Portela <tarlis@tarlis.com.br>
  * 
  *  This program is free software: you can redistribute it and/or modify
@@ -15,47 +15,26 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package br.com.tarlis.mov3lets.model.mat;
+package br.com.tarlis.mov3lets.method.discovery;
+
+import java.util.List;
+
+import br.com.tarlis.mov3lets.model.mat.MAT;
+import br.com.tarlis.mov3lets.model.qualitymeasure.QualityMeasure;
+import br.com.tarlis.mov3lets.view.Descriptor;
 
 /**
- * Moving object label can be anything.
- * 
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  *
  */
-public class MovingObject<L> {
-	
-	private L label;
-	
-	/**
-	 * @param label2
-	 */
-	public MovingObject(L label) {
-		this.label = label;
-	}
+public class IndexedMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 
 	/**
-	 * @return the label
+	 * @param trajectory
+	 * @param train
 	 */
-	public L getLabel() {
-		return label;
-	}
-	
-	/**
-	 * @param label the label to set
-	 */
-	public void setLabel(L label) {
-		this.label = label;
-	}
-	
-	@Override
-	public String toString() {
-		return getLabel().toString();
-	}
-	
-	@Override
-	public boolean equals(Object obj) {
-		return super.equals(obj) || this.label.equals(obj);
+	public IndexedMoveletsDiscovery(MAT<MO> trajectory, List<MAT<MO>> train, QualityMeasure qualityMeasure, Descriptor descriptor) {
+		super(trajectory, train, qualityMeasure, descriptor);
 	}
 
 }
