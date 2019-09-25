@@ -20,6 +20,7 @@ package br.com.tarlis.mov3lets.method.discovery;
 import java.util.List;
 
 import br.com.tarlis.mov3lets.model.mat.MAT;
+import br.com.tarlis.mov3lets.model.mat.Subtrajectory;
 import br.com.tarlis.mov3lets.model.qualitymeasure.QualityMeasure;
 import br.com.tarlis.mov3lets.view.Descriptor;
 
@@ -33,8 +34,8 @@ public class IndexedMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 	 * @param trajectory
 	 * @param train
 	 */
-	public IndexedMoveletsDiscovery(MAT<MO> trajectory, List<MAT<MO>> train, QualityMeasure qualityMeasure, Descriptor descriptor) {
-		super(trajectory, train, qualityMeasure, descriptor);
+	public IndexedMoveletsDiscovery(MAT<MO> trajectory, List<MAT<MO>> train, List<Subtrajectory> candidates, QualityMeasure qualityMeasure, Descriptor descriptor) {
+		super(trajectory, train, candidates, qualityMeasure, descriptor);
 	}
 
 }

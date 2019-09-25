@@ -34,16 +34,20 @@ public abstract class DiscoveryAdapter<MO> implements Callable<Integer> {
 	
 	protected MAT<MO> trajectory;
 	protected List<MAT<MO>> data;
+
+	private List<Subtrajectory> candidates;
 	
 	/**
 	 * @param train
+	 * @param candidates 
 	 */
-	public DiscoveryAdapter(MAT<MO> trajectory, List<MAT<MO>> train, Descriptor descriptor) {
+	public DiscoveryAdapter(MAT<MO> trajectory, List<MAT<MO>> train, List<Subtrajectory> candidates, Descriptor descriptor) {
 		this.trajectory = trajectory;
 		this.data = train;
+		this.candidates = candidates;
 	}
 	
-	protected abstract List<Subtrajectory> discover(); 
+	protected abstract void discover(); 
 
 	@Override
 	public Integer call() throws Exception {
@@ -51,6 +55,13 @@ public abstract class DiscoveryAdapter<MO> implements Callable<Integer> {
 		discover();
 		
 		return 0;
+	}
+	
+	/**
+	 * @return the candidates
+	 */
+	public List<Subtrajectory> getCandidates() {
+		return candidates;
 	}
 	
 	/**

@@ -52,9 +52,10 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 	/**
 	 * @param trajectory
 	 * @param train
+	 * @param candidates 
 	 */
-	public MoveletsDiscovery(MAT<MO> trajectory, List<MAT<MO>> train, QualityMeasure qualityMeasure, Descriptor descriptor) {
-		super(trajectory, train, descriptor);
+	public MoveletsDiscovery(MAT<MO> trajectory, List<MAT<MO>> train, List<Subtrajectory> candidates, QualityMeasure qualityMeasure, Descriptor descriptor) {
+		super(trajectory, train, candidates, descriptor);
 		
 		this.qualityMeasure = qualityMeasure;
 		
@@ -75,7 +76,7 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 	/**
 	 * Looks for candidates in the trajectory, then compares with every other trajectory
 	 */
-	protected List<Subtrajectory> discover() {
+	protected void discover() {
 
 		// This guarantees the reproducibility
 		Random random = new Random(this.trajectory.getTid());
@@ -88,24 +89,24 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 		List<Subtrajectory> candidates = moveletsDiscovery(trajectory, this.data, minSize, maxSize, random);
 		
 		// TODO
-//		for (Subtrajectory candidate : candidates) {
-//			/** STEP 1: COMPUTE DISTANCES, IF NOT COMPUTED YET */
-//			if (candidate.getDistances() == null)		
-//				ComputeDistances(candidate);
-//			
-//			/** STEP 2: ASSES QUALITY, IF REQUIRED */
-//			if (qualityMeasure != null & candidate.getQuality() != null)
-//				AssesQuality(candidate, random);
-//		}
-//		
-//		/** STEP 3: SELECTING BEST CANDIDATES */		
-//		this.candidates.addAll(MoveletsFilterAndRanker.getShapelets(candidates));
+		for (Subtrajectory candidate : candidates) {
+			/** STEP 1: COMPUTE DISTANCES, IF NOT COMPUTED YET */
+			if (candidate.getDistances() == null) {	
+//				computeDistances(candidate);
+				System.out.println("TODO? COMPUTE DISTANCES MD-96");
+			}
+			
+			/** STEP 2: ASSES QUALITY, IF REQUIRED */
+			if (qualityMeasure != null & candidate.getQuality() != null) {
+				assesQuality(candidate, random);
+				System.out.println("TODO? ASSES QUALITY, IF REQUIRED MD-102");
+			}
+		}
 		
-		
+		/** STEP 3: SELECTING BEST CANDIDATES */		
+		getCandidates().addAll(rankCandidates(candidates));
 		
 //		int numberOfCandidates = (maxSize * (maxSize-1) / 2);
-					
-		return candidates;
 		
 	}
 	
@@ -397,6 +398,31 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 		qualityMeasure.assesQuality(candidate, random);
 	}
 	
+//	private void computeDistances(Subtrajectory candidate) {
+//		
+//		/* This pairs will store the subtrajectory of the best alignment 
+//		 * of the candidate into each trajectory and the distance 
+//		 * */
+//		Pair<Subtrajectory,double[]> distance;
+//		
+//		double[][] trajectoryDistancesToCandidate = new double[candidate.getSplitpoints().length]
+//															  [trajectories.size()];
+//		
+//		Subtrajectory[] bestAlignments = new Subtrajectory[trajectories.size()];
+//				
+//		/* It calculates the distance of trajectories to the candidate
+//		 */
+//		for (int i = 0; i < trajectories.size(); i++) {
+//			
+//			distance = dmbt.getBestAlignment(candidate, trajectories.get(i));
+//						
+//			bestAlignments[i] = distance.getFirst();
+//			trajectoryDistancesToCandidate[i] = distance.getSecond();			
+//		}
+//		
+//		candidate.setDistances(trajectoryDistancesToCandidate);
+//		candidate.setBestAlignments(bestAlignments);
+//	}
 	
 	/*** * * * * * * * * * * * * * * * * * * ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * >>
 	 * HERE FOLLOWS THE FILTERING PROCEDURES: * * * * * * * * * * * * * * * * * * * * * * * * * * * * * >>

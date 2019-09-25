@@ -36,7 +36,7 @@ public class Mov3letsUtils {
 	/**
 	 * @return the instance
 	 */
-	public static Mov3letsUtils getInstance() {
+	public synchronized static Mov3letsUtils getInstance() {
 		if (instance == null)
 			instance = new Mov3letsUtils();
 		return instance;
@@ -45,14 +45,14 @@ public class Mov3letsUtils {
 	/**
 	 * 
 	 */
-	public void startTimer(String timer) {
+	public synchronized void startTimer(String timer) {
 		timers.put(timer, System.nanoTime());
 	}
 	
 	/**
 	 * 
 	 */
-	public long stopTimer(String timer) {
+	public synchronized long stopTimer(String timer) {
 		if (timers.containsKey(timer)) {
 			long time = (System.nanoTime() - timers.get(timer));
 			printTimer(timer, time);
@@ -64,26 +64,26 @@ public class Mov3letsUtils {
 	/**
 	 * 
 	 */
-	public void printTimer(String timer) {
+	public synchronized void printTimer(String timer) {
 		if (timers.containsKey(timer))
 			printTimer(timer, (System.nanoTime() - timers.get(timer)));
 		else
 			trace("No timer found: " + timer);
 	}
 	
-	public void printTimer(String timer, long time) {
+	public synchronized void printTimer(String timer, long time) {
 		trace(timer + ": " + time/1000000);
 	}
 	
-	public static void trace(String s) {
+	public synchronized static void trace(String s) {
 		System.out.println(s);
 	}
 	
-	public static void traceW(String s) {
+	public synchronized static void traceW(String s) {
 		trace("Warning: " + s);
 	}
 	
-	public static void traceE(String s, Exception e) {
+	public synchronized static void traceE(String s, Exception e) {
 		System.err.println("Error: " + s);
 		e.printStackTrace();
 	}

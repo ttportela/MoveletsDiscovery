@@ -34,14 +34,14 @@ public class MoveletsSupervisedDiscovery<MO> extends MoveletsDiscovery<MO> {
 	/**
 	 * @param train
 	 */
-	public MoveletsSupervisedDiscovery(MAT<MO> trajectory, List<MAT<MO>> train, QualityMeasure qualityMeasure, Descriptor descriptor) {
-		super(trajectory, train, qualityMeasure, descriptor);
+	public MoveletsSupervisedDiscovery(MAT<MO> trajectory, List<MAT<MO>> train, List<Subtrajectory> candidates, QualityMeasure qualityMeasure, Descriptor descriptor) {
+		super(trajectory, train, candidates, qualityMeasure, descriptor);
 	}
 
 	/**
 	 * First find candidates in its Class, then compares with every other trajectory
 	 */
-	protected List<Subtrajectory> discover() {
+	protected void discover() {
 		List<Subtrajectory> candidates = null;
 		
 		List<MAT<?>> trajectories = data.stream()                				 // convert list to stream
@@ -52,7 +52,7 @@ public class MoveletsSupervisedDiscovery<MO> extends MoveletsDiscovery<MO> {
 			// TODO: my way, prunning by classes (Tarlis)
 		}
 		
-		return candidates;
+//		return candidates;
 		
 	}
 
