@@ -19,11 +19,9 @@ package br.com.tarlis.mov3lets.method;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,23 +31,17 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
-
 import br.com.tarlis.mov3lets.method.discovery.DiscoveryAdapter;
 import br.com.tarlis.mov3lets.method.discovery.MoveletsDiscovery;
 import br.com.tarlis.mov3lets.method.discovery.MoveletsPivotsDiscovery;
 import br.com.tarlis.mov3lets.method.loader.DefaultLoader;
 import br.com.tarlis.mov3lets.method.loader.IndexedLoader;
 import br.com.tarlis.mov3lets.model.mat.MAT;
-import br.com.tarlis.mov3lets.model.mat.Point;
 import br.com.tarlis.mov3lets.model.mat.Subtrajectory;
 import br.com.tarlis.mov3lets.model.qualitymeasure.LeftSidePureCVLigth;
 import br.com.tarlis.mov3lets.model.qualitymeasure.QualityMeasure;
 import br.com.tarlis.mov3lets.utils.Mov3letsUtils;
 import br.com.tarlis.mov3lets.utils.ProgressBar;
-import br.com.tarlis.mov3lets.view.AttributeDescriptor;
 import br.com.tarlis.mov3lets.view.Descriptor;
 
 /**
@@ -157,44 +149,44 @@ public class Mov3lets<MO> {
 		return candidates;
 	}
 
-	public List<MAT<MO>> loadTrajectories(String inputFile) throws IOException {
-		List<MAT<MO>> trajectories = new ArrayList<MAT<MO>>();
-		// IF MO type is String:
-		MO mo = (MO) "";
-		MAT<MO> mat = null;
-			
-		CSVParser csvParser = CSVFormat.DEFAULT.parse(new InputStreamReader((new FileInputStream(inputFile))));
-		csvParser.iterator().next();
-		for (CSVRecord line : csvParser) {
-			int tid = Integer.parseInt(line.get(getDescriptor().getIdFeature().getOrder()-1));
-			
-			// Create a MO:
-			String label = line.get(getDescriptor().getLabelFeature().getOrder()-1);
-			if (!mo.equals(label)) {
-				if (mat != null) 
-				    trajectories.add(mat);
-				// Can use like this:
-//				mo = (MO) new MovingObject<String>(label);
-//				mat = new MAT<MovingObject<String>>();
-				// OR -- this for typing String:
-				mo = (MO) label;
-				mat = (MAT<MO>) new MAT<String>();
-				mat.setMovingObject(mo);
-				mat.setTid(tid);
-			}
-			
-			// For each attribute of POI
-			Point poi = new Point();	
-			poi.setTrajectory(mat);
-			for (AttributeDescriptor attr : getDescriptor().getAttributes()) {
-				poi.getAspects().put(attr.getText(), instantiateAspect(attr, line.get(attr.getOrder()-1)));
-				mat.getPoints().add(poi);
-			}
-		}
-		csvParser.close();
-
-		return trajectories;
-	}
+//	public List<MAT<MO>> loadTrajectories(String inputFile) throws IOException {
+//		List<MAT<MO>> trajectories = new ArrayList<MAT<MO>>();
+//		// IF MO type is String:
+//		MO mo = (MO) "";
+//		MAT<MO> mat = null;
+//			
+//		CSVParser csvParser = CSVFormat.DEFAULT.parse(new InputStreamReader((new FileInputStream(inputFile))));
+//		csvParser.iterator().next();
+//		for (CSVRecord line : csvParser) {
+//			int tid = Integer.parseInt(line.get(getDescriptor().getIdFeature().getOrder()-1));
+//			
+//			// Create a MO:
+//			String label = line.get(getDescriptor().getLabelFeature().getOrder()-1);
+//			if (!mo.equals(label)) {
+//				if (mat != null) 
+//				    trajectories.add(mat);
+//				// Can use like this:
+////				mo = (MO) new MovingObject<String>(label);
+////				mat = new MAT<MovingObject<String>>();
+//				// OR -- this for typing String:
+//				mo = (MO) label;
+//				mat = (MAT<MO>) new MAT<String>();
+//				mat.setMovingObject(mo);
+//				mat.setTid(tid);
+//			}
+//			
+//			// For each attribute of POI
+//			Point poi = new Point();	
+//			poi.setTrajectory(mat);
+//			for (AttributeDescriptor attr : getDescriptor().getAttributes()) {
+//				poi.getAspects().put(attr.getText(), instantiateAspect(attr, line.get(attr.getOrder()-1)));
+//				mat.getPoints().add(poi);
+//			}
+//		}
+//		csvParser.close();
+//
+//		return trajectories;
+//	}
 	
 //	public Class<?> aspectClass(AttributeDescriptor attr) {
 //		switch (attr.getType()) {
