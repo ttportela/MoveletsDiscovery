@@ -46,7 +46,7 @@ public class Mov3letsRun {
 //		System.out.println(inputFile);
 	}
 	
-public static HashMap<String, Object> defaultParams() {
+	public static HashMap<String, Object> defaultParams() {
 		
 		HashMap<String, Object> params = new HashMap<String, Object>();
 
@@ -77,7 +77,7 @@ public static HashMap<String, Object> defaultParams() {
 	
 	public static HashMap<String, Object> configure(String[] args) {
 		
-		HashMap<String, Object> params = new HashMap<String, Object>();
+		HashMap<String, Object> params = defaultParams();
 
 		for (int i = 0; i < args.length; i = i + 2) {
 			String key = args[i];

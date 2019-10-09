@@ -106,7 +106,11 @@ public class Mov3lets<MO> {
 		
 		// STEP 3 - Qualify Candidates:
 		Mov3letsUtils.getInstance().startTimer("[3] ==> Qualify Candidates");
-
+		Mov3letsUtils.trace("@@ TEST CANDIDATES: @@");
+		for (Subtrajectory subtrajectory : candidates) {
+			Mov3letsUtils.trace(subtrajectory.toString());
+		}
+		Mov3letsUtils.trace("@@ ---------------- @@");
 		Mov3letsUtils.getInstance().startTimer("[3] ==> Qualify Candidates");
 		
 		// STEP 4 - Output:
@@ -138,6 +142,9 @@ public class Mov3lets<MO> {
 			Mov3letsUtils.getInstance().startTimer("\tClass >> " + myclass);
 			/** STEP 2.1: It starts at discovering movelets */
 			for (MAT<MO> trajectory : train) {
+//				Mov3letsUtils.trace("\t>> Trajectory: "+trajectory.getTid()+". "
+//						+ "Trajectory Size: "+trajectory.getPoints().size()+". Number of Candidates: 459. Total of Movelets: 13. Max Size: 17. Used Features: 2" + myclass + ". Discovering movelets.");
+
 				DiscoveryAdapter<MO> moveletsDiscovery =  getDescriptor().getFlag("PIVOTS")?
 						new MoveletsPivotsDiscovery<MO>(trajectory, train, candidates, qualityMeasure, getDescriptor()) : 
 						new MoveletsDiscovery<MO>(trajectory, train, candidates, qualityMeasure, getDescriptor());

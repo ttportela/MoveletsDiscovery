@@ -17,8 +17,6 @@
  */
 package br.com.tarlis.mov3lets.view;
 
-import br.com.tarlis.mov3lets.model.distancemeasure.DistanceMeasure;
-
 /**
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  *
@@ -27,7 +25,6 @@ public class Comparator {
 
 	private String distance;
     private Double maxValue = -1.0;
-    private DistanceMeasure distanceComparator = null;
     
 	/**
 	 * @return the distance
@@ -52,20 +49,6 @@ public class Comparator {
 	 */
 	public void setMaxValue(Double maxValue) {
 		this.maxValue = maxValue;
-	}
-	
-	/**
-	 * @return the distanceComparator
-	 */
-	public <DM extends DistanceMeasure> DM getDistanceComparator() {
-		return (DM) distanceComparator;
-	}
-	
-	/**
-	 * @param distanceComparator the distanceComparator to set
-	 */
-	public <DM extends DistanceMeasure> void setDistanceComparator(DM distanceComparator) {
-		this.distanceComparator = distanceComparator;
 	}
 	
 	@Override

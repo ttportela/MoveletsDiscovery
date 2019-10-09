@@ -23,6 +23,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -106,9 +107,13 @@ public class Descriptor {
 	 * 
 	 */
 	public void configure() {
+		attributes.removeAll(Collections.singletonList(null));
+		
 		for (AttributeDescriptor attr : attributes) {
 			if (attr.getComparator() != null && attr.getComparator().getDistance() != null) {
 				instantiateDistanceMeasure(attr);
+			} else {
+				Mov3letsUtils.traceW("Malformed "+ attr.toString());
 			}
 		}
 	}

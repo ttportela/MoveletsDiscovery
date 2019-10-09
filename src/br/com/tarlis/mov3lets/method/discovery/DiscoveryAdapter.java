@@ -45,6 +45,7 @@ public abstract class DiscoveryAdapter<MO> implements Callable<Integer> {
 		this.trajectory = trajectory;
 		this.data = train;
 		this.candidates = candidates;
+		this.descriptor = descriptor;
 	}
 	
 	protected abstract void discover(); 
