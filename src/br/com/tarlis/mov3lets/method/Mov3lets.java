@@ -25,12 +25,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
@@ -45,11 +40,11 @@ import org.apache.commons.csv.CSVRecord;
 import br.com.tarlis.mov3lets.method.discovery.DiscoveryAdapter;
 import br.com.tarlis.mov3lets.method.discovery.MoveletsDiscovery;
 import br.com.tarlis.mov3lets.method.discovery.MoveletsPivotsDiscovery;
+import br.com.tarlis.mov3lets.method.loader.DefaultLoader;
+import br.com.tarlis.mov3lets.method.loader.IndexedLoader;
 import br.com.tarlis.mov3lets.model.mat.MAT;
 import br.com.tarlis.mov3lets.model.mat.Point;
 import br.com.tarlis.mov3lets.model.mat.Subtrajectory;
-import br.com.tarlis.mov3lets.model.mat.aspect.Aspect;
-import br.com.tarlis.mov3lets.model.mat.aspect.Space2DAspect;
 import br.com.tarlis.mov3lets.model.qualitymeasure.LeftSidePureCVLigth;
 import br.com.tarlis.mov3lets.model.qualitymeasure.QualityMeasure;
 import br.com.tarlis.mov3lets.utils.Mov3letsUtils;
@@ -88,9 +83,11 @@ public class Mov3lets<MO> {
 
 		// [1] - Input:
 		Mov3letsUtils.getInstance().startTimer("[1] ==> LOADING INPUT");
-		List<MAT<MO>> train = new ArrayList<MAT<MO>>();
-		for (String file : descriptor.getInputFiles()) {
-			train.addAll(loadTrajectories(file));
+		List<MAT<MO>> train;
+		if (getDescriptor().getFlag("indexed")) {
+			train = new IndexedLoader<MAT<MO>>().load(getDescriptor());
+		} else {
+			train = new DefaultLoader<MAT<MO>>().load(getDescriptor());
 		}
 		
 		if (train.isEmpty()) { Mov3letsUtils.traceW("empty training set"); return; }
@@ -197,34 +194,6 @@ public class Mov3lets<MO> {
 		csvParser.close();
 
 		return trajectories;
-	}
-	
-	private SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-	public Aspect<?> instantiateAspect(AttributeDescriptor attr, String value) {
-		switch (attr.getType()) {
-			case "numeric":
-				return new Aspect<Double>(Double.parseDouble(value));
-			case "space2d":
-				return new Space2DAspect(value);
-			case "time":
-				return new Aspect<Integer>(Integer.parseInt(value));
-			case "datetime":
-				try {
-					return new Aspect<Date>(formatter.parse(value));
-				} catch (ParseException e) {
-					Mov3letsUtils.trace("\tAtribute datetime '"+value+"' in wrong format, must be yyyy-MM-dd HH:mm:ss");
-					return new Aspect<Date>(new Date());
-				}
-			case "localdate":
-				return new Aspect<LocalDate>(LocalDate.parse(value));
-			case "localtime":
-				return new Aspect<LocalTime>(LocalTime.parse(value));
-			case "foursquarevenue":
-			case "gowallacheckin":
-			case "nominal":
-			default:
-				return new Aspect<String>(value);
-		}
 	}
 	
 //	public Class<?> aspectClass(AttributeDescriptor attr) {
