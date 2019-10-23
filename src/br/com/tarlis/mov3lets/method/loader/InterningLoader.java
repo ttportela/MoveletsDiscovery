@@ -21,12 +21,12 @@ public class InterningLoader<T extends MAT<?>> extends IndexedLoader<T> {
 	
 	public Aspect<?> instantiateAspect(AttributeDescriptor attr, String value) {
 		
-		Pair<String, String> key = new Pair<String, String>(attr.getText(), value);
+		Pair<String, String> key = new Pair<String, String>(attr.getText(), value.intern());
 		
 		if (MEM.containsKey(key))
 			return MEM.get(key);
 		else {
-			Aspect<?> asp = super.instantiateAspect(attr, value);
+			Aspect<?> asp = super.instantiateAspect(attr, key.getValue());
 			MEM.put(key, asp);
 			return asp;
 		}
