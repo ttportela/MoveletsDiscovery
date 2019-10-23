@@ -15,13 +15,13 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
+import br.com.tarlis.mov3lets.method.descriptor.AttributeDescriptor;
+import br.com.tarlis.mov3lets.method.descriptor.Descriptor;
 import br.com.tarlis.mov3lets.model.mat.MAT;
 import br.com.tarlis.mov3lets.model.mat.Point;
 import br.com.tarlis.mov3lets.model.mat.aspect.Aspect;
 import br.com.tarlis.mov3lets.model.mat.aspect.Space2DAspect;
 import br.com.tarlis.mov3lets.utils.Mov3letsUtils;
-import br.com.tarlis.mov3lets.view.AttributeDescriptor;
-import br.com.tarlis.mov3lets.view.Descriptor;
 
 public class DefaultLoader<T extends MAT<?>> extends LoaderAdapter<T> {
 
@@ -70,34 +70,28 @@ public class DefaultLoader<T extends MAT<?>> extends LoaderAdapter<T> {
 		Aspect<?> val = null;
 		switch (attr.getType()) {
 			case "numeric":
-				val = new Aspect<Double>(Double.parseDouble(value));
+				return new Aspect<Double>(Double.parseDouble(value));
 			case "space2d":
-				val = new Space2DAspect(value);
+				return new Space2DAspect(value);
 			case "time":
-				val = new Aspect<Integer>(Integer.parseInt(value));
+				return new Aspect<Integer>(Integer.parseInt(value));
 			case "datetime":
 				try {
-					val = new Aspect<Date>(formatter.parse(value));
+					return new Aspect<Date>(formatter.parse(value));
 				} catch (ParseException e) {
 					Mov3letsUtils.trace("\tAtribute datetime '"+value+"' in wrong format, must be yyyy-MM-dd HH:mm:ss");
-					val = new Aspect<Date>(new Date());
+					return new Aspect<Date>(new Date());
 				}
 			case "localdate":
-				val = new Aspect<LocalDate>(LocalDate.parse(value));
+				return new Aspect<LocalDate>(LocalDate.parse(value));
 			case "localtime":
-				val = new Aspect<LocalTime>(LocalTime.parse(value));
+				return new Aspect<LocalTime>(LocalTime.parse(value));
 			case "foursquarevenue":
 			case "gowallacheckin":
 			case "nominal":
 			default:
-				val = new Aspect<String>(value);
+				return new Aspect<String>(value);
 		}
-		return interningAndDistances(val, attr);
-	}
-	
-	public Aspect<?> interningAndDistances(Aspect<?> val, AttributeDescriptor attr) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }

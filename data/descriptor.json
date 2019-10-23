@@ -13,7 +13,7 @@
           "text": "label"
     },
    "attributes": [
-	    /*{
+	    {
 	          "order": 1,
 	          "type": "nominal",
 	          "text": "day",
@@ -21,7 +21,7 @@
 	            "distance": "weekday",
 	            "maxValue": -1
 	          }
-	    },*/
+	    },
 	    {
 	          "order": 2,
 	          "type": "nominal",

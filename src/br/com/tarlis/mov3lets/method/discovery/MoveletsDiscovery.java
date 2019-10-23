@@ -27,14 +27,14 @@ import org.apache.commons.math3.stat.ranking.NaturalRanking;
 import org.apache.commons.math3.stat.ranking.RankingAlgorithm;
 import org.apache.commons.math3.util.Combinations;
 
+import br.com.tarlis.mov3lets.method.descriptor.AttributeDescriptor;
+import br.com.tarlis.mov3lets.method.descriptor.Descriptor;
 import br.com.tarlis.mov3lets.model.mat.MAT;
 import br.com.tarlis.mov3lets.model.mat.Point;
 import br.com.tarlis.mov3lets.model.mat.Subtrajectory;
 import br.com.tarlis.mov3lets.model.qualitymeasure.QualityMeasure;
 import br.com.tarlis.mov3lets.utils.Matrix4D;
 import br.com.tarlis.mov3lets.utils.Mov3letsUtils;
-import br.com.tarlis.mov3lets.view.AttributeDescriptor;
-import br.com.tarlis.mov3lets.view.Descriptor;
 
 /**
  * @author Tarlis Portela <tarlis@tarlis.com.br>

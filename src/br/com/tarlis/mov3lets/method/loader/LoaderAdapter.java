@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import br.com.tarlis.mov3lets.method.descriptor.Descriptor;
 import br.com.tarlis.mov3lets.model.mat.MAT;
-import br.com.tarlis.mov3lets.view.Descriptor;
 
 public abstract class LoaderAdapter<T extends MAT<?>> {
 	

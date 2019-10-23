@@ -21,8 +21,8 @@ import java.io.IOException;
 import java.util.HashMap;
 
 import br.com.tarlis.mov3lets.method.Mov3lets;
+import br.com.tarlis.mov3lets.method.descriptor.Descriptor;
 import br.com.tarlis.mov3lets.utils.Mov3letsUtils;
-import br.com.tarlis.mov3lets.view.Descriptor;
 
 /**
  * @author Tarlis Portela <tarlis@tarlis.com.br>
@@ -168,6 +168,11 @@ public class Mov3letsRun {
 			case "-only_pivots":
 			case "-op":
 				params.put("only_pivots", Boolean.valueOf(value));
+			case "-index":
+				params.put("index", Boolean.valueOf(value));
+				break;
+			case "-interning":
+				params.put("interning", Boolean.valueOf(value));
 				break;
 			default:
 				System.err.println("Parâmetro " + key + " inválido.");
@@ -201,6 +206,10 @@ public class Mov3letsRun {
 		
 		str += "\tDescription file :\t" + descriptor.getParam("descfile") + System.getProperty("line.separator");
 
+		str += "\tUsing Index:\t\t" + descriptor.getFlag("index") + System.getProperty("line.separator");
+
+		str += "\tString Interning:\t" + descriptor.getFlag("interning") + System.getProperty("line.separator");
+
 		str += "\tAllowed Threads:\t" + descriptor.getParam("nthreads") + System.getProperty("line.separator");
 
 		str += "\tMin size:\t\t" + descriptor.getParam("min_size") + System.getProperty("line.separator");
@@ -225,6 +234,9 @@ public class Mov3letsRun {
 			str += "\tWITH Last Prunning" + System.getProperty("line.separator");
 		else
 			str += "\tWITHOUT Last Prunning" + System.getProperty("line.separator");
+		
+		str += "Attributes:"+ System.getProperty("line.separator") 
+			+ descriptor.toString() + System.getProperty("line.separator");
 		
 		return str;
 

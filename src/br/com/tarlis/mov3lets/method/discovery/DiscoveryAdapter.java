@@ -20,9 +20,9 @@ package br.com.tarlis.mov3lets.method.discovery;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import br.com.tarlis.mov3lets.method.descriptor.Descriptor;
 import br.com.tarlis.mov3lets.model.mat.MAT;
 import br.com.tarlis.mov3lets.model.mat.Subtrajectory;
-import br.com.tarlis.mov3lets.view.Descriptor;
 
 /**
  * @author Tarlis Portela <tarlis@tarlis.com.br>

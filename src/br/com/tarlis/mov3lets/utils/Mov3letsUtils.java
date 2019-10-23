@@ -89,14 +89,17 @@ public class Mov3letsUtils {
 	}
 
 	public void printMemory() {
+		System.gc();
 		Runtime rt = Runtime.getRuntime();
-		long total = rt.totalMemory();
-        long free = rt.freeMemory();
+		double total = rt.totalMemory() / 1024.0;
+		double free = rt.freeMemory() / 1024.0;
+        double used = (total - free);
+        
 		System.out.println(
-                String.format("Memory usage, Total: %s, Free: %s, USED: %s",
+                String.format("Memory usage (KiB), Total: %.3f, Free: %.3f, USED: %.3f",
                     total,
                     free,
-                    total - free));
+                    used));
 	}
 
 }

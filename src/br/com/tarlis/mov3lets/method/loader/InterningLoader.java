@@ -7,9 +7,9 @@ import java.util.HashMap;
 
 import org.apache.commons.math3.util.Pair;
 
+import br.com.tarlis.mov3lets.method.descriptor.AttributeDescriptor;
 import br.com.tarlis.mov3lets.model.mat.MAT;
 import br.com.tarlis.mov3lets.model.mat.aspect.Aspect;
-import br.com.tarlis.mov3lets.view.AttributeDescriptor;
 
 /**
  * @author tarlisportela

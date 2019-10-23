@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package br.com.tarlis.mov3lets.view;
+package br.com.tarlis.mov3lets.method.descriptor;
 
 import br.com.tarlis.mov3lets.model.distancemeasure.DistanceMeasure;
 

@@ -17,7 +17,7 @@
  */
 package br.com.tarlis.mov3lets.model.distancemeasure;
 
-import br.com.tarlis.mov3lets.view.AttributeDescriptor;
+import br.com.tarlis.mov3lets.method.descriptor.AttributeDescriptor;
 import br.com.tarlis.mov3lets.model.mat.aspect.Space2DAspect;
 
 /**

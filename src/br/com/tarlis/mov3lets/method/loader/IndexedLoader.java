@@ -13,10 +13,10 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
+import br.com.tarlis.mov3lets.method.descriptor.AttributeDescriptor;
+import br.com.tarlis.mov3lets.method.descriptor.Descriptor;
 import br.com.tarlis.mov3lets.model.mat.MAT;
 import br.com.tarlis.mov3lets.model.mat.Point;
-import br.com.tarlis.mov3lets.view.AttributeDescriptor;
-import br.com.tarlis.mov3lets.view.Descriptor;
 
 /**
  * @author tarlisportela

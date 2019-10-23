@@ -19,8 +19,8 @@ package br.com.tarlis.mov3lets.model.distancemeasure;
 
 import java.util.Date;
 
+import br.com.tarlis.mov3lets.method.descriptor.AttributeDescriptor;
 import br.com.tarlis.mov3lets.model.mat.aspect.Aspect;
-import br.com.tarlis.mov3lets.view.AttributeDescriptor;
 
 /**
  * @author Tarlis Portela <tarlis@tarlis.com.br>

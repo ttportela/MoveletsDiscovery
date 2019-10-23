@@ -31,18 +31,19 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
+import br.com.tarlis.mov3lets.method.descriptor.Descriptor;
 import br.com.tarlis.mov3lets.method.discovery.DiscoveryAdapter;
 import br.com.tarlis.mov3lets.method.discovery.MoveletsDiscovery;
 import br.com.tarlis.mov3lets.method.discovery.MoveletsPivotsDiscovery;
 import br.com.tarlis.mov3lets.method.loader.DefaultLoader;
 import br.com.tarlis.mov3lets.method.loader.IndexedLoader;
+import br.com.tarlis.mov3lets.method.loader.InterningLoader;
 import br.com.tarlis.mov3lets.model.mat.MAT;
 import br.com.tarlis.mov3lets.model.mat.Subtrajectory;
 import br.com.tarlis.mov3lets.model.qualitymeasure.LeftSidePureCVLigth;
 import br.com.tarlis.mov3lets.model.qualitymeasure.QualityMeasure;
 import br.com.tarlis.mov3lets.utils.Mov3letsUtils;
 import br.com.tarlis.mov3lets.utils.ProgressBar;
-import br.com.tarlis.mov3lets.view.Descriptor;
 
 /**
  * @author Tarlis Portela <tarlis@tarlis.com.br>
@@ -74,18 +75,20 @@ public class Mov3lets<MO> {
 	public void mov3lets() throws IOException {
 
 		// [1] - Input:
-		Mov3letsUtils.getInstance().startTimer("[1] ==> LOADING INPUT");
-		Mov3letsUtils.getInstance().printMemory();
+		Mov3letsUtils.getInstance().startTimer("[1] ==> LOAD INPUT");
+//		Mov3letsUtils.getInstance().printMemory();
 		List<MAT<MO>> train;
 		if (getDescriptor().getFlag("indexed")) {
 			train = new IndexedLoader<MAT<MO>>().load(getDescriptor());
+		} else if (getDescriptor().getFlag("interning")) {
+			train = new InterningLoader<MAT<MO>>().load(getDescriptor());
 		} else {
 			train = new DefaultLoader<MAT<MO>>().load(getDescriptor());
 		}
 		Mov3letsUtils.getInstance().printMemory();
 		
 		if (train.isEmpty()) { Mov3letsUtils.traceW("empty training set"); return; }
-		Mov3letsUtils.getInstance().stopTimer("[1] ==> LOADING INPUT");
+		Mov3letsUtils.getInstance().stopTimer("[1] ==> LOAD INPUT");
 		
 		// STEP 2 - Select Candidates:
 		Mov3letsUtils.getInstance().startTimer("[2] ==> Select Candidates");
