@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.commons.csv.CSVFormat;
@@ -67,30 +68,37 @@ public class DefaultLoader<T extends MAT<?>> extends LoaderAdapter<T> {
 	
 	private SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	public Aspect<?> instantiateAspect(AttributeDescriptor attr, String value) {
+		Aspect<?> val = null;
 		switch (attr.getType()) {
 			case "numeric":
-				return new Aspect<Double>(Double.parseDouble(value));
+				val = new Aspect<Double>(Double.parseDouble(value));
 			case "space2d":
-				return new Space2DAspect(value);
+				val = new Space2DAspect(value);
 			case "time":
-				return new Aspect<Integer>(Integer.parseInt(value));
+				val = new Aspect<Integer>(Integer.parseInt(value));
 			case "datetime":
 				try {
-					return new Aspect<Date>(formatter.parse(value));
+					val = new Aspect<Date>(formatter.parse(value));
 				} catch (ParseException e) {
 					Mov3letsUtils.trace("\tAtribute datetime '"+value+"' in wrong format, must be yyyy-MM-dd HH:mm:ss");
-					return new Aspect<Date>(new Date());
+					val = new Aspect<Date>(new Date());
 				}
 			case "localdate":
-				return new Aspect<LocalDate>(LocalDate.parse(value));
+				val = new Aspect<LocalDate>(LocalDate.parse(value));
 			case "localtime":
-				return new Aspect<LocalTime>(LocalTime.parse(value));
+				val = new Aspect<LocalTime>(LocalTime.parse(value));
 			case "foursquarevenue":
 			case "gowallacheckin":
 			case "nominal":
 			default:
-				return new Aspect<String>(value);
+				val = new Aspect<String>(value);
 		}
+		return interningAndDistances(val, attr);
+	}
+	
+	public Aspect<?> interningAndDistances(Aspect<?> val, AttributeDescriptor attr) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
