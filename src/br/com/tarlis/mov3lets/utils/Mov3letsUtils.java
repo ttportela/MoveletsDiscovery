@@ -88,4 +88,15 @@ public class Mov3letsUtils {
 		e.printStackTrace();
 	}
 
+	public void printMemory() {
+		Runtime rt = Runtime.getRuntime();
+		long total = rt.totalMemory();
+        long free = rt.freeMemory();
+		System.out.println(
+                String.format("Memory usage, Total: %s, Free: %s, USED: %s",
+                    total,
+                    free,
+                    total - free));
+	}
+
 }

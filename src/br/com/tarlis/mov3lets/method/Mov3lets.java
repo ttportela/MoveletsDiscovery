@@ -75,12 +75,14 @@ public class Mov3lets<MO> {
 
 		// [1] - Input:
 		Mov3letsUtils.getInstance().startTimer("[1] ==> LOADING INPUT");
+		Mov3letsUtils.getInstance().printMemory();
 		List<MAT<MO>> train;
 		if (getDescriptor().getFlag("indexed")) {
 			train = new IndexedLoader<MAT<MO>>().load(getDescriptor());
 		} else {
 			train = new DefaultLoader<MAT<MO>>().load(getDescriptor());
 		}
+		Mov3letsUtils.getInstance().printMemory();
 		
 		if (train.isEmpty()) { Mov3letsUtils.traceW("empty training set"); return; }
 		Mov3letsUtils.getInstance().stopTimer("[1] ==> LOADING INPUT");
