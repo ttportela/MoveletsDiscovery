@@ -6,12 +6,7 @@ package br.com.tarlis.mov3lets.method.loader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.csv.CSVFormat;
@@ -20,10 +15,6 @@ import org.apache.commons.csv.CSVRecord;
 
 import br.com.tarlis.mov3lets.model.mat.MAT;
 import br.com.tarlis.mov3lets.model.mat.Point;
-import br.com.tarlis.mov3lets.model.mat.aspect.Aspect;
-import br.com.tarlis.mov3lets.model.mat.aspect.InterningAspect;
-import br.com.tarlis.mov3lets.model.mat.aspect.Space2DAspect;
-import br.com.tarlis.mov3lets.utils.Mov3letsUtils;
 import br.com.tarlis.mov3lets.view.AttributeDescriptor;
 import br.com.tarlis.mov3lets.view.Descriptor;
 
@@ -31,8 +22,9 @@ import br.com.tarlis.mov3lets.view.Descriptor;
  * @author tarlisportela
  *
  */
-public class IndexedLoader<T extends MAT<?>> extends LoaderAdapter<T> {
+public class IndexedLoader<T extends MAT<?>> extends DefaultLoader<T> {
 
+	// TODO: Alterar para usar index;
 	@Override
 	public List<T> loadTrajectories(String file, Descriptor descriptor) throws IOException {
 		List<MAT<String>> trajectories = new ArrayList<MAT<String>>();
@@ -71,34 +63,6 @@ public class IndexedLoader<T extends MAT<?>> extends LoaderAdapter<T> {
 		csvParser.close();
 
 		return (List<T>) trajectories;
-	}
-	
-	private SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-	public Aspect<?> instantiateAspect(AttributeDescriptor attr, String value) {
-		switch (attr.getType()) {
-			case "numeric":
-				return new InterningAspect<Double>(Double.parseDouble(value));
-			case "space2d":
-				return new Space2DAspect(value);
-			case "time":
-				return new InterningAspect<Integer>(Integer.parseInt(value));
-			case "datetime":
-				try {
-					return new InterningAspect<Date>(formatter.parse(value));
-				} catch (ParseException e) {
-					Mov3letsUtils.trace("\tAtribute datetime '"+value+"' in wrong format, must be yyyy-MM-dd HH:mm:ss");
-					return new InterningAspect<Date>(new Date());
-				}
-			case "localdate":
-				return new InterningAspect<LocalDate>(LocalDate.parse(value));
-			case "localtime":
-				return new InterningAspect<LocalTime>(LocalTime.parse(value));
-			case "foursquarevenue":
-			case "gowallacheckin":
-			case "nominal":
-			default:
-				return new InterningAspect<String>(value);
-		}
 	}
 
 }
