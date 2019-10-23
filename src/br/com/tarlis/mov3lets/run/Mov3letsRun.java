@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.HashMap;
 
 import br.com.tarlis.mov3lets.method.Mov3lets;
+import br.com.tarlis.mov3lets.utils.Mov3letsUtils;
 import br.com.tarlis.mov3lets.view.Descriptor;
 
 /**
@@ -33,7 +34,8 @@ public class Mov3letsRun {
 		HashMap<String, Object> params = configure(args);
 		
 		// PARAMS:
-		String descFile = (params.containsKey("descfile")? params.get("descfile").toString() : "data/descriptor.json");
+		String descFile = (params.containsKey("curpath")? params.get("curpath").toString() : "./");
+		descFile = descFile + (params.containsKey("descfile")? params.get("descfile").toString() : "descriptor.json");
 //		String inputFile = (args.length > 1? args[1] : "data/foursquare.csv");
 		
 		// 2 - RUN
@@ -42,7 +44,9 @@ public class Mov3letsRun {
 		mov.getDescriptor().addParams(params);
 		System.out.println(showConfiguration(mov.getDescriptor()));
 		
+		Mov3letsUtils.getInstance().startTimer("[EXE TIME] ==> ");
 		mov.mov3lets();
+		Mov3letsUtils.getInstance().stopTimer("[EXE TIME] ==> ");
 //		System.out.println(inputFile);
 	}
 	
@@ -191,36 +195,36 @@ public class Mov3letsRun {
 		
 		str += "Configurations:" + System.getProperty("line.separator");
 
-		str += "\tDatasets directory:	    " + descriptor.getParam("curpath") + System.getProperty("line.separator");
+		str += "\tDatasets directory:\t" + descriptor.getParam("curpath") + System.getProperty("line.separator");
 
-		str += "\tResults directory:    " + descriptor.getParam("respath") + System.getProperty("line.separator");
+		str += "\tResults directory:\t" + descriptor.getParam("respath") + System.getProperty("line.separator");
 		
-		str += "\tDescription file :    " + descriptor.getParam("descfile") + System.getProperty("line.separator");
+		str += "\tDescription file :\t" + descriptor.getParam("descfile") + System.getProperty("line.separator");
 
-		str += "\tAllowed Threads:      " + descriptor.getParam("nthreads") + System.getProperty("line.separator");
+		str += "\tAllowed Threads:\t" + descriptor.getParam("nthreads") + System.getProperty("line.separator");
 
-		str += "\tMin size:             " + descriptor.getParam("min_size") + System.getProperty("line.separator");
+		str += "\tMin size:\t\t" + descriptor.getParam("min_size") + System.getProperty("line.separator");
 
-		str += "\tMax size:             " + descriptor.getParam("max_size") + System.getProperty("line.separator");
+		str += "\tMax size:\t\t" + descriptor.getParam("max_size") + System.getProperty("line.separator");
 
-		str += "\tQuality Measure:      " + descriptor.getParam("str_quality_measure") + System.getProperty("line.separator");
+		str += "\tQuality Measure:\t" + descriptor.getParam("str_quality_measure") + System.getProperty("line.separator");
 		
-		str += "\tExplore dimensions:   " + descriptor.getParam("explore_dimensions") + System.getProperty("line.separator");
+		str += "\tExplore dimensions:\t" + descriptor.getParam("explore_dimensions") + System.getProperty("line.separator");
 
-		str += "\tSamples:      " + descriptor.getParam("samples") + System.getProperty("line.separator");
+		str += "\tSamples:\t\t" + descriptor.getParam("samples") + System.getProperty("line.separator");
 		
-		str += "\tSample Size:   " + descriptor.getParam("sample_size") + System.getProperty("line.separator");
+		str += "\tSample Size:\t\t" + descriptor.getParam("sample_size") + System.getProperty("line.separator");
 		
-		str += "\tMedium:   " + descriptor.getParam("medium") + System.getProperty("line.separator");
+		str += "\tMedium:\t\t\t" + descriptor.getParam("medium") + System.getProperty("line.separator");
 		
-		str += "\tMPT:   " + descriptor.getParam("movelets_per_trajectory") + System.getProperty("line.separator");
+		str += "\tMPT:\t\t\t" + descriptor.getParam("movelets_per_trajectory") + System.getProperty("line.separator");
 		
-		str += "\tOutput:   " + descriptor.getParam("output") + System.getProperty("line.separator");
+		str += "\tOutput:\t\t\t" + descriptor.getParam("output") + System.getProperty("line.separator");
 		
 		if(descriptor.getFlag("last_prunning"))
-			str += "WITH LAST PRUNNING" + System.getProperty("line.separator");
+			str += "\tWITH Last Prunning" + System.getProperty("line.separator");
 		else
-			str += "WITHOUT LAST PRUNNING" + System.getProperty("line.separator");
+			str += "\tWITHOUT Last Prunning" + System.getProperty("line.separator");
 		
 		return str;
 

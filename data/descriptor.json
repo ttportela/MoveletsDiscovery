@@ -1,6 +1,6 @@
 {
 	"inputFiles": [
-		"../Test - Foursquare/MASTERMov3lets/train.csv"
+		"train.csv"
 	],
    "idFeature": {
           "order": 9,

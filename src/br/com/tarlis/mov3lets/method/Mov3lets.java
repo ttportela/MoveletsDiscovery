@@ -75,12 +75,14 @@ public class Mov3lets<MO> {
 
 		// [1] - Input:
 		Mov3letsUtils.getInstance().startTimer("[1] ==> LOADING INPUT");
+		Mov3letsUtils.getInstance().printMemory();
 		List<MAT<MO>> train;
 		if (getDescriptor().getFlag("indexed")) {
 			train = new IndexedLoader<MAT<MO>>().load(getDescriptor());
 		} else {
 			train = new DefaultLoader<MAT<MO>>().load(getDescriptor());
 		}
+		Mov3letsUtils.getInstance().printMemory();
 		
 		if (train.isEmpty()) { Mov3letsUtils.traceW("empty training set"); return; }
 		Mov3letsUtils.getInstance().stopTimer("[1] ==> LOADING INPUT");
@@ -126,9 +128,7 @@ public class Mov3lets<MO> {
 		for (MO myclass : classes) {			
 			// TODO: MoveletsRunUnit:304
 //			if ( ! (new File(resultDirPath + myclass + "/test.csv").exists()) ) {
-			Mov3letsUtils.trace("\tClass: " + myclass + ". Discovering movelets."); // Might be saved in HD
 			
-			Mov3letsUtils.getInstance().startTimer("\tClass >> " + myclass);
 			/** STEP 2.1: It starts at discovering movelets */
 			for (MAT<MO> trajectory : train) {
 //				Mov3letsUtils.trace("\t>> Trajectory: "+trajectory.getTid()+". "
@@ -140,7 +140,6 @@ public class Mov3lets<MO> {
 				resultList.add(executor.submit(moveletsDiscovery));	
 			}
 			/** STEP 2.1: --------------------------------- */
-			Mov3letsUtils.getInstance().stopTimer("\tClass >> " + myclass);
 		}
 		
 		/* Keeping up with Progress output */
@@ -148,72 +147,6 @@ public class Mov3lets<MO> {
 		
 		return candidates;
 	}
-
-//	public List<MAT<MO>> loadTrajectories(String inputFile) throws IOException {
-//		List<MAT<MO>> trajectories = new ArrayList<MAT<MO>>();
-//		// IF MO type is String:
-//		MO mo = (MO) "";
-//		MAT<MO> mat = null;
-//			
-//		CSVParser csvParser = CSVFormat.DEFAULT.parse(new InputStreamReader((new FileInputStream(inputFile))));
-//		csvParser.iterator().next();
-//		for (CSVRecord line : csvParser) {
-//			int tid = Integer.parseInt(line.get(getDescriptor().getIdFeature().getOrder()-1));
-//			
-//			// Create a MO:
-//			String label = line.get(getDescriptor().getLabelFeature().getOrder()-1);
-//			if (!mo.equals(label)) {
-//				if (mat != null) 
-//				    trajectories.add(mat);
-//				// Can use like this:
-////				mo = (MO) new MovingObject<String>(label);
-////				mat = new MAT<MovingObject<String>>();
-//				// OR -- this for typing String:
-//				mo = (MO) label;
-//				mat = (MAT<MO>) new MAT<String>();
-//				mat.setMovingObject(mo);
-//				mat.setTid(tid);
-//			}
-//			
-//			// For each attribute of POI
-//			Point poi = new Point();	
-//			poi.setTrajectory(mat);
-//			for (AttributeDescriptor attr : getDescriptor().getAttributes()) {
-//				poi.getAspects().put(attr.getText(), instantiateAspect(attr, line.get(attr.getOrder()-1)));
-//				mat.getPoints().add(poi);
-//			}
-//		}
-//		csvParser.close();
-//
-//		return trajectories;
-//	}
-	
-//	public Class<?> aspectClass(AttributeDescriptor attr) {
-//		switch (attr.getType()) {
-//			case "numeric":
-//				return Class.forName(Aspect.class.getCanonicalName() + "<Double>");
-//			case "space2d":
-//				return new Space2DAspect(value);
-//			case "time":
-//				return new Aspect<Integer>(Integer.parseInt(value));
-//			case "datetime":
-//				try {
-//					return new Aspect<Date>(formatter.parse(value));
-//				} catch (ParseException e) {
-//					trace("Atribute datetime '"+value+"' in wrong format, must be yyyy/MM/dd HH:mm:ss");
-//					return new Aspect<Date>(new Date());
-//				}
-//			case "localdate":
-//				return new Aspect<LocalDate>(LocalDate.parse(value));
-//			case "localtime":
-//				return new Aspect<LocalTime>(LocalTime.parse(value));
-//			case "foursquarevenue":
-//			case "gowallacheckin":
-//			case "nominal":
-//			default:
-//				return new Aspect<String>(value);
-//		}
-//	}
 	
 	public void writeShapelets(List<Subtrajectory> candidates, String filepath) {
 		BufferedWriter writer;

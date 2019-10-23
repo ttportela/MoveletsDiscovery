@@ -72,7 +72,7 @@ public class Mov3letsUtils {
 	}
 	
 	public synchronized void printTimer(String timer, long time) {
-		trace(timer + ": " + time/1000000);
+		trace(timer + ": " + time/1000000.0 + "s");
 	}
 	
 	public synchronized static void trace(String s) {
@@ -86,6 +86,17 @@ public class Mov3letsUtils {
 	public synchronized static void traceE(String s, Exception e) {
 		System.err.println("Error: " + s);
 		e.printStackTrace();
+	}
+
+	public void printMemory() {
+		Runtime rt = Runtime.getRuntime();
+		long total = rt.totalMemory();
+        long free = rt.freeMemory();
+		System.out.println(
+                String.format("Memory usage, Total: %s, Free: %s, USED: %s",
+                    total,
+                    free,
+                    total - free));
 	}
 
 }

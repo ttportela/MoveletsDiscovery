@@ -12,9 +12,11 @@ public abstract class LoaderAdapter<T extends MAT<?>> {
 	public abstract List<T> loadTrajectories(String file, Descriptor descriptor) throws IOException;
 	
 	public List<T> load(Descriptor descriptor) throws IOException {
+		String curpath = descriptor.hasParam("curpath")? descriptor.getParamAsText("curpath") : "./";
+		
 		List<T> train = new ArrayList<T>();
 		for (String file : descriptor.getInputFiles()) {
-			train.addAll(loadTrajectories(file, descriptor));
+			train.addAll(loadTrajectories(curpath + file, descriptor));
 		}
 		return train;
 	}

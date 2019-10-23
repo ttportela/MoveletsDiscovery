@@ -158,7 +158,7 @@ public class Descriptor {
         Descriptor descriptor = gson.fromJson(reader, Descriptor.class);
         descriptor.configure();
 
-		System.out.println(descriptor);
+//		System.out.println(descriptor);
 		return descriptor;
 	}
 	
@@ -239,6 +239,13 @@ public class Descriptor {
 			return params.get(key).toString();
 		else 
 			return null;
+	}
+
+	/**
+	 * @return
+	 */
+	public int numberOfFeatures() {
+		return getAttributes().size();
 	}
 
 }

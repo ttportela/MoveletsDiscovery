@@ -59,7 +59,8 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 		
 		this.qualityMeasure = qualityMeasure;
 		
-		this.numberOfFeatures = getDescriptor().getParamAsInt("max_number_of_features");
+		this.numberOfFeatures = getDescriptor().numberOfFeatures();
+		this.maxNumberOfFeatures = getDescriptor().getParamAsInt("max_number_of_features");
 		this.exploreDimensions = getDescriptor().getFlag("explore_dimensions");
 		
 		switch (maxNumberOfFeatures) {
@@ -85,8 +86,11 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 		int maxSize = getDescriptor().getParamAsInt("max_size");
 		maxSize = (maxSize == -1) ? n : maxSize;
 		int minSize = getDescriptor().getParamAsInt("min_size");
-		
+
+		Mov3letsUtils.trace("\tClass: " + trajectory.getMovingObject() + ". Discovering movelets."); // Might be saved in HD
+//		Mov3letsUtils.getInstance().startTimer("\tClass >> " + trajectory.getClass());
 		List<Subtrajectory> candidates = moveletsDiscovery(trajectory, this.data, minSize, maxSize, random);
+//		Mov3letsUtils.getInstance().stopTimer("\tClass >> " + trajectory.getClass());
 		
 		// TODO
 		for (Subtrajectory candidate : candidates) {
@@ -99,7 +103,7 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 			/** STEP 2: ASSES QUALITY, IF REQUIRED */
 			if (qualityMeasure != null & candidate.getQuality() != null) {
 				assesQuality(candidate, random);
-				System.out.println("TODO? ASSES QUALITY, IF REQUIRED MD-102");
+//				System.out.println("TODO? ASSES QUALITY, IF REQUIRED MD-102");
 			}
 		}
 		
@@ -121,7 +125,7 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 	private List<Subtrajectory> moveletsDiscovery(MAT<MO> trajectory, List<MAT<MO>> trajectories, int minSize, int maxSize, Random random) {
 		List<Subtrajectory> candidates = new ArrayList<Subtrajectory>();
 		
-		int n = trajectory.getAspects().size();
+		int n = trajectory.getPoints().size();
 		
 		// TO USE THE LOG, PUT "-Ms -3"
 		switch (maxSize) {
