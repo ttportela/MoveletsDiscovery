@@ -77,7 +77,7 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 	/**
 	 * Looks for candidates in the trajectory, then compares with every other trajectory
 	 */
-	protected void discover() {
+	public void discover() {
 
 		// This guarantees the reproducibility
 		Random random = new Random(this.trajectory.getTid());
@@ -122,7 +122,7 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 	 * @param random
 	 * @return
 	 */
-	private List<Subtrajectory> moveletsDiscovery(MAT<MO> trajectory, List<MAT<MO>> trajectories, int minSize, int maxSize, Random random) {
+	public List<Subtrajectory> moveletsDiscovery(MAT<MO> trajectory, List<MAT<MO>> trajectories, int minSize, int maxSize, Random random) {
 		List<Subtrajectory> candidates = new ArrayList<Subtrajectory>();
 		
 		int n = trajectory.getPoints().size();
@@ -195,7 +195,7 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 	 * @param trajectories
 	 * @return
 	 */
-	private Matrix4D computeBaseDistances(MAT<?> trajectory, List<MAT<MO>> trajectories){
+	public Matrix4D computeBaseDistances(MAT<?> trajectory, List<MAT<MO>> trajectories){
 		int n = trajectory.getPoints().size();
 		int size = 1;
 		
@@ -243,7 +243,7 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 	 * @param mdist
 	 * @return
 	 */
-	private List<Subtrajectory> findCandidates(MAT<MO> trajectory, List<MAT<MO>> train, int size, Matrix4D mdist) {
+	public List<Subtrajectory> findCandidates(MAT<MO> trajectory, List<MAT<MO>> train, int size, Matrix4D mdist) {
 		
 		// Trajectory P size => n
 		int n = trajectory.getPoints().size();
@@ -325,7 +325,7 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 	 * @param base
 	 * @param size
 	 */
-	private void newSize(MAT<MO> trajectory, List<MAT<MO>> train, Matrix4D lastSize, int size) {
+	public void newSize(MAT<MO> trajectory, List<MAT<MO>> train, Matrix4D lastSize, int size) {
 		for (Point p : trajectory.getPoints()) {
 			for (MAT<MO> T : train) {
 				Point q = T.getPoints().get(0);
@@ -369,7 +369,7 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 		return list;
 	}
 	
-	private int bestAlignmentByRanking(double[][] ranksForT, int[] comb) {
+	public int bestAlignmentByRanking(double[][] ranksForT, int[] comb) {
 		
 		double[] rankMerged = new double[ranksForT[0].length];
 		for (int i = 0; i < comb.length; i++) {
@@ -398,11 +398,11 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 	 * @param random
 	 * @return
 	 */
-	private void assesQuality(Subtrajectory candidate, Random random) {
+	public void assesQuality(Subtrajectory candidate, Random random) {
 		qualityMeasure.assesQuality(candidate, random);
 	}
 	
-//	private void computeDistances(Subtrajectory candidate) {
+//	public void computeDistances(Subtrajectory candidate) {
 //		
 //		/* This pairs will store the subtrajectory of the best alignment 
 //		 * of the candidate into each trajectory and the distance 
