@@ -17,10 +17,10 @@ import org.apache.commons.csv.CSVRecord;
 
 import br.com.tarlis.mov3lets.method.descriptor.AttributeDescriptor;
 import br.com.tarlis.mov3lets.method.descriptor.Descriptor;
-import br.com.tarlis.mov3lets.model.mat.MAT;
-import br.com.tarlis.mov3lets.model.mat.Point;
-import br.com.tarlis.mov3lets.model.mat.aspect.Aspect;
-import br.com.tarlis.mov3lets.model.mat.aspect.Space2DAspect;
+import br.com.tarlis.mov3lets.model.MAT;
+import br.com.tarlis.mov3lets.model.Point;
+import br.com.tarlis.mov3lets.model.aspect.Aspect;
+import br.com.tarlis.mov3lets.model.aspect.Space2DAspect;
 import br.com.tarlis.mov3lets.utils.Mov3letsUtils;
 
 public class DefaultLoader<T extends MAT<?>> extends LoaderAdapter<T> {

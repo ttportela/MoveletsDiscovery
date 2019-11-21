@@ -17,8 +17,11 @@
  */
 package br.com.tarlis.mov3lets.run;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+
+import org.apache.commons.io.FilenameUtils;
 
 import br.com.tarlis.mov3lets.method.Mov3lets;
 import br.com.tarlis.mov3lets.method.descriptor.Descriptor;
@@ -44,9 +47,17 @@ public class Mov3letsRun {
 		mov.getDescriptor().addParams(params);
 		System.out.println(showConfiguration(mov.getDescriptor()));
 		
-		Mov3letsUtils.getInstance().startTimer("[EXE TIME] ==> ");
+		// Config to - Show trace messages OR Ignore all
+		if (mov.getDescriptor().getFlag("verbose"))
+			Mov3letsUtils.getInstance().configLogger();
+		
+		// Set Result Dir:
+		mov.setResultDirPath(configRespath(descFile, mov.getDescriptor()));
+		
+		// RUN:
+		Mov3letsUtils.getInstance().startTimer("[Runtime] ==> ");
 		mov.mov3lets();
-		Mov3letsUtils.getInstance().stopTimer("[EXE TIME] ==> ");
+		Mov3letsUtils.getInstance().stopTimer("[Runtime] ==> ");
 //		System.out.println(inputFile);
 	}
 	
@@ -69,12 +80,14 @@ public class Mov3letsRun {
 		params.put("sample_size",				 1);			
 		params.put("medium",					 "none"); // Other values minmax, sd, interquartil
 		params.put("output",					 "numeric"); // Other values numeric discretized				
-		params.put("pivots",					 false);				
+		params.put("pivots",					 false);						
+		params.put("supervised",				 false);
 		params.put("movelets_per_trajectory",	 -1);	// Filtering		
 		params.put("lowm_memory",				 false);		
 		params.put("last_prunning",				 false);		
 		params.put("pivot_porcentage",			 10);
 		params.put("only_pivots",				 false);
+		params.put("verbose",				 	 true);
 		
 		return params;
 	}
@@ -146,6 +159,10 @@ public class Mov3letsRun {
 			case "-pvt":
 			case "-pivots":
 				params.put("pivots", Boolean.valueOf(value));				
+				break;		
+			case "-sup":
+			case "-supervised":
+				params.put("supervised", Boolean.valueOf(value));				
 				break;	
 			case "-mpt":
 			case "-movelets_per_trajectory":
@@ -173,6 +190,9 @@ public class Mov3letsRun {
 				break;
 			case "-interning":
 				params.put("interning", Boolean.valueOf(value));
+				break;
+			case "-v":
+				params.put("verbose", Boolean.valueOf(value));
 				break;
 			default:
 				System.err.println("Parâmetro " + key + " inválido.");
@@ -218,7 +238,7 @@ public class Mov3letsRun {
 
 		str += "\tQuality Measure:\t" + descriptor.getParam("str_quality_measure") + System.getProperty("line.separator");
 		
-		str += "\tExplore dimensions:\t" + descriptor.getParam("explore_dimensions") + System.getProperty("line.separator");
+		str += "\tExplore dimensions:\t" + descriptor.getFlag("explore_dimensions") + System.getProperty("line.separator");
 
 		str += "\tSamples:\t\t" + descriptor.getParam("samples") + System.getProperty("line.separator");
 		
@@ -240,6 +260,45 @@ public class Mov3letsRun {
 		
 		return str;
 
+	}
+	
+	public static String configRespath(String descFile, Descriptor descriptor) {
+		String DESCRIPTION_FILE_NAME = FilenameUtils.removeExtension(
+				new File(descFile).getName());
+		
+		if (descriptor.getFlag("explore_dimensions"))
+			DESCRIPTION_FILE_NAME += "_ED"; 
+		
+		if (descriptor.getParamAsInt("max_number_of_features") != -1)
+			DESCRIPTION_FILE_NAME += "_MNF-" + descriptor.getParamAsInt("max_number_of_features"); 
+		
+		String resultDirPath = descriptor.getParamAsText("respath");
+		
+//		if (PIVOTS_FILE != null) {
+//			resultDirPath += DESCRIPTION_FILE_NAME + "_MM_PivotsBOW";
+//			outside_pivots = true;
+//		}
+//		else {
+			if(descriptor.getFlag("pivots"))
+				resultDirPath += DESCRIPTION_FILE_NAME + "_MM_Pivots/Porcentage_" + descriptor.getParamAsText("pivot_porcentage");
+			else {
+				if(descriptor.getParamAsInt("max_size") == -3) {
+					resultDirPath = DESCRIPTION_FILE_NAME + "_MM_LOG";
+				}else
+					resultDirPath = DESCRIPTION_FILE_NAME + "_MM";
+			}
+//		}
+	
+		
+		if(descriptor.getFlag("last_prunning"))
+			resultDirPath = resultDirPath + "_With-Last-Prunning/";
+		else
+			resultDirPath = resultDirPath + "_Witout-Last-Prunning/";
+
+		
+//		String trainDirPath = descriptor.getParamAsText("respath") + "/train";
+//		String testDirPath = descriptor.getParamAsText("respath") + "/test";
+		return resultDirPath;
 	}
 
 }

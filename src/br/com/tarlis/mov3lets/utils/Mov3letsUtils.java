@@ -29,8 +29,28 @@ public class Mov3letsUtils {
 	
 	private HashMap<String, Long> timers = new HashMap<String, Long>();
 	
+	// This configurations allows to create a logger in a file, 
+	// just output to console, or anything:
+	private LoggerAdapter log = null;
+	
 	private Mov3letsUtils() {
 		
+	}
+	
+	/**
+	 * @param log the log to set
+	 */
+	public void setLogger(LoggerAdapter logger) {
+		this.log = logger;
+	}
+	
+	public void configLogger() {
+		this.log = new LoggerAdapter() {
+			@Override
+			public void trace(String s) {
+				System.out.println(s);
+			}
+		};
 	}
 	
 	/**
@@ -55,7 +75,7 @@ public class Mov3letsUtils {
 	public synchronized long stopTimer(String timer) {
 		if (timers.containsKey(timer)) {
 			long time = (System.nanoTime() - timers.get(timer));
-			printTimer(timer, time);
+			this.log.printTimer(timer, time);
 			return time;
 		} else
 			return 0L;
@@ -65,41 +85,26 @@ public class Mov3letsUtils {
 	 * 
 	 */
 	public synchronized void printTimer(String timer) {
-		if (timers.containsKey(timer))
-			printTimer(timer, (System.nanoTime() - timers.get(timer)));
+		if (this.log != null && timers.containsKey(timer))
+			this.log.printTimer(timer, (System.nanoTime() - timers.get(timer)));
 		else
-			trace("No timer found: " + timer);
-	}
-	
-	public synchronized void printTimer(String timer, long time) {
-		trace(timer + ": " + time/1000000.0 + "s");
+			this.log.trace("No timer found: " + timer);
 	}
 	
 	public synchronized static void trace(String s) {
-		System.out.println(s);
+		if (getInstance().log != null) getInstance().log.trace(s);
 	}
 	
 	public synchronized static void traceW(String s) {
-		trace("Warning: " + s);
+		if (getInstance().log != null) getInstance().log.traceW(s);
 	}
 	
 	public synchronized static void traceE(String s, Exception e) {
-		System.err.println("Error: " + s);
-		e.printStackTrace();
+		if (getInstance().log != null) getInstance().log.traceE(s, e);
 	}
 
 	public void printMemory() {
-		System.gc();
-		Runtime rt = Runtime.getRuntime();
-		double total = rt.totalMemory() / 1024.0;
-		double free = rt.freeMemory() / 1024.0;
-        double used = (total - free);
-        
-		System.out.println(
-                String.format("Memory usage (KiB), Total: %.3f, Free: %.3f, USED: %.3f",
-                    total,
-                    free,
-                    used));
+		if (getInstance().log != null) getInstance().log.printMemory();
 	}
 
 }

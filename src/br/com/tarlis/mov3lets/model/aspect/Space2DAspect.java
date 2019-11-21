@@ -1,5 +1,5 @@
 /**
- * Mov3lets - Multiple Aspect Trajectory (MASTER) Classification Version 3. 
+ * Wizard - Multiple Aspect Trajectory (MASTER) Classification. 
  * Copyright (C) 2019  Tarlis Portela <tarlis@tarlis.com.br>
  * 
  *  This program is free software: you can redistribute it and/or modify
@@ -15,28 +15,43 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package br.com.tarlis.mov3lets.method.discovery;
-
-import java.util.List;
-
-import br.com.tarlis.mov3lets.method.descriptor.Descriptor;
-import br.com.tarlis.mov3lets.method.output.OutputterAdapter;
-import br.com.tarlis.mov3lets.method.qualitymeasure.QualityMeasure;
-import br.com.tarlis.mov3lets.model.MAT;
-import br.com.tarlis.mov3lets.model.Subtrajectory;
+package br.com.tarlis.mov3lets.model.aspect;
 
 /**
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  *
  */
-public class MoveletsSupervisedDiscovery<MO> extends MoveletsDiscovery<MO> {
+public class Space2DAspect extends Aspect<String> {
+
+	private double x;
+	private double y;
 	
 	/**
-	 * @param train
+	 * @param value
 	 */
-	public MoveletsSupervisedDiscovery(MAT<MO> trajectory, List<MAT<MO>> train, List<Subtrajectory> candidates, QualityMeasure qualityMeasure, 
-			Descriptor descriptor, OutputterAdapter<MO> output) {
-		super(trajectory, train, candidates, qualityMeasure, descriptor, output);
+	public Space2DAspect(String value) {
+		super(value);
+		
+		String[] row = value.split(" ");
+		
+		this.x = Double.parseDouble(row[0]);
+		this.y = Double.parseDouble(row[1]);
+	}
+
+	public double getX() {
+		return x;
+	}
+
+	public void setX(double x) {
+		this.x = x;
+	}
+
+	public double getY() {
+		return y;
+	}
+
+	public void setY(double y) {
+		this.y = y;
 	}
 
 }

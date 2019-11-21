@@ -15,30 +15,22 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package br.com.tarlis.mov3lets.method.discovery;
+package br.com.tarlis.mov3lets.method.qualitymeasure;
 
-import java.util.List;
-
-import br.com.tarlis.mov3lets.method.descriptor.Descriptor;
-import br.com.tarlis.mov3lets.method.output.OutputterAdapter;
-import br.com.tarlis.mov3lets.method.qualitymeasure.QualityMeasure;
-import br.com.tarlis.mov3lets.model.MAT;
-import br.com.tarlis.mov3lets.model.Subtrajectory;
+import java.util.Map;
 
 /**
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  *
  */
-public class MoveletsPivotsDiscovery<MO> extends MoveletsDiscovery<MO> {
-
-	/**
-	 * @param trajectory
-	 * @param train
-	 * @param candidates 
-	 */
-	public MoveletsPivotsDiscovery(MAT<MO> trajectory, List<MAT<MO>> train, List<Subtrajectory> candidates, QualityMeasure qualityMeasure, 
-			Descriptor descriptor, OutputterAdapter<MO> output) {
-		super(trajectory, train, candidates, qualityMeasure, descriptor, output);
-	}
+public abstract class Quality {
+	
+	public abstract void setData(Map<String,Double> data);
+	
+	public abstract Map<String,Double> getData();
+	
+	public abstract boolean hasZeroQuality();
+	
+	public abstract <Q extends Quality> int compareTo(Q other);	
 
 }

@@ -15,30 +15,25 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package br.com.tarlis.mov3lets.method.discovery;
+package br.com.tarlis.mov3lets.method.distancemeasure;
 
-import java.util.List;
+import java.util.Date;
 
-import br.com.tarlis.mov3lets.method.descriptor.Descriptor;
-import br.com.tarlis.mov3lets.method.output.OutputterAdapter;
-import br.com.tarlis.mov3lets.method.qualitymeasure.QualityMeasure;
-import br.com.tarlis.mov3lets.model.MAT;
-import br.com.tarlis.mov3lets.model.Subtrajectory;
+import br.com.tarlis.mov3lets.method.descriptor.AttributeDescriptor;
+import br.com.tarlis.mov3lets.model.aspect.Aspect;
 
 /**
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  *
  */
-public class MoveletsPivotsDiscovery<MO> extends MoveletsDiscovery<MO> {
+public class DatetimeDifferenceDistance extends DistanceMeasure<Aspect<Date>> {
 
-	/**
-	 * @param trajectory
-	 * @param train
-	 * @param candidates 
-	 */
-	public MoveletsPivotsDiscovery(MAT<MO> trajectory, List<MAT<MO>> train, List<Subtrajectory> candidates, QualityMeasure qualityMeasure, 
-			Descriptor descriptor, OutputterAdapter<MO> output) {
-		super(trajectory, train, candidates, qualityMeasure, descriptor, output);
+	@Override
+	public double distance(Aspect<Date> asp0, Aspect<Date> asp1, AttributeDescriptor attr) {
+		return normalizeDistance(
+				  Math.abs( (double)(asp1.getValue().getTime() - asp1.getValue().getTime()))/1000, 
+					attr.getComparator().getMaxValue()
+			   );
 	}
 
 }

@@ -17,10 +17,8 @@
  */
 package br.com.tarlis.mov3lets.method;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -35,13 +33,15 @@ import br.com.tarlis.mov3lets.method.descriptor.Descriptor;
 import br.com.tarlis.mov3lets.method.discovery.DiscoveryAdapter;
 import br.com.tarlis.mov3lets.method.discovery.MoveletsDiscovery;
 import br.com.tarlis.mov3lets.method.discovery.MoveletsPivotsDiscovery;
+import br.com.tarlis.mov3lets.method.discovery.MoveletsSupervisedDiscovery;
 import br.com.tarlis.mov3lets.method.loader.DefaultLoader;
 import br.com.tarlis.mov3lets.method.loader.IndexedLoader;
 import br.com.tarlis.mov3lets.method.loader.InterningLoader;
-import br.com.tarlis.mov3lets.model.mat.MAT;
-import br.com.tarlis.mov3lets.model.mat.Subtrajectory;
-import br.com.tarlis.mov3lets.model.qualitymeasure.LeftSidePureCVLigth;
-import br.com.tarlis.mov3lets.model.qualitymeasure.QualityMeasure;
+import br.com.tarlis.mov3lets.method.output.DefaultOutputter;
+import br.com.tarlis.mov3lets.method.qualitymeasure.LeftSidePureCVLigth;
+import br.com.tarlis.mov3lets.method.qualitymeasure.QualityMeasure;
+import br.com.tarlis.mov3lets.model.MAT;
+import br.com.tarlis.mov3lets.model.Subtrajectory;
 import br.com.tarlis.mov3lets.utils.Mov3letsUtils;
 import br.com.tarlis.mov3lets.utils.ProgressBar;
 
@@ -53,9 +53,10 @@ public class Mov3lets<MO> {
 	
 	// CONFIG:
 	private Descriptor descriptor = null;
+	private String resultDirPath = "MasterMovelets";
 	
 	// TRAJS:
-//	private List<MAT> train = null;
+	//	private List<MAT> train = null;
 
 	/**
 	 * @param descFile
@@ -74,7 +75,7 @@ public class Mov3lets<MO> {
 	 */
 	public void mov3lets() throws IOException {
 
-		// [1] - Input:
+		// STEP 1 - Input:
 		Mov3letsUtils.getInstance().startTimer("[1] ==> LOAD INPUT");
 //		Mov3letsUtils.getInstance().printMemory();
 		List<MAT<MO>> train;
@@ -91,32 +92,23 @@ public class Mov3lets<MO> {
 		Mov3letsUtils.getInstance().stopTimer("[1] ==> LOAD INPUT");
 		
 		// STEP 2 - Select Candidates:
-		Mov3letsUtils.getInstance().startTimer("[2] ==> Select Candidates");
-		List<Subtrajectory> candidates = selectCandidates(train, new LeftSidePureCVLigth(train, 
+		Mov3letsUtils.getInstance().startTimer("[2] ==> Extracting Movelets");
+//		List<Subtrajectory> candidates = 
+		selectCandidates(train, new LeftSidePureCVLigth(train, 
 	    		getDescriptor().getParamAsInt("samples"), 
 	    		getDescriptor().getParamAsDouble("sampleSize"), 
 	    		getDescriptor().getParamAsText("medium")));
-		Mov3letsUtils.getInstance().startTimer("[2] ==> Select Candidates");
+		Mov3letsUtils.getInstance().startTimer("[2] ==> Extracting Movelets");
 		
-		// STEP 3 - Qualify Candidates:
-		Mov3letsUtils.getInstance().startTimer("[3] ==> Qualify Candidates");
-		Mov3letsUtils.trace("@@ TEST CANDIDATES: @@");
-		for (Subtrajectory subtrajectory : candidates) {
-			Mov3letsUtils.trace(subtrajectory.toString());
-		}
-		Mov3letsUtils.trace("@@ ---------------- @@");
-		Mov3letsUtils.getInstance().startTimer("[3] ==> Qualify Candidates");
-		
-		// STEP 4 - Output:
-		Mov3letsUtils.getInstance().startTimer("[4] ==> Output");
-
-		Mov3letsUtils.getInstance().startTimer("[4] ==> Output");
+		// STEP 3 - Output:
+//		Mov3letsUtils.getInstance().startTimer("[3] ==> Output");
+//		Mov3letsUtils.getInstance().startTimer("[3] ==> Output");
 	}
 	
 	/**
 	 * STEP 2
 	 * @param train 
-	 * @param leftSidePureCVLigth 
+	 * @param qualityMeasure 
 	 */
 	private List<Subtrajectory> selectCandidates(List<MAT<MO>> train, QualityMeasure qualityMeasure) {
 		List<MO> classes = train.stream().map(e -> (MO) e.getMovingObject()).distinct().collect(Collectors.toList());
@@ -127,49 +119,55 @@ public class Mov3lets<MO> {
 		ThreadPoolExecutor executor = (ThreadPoolExecutor) 
 				Executors.newFixedThreadPool(N_THREADS == 0? 1 : N_THREADS);
 		List<Future<Integer>> resultList = new ArrayList<>();
-		
-		for (MO myclass : classes) {			
-			// TODO: MoveletsRunUnit:304
-//			if ( ! (new File(resultDirPath + myclass + "/test.csv").exists()) ) {
-			
-			/** STEP 2.1: It starts at discovering movelets */
-			for (MAT<MO> trajectory : train) {
-//				Mov3letsUtils.trace("\t>> Trajectory: "+trajectory.getTid()+". "
-//						+ "Trajectory Size: "+trajectory.getPoints().size()+". Number of Candidates: 459. Total of Movelets: 13. Max Size: 17. Used Features: 2" + myclass + ". Discovering movelets.");
 
-				DiscoveryAdapter<MO> moveletsDiscovery =  getDescriptor().getFlag("PIVOTS")?
-						new MoveletsPivotsDiscovery<MO>(trajectory, train, candidates, qualityMeasure, getDescriptor()) : 
-						new MoveletsDiscovery<MO>(trajectory, train, candidates, qualityMeasure, getDescriptor());
-				resultList.add(executor.submit(moveletsDiscovery));	
+		/** STEP 2.1: Starts at discovering movelets */
+		for (MO myclass : classes) {
+			if ( ! (new File(resultDirPath + myclass + "/test.csv").exists()) ) {
+				for (MAT<MO> trajectory : train) {
+					DiscoveryAdapter<MO> moveletsDiscovery;
+					if (getDescriptor().getFlag("pivots")) {
+						moveletsDiscovery = new MoveletsPivotsDiscovery<MO>(trajectory, train, candidates, qualityMeasure, 
+								getDescriptor(), new DefaultOutputter<MO>(resultDirPath, getDescriptor()));
+					} else if (getDescriptor().getFlag("supervised")) {
+						moveletsDiscovery = new MoveletsSupervisedDiscovery<MO>(trajectory, train, candidates, qualityMeasure, 
+								getDescriptor(), new DefaultOutputter<MO>(resultDirPath, getDescriptor()));
+					} else {
+						moveletsDiscovery = new MoveletsDiscovery<MO>(trajectory, train, candidates, qualityMeasure, 
+								getDescriptor(), new DefaultOutputter<MO>(resultDirPath, getDescriptor()));
+					}
+					resultList.add(executor.submit(moveletsDiscovery));	
+				}
+			} else {
+				Mov3letsUtils.trace("\t[Class: " + myclass + "] >> Movelets previously discovered.");
 			}
-			/** STEP 2.1: --------------------------------- */
 		}
+		/** STEP 2.1: --------------------------------- */
 		
 		/* Keeping up with Progress output */
 		trackProgress(train, resultList);
 		
 		return candidates;
 	}
-	
-	public void writeShapelets(List<Subtrajectory> candidates, String filepath) {
-		BufferedWriter writer;
-		try {
-			
-			File file = new File(filepath);
-			file.getParentFile().mkdirs();
-			writer = new BufferedWriter(new FileWriter(file));
 
-			for (Subtrajectory subtrajectory : candidates) {
-				writer.write(subtrajectory.toString() + System.getProperty("line.separator"));
-			}
-
-			writer.close();
-
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+//	public void writeShapelets(List<Subtrajectory> candidates, String filepath) {
+//		BufferedWriter writer;
+//		try {
+//			
+//			File file = new File(filepath);
+//			file.getParentFile().mkdirs();
+//			writer = new BufferedWriter(new FileWriter(file));
+//
+//			for (Subtrajectory subtrajectory : candidates) {
+//				writer.write(subtrajectory.toString() + System.getProperty("line.separator"));
+//			}
+//
+//			writer.close();
+//
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//	}
 
 	/**
 	 * @param train
@@ -196,6 +194,13 @@ public class Mov3lets<MO> {
 	 */
 	public Descriptor getDescriptor() {
 		return descriptor;
+	}
+	
+	/**
+	 * @param resultDirPath the resultDirPath to set
+	 */
+	public void setResultDirPath(String resultDirPath) {
+		this.resultDirPath = resultDirPath;
 	}
 	
 }

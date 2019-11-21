@@ -15,30 +15,23 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package br.com.tarlis.mov3lets.method.discovery;
+package br.com.tarlis.mov3lets.method.distancemeasure;
 
-import java.util.List;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
-import br.com.tarlis.mov3lets.method.descriptor.Descriptor;
-import br.com.tarlis.mov3lets.method.output.OutputterAdapter;
-import br.com.tarlis.mov3lets.method.qualitymeasure.QualityMeasure;
-import br.com.tarlis.mov3lets.model.MAT;
-import br.com.tarlis.mov3lets.model.Subtrajectory;
+import br.com.tarlis.mov3lets.method.descriptor.AttributeDescriptor;
+import br.com.tarlis.mov3lets.model.aspect.Aspect;
 
 /**
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  *
  */
-public class MoveletsPivotsDiscovery<MO> extends MoveletsDiscovery<MO> {
+public class LocaldateDifferenceDistance extends DistanceMeasure<Aspect<LocalDate>> {
 
-	/**
-	 * @param trajectory
-	 * @param train
-	 * @param candidates 
-	 */
-	public MoveletsPivotsDiscovery(MAT<MO> trajectory, List<MAT<MO>> train, List<Subtrajectory> candidates, QualityMeasure qualityMeasure, 
-			Descriptor descriptor, OutputterAdapter<MO> output) {
-		super(trajectory, train, candidates, qualityMeasure, descriptor, output);
+	@Override
+	public double distance(Aspect<LocalDate> asp0, Aspect<LocalDate> asp1, AttributeDescriptor attr) {
+		return ChronoUnit.MILLIS.between(asp0.getValue(), asp1.getValue()) / 1000;
 	}
 
 }

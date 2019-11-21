@@ -17,7 +17,7 @@
  */
 package br.com.tarlis.mov3lets.utils;
 
-import br.com.tarlis.mov3lets.model.mat.Point;
+import br.com.tarlis.mov3lets.model.Point;
 
 /**
  * @author Tarlis Portela <tarlis@tarlis.com.br>

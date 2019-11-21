@@ -15,8 +15,8 @@ import org.apache.commons.csv.CSVRecord;
 
 import br.com.tarlis.mov3lets.method.descriptor.AttributeDescriptor;
 import br.com.tarlis.mov3lets.method.descriptor.Descriptor;
-import br.com.tarlis.mov3lets.model.mat.MAT;
-import br.com.tarlis.mov3lets.model.mat.Point;
+import br.com.tarlis.mov3lets.model.MAT;
+import br.com.tarlis.mov3lets.model.Point;
 
 /**
  * @author tarlisportela

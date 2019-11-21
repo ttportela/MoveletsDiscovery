@@ -21,8 +21,10 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import br.com.tarlis.mov3lets.method.descriptor.Descriptor;
-import br.com.tarlis.mov3lets.model.mat.MAT;
-import br.com.tarlis.mov3lets.model.mat.Subtrajectory;
+import br.com.tarlis.mov3lets.method.output.DefaultOutputter;
+import br.com.tarlis.mov3lets.method.output.OutputterAdapter;
+import br.com.tarlis.mov3lets.model.MAT;
+import br.com.tarlis.mov3lets.model.Subtrajectory;
 
 /**
  * @author Tarlis Portela <tarlis@tarlis.com.br>
@@ -37,15 +39,19 @@ public abstract class DiscoveryAdapter<MO> implements Callable<Integer> {
 
 	protected List<Subtrajectory> candidates;
 	
+	protected OutputterAdapter<MO> output;
+	
 	/**
 	 * @param train
 	 * @param candidates 
 	 */
-	public DiscoveryAdapter(MAT<MO> trajectory, List<MAT<MO>> train, List<Subtrajectory> candidates, Descriptor descriptor) {
+	public DiscoveryAdapter(MAT<MO> trajectory, List<MAT<MO>> train, List<Subtrajectory> candidates, 
+			Descriptor descriptor, OutputterAdapter<MO> output) {
 		this.trajectory = trajectory;
 		this.data = train;
 		this.candidates = candidates;
 		this.descriptor = descriptor;
+		this.output = output;
 	}
 	
 	public abstract void discover(); 
@@ -70,6 +76,16 @@ public abstract class DiscoveryAdapter<MO> implements Callable<Integer> {
 	 */
 	public Descriptor getDescriptor() {
 		return descriptor;
+	}
+	
+	public void output(List<MAT<MO>> trajectories, List<Subtrajectory> movelets) {
+		if (output == null)
+			output = new DefaultOutputter<MO>(getDescriptor());
+
+		// By Default, it writes a JSON and a CSV in a attribute-value format	
+		// It puts distances as trajectory attributes
+		output.attributesToTrajectories(trajectories, movelets);	
+		output.write(trajectories, movelets);
 	}
 
 }

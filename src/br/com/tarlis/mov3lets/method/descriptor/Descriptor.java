@@ -30,8 +30,8 @@ import java.util.List;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import br.com.tarlis.mov3lets.model.distancemeasure.DistanceMeasure;
-import br.com.tarlis.mov3lets.model.distancemeasure.NominalEqualsDistance;
+import br.com.tarlis.mov3lets.method.distancemeasure.DistanceMeasure;
+import br.com.tarlis.mov3lets.method.distancemeasure.NominalEqualsDistance;
 import br.com.tarlis.mov3lets.utils.Mov3letsUtils;
 
 /**

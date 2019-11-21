@@ -17,7 +17,7 @@
  */
 package br.com.tarlis.mov3lets.method.descriptor;
 
-import br.com.tarlis.mov3lets.model.distancemeasure.DistanceMeasure;
+import br.com.tarlis.mov3lets.method.distancemeasure.DistanceMeasure;
 
 /**
  * @author Tarlis Portela <tarlis@tarlis.com.br>
