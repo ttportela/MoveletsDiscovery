@@ -39,6 +39,7 @@ public class Subtrajectory {
 	private List<Subtrajectory> bestAlignments;
 	
 	private Quality quality;
+	private double proportionInClass;
 
 //	private HashMap<String, IFeature> features;
 	
@@ -240,6 +241,20 @@ public class Subtrajectory {
 
 	public void setSplitpointData(Map<String, double[]> splitpointData) {
 		this.splitpointData = splitpointData;
+	}
+	
+	/**
+	 * @return the proportionInClass
+	 */
+	public double getProportionInClass() {
+		return proportionInClass;
+	}
+	
+	/**
+	 * @param proportionInClass the proportionInClass to set
+	 */
+	public void setProportionInClass(double proportionInClass) {
+		this.proportionInClass = proportionInClass;
 	}
 	
 }
