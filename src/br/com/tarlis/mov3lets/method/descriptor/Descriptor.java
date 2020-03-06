@@ -123,7 +123,7 @@ public class Descriptor {
 	 */
 	private void instantiateDistanceMeasure(AttributeDescriptor attr) {
 		String className = attr.getType();
-		className = "br.com.tarlis.mov3lets.model.distancemeasure." 
+		className = "br.com.tarlis.mov3lets.method.distancemeasure." 
 				+ className.substring(0, 1).toUpperCase() + className.substring(1).toLowerCase();
 		className += attr.getComparator().getDistance().substring(0, 1).toUpperCase() 
 				+ attr.getComparator().getDistance().substring(1).toLowerCase();
@@ -146,7 +146,7 @@ public class Descriptor {
 	public String toString() {
 		String s = "";
 		for (AttributeDescriptor attribute : attributes) {
-			s += attribute + "\n";
+			s += "\t - " + attribute + "\n";
 		}
 		return s;
 	}
@@ -239,6 +239,13 @@ public class Descriptor {
 			return params.get(key).toString();
 		else 
 			return null;
+	}
+	
+	/**
+	 * @return the params
+	 */
+	public HashMap<String, Object> getParams() {
+		return params;
 	}
 
 	/**

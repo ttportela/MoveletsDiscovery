@@ -23,21 +23,19 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
 import br.com.tarlis.mov3lets.method.descriptor.Descriptor;
 import br.com.tarlis.mov3lets.method.discovery.DiscoveryAdapter;
-import br.com.tarlis.mov3lets.method.discovery.MoveletsDiscovery;
-import br.com.tarlis.mov3lets.method.discovery.MoveletsPivotsDiscovery;
-import br.com.tarlis.mov3lets.method.discovery.MoveletsSupervisedDiscovery;
+import br.com.tarlis.mov3lets.method.discovery.MoveletsDiscovery_old;
+import br.com.tarlis.mov3lets.method.discovery.PivotsMoveletsDiscovery;
+import br.com.tarlis.mov3lets.method.discovery.SupervisedMoveletsDiscovery;
 import br.com.tarlis.mov3lets.method.loader.DefaultLoader;
 import br.com.tarlis.mov3lets.method.loader.IndexedLoader;
 import br.com.tarlis.mov3lets.method.loader.InterningLoader;
-import br.com.tarlis.mov3lets.method.output.DefaultOutputter;
+import br.com.tarlis.mov3lets.method.output.CSVOutputter;
+import br.com.tarlis.mov3lets.method.output.JSONOutputter;
+import br.com.tarlis.mov3lets.method.output.OutputterAdapter;
 import br.com.tarlis.mov3lets.method.qualitymeasure.LeftSidePureCVLigth;
 import br.com.tarlis.mov3lets.method.qualitymeasure.QualityMeasure;
 import br.com.tarlis.mov3lets.model.MAT;
@@ -116,26 +114,38 @@ public class Mov3lets<MO> {
 		List<Subtrajectory> candidates = new ArrayList<Subtrajectory>();
 		
 		int N_THREADS = getDescriptor().getParamAsInt("nthreads");
-		ThreadPoolExecutor executor = (ThreadPoolExecutor) 
-				Executors.newFixedThreadPool(N_THREADS == 0? 1 : N_THREADS);
-		List<Future<Integer>> resultList = new ArrayList<>();
-
+//		ThreadPoolExecutor executor = (ThreadPoolExecutor) 
+//				Executors.newFixedThreadPool(N_THREADS == 0? 1 : N_THREADS);
+//		List<Future<Integer>> resultList = new ArrayList<>();
+		
+		ProgressBar progressBar = new ProgressBar("Movelet Discovery");
+		int progress = 0;
+//		progressBar.update(progress, train.size());
+		
 		/** STEP 2.1: Starts at discovering movelets */
 		for (MO myclass : classes) {
 			if ( ! (new File(resultDirPath + myclass + "/test.csv").exists()) ) {
 				for (MAT<MO> trajectory : train) {
 					DiscoveryAdapter<MO> moveletsDiscovery;
 					if (getDescriptor().getFlag("pivots")) {
-						moveletsDiscovery = new MoveletsPivotsDiscovery<MO>(trajectory, train, candidates, qualityMeasure, 
-								getDescriptor(), new DefaultOutputter<MO>(resultDirPath, getDescriptor()));
+						moveletsDiscovery = new PivotsMoveletsDiscovery<MO>(trajectory, train, candidates, qualityMeasure, 
+								getDescriptor());
 					} else if (getDescriptor().getFlag("supervised")) {
-						moveletsDiscovery = new MoveletsSupervisedDiscovery<MO>(trajectory, train, candidates, qualityMeasure, 
-								getDescriptor(), new DefaultOutputter<MO>(resultDirPath, getDescriptor()));
+						moveletsDiscovery = new SupervisedMoveletsDiscovery<MO>(trajectory, train, candidates, qualityMeasure, 
+								getDescriptor());
 					} else {
-						moveletsDiscovery = new MoveletsDiscovery<MO>(trajectory, train, candidates, qualityMeasure, 
-								getDescriptor(), new DefaultOutputter<MO>(resultDirPath, getDescriptor()));
+						moveletsDiscovery = new MoveletsDiscovery_old<MO>(trajectory, train, candidates, qualityMeasure, 
+								getDescriptor());
 					}
-					resultList.add(executor.submit(moveletsDiscovery));	
+					
+					/** Configuring outputs: */
+					moveletsDiscovery.setOutputers(new ArrayList<OutputterAdapter<MO>>());
+					moveletsDiscovery.getOutputers().add(new JSONOutputter<MO>(resultDirPath, getDescriptor()));
+					moveletsDiscovery.getOutputers().add(new CSVOutputter<MO>(resultDirPath, getDescriptor()));
+
+					progressBar.update(progress++, train.size());
+//					resultList.add(executor.submit(moveletsDiscovery));
+					moveletsDiscovery.discover();
 				}
 			} else {
 				Mov3letsUtils.trace("\t[Class: " + myclass + "] >> Movelets previously discovered.");
@@ -144,7 +154,19 @@ public class Mov3lets<MO> {
 		/** STEP 2.1: --------------------------------- */
 		
 		/* Keeping up with Progress output */
-		trackProgress(train, resultList);
+//		ProgressBar progressBar = new ProgressBar("\tMovelet Discovery");
+//		int progress = 0;
+//		progressBar.update(progress, train.size());
+//		List<Integer> results = new ArrayList<Integer>();
+//		for (Future<Integer> future : resultList) {
+//			try {
+//				results.add(future.get());
+//				progressBar.update(progress++, train.size());
+//				Executors.newCachedThreadPool();
+//			} catch (InterruptedException | ExecutionException e) {
+//				e.printStackTrace();
+//			}
+//		}
 		
 		return candidates;
 	}
@@ -168,26 +190,6 @@ public class Mov3lets<MO> {
 //			e.printStackTrace();
 //		}
 //	}
-
-	/**
-	 * @param train
-	 * @param result
-	 */
-	private void trackProgress(List<MAT<MO>> train, List<Future<Integer>> result) {
-		ProgressBar progressBar = new ProgressBar("\tMovelet Discovery");
-		int progress = 0;
-		progressBar.update(progress, train.size());
-		List<Integer> results = new ArrayList<>();
-		for (Future<Integer> future : result) {
-			try {
-				results.add(future.get());
-				progressBar.update(progress++, train.size());
-				Executors.newCachedThreadPool();
-			} catch (InterruptedException | ExecutionException e) {
-				e.printStackTrace();
-			}
-		}
-	}
 
 	/**
 	 * @return the descriptor

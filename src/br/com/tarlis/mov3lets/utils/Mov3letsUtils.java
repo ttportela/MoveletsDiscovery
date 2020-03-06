@@ -67,6 +67,7 @@ public class Mov3letsUtils {
 	 */
 	public synchronized void startTimer(String timer) {
 		timers.put(timer, System.nanoTime());
+		this.log.trace("[Timer Set] " + timer);
 	}
 	
 	/**

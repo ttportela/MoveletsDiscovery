@@ -12,7 +12,7 @@ public abstract class LoggerAdapter {
 	public abstract void trace(String s);
 	
 	public synchronized void printTimer(String timer, long time) {
-		trace(timer + ": " + time/1000000.0 + "s");
+		trace(timer + ": " + time/1000000.0 + "ms");
 	}
 	
 	public synchronized void traceW(String s) {

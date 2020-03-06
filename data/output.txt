@@ -1,13 +1,13 @@
-Starting running MASTERMovelets extractor 
+Starting MASTERMovelets +Log extractor 
 Configurations:
-	Datasets directory:	/home/tarlis/Documents/Research/2 - Classification/Tests 2019-2/Test - Foursquare/MASTERMov3lets/
-	Results directory:	results/
-	Description file :	descriptor.json
+	Datasets directory:	/home/tarlis/Documents/Research/data/FoursquareNY/
+	Results directory:	/home/tarlis/Documents/Research/results/
+	Description file :	FoursquareNY_ALL_v3.json
 	Using Index:		false
 	String Interning:	false
 	Allowed Threads:	1
 	Min size:		1
-	Max size:		-1
+	Max size:		-3
 	Quality Measure:	LSP
 	Explore dimensions:	true
 	Samples:		1
@@ -16,13 +16,21 @@ Configurations:
 	MPT:			-1
 	Output:			discrete
 	WITHOUT Last Prunning
-Attributes:
-Attr: 2 - poi/nominal (equals/-1.0)
-Attr: 8 - time/numeric (difference/-1.0)
+	Attributes:
+	 - Attr: 1 - day/nominal (weekday/-1.0)
+	 - Attr: 2 - poi/nominal (equals/-1.0)
+	 - Attr: 3 - root_type/nominal (equals/-1.0)
+	 - Attr: 4 - price/numeric (difference/-1.0)
+	 - Attr: 5 - rating/numeric (difference/-1.0)
+	 - Attr: 6 - weather/nominal (equals/-1.0)
+	 - Attr: 7 - lat_lon/space2d (euclidean/-1.0)
+	 - Attr: 8 - time/numeric (difference/-1.0)
 
 
-Memory usage (KiB), Total: 81920,000, Free: 57249,328, USED: 24670,672
-[1] ==> LOAD INPUT: 373.052775s
-	Class: 484. Discovering movelets.
+[Timer Set] [Runtime] ==> 
+[Timer Set] [1] ==> LOAD INPUT
+Memory usage (KiB), Total: 126976,000, Free: 83475,109, USED: 43500,891
+[1] ==> LOAD INPUT: 731.627222s
+[Timer Set] [2] ==> Extracting Movelets
 
-	Movelet Discovery   0%  /
+Movelet Discovery   0%  /	[Discovering movelets] >> Class: 6.

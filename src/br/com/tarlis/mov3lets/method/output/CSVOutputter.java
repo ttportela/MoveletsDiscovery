@@ -25,6 +25,10 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO> {
 	public CSVOutputter(String filePath, Descriptor descriptor) {
 		super(filePath, descriptor);
 	}
+	
+	public CSVOutputter(Descriptor descriptor) {
+		super(descriptor);
+	}
 
 	@Override
 	public void write(List<MAT<MO>> trajectories, List<Subtrajectory> movelets) {

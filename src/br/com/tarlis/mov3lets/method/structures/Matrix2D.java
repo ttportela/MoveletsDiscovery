@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package br.com.tarlis.mov3lets.utils;
+package br.com.tarlis.mov3lets.method.structures;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,19 +28,19 @@ import br.com.tarlis.mov3lets.model.Point;
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  *
  */
-public class Matrix4D extends HashMap<Pair, ArrayList<Double>> {
+public class Matrix2D extends HashMap<Pair, ArrayList<Double>> {
 	
 	private double DEFAULT = Double.POSITIVE_INFINITY;
 	
 	/**
 	 * 
 	 */
-	public Matrix4D() {}
+	public Matrix2D() {}
 	
 	/**
 	 * 
 	 */
-	public Matrix4D(double defaultValue) {
+	public Matrix2D(double defaultValue) {
 		this.DEFAULT = defaultValue;
 	}
 
@@ -102,7 +102,7 @@ public class Matrix4D extends HashMap<Pair, ArrayList<Double>> {
 	
 	@Override
 	public Object clone() {
-		Matrix4D clone = new Matrix4D();
+		Matrix2D clone = new Matrix2D();
 		for(Entry<Pair, ArrayList<Double>> entry : this.entrySet()) {
 	        //iterate through the graph
 	        ArrayList<Double> sourceList = entry.getValue();

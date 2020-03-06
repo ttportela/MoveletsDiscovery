@@ -35,6 +35,13 @@ public class JSONOutputter<MO> extends OutputterAdapter<MO> {
 		super(filePath, descriptor);
 	}
 
+	/**
+	 * @param filePath
+	 */
+	public JSONOutputter(Descriptor descriptor) {
+		super(descriptor);
+	}
+
 	@Override
 	public void write(List<MAT<MO>> trajectories, List<Subtrajectory> movelets) {
 		List<Map<String,Object>> classOfTrajectories = new ArrayList<>();

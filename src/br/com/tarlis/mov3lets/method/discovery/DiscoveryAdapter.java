@@ -17,11 +17,13 @@
  */
 package br.com.tarlis.mov3lets.method.discovery;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
 import br.com.tarlis.mov3lets.method.descriptor.Descriptor;
-import br.com.tarlis.mov3lets.method.output.DefaultOutputter;
+import br.com.tarlis.mov3lets.method.output.CSVOutputter;
+import br.com.tarlis.mov3lets.method.output.JSONOutputter;
 import br.com.tarlis.mov3lets.method.output.OutputterAdapter;
 import br.com.tarlis.mov3lets.model.MAT;
 import br.com.tarlis.mov3lets.model.Subtrajectory;
@@ -39,19 +41,35 @@ public abstract class DiscoveryAdapter<MO> implements Callable<Integer> {
 
 	protected List<Subtrajectory> candidates;
 	
-	protected OutputterAdapter<MO> output;
+	protected List<OutputterAdapter<MO>> outputers = new ArrayList<OutputterAdapter<MO>>();
 	
 	/**
 	 * @param train
 	 * @param candidates 
 	 */
 	public DiscoveryAdapter(MAT<MO> trajectory, List<MAT<MO>> train, List<Subtrajectory> candidates, 
-			Descriptor descriptor, OutputterAdapter<MO> output) {
+			Descriptor descriptor) {
 		this.trajectory = trajectory;
 		this.data = train;
 		this.candidates = candidates;
 		this.descriptor = descriptor;
-		this.output = output;
+		this.outputers = new ArrayList<OutputterAdapter<MO>>();
+		this.outputers.add(new CSVOutputter<MO>(getDescriptor()));
+		this.outputers.add(new JSONOutputter<MO>(getDescriptor()));
+		this.outputers.add(new CSVOutputter<MO>(getDescriptor()));
+	}
+	
+	/**
+	 * @param train
+	 * @param candidates 
+	 */
+	public DiscoveryAdapter(MAT<MO> trajectory, List<MAT<MO>> train, List<Subtrajectory> candidates, 
+			Descriptor descriptor, List<OutputterAdapter<MO>> outputers) {
+		this.trajectory = trajectory;
+		this.data = train;
+		this.candidates = candidates;
+		this.descriptor = descriptor;
+		this.outputers = outputers;
 	}
 	
 	public abstract void discover(); 
@@ -79,13 +97,26 @@ public abstract class DiscoveryAdapter<MO> implements Callable<Integer> {
 	}
 	
 	public void output(List<MAT<MO>> trajectories, List<Subtrajectory> movelets) {
-		if (output == null)
-			output = new DefaultOutputter<MO>(getDescriptor());
-
 		// By Default, it writes a JSON and a CSV in a attribute-value format	
 		// It puts distances as trajectory attributes
-		output.attributesToTrajectories(trajectories, movelets);	
-		output.write(trajectories, movelets);
+		for (OutputterAdapter<MO> output : outputers) {
+			output.attributesToTrajectories(trajectories, movelets);	
+			output.write(trajectories, movelets);			
+		}
+	}
+	
+	/**
+	 * @param outputers the outputers to set
+	 */
+	public void setOutputers(List<OutputterAdapter<MO>> outputers) {
+		this.outputers = outputers;
+	}
+	
+	/**
+	 * @return the outputers
+	 */
+	public List<OutputterAdapter<MO>> getOutputers() {
+		return outputers;
 	}
 
 }

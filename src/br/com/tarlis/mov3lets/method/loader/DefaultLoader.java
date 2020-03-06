@@ -56,7 +56,8 @@ public class DefaultLoader<T extends MAT<?>> extends LoaderAdapter<T> {
 			Point poi = new Point();	
 			poi.setTrajectory(mat);
 			for (AttributeDescriptor attr : descriptor.getAttributes()) {
-				poi.getAspects().put(attr.getText(), instantiateAspect(attr, line.get(attr.getOrder()-1)));
+//				poi.getAspects().put(attr.getText(), instantiateAspect(attr, line.get(attr.getOrder()-1)));
+				poi.getAspects().add(instantiateAspect(attr, line.get(attr.getOrder()-1)));
 				mat.getPoints().add(poi);
 			}
 		}

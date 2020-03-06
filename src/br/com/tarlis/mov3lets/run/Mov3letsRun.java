@@ -39,6 +39,11 @@ public class Mov3letsRun {
 		// PARAMS:
 		String descFile = (params.containsKey("curpath")? params.get("curpath").toString() : "./");
 		descFile = descFile + (params.containsKey("descfile")? params.get("descfile").toString() : "descriptor.json");
+
+		// Config to - Show trace messages OR Ignore all
+		if (params.containsKey("verbose") && (boolean) params.get("verbose"))
+			Mov3letsUtils.getInstance().configLogger();
+		
 //		String inputFile = (args.length > 1? args[1] : "data/foursquare.csv");
 		
 		// 2 - RUN
@@ -46,11 +51,7 @@ public class Mov3letsRun {
 		mov.getDescriptor().addParams(defaultParams());
 		mov.getDescriptor().addParams(params);
 		System.out.println(showConfiguration(mov.getDescriptor()));
-		
-		// Config to - Show trace messages OR Ignore all
-		if (mov.getDescriptor().getFlag("verbose"))
-			Mov3letsUtils.getInstance().configLogger();
-		
+				
 		// Set Result Dir:
 		mov.setResultDirPath(configRespath(descFile, mov.getDescriptor()));
 		
@@ -192,6 +193,7 @@ public class Mov3letsRun {
 				params.put("interning", Boolean.valueOf(value));
 				break;
 			case "-v":
+			case "-verbose":
 				params.put("verbose", Boolean.valueOf(value));
 				break;
 			default:
@@ -209,11 +211,11 @@ public class Mov3letsRun {
 		String str = new String();
 		
 		if(descriptor.getFlag("pivots"))
-			str += "Starting running Movelet_pivots extractor (10%) " + System.getProperty("line.separator");
+			str += "Starting MASTERMovelets +Pivots extractor (10%) " + System.getProperty("line.separator");
 		else if(descriptor.getParamAsInt("max_size")==-3)
-			str += "Starting running MASTERMovelets_Log extractor " + System.getProperty("line.separator");
+			str += "Starting MASTERMovelets +Log extractor " + System.getProperty("line.separator");
 		else
-			str += "Starting running MASTERMovelets extractor " + System.getProperty("line.separator");
+			str += "Starting MASTERMovelets extractor " + System.getProperty("line.separator");
 		
 		if (descriptor.hasParam("outside_pivots"))
 			str += "Getting pivots from outside file:" + descriptor.getParam("outside_pivots") + System.getProperty("line.separator");
@@ -255,7 +257,7 @@ public class Mov3letsRun {
 		else
 			str += "\tWITHOUT Last Prunning" + System.getProperty("line.separator");
 		
-		str += "Attributes:"+ System.getProperty("line.separator") 
+		str += "\tAttributes:"+ System.getProperty("line.separator") 
 			+ descriptor.toString() + System.getProperty("line.separator");
 		
 		return str;

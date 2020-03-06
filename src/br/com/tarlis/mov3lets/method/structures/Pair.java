@@ -15,20 +15,18 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package br.com.tarlis.mov3lets.utils;
-
-import br.com.tarlis.mov3lets.model.Point;
+package br.com.tarlis.mov3lets.method.structures;
 
 /**
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  *
  */
-public class Pair extends org.apache.commons.math3.util.Pair<Point, Point> {
+public class Pair<M, N> extends org.apache.commons.math3.util.Pair<M, N> {
 
 	/**
 	 * @param entry
 	 */
-	public Pair(org.apache.commons.math3.util.Pair<? extends Point, ? extends Point> entry) {
+	public Pair(org.apache.commons.math3.util.Pair<? extends M, ? extends N> entry) {
 		super(entry);
 	}
 	
@@ -38,7 +36,7 @@ public class Pair extends org.apache.commons.math3.util.Pair<Point, Point> {
 	 * @param x
 	 * @param y
 	 */
-	public Pair(Point x, Point y) {
+	public Pair(M x, N y) {
 		super(x, y);
 	}
 

@@ -17,7 +17,7 @@ import br.com.tarlis.mov3lets.model.aspect.Aspect;
  */
 public class InterningLoader<T extends MAT<?>> extends IndexedLoader<T> {
 	
-	private HashMap<Pair<String, String>, Aspect<?>> MEM = new HashMap<Pair<String,String>, Aspect<?>>();
+	protected HashMap<Pair<String, String>, Aspect<?>> MEM = new HashMap<Pair<String,String>, Aspect<?>>();
 	
 	public Aspect<?> instantiateAspect(AttributeDescriptor attr, String value) {
 		
@@ -30,6 +30,20 @@ public class InterningLoader<T extends MAT<?>> extends IndexedLoader<T> {
 			MEM.put(key, asp);
 			return asp;
 		}
+	}
+	
+	/**
+	 * @return the mEM
+	 */
+	public HashMap<Pair<String, String>, Aspect<?>> getMEM() {
+		return MEM;
+	}
+	
+	/**
+	 * @param mEM the mEM to set
+	 */
+	public void setMEM(HashMap<Pair<String, String>, Aspect<?>> mEM) {
+		MEM = mEM;
 	}
 
 }

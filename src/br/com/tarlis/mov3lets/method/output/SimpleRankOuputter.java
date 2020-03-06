@@ -11,13 +11,14 @@ import java.util.HashMap;
 import java.util.List;
 
 import br.com.tarlis.mov3lets.method.descriptor.Descriptor;
+import br.com.tarlis.mov3lets.model.MAT;
 import br.com.tarlis.mov3lets.model.Subtrajectory;
 
 /**
  * @author tarlis
  *
  */
-public class SimpleRankOuputter<MO> extends DefaultOutputter<MO> {
+public class SimpleRankOuputter<MO> extends OutputterAdapter<MO> {
 
 	/**
 	 * @param filePath
@@ -26,45 +27,6 @@ public class SimpleRankOuputter<MO> extends DefaultOutputter<MO> {
 	public SimpleRankOuputter(String filePath, Descriptor descriptor) {
 		super(filePath, descriptor);
 		writeColumns();
-	}
-
-	/**
-	 * @param movelets
-	 * @param resultDirPath
-	 */
-	public void outputRank(List<Subtrajectory> movelets, String resultDirPath) {
-//		System.out.println("\t==> Output Rank of Movelets:");
-		
-		List<HashMap<String, String>> rank = new ArrayList<HashMap<String,String>>();
-//		List<HashMap<String, String>> rankALL = new ArrayList<HashMap<String,String>>();
-		
-		List<Integer> trajs = new ArrayList<Integer>();
-		for (int i = 0; i < movelets.size(); i++) {
-			Subtrajectory m = movelets.get(i);
-			
-			HashMap<String, String> item = new HashMap<String, String>();
-			item.put("rank", "-");
-			item.put("tid", 		m.getTrajectory().getTid() + "");
-			item.put("class",		m.getTrajectory().getMovingObject().toString());
-			item.put("size", 		m.getSize() + "");
-			item.put("start", 		m.getStart()+"");
-			item.put("end", 		m.getEnd()+"");
-			item.put("quality", 	m.getQuality().getData().get("quality") + "");
-			item.put("proportion", 	m.getProportionInClass() + "");
-//			System.out.print("\t\t["+(i+1)+"ª]: "
-//					+ item.toString());
-			if (!trajs.contains(m.getTrajectory().getTid())) {
-				trajs.add(m.getTrajectory().getTid());
-				item.put("rank", 	trajs.size() + "");
-				rank.add(item);
-//				System.out.print(" => RANK: " + trajs.size());
-			}
-//			System.out.println();
-//			rankALL.add(item);
-		}
-		
-		appendCSV(getFilePath() + "rank_t.csv", rank); 
-//		appendCSV(MoveletsRunUnit_Supervised.RESULT_DIR + "rank_m.csv", rankALL); 
 	}
 
 	private void appendCSV(String resultDirPath, List<HashMap<String, String>> rank) {
@@ -108,6 +70,42 @@ public class SimpleRankOuputter<MO> extends DefaultOutputter<MO> {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public void write(List<MAT<MO>> trajectories, List<Subtrajectory> movelets) {
+//		System.out.println("\t==> Output Rank of Movelets:");
+		
+		List<HashMap<String, String>> rank = new ArrayList<HashMap<String,String>>();
+//		List<HashMap<String, String>> rankALL = new ArrayList<HashMap<String,String>>();
+		
+		List<Integer> trajs = new ArrayList<Integer>();
+		for (int i = 0; i < movelets.size(); i++) {
+			Subtrajectory m = movelets.get(i);
+			
+			HashMap<String, String> item = new HashMap<String, String>();
+			item.put("rank", "-");
+			item.put("tid", 		m.getTrajectory().getTid() + "");
+			item.put("class",		m.getTrajectory().getMovingObject().toString());
+			item.put("size", 		m.getSize() + "");
+			item.put("start", 		m.getStart()+"");
+			item.put("end", 		m.getEnd()+"");
+			item.put("quality", 	m.getQuality().getData().get("quality") + "");
+			item.put("proportion", 	m.getProportionInClass() + "");
+//			System.out.print("\t\t["+(i+1)+"ª]: "
+//					+ item.toString());
+			if (!trajs.contains(m.getTrajectory().getTid())) {
+				trajs.add(m.getTrajectory().getTid());
+				item.put("rank", 	trajs.size() + "");
+				rank.add(item);
+//				System.out.print(" => RANK: " + trajs.size());
+			}
+//			System.out.println();
+//			rankALL.add(item);
+		}
+		
+		appendCSV(getFilePath() + "rank_t.csv", rank); 
+//		appendCSV(MoveletsRunUnit_Supervised.RESULT_DIR + "rank_m.csv", rankALL); 
 	}
 
 }

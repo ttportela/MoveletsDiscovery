@@ -29,15 +29,15 @@ import br.com.tarlis.mov3lets.model.Subtrajectory;
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  *
  */
-public class IndexedMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
+public class IndexedMoveletsDiscovery<MO> extends MoveletsDiscovery_old<MO> {
 
 	/**
 	 * @param trajectory
 	 * @param train
 	 */
 	public IndexedMoveletsDiscovery(MAT<MO> trajectory, List<MAT<MO>> train, List<Subtrajectory> candidates, QualityMeasure qualityMeasure, 
-			Descriptor descriptor, OutputterAdapter<MO> output) {
-		super(trajectory, train, candidates, qualityMeasure, descriptor, output);
+			Descriptor descriptor) {
+		super(trajectory, train, candidates, qualityMeasure, descriptor);
 	}
 
 }

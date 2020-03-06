@@ -17,9 +17,8 @@
  */
 package br.com.tarlis.mov3lets.model;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import br.com.tarlis.mov3lets.model.aspect.Aspect;
 
@@ -30,8 +29,8 @@ import br.com.tarlis.mov3lets.model.aspect.Aspect;
 public class Point {
 	
 	private int id;
-	private MAT trajectory;
-	private Map<String, Aspect<?>> aspects = new HashMap<String, Aspect<?>>();
+	private MAT<?> trajectory;
+	private List<Aspect<?>> aspects = new ArrayList<Aspect<?>>();
 	
 	/**
 	 * @return the id
@@ -50,28 +49,28 @@ public class Point {
 	/**
 	 * @return the trajectory
 	 */
-	public MAT getTrajectory() {
+	public MAT<?> getTrajectory() {
 		return trajectory;
 	}
 	
 	/**
 	 * @param trajectory the trajectory to set
 	 */
-	public void setTrajectory(MAT trajectory) {
+	public void setTrajectory(MAT<?> trajectory) {
 		this.trajectory = trajectory;
 	}
 	
 	/**
 	 * @return the aspects
 	 */
-	public Map<String, Aspect<?>> getAspects() {
+	public List<Aspect<?>> getAspects() {
 		return aspects;
 	}
 	
 	/**
 	 * @param aspects the aspects to set
 	 */
-	public void setAspects(Map<String, Aspect<?>> aspects) {
+	public void setAspects(List<Aspect<?>> aspects) {
 		this.aspects = aspects;
 	}
 

@@ -20,7 +20,6 @@ package br.com.tarlis.mov3lets.method.discovery;
 import java.util.List;
 
 import br.com.tarlis.mov3lets.method.descriptor.Descriptor;
-import br.com.tarlis.mov3lets.method.output.OutputterAdapter;
 import br.com.tarlis.mov3lets.method.qualitymeasure.QualityMeasure;
 import br.com.tarlis.mov3lets.model.MAT;
 import br.com.tarlis.mov3lets.model.Subtrajectory;
@@ -29,14 +28,14 @@ import br.com.tarlis.mov3lets.model.Subtrajectory;
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  *
  */
-public class MoveletsSupervisedDiscovery<MO> extends MoveletsDiscovery<MO> {
+public class SupervisedMoveletsDiscovery<MO> extends MoveletsDiscovery_old<MO> {
 	
 	/**
 	 * @param train
 	 */
-	public MoveletsSupervisedDiscovery(MAT<MO> trajectory, List<MAT<MO>> train, List<Subtrajectory> candidates, QualityMeasure qualityMeasure, 
-			Descriptor descriptor, OutputterAdapter<MO> output) {
-		super(trajectory, train, candidates, qualityMeasure, descriptor, output);
+	public SupervisedMoveletsDiscovery(MAT<MO> trajectory, List<MAT<MO>> train, List<Subtrajectory> candidates, QualityMeasure qualityMeasure, 
+			Descriptor descriptor) {
+		super(trajectory, train, candidates, qualityMeasure, descriptor);
 	}
 
 }

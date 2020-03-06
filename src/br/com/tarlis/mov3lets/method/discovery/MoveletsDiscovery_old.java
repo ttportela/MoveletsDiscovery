@@ -38,7 +38,6 @@ import br.com.tarlis.mov3lets.method.descriptor.Descriptor;
 import br.com.tarlis.mov3lets.method.output.OutputterAdapter;
 import br.com.tarlis.mov3lets.method.qualitymeasure.QualityMeasure;
 import br.com.tarlis.mov3lets.method.structures.Matrix2D;
-import br.com.tarlis.mov3lets.method.structures.Matrix3D;
 import br.com.tarlis.mov3lets.model.MAT;
 import br.com.tarlis.mov3lets.model.Point;
 import br.com.tarlis.mov3lets.model.Subtrajectory;
@@ -48,7 +47,7 @@ import br.com.tarlis.mov3lets.utils.Mov3letsUtils;
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  *
  */
-public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
+public class MoveletsDiscovery_old<MO> extends DiscoveryAdapter<MO> {
 
 	private int numberOfFeatures = 1;
 	private int maxNumberOfFeatures = 2;
@@ -62,13 +61,13 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 	 * @param train
 	 * @param candidates 
 	 */
-	public MoveletsDiscovery(MAT<MO> trajectory, List<MAT<MO>> train, List<Subtrajectory> candidates, QualityMeasure qualityMeasure, 
+	public MoveletsDiscovery_old(MAT<MO> trajectory, List<MAT<MO>> train, List<Subtrajectory> candidates, QualityMeasure qualityMeasure, 
 			Descriptor descriptor, List<OutputterAdapter<MO>> outputers) {
 		super(trajectory, train, candidates, descriptor, outputers);
 		init(qualityMeasure);
 	}
 	
-	public MoveletsDiscovery(MAT<MO> trajectory, List<MAT<MO>> train, List<Subtrajectory> candidates, QualityMeasure qualityMeasure, 
+	public MoveletsDiscovery_old(MAT<MO> trajectory, List<MAT<MO>> train, List<Subtrajectory> candidates, QualityMeasure qualityMeasure, 
 			Descriptor descriptor) {
 		super(trajectory, train, candidates, descriptor);
 		init(qualityMeasure);
@@ -207,12 +206,17 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 			case -3: maxSize = (int) Math.ceil(Math.log(n))+1; break;	
 			default: break;
 		}
-
+		
+//		int numberOfCandidates = (maxSize * (maxSize-1) / 2);
 		// It starts with the base case	
 		int size = 1;
+
 		Integer total_size = 0;
 		
-		Matrix3D base = computeBaseDistances(trajectory, trajectories);
+
+//		Mov3letsUtils.trace("@4 - MD 220@");
+		Matrix2D base = computeBaseDistances(trajectory, trajectories);
+//		Mov3letsUtils.trace("@5 - MD 222@");
 		
 		if( minSize <= 1 ) {
 			candidates.addAll(findCandidates(trajectory, this.data, size, base));
@@ -277,38 +281,34 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 	 * @param trajectories
 	 * @return
 	 */
-	public Matrix3D computeBaseDistances(MAT<?> trajectory, List<MAT<MO>> trajectories){
-		int index = trajectories.indexOf(trajectory);
+	public Matrix2D computeBaseDistances(MAT<?> trajectory, List<MAT<MO>> trajectories){
 		int n = trajectory.getPoints().size();
 		int size = 1;
 
-		Matrix3D base = new Matrix3D((List) trajectories, exploreDimensions, numberOfFeatures, maxNumberOfFeatures);
+		Matrix2D base = new Matrix2D();		
 		
 		for (int start = 0; start <= (n - size); start++) {
 //			base[start] = new double[train.size()][][];				
 			
-//			for (MAT<?> T : trajectories) {
-			for (int k = 0; k < trajectories.size(); k++) {
-						
-				MAT<?> T = trajectories.get(k);
-				Point a = trajectory.getPoints().get(start);
-				
+			for (MAT<?> T : trajectories) {
+//			for (int i = 0; i < train.size(); i++) {
+								
+//				base[start][i] = new double[dmbt.getDMBP().getNumberOfFeatures()][(train.get(i).getData().size()-size)+1];
+
 				for (int j = 0; j <= (T.getPoints().size()-size); j++) {
+					Point a = trajectory.getPoints().get(start);
 					Point b = T.getPoints().get(j);
 					
-					double[] distances = new double[getDescriptor().getAttributes().size()];
-					
-					for (int i = 0; i < getDescriptor().getAttributes().size(); i++) {
-						AttributeDescriptor attr = getDescriptor().getAttributes().get(i);
-						distances[i] = getDescriptor().getAttributes().get(i)
-								.getDistanceComparator().calculateDistance(
-								a.getAspects().get(i), 
-								b.getAspects().get(i), 
-								attr); // This also enhance distances
-					}
-
-					// For each possible *Number Of Features* and each combination of those:
-					base.addCombinations(a, b, distances);
+					if (!base.contains(a, b))
+						for (int i = 0; i < this.descriptor.getAttributes().size(); i++) {
+							AttributeDescriptor attr = this.descriptor.getAttributes().get(i);
+							double distance = attr.getDistanceComparator().calculateDistance(
+									a.getAspects().get(i), 
+									b.getAspects().get(i), 
+									attr); // This also enhance distances
+							
+							base.add(a, b, distance);
+						}
 					
 				} // for (int j = 0; j <= (train.size()-size); j++)
 				
@@ -329,7 +329,7 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 	 * @param mdist
 	 * @return
 	 */
-	public List<Subtrajectory> findCandidates(MAT<MO> trajectory, List<MAT<MO>> train, int size, Matrix3D mdist) {
+	public List<Subtrajectory> findCandidates(MAT<MO> trajectory, List<MAT<MO>> train, int size, Matrix2D mdist) {
 		
 		// Trajectory P size => n
 		int n = trajectory.getPoints().size();
@@ -366,19 +366,17 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 						ranksForT[k] = rankingAlgorithm.rank(Arrays.stream(distancesForT[k],0,limit).toArray());
 					} // for (int k = 0; k < numberOfFeatures; k++)
 				
+				int k2 = 0;
+				int currentFeatures;
+				if (exploreDimensions){
+					currentFeatures = 1;
+				} else {
+					currentFeatures = numberOfFeatures;
+				}
 				
-				
-//				int k2 = 0;
-//				int currentFeatures;
-//				if (exploreDimensions){
-//					currentFeatures = 1;
-//				} else {
-//					currentFeatures = numberOfFeatures;
-//				}
-//				
-//				// For each possible NumberOfFeatures and each combination of those: 
-//				for (;currentFeatures <= maxNumberOfFeatures; currentFeatures++) {
-//					for (int[] comb : new Combinations(numberOfFeatures,currentFeatures)) {
+				// For each possible NumberOfFeatures and each combination of those: 
+				for (;currentFeatures <= maxNumberOfFeatures; currentFeatures++) {
+					for (int[] comb : new Combinations(numberOfFeatures,currentFeatures)) {
 												
 						// Finds the best alignment to each T trajectory:
 						int bestPosition = (limit > 0) ? bestAlignmentByRanking(ranksForT,comb) : -1;					
@@ -392,10 +390,10 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 							
 						} // for (int j = 0; j < comb.length; j++)
 												
-//						k2++;
-//						
-//					} // for (int[] comb : new Combinations(numberOfFeatures,currentFeatures)) 					
-//				} // for (int i = 0; i < train.size(); i++)
+						k2++;
+						
+					} // for (int[] comb : new Combinations(numberOfFeatures,currentFeatures)) 					
+				} // for (int i = 0; i < train.size(); i++)
 				
 			} // for (int currentFeatures = 1; currentFeatures <= numberOfFeatures; currentFeatures++)
 			
@@ -636,8 +634,8 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 			AttributeDescriptor attr = this.descriptor.getAttributes().get(i);
 			
 			distances[i] = attr.getDistanceComparator().calculateDistance(
-					a.getAspects().get(attr.getText()), 
-					b.getAspects().get(attr.getText()), 
+					a.getAspects().get(i), 
+					b.getAspects().get(i), 
 					attr); // This also enhance distances
 		}
 		
