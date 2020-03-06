@@ -34,6 +34,8 @@ public class Subtrajectory {
 	private MAT<?> trajectory;
 	private List<Point> points;
 	
+	private int combinationIndex = 1;
+	
 //	private Map<Aspect<?>, Double> distances;
 	private double[][] distances;
 	private List<Subtrajectory> bestAlignments;
@@ -147,6 +149,20 @@ public class Subtrajectory {
 	 */
 	public void setPoints(List<Point> points) {
 		this.points = points;
+	}
+	
+	/**
+	 * @return the combinationIndex
+	 */
+	public int getCombinationIndex() {
+		return combinationIndex;
+	}
+	
+	/**
+	 * @param combinationIndex the combinationIndex to set
+	 */
+	public void setCombinationIndex(int combinationIndex) {
+		this.combinationIndex = combinationIndex;
 	}
 
 //	public void setFeatures(HashMap<String, IFeature> features) {
