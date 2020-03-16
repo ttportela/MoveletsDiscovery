@@ -71,7 +71,7 @@ public class Matrix3D extends HashMap<Tuple<Point, Point, Integer>, Double> {
 	 * @param value
 	 */
 	public void add(Point a, Point b, int index, double value) {
-		put(new Tuple<Point, Point, Integer>(a, a, index), value);
+		put(new Tuple<Point, Point, Integer>(a, b, index), value);
 	}
 
 	/**
@@ -90,6 +90,26 @@ public class Matrix3D extends HashMap<Tuple<Point, Point, Integer>, Double> {
 			distComb /= comb.size();
 			add(a, b, i, distComb);
 		}
+	}
+
+	/**
+	 * @param k
+	 * @return
+	 */
+	public int[] getCombination(int k) {
+		return getCombinations().get(k).stream()
+				.mapToInt(Integer::intValue)
+				.toArray();
+	}
+
+	/**
+	 * @param point
+	 * @param point2
+	 * @param k
+	 * @return 
+	 */
+	public Double get(Point a, Point b, int index) {
+		return get(new Tuple<Point, Point, Integer>(a, a, index));
 	}
 	
 }

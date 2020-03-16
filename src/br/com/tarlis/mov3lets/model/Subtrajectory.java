@@ -17,6 +17,7 @@
  */
 package br.com.tarlis.mov3lets.model;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -36,8 +37,8 @@ public class Subtrajectory {
 	
 	private int combinationIndex = 1;
 	
-//	private Map<Aspect<?>, Double> distances;
-	private double[][] distances;
+	private List<Double> distances;
+//	private double[][] distances;
 	private List<Subtrajectory> bestAlignments;
 	
 	private Quality quality;
@@ -49,6 +50,7 @@ public class Subtrajectory {
 	public Map<String, double[]> splitpointData; 
 	
 	private int[] pointFeatures;
+	private int k; // Combination index
 	
 //	private Map<Integer, double[]> mdist; 
 	
@@ -83,7 +85,20 @@ public class Subtrajectory {
 		this.points = t.getPoints().subList(start, end+1);
 		this.pointFeatures = pointFeatures;
 //		this.distances = new HashMap<Aspect<?>, Double>();
-		this.distances = new double[pointFeatures.length][numberOfTrajectories];
+		this.distances = new ArrayList<Double>(); //double[pointFeatures.length][numberOfTrajectories];
+//		this.features = new HashMap<>();
+	}
+	
+	public Subtrajectory(int start, int end, MAT<?> t, int numberOfTrajectories, int[] pointFeatures, int k) {
+		super();
+		this.start = start;
+		this.end = end;
+		this.trajectory = t;
+		this.points = t.getPoints().subList(start, end+1);
+		this.k = k;
+		this.pointFeatures = pointFeatures;
+//		this.distances = new HashMap<Aspect<?>, Double>();
+		this.distances = new ArrayList<Double>(); //new double[pointFeatures.length][numberOfTrajectories];
 //		this.features = new HashMap<>();
 	}
 
@@ -170,7 +185,6 @@ public class Subtrajectory {
 //	}
 
 	public int getSize() {
-		// TODO Auto-generated method stub
 		return end - start + 1;
 	}
 	
@@ -188,13 +202,27 @@ public class Subtrajectory {
 		this.bestAlignments = bestAlignments;
 	}
 	
-	public double[][] getDistances() {
+	/**
+	 * @return the distances
+	 */
+	public List<Double> getDistances() {
 		return distances;
 	}
 	
-	public void setDistances(double[][] distances) {
+	/**
+	 * @param distances the distances to set
+	 */
+	public void setDistances(List<Double> distances) {
 		this.distances = distances;
 	}
+	
+//	public double[][] getDistances() {
+//		return distances;
+//	}
+//	
+//	public void setDistances(double[][] distances) {
+//		this.distances = distances;
+//	}
 	
 //	 public Subtrajectory[] getBestAlignments() {
 //		return bestAlignments;
@@ -233,6 +261,20 @@ public class Subtrajectory {
 	
 	public void setPointFeatures(int[] pointFeatures) {
 		this.pointFeatures = pointFeatures;
+	}
+	
+	/**
+	 * @return the k
+	 */
+	public int getK() {
+		return k;
+	}
+	
+	/**
+	 * @param k the k to set
+	 */
+	public void setK(int k) {
+		this.k = k;
 	}
 	
 	public double[] getMaxDistances() {
