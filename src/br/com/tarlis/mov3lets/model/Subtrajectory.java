@@ -17,7 +17,6 @@
  */
 package br.com.tarlis.mov3lets.model;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -37,8 +36,8 @@ public class Subtrajectory {
 	
 	private int combinationIndex = 1;
 	
-	private List<Double> distances;
-//	private double[][] distances;
+//	private List<List<Double>> distances;
+	private double[][] distances;
 	private List<Subtrajectory> bestAlignments;
 	
 	private Quality quality;
@@ -85,7 +84,7 @@ public class Subtrajectory {
 		this.points = t.getPoints().subList(start, end+1);
 		this.pointFeatures = pointFeatures;
 //		this.distances = new HashMap<Aspect<?>, Double>();
-		this.distances = new ArrayList<Double>(); //double[pointFeatures.length][numberOfTrajectories];
+		this.distances = new double[pointFeatures.length][numberOfTrajectories];
 //		this.features = new HashMap<>();
 	}
 	
@@ -98,7 +97,7 @@ public class Subtrajectory {
 		this.k = k;
 		this.pointFeatures = pointFeatures;
 //		this.distances = new HashMap<Aspect<?>, Double>();
-		this.distances = new ArrayList<Double>(); //new double[pointFeatures.length][numberOfTrajectories];
+		this.distances = new double[pointFeatures.length][numberOfTrajectories];
 //		this.features = new HashMap<>();
 	}
 
@@ -202,27 +201,39 @@ public class Subtrajectory {
 		this.bestAlignments = bestAlignments;
 	}
 	
-	/**
-	 * @return the distances
-	 */
-	public List<Double> getDistances() {
-		return distances;
-	}
-	
-	/**
-	 * @param distances the distances to set
-	 */
-	public void setDistances(List<Double> distances) {
-		this.distances = distances;
-	}
-	
-//	public double[][] getDistances() {
+//	/**
+//	 * @return the distances
+//	 */
+//	public List<List<Double>> getDistances() {
 //		return distances;
 //	}
 //	
-//	public void setDistances(double[][] distances) {
+//	/**
+//	 * @param distances the distances to set
+//	 */
+//	public void setDistances(List<List<Double>> distances) {
 //		this.distances = distances;
 //	}
+
+//	/**
+//	 * @return
+//	 */
+//	public double[][] getDistancesToArray() {
+//		double[][] distances = new double[getDistances().size()][];
+//		for (int i = 0; i < getDistances().size(); i++) {
+//			distances[i] = getDistances().get(i).stream().mapToDouble(d -> d).toArray();
+//			
+//		}
+//		return distances;
+//	}
+	
+	public double[][] getDistances() {
+		return distances;
+	}
+	
+	public void setDistances(double[][] distances) {
+		this.distances = distances;
+	}
 	
 //	 public Subtrajectory[] getBestAlignments() {
 //		return bestAlignments;

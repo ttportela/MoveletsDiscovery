@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 
 import br.com.tarlis.mov3lets.method.descriptor.Descriptor;
 import br.com.tarlis.mov3lets.method.discovery.DiscoveryAdapter;
-import br.com.tarlis.mov3lets.method.discovery.MoveletsDiscovery_old;
+import br.com.tarlis.mov3lets.method.discovery.MoveletsDiscovery;
 import br.com.tarlis.mov3lets.method.discovery.PivotsMoveletsDiscovery;
 import br.com.tarlis.mov3lets.method.discovery.SupervisedMoveletsDiscovery;
 import br.com.tarlis.mov3lets.method.loader.DefaultLoader;
@@ -134,7 +134,7 @@ public class Mov3lets<MO> {
 						moveletsDiscovery = new SupervisedMoveletsDiscovery<MO>(trajectory, train, candidates, qualityMeasure, 
 								getDescriptor());
 					} else {
-						moveletsDiscovery = new MoveletsDiscovery_old<MO>(trajectory, train, candidates, qualityMeasure, 
+						moveletsDiscovery = new MoveletsDiscovery<MO>(trajectory, train, candidates, qualityMeasure, 
 								getDescriptor());
 					}
 					

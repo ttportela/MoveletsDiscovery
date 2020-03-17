@@ -29,7 +29,7 @@ import br.com.tarlis.mov3lets.model.Subtrajectory;
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  *
  */
-public class IndexedMoveletsDiscovery<MO> extends MoveletsDiscovery_old<MO> {
+public class IndexedMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 
 	/**
 	 * @param trajectory

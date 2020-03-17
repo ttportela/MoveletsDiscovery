@@ -4,6 +4,7 @@
 package br.com.tarlis.mov3lets.method.structures;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -16,7 +17,7 @@ import br.com.tarlis.mov3lets.model.Point;
  * @author tarlis
  *
  */
-public class Matrix3D extends HashMap<Tuple<Point, Point, Integer>, Double> {
+public class Matrix3D extends HashMap<Tuple<Point, Point, Integer>, List<Double>> {
 
 	private double DEFAULT = Double.POSITIVE_INFINITY;
 	private List<List<Integer>> combinations = new ArrayList<List<Integer>>();
@@ -70,8 +71,18 @@ public class Matrix3D extends HashMap<Tuple<Point, Point, Integer>, Double> {
 	 * @param index
 	 * @param value
 	 */
-	public void add(Point a, Point b, int index, double value) {
+	public void add(Point a, Point b, int index, List<Double> value) {
 		put(new Tuple<Point, Point, Integer>(a, b, index), value);
+	}
+
+	/**
+	 * @param a
+	 * @param b
+	 * @param index
+	 * @param value
+	 */
+	public void add(Point a, Point b, int index, Double value) {
+		put(new Tuple<Point, Point, Integer>(a, b, index), Arrays.asList(value));
 	}
 
 	/**
@@ -83,11 +94,10 @@ public class Matrix3D extends HashMap<Tuple<Point, Point, Integer>, Double> {
 		// For each possible *Number Of Features* and each combination of those:
 		for (int i = 0; i < getCombinations().size(); i++) {
 			List<Integer> comb = getCombinations().get(i);
-			double distComb = 0.0;
+			List<Double> distComb = new ArrayList<Double>();
 			for (Integer c : comb) {
-				distComb += distances[c];
+				distComb.add(distances[c]);
 			}
-			distComb /= comb.size();
 			add(a, b, i, distComb);
 		}
 	}
@@ -108,8 +118,22 @@ public class Matrix3D extends HashMap<Tuple<Point, Point, Integer>, Double> {
 	 * @param k
 	 * @return 
 	 */
-	public Double get(Point a, Point b, int index) {
-		return get(new Tuple<Point, Point, Integer>(a, a, index));
+	public List<Double> get(Point a, Point b, int index) {
+		return get(new Tuple<Point, Point, Integer>(a, b, index));
+	}
+
+	/**
+	 * @param point
+	 * @param point2
+	 * @param comb
+	 * @return
+	 */
+	public double[] getBaseDistances(Point a, Point b, int[] comb) {
+		double[] distances = new double[comb.length];
+		for (int k = 0; k < comb.length; k++) {
+			distances[k] = get(new Tuple<Point, Point, Integer>(a, b, comb[k])).get(0);
+		}
+		return distances;
 	}
 	
 }

@@ -1,4 +1,4 @@
-Starting MASTERMovelets +Log extractor 
+Starting MASTERMovelets extractor 
 Configurations:
 	Datasets directory:	/home/tarlis/Documents/Research/data/FoursquareNY/
 	Results directory:	/home/tarlis/Documents/Research/results/
@@ -7,7 +7,7 @@ Configurations:
 	String Interning:	false
 	Allowed Threads:	1
 	Min size:		1
-	Max size:		-3
+	Max size:		-1
 	Quality Measure:	LSP
 	Explore dimensions:	true
 	Samples:		1
@@ -29,8 +29,8 @@ Configurations:
 
 [Timer Set] [Runtime] ==> 
 [Timer Set] [1] ==> LOAD INPUT
-Memory usage (KiB), Total: 126976,000, Free: 83475,109, USED: 43500,891
-[1] ==> LOAD INPUT: 731.627222s
+Memory usage (KiB), Total: 102400,000, Free: 72177,891, USED: 30222,109
+[1] ==> LOAD INPUT: 348.527138ms
 [Timer Set] [2] ==> Extracting Movelets
 
 Movelet Discovery   0%  /	[Discovering movelets] >> Class: 6.
