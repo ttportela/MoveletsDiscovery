@@ -31,7 +31,7 @@ public abstract class LoggerAdapter {
 		double free = rt.freeMemory() / 1024.0;
         double used = (total - free);
         
-		trace(String.format("Memory usage (KiB), Total: %.3f, Free: %.3f, USED: %.3f",
+		trace(String.format("Memory usage (KiB), Memory Total: %.3f, Memory Free: %.3f, Memory Used: %.3f",
                     total,
                     free,
                     used));

@@ -21,10 +21,12 @@ public class Matrix3D extends HashMap<Tuple<Point, Point, Integer>, List<Double>
 
 	private double DEFAULT = Double.POSITIVE_INFINITY;
 	private List<List<Integer>> combinations = new ArrayList<List<Integer>>();
-	private List<MAT> trajectories;
+	
+	public Matrix3D(List<List<Integer>> combinations) {
+		this.combinations = combinations;
+	}
 		
-	public Matrix3D(List<MAT> trajectories, boolean exploreDimensions, int numberOfFeatures, int maxNumberOfFeatures) {
-		this.trajectories = trajectories;
+	public Matrix3D(boolean exploreDimensions, int numberOfFeatures, int maxNumberOfFeatures) {
 		makeCombinations(exploreDimensions, numberOfFeatures, maxNumberOfFeatures);
 	}
 	
@@ -72,7 +74,7 @@ public class Matrix3D extends HashMap<Tuple<Point, Point, Integer>, List<Double>
 	 * @param value
 	 */
 	public void add(Point a, Point b, int index, List<Double> value) {
-		put(new Tuple<Point, Point, Integer>(a, b, index), value);
+		super.put(new Tuple<Point, Point, Integer>(a, b, index), value);
 	}
 
 	/**
@@ -82,7 +84,7 @@ public class Matrix3D extends HashMap<Tuple<Point, Point, Integer>, List<Double>
 	 * @param value
 	 */
 	public void add(Point a, Point b, int index, Double value) {
-		put(new Tuple<Point, Point, Integer>(a, b, index), Arrays.asList(value));
+		super.put(new Tuple<Point, Point, Integer>(a, b, index), Arrays.asList(value));
 	}
 
 	/**
@@ -119,7 +121,7 @@ public class Matrix3D extends HashMap<Tuple<Point, Point, Integer>, List<Double>
 	 * @return 
 	 */
 	public List<Double> get(Point a, Point b, int index) {
-		return get(new Tuple<Point, Point, Integer>(a, b, index));
+		return super.get(new Tuple<Point, Point, Integer>(a, b, index));
 	}
 
 	/**
@@ -131,9 +133,16 @@ public class Matrix3D extends HashMap<Tuple<Point, Point, Integer>, List<Double>
 	public double[] getBaseDistances(Point a, Point b, int[] comb) {
 		double[] distances = new double[comb.length];
 		for (int k = 0; k < comb.length; k++) {
-			distances[k] = get(new Tuple<Point, Point, Integer>(a, b, comb[k])).get(0);
+			distances[k] = super.get(new Tuple<Point, Point, Integer>(a, b, comb[k])).get(0);
 		}
 		return distances;
+	}
+	
+	@Override
+	public Matrix3D clone() {
+		Matrix3D clone = new Matrix3D(this.combinations);
+		clone.putAll(this);
+		return clone;
 	}
 	
 }

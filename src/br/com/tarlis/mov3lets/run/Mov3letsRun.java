@@ -19,6 +19,7 @@ package br.com.tarlis.mov3lets.run;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashMap;
 
 import org.apache.commons.io.FilenameUtils;
@@ -34,6 +35,9 @@ import br.com.tarlis.mov3lets.utils.Mov3letsUtils;
 public class Mov3letsRun {
 	
 	public static void main(String[] args) throws IOException {
+		// Starting Date:
+		System.out.println(new Date());
+		
 		HashMap<String, Object> params = configure(args);
 		
 		// PARAMS:
@@ -60,6 +64,9 @@ public class Mov3letsRun {
 		mov.mov3lets();
 		Mov3letsUtils.getInstance().stopTimer("[Runtime] ==> ");
 //		System.out.println(inputFile);
+		
+		// End Date:
+		System.out.println(new Date());
 	}
 	
 	public static HashMap<String, Object> defaultParams() {
@@ -115,7 +122,9 @@ public class Mov3letsRun {
 				break;
 			case "-nt":
 			case "-nthreads":
-				params.put("nthreads", Integer.valueOf(value));
+				int N_THREADS = Integer.valueOf(value);
+				N_THREADS = N_THREADS == 0? 1 : N_THREADS;
+				params.put("nthreads", N_THREADS);
 				break;
 			case "-ms":
 			case "-minSize":

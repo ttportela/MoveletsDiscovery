@@ -5,7 +5,7 @@ Configurations:
 	Description file :	FoursquareNY_ALL_v3.json
 	Using Index:		false
 	String Interning:	false
-	Allowed Threads:	1
+	Allowed Threads:	4
 	Min size:		1
 	Max size:		-1
 	Quality Measure:	LSP
@@ -27,10 +27,7 @@ Configurations:
 	 - Attr: 8 - time/numeric (difference/-1.0)
 
 
-[Timer Set] [Runtime] ==> 
-[Timer Set] [1] ==> LOAD INPUT
-Memory usage (KiB), Total: 102400,000, Free: 72177,891, USED: 30222,109
-[1] ==> LOAD INPUT: 348.527138ms
-[Timer Set] [2] ==> Extracting Movelets
-
-Movelet Discovery   0%  /	[Discovering movelets] >> Class: 6.
+Memory usage (KiB), Memory Total: 196608,000, Memory Free: 153968,617, Memory Used: 42639,383
+[1] ==> LOAD INPUT: 231.275099ms
+Computing Base Distances: [----10%----20%----30%----40%----50%----60%----70%----80%----90%-----] 100%
+--------

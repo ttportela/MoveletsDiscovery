@@ -17,8 +17,9 @@
  */
 package br.com.tarlis.mov3lets.run;
 
-import java.util.HashMap;
-import java.util.Random;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author Tarlis Portela <tarlis@tarlis.com.br>
@@ -29,23 +30,112 @@ public class Test {
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {
-		HashMap<String, Double> map = new HashMap<String, Double>();
+	public static void main(String[] arg) throws Exception {
+		List<Integer> numbers = new ArrayList<Integer>(
+			    Arrays.asList(5,3,1,2,9,5,0,7,8)
+			);
 		
-		Random r = new Random();
-		
-		for (int i = 1; i <= 10; i++) {
-			map.put(r.nextInt() + "", i*1.0);
+//		ProgressBar bar = new ProgressBar();
+//
+//        System.out.println("Process Starts Now!");
+//
+//        bar.update(0, 1000);
+//        for(int i=0;i<1000;i++) {
+//                        // do something!
+//            for(int j=0;j<10000000;j++)
+//                for(int p=0;p<10000000;p++);
+//            // update the progress bar
+//            bar.update(i, 1000);
+//        }
+//        System.out.println("Process Completed!");
+		int N = numbers.size();
+		int L = N/4;
+		for (int i = 0; i < N; i += L) {			
+			System.out.println(numbers.subList(i, Math.min(N, i + L)));
 		}
-			
-		for (String val : map.keySet()) {
-			System.out.print(val + ", ");
-		}
-		System.out.println();
-		for (Double val : map.values()) {
-			System.out.print(val + ", ");
-		}
+    }
 
+}
+
+class ProgressBar {
+//    private StringBuilder progress;
+	private int progress = -1;
+	private String mark = "-";
+
+    /**
+     * initialize progress bar properties.
+     */
+    public ProgressBar() { }
+
+    /**
+     * called whenever the progress bar needs to be updated.
+     * that is whenever progress was made.
+     *
+     * @param done an int representing the work done so far
+     * @param total an int representing the total work
+     */
+    public void update(int done, int total) {
+    	if (this.progress == -1) {
+    		start();
+    	}
+//        char[] workchars = {'|', '/', '-', '\\'};
+//        String format = "\r%3d%% %s %c";
+
+        int percent = (++done * 100) / total;
+        int extrachars = (percent / 2) - this.progress;
+        
+        this.progress += extrachars;
+
+        if (extrachars > 0 && !printStep())
+	        while (extrachars-- > 0) {
+	        	System.out.print(mark);
+	        }
+//        while (extrachars-- > 0) {
+//            progress.append('#');
+//        }
+        
+//        System.out.printf(format, percent, progress,
+//         workchars[done % workchars.length]);
+
+        if (done == total) {
+            stop();
+        }
+    }
+
+    private boolean printStep() {
+		switch (this.progress*2) {
+		case 10:
+			System.out.print("10%"); return true;
+		case 20:
+			System.out.print("20%"); return true;
+		case 30:
+			System.out.print("30%"); return true;
+		case 40:
+			System.out.print("40%"); return true;
+		case 50:
+			System.out.print("50%"); return true;
+		case 60:
+			System.out.print("60%"); return true;
+		case 70:
+			System.out.print("70%"); return true;
+		case 80:
+			System.out.print("80%"); return true;
+		case 90:
+			System.out.print("90%"); return true;
+		}
+		return false;
 	}
 
+	private void start() {
+    	this.progress = 0;
+    	System.out.print("[");
+//        this.progress = new StringBuilder(60);
+    }
+
+    private void stop() {
+    	System.out.print("] 100%");
+        System.out.flush();
+        System.out.println();
+//        init();
+    }
 }
