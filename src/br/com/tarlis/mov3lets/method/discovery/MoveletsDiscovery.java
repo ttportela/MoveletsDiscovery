@@ -210,7 +210,7 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 		int size = 1;
 		Integer total_size = 0;
 		
-		double[][][][] base = computeBaseDistances(trajectory, this.data);
+		double[][][][] base = null; //computeBaseDistances(trajectory, this.data);
 		
 		if( minSize <= 1 ) {
 			candidates.addAll(findCandidates(trajectory, trajectories, size, base));
@@ -218,7 +218,7 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 		}				
 		
 //		Mov3letsUtils.trace("@6 - MD 230@");
-		double[][][][] lastSize = clone4DArray(base);
+		double[][][][] lastSize = null; //clone4DArray(base);
 //		Mov3letsUtils.trace("@7 - MD 232@");		
 
 		total_size = total_size + candidates.size();
@@ -229,7 +229,7 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 //			Mov3letsUtils.trace("@8 - MD 239@ - size: " + size);
 	
 			// Precompute de distance matrix
-			double[][][][] newSize = newSize(trajectory, this.data, base, lastSize, size);
+//			double[][][][] newSize = newSize(trajectory, this.data, base, lastSize, size);
 
 //			Mov3letsUtils.trace("@9 - MD 245@");
 			// Create candidates and compute min distances		
@@ -248,7 +248,7 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 			}
 //			Mov3letsUtils.trace("@11 - MD 262@");
 		
-			lastSize = newSize;
+//			lastSize = newSize;
 						
 		} // for (int size = 2; size <= max; size++)	
 	
@@ -338,9 +338,8 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 					
 
 					for (int k = 0; k < getDescriptor().getAttributes().size(); k++) {
-						AttributeDescriptor attr = getDescriptor().getAttributes().get(i);						
-						double distance = getDescriptor().getAttributes().get(i)
-								.getDistanceComparator().calculateDistance(
+						AttributeDescriptor attr = getDescriptor().getAttributes().get(k);						
+						double distance = attr.getDistanceComparator().calculateDistance(
 								a.getAspects().get(k), 
 								b.getAspects().get(k), 
 								attr);
@@ -440,8 +439,11 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 				int limit = T.getPoints().size() - size + 1;
 				
 				if (limit > 0)
-					for (Subtrajectory subtrajectory : list) {
-						subtrajectory.getDistances()[i] = getBestAlignmentByPointFeatures(subtrajectory, T, mdist);
+					for (Subtrajectory subtrajectory : list) {						
+						double[] distances = getBestAlignmentByPointFeatures(subtrajectory, T, mdist);
+						for (int j = 0; j < subtrajectory.getPointFeatures().length; j++) {
+							subtrajectory.getDistances()[j][i] = distances[j];							
+						}
 					}
 				
 			} // for (int currentFeatures = 1; currentFeatures <= numberOfFeatures; currentFeatures++)
@@ -663,7 +665,7 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 	}
 	
 	/*** * * * * * * * * * * * * * * * * * * ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * >>
-	 * HERE FOLLOWS THE DISTANCES & BEST ALIGNMENT BY POINT:    * * * * * * * * * * * * * * * * * * * * >>
+	 * HERE FOLLOWS THE OUTPUT TRANSFORMATIONS:     * * * * * * * * * * * * * * * * * * * * * * * * * * >>
 	 *** * * * * * * * * * * * * * * * * * * **/
 	
 	// TODO: esse método é um problema, tem que ver como fazer isso e para que serve.

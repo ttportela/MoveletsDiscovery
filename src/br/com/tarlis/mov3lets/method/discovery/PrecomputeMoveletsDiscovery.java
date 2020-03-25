@@ -26,9 +26,9 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.ThreadPoolExecutor;
 
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
@@ -46,7 +46,7 @@ import br.com.tarlis.mov3lets.model.MAT;
 import br.com.tarlis.mov3lets.model.Point;
 import br.com.tarlis.mov3lets.model.Subtrajectory;
 import br.com.tarlis.mov3lets.utils.Mov3letsUtils;
-import br.com.tarlis.mov3lets.utils.StatusBar;
+import br.com.tarlis.mov3lets.utils.ProgressBar;
 
 /**
  * @author Tarlis Portela <tarlis@tarlis.com.br>
@@ -90,18 +90,29 @@ public class PrecomputeMoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 		this.maxNumberOfFeatures = getDescriptor().getParamAsInt("max_number_of_features");
 		this.exploreDimensions = getDescriptor().getFlag("explore_dimensions");
 		
-		switch (maxNumberOfFeatures) {
-			case -1: this.maxNumberOfFeatures = numberOfFeatures; break;
-			case -2: this.maxNumberOfFeatures = (int) Math.ceil(Math.log(numberOfFeatures))+1; break;
-			default: break;
-		}
+//		switch (maxNumberOfFeatures) {
+//			case -1: this.maxNumberOfFeatures = numberOfFeatures; break;
+//			case -2: this.maxNumberOfFeatures = (int) Math.ceil(Math.log(numberOfFeatures))+1; break;
+//			default: break;
+//		}
 		
+//		initBaseCases(this.data, getDescriptor().getParamAsInt("nthreads"), getDescriptor());
+//		if (base == null) {
+//			int N_THREADS = getDescriptor().getParamAsInt("nthreads");
+//			if (N_THREADS > 1)
+//				multithreadComputeBaseDistances(this.data, N_THREADS, getDescriptor());
+//			else 
+//				computeBaseDistances(this.data);
+//			System.gc();
+//		}
+	}
+	
+	public  static <MO> void initBaseCases(List<MAT<MO>> data, int N_THREADS, Descriptor descriptor) {
 		if (base == null) {
-			int N_THREADS = getDescriptor().getParamAsInt("nthreads");
 			if (N_THREADS > 1)
-				multithreadComputeBaseDistances(trajectory, this.data, N_THREADS);
+				multithreadComputeBaseDistances(data, N_THREADS, descriptor);
 			else 
-				computeBaseDistances(trajectory, this.data);
+				computeBaseDistances(data, descriptor);
 			System.gc();
 		}
 	}
@@ -295,70 +306,152 @@ public class PrecomputeMoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 	 * @param bar 
 	 * @return
 	 */
-	public Matrix3D computeBaseDistances(MAT<?> trajectory, List<MAT<MO>> trajectories){
-		int index = trajectories.indexOf(trajectory);
-		int n = trajectory.getPoints().size();
+	
+//	public Matrix3D computeBaseDistances_bkp(MAT<?> trajectory, List<MAT<MO>> trajectories){
+////		int index = trajectories.indexOf(trajectory);
+//		int n = trajectory.getPoints().size();
+//		int size = 1;
+//
+//		base = new Matrix3D(exploreDimensions, numberOfFeatures, maxNumberOfFeatures);
+//		ProgressBar bar = new ProgressBar("Computing Base Distances", 
+//				trajectory.getPoints().size() * 2);
+//		
+//		for (int start = 0; start <= (n - size); start++) {		
+//			Point a = trajectory.getPoints().get(start);
+//			
+//			for (int k = 0; k < trajectories.size(); k++) {						
+//				MAT<?> T = trajectories.get(k);
+//				
+//				for (int j = 0; j <= (T.getPoints().size()-size); j++) {
+//					Point b = T.getPoints().get(j);
+//					
+//					double[] distances = new double[getDescriptor().getAttributes().size()];
+//					
+//					for (int i = 0; i < getDescriptor().getAttributes().size(); i++) {
+//						AttributeDescriptor attr = getDescriptor().getAttributes().get(i);
+//						distances[i] = getDescriptor().getAttributes().get(i)
+//								.getDistanceComparator().calculateDistance(
+//								a.getAspects().get(i), 
+//								b.getAspects().get(i), 
+//								attr); // This also enhance distances
+//					}
+//
+//					// For each possible *Number Of Features* and each combination of those:
+//					base.addDistances(a, b, distances);
+//					
+//				} // for (int j = 0; j <= (train.size()-size); j++)
+//				
+//			} //for (MAT<?> T : trajectories) { --//-- for (int i = 0; i < train.size(); i++)
+//			
+//			bar.plus();
+//			
+//		} // for (int start = 0; start <= (n - size); start++)
+//
+//		return base;
+//	}
+	
+//	private void multithreadComputeBaseDistances_bkp(List<MAT<MO>> trajectories, int N_THREADS) {
+//		ProgressBar bar = new ProgressBar("Computing Base Distances", 
+//				Mov3letsUtils.getInstance().totalPoints((List) trajectories));
+//		
+//		base = new Matrix3D(exploreDimensions, numberOfFeatures, maxNumberOfFeatures);
+//		
+//		ExecutorService executor = (ExecutorService) 
+//				Executors.newFixedThreadPool(N_THREADS);
+//		List<Future<Matrix3D>> futures = new ArrayList<Future<Matrix3D>>();
+//		
+//		for (int i = 0; i < trajectories.size(); i++) {
+//			Callable<Matrix3D> task = new PrecomputeBaseDistances<MO>(i, trajectories, 
+//					new Matrix3D(base.getCombinations()), 
+//					getDescriptor(), bar);
+//			futures.add(executor.submit(task));
+//		}
+//		
+//		for (Future<Matrix3D> future : futures) {
+//			try {
+//				base.putAll(future.get());
+//				future.cancel(true);
+//				System.gc();
+//			} catch (InterruptedException | ExecutionException e) {
+//				e.printStackTrace();
+//			}
+//		}
+//		executor.shutdown();
+//	}
+
+	public static <MO> Matrix3D computeBaseDistances(List<MAT<MO>> trajectories, Descriptor descriptor){
+//		int index = trajectories.indexOf(trajectory);
 		int size = 1;
 
-		base = new Matrix3D(exploreDimensions, numberOfFeatures, maxNumberOfFeatures);
-		StatusBar bar = new StatusBar("Computing Base Distances", trajectories.size());
-		
-		for (int start = 0; start <= (n - size); start++) {
-//			base[start] = new double[train.size()][][];				
+		base = new Matrix3D(descriptor.getFlag("explore_dimensions"),
+				descriptor.numberOfFeatures(), 
+				descriptor.getParamAsInt("max_number_of_features"));
+		ProgressBar bar = new ProgressBar("Computing Base Distances", 
+				Mov3letsUtils.getInstance().totalPoints((List) trajectories));
+
+		for (int fromIndex = 0; fromIndex < trajectories.size(); fromIndex++) {				
+			MAT<?> trajectory = trajectories.get(fromIndex);
+			int n = trajectory.getPoints().size();
 			
-//			for (MAT<?> T : trajectories) {
-			for (int k = 0; k < trajectories.size(); k++) {
-						
-				MAT<?> T = trajectories.get(k);
+			for (int start = 0; start <= (n - size); start++) {		
 				Point a = trajectory.getPoints().get(start);
 				
-				for (int j = 0; j <= (T.getPoints().size()-size); j++) {
-					Point b = T.getPoints().get(j);
+				for (int k = fromIndex+1; k < trajectories.size(); k++) {						
+					MAT<?> T = trajectories.get(k);
 					
-					double[] distances = new double[getDescriptor().getAttributes().size()];
+					for (int j = 0; j <= (T.getPoints().size()-size); j++) {
+						Point b = T.getPoints().get(j);
+						
+						double[] distances = new double[descriptor.getAttributes().size()];
+						
+						for (int i = 0; i < descriptor.getAttributes().size(); i++) {
+							AttributeDescriptor attr = descriptor.getAttributes().get(i);
+							distances[i] = descriptor.getAttributes().get(i)
+									.getDistanceComparator().calculateDistance(
+									a.getAspects().get(i), 
+									b.getAspects().get(i), 
+									attr); // This also enhance distances
+						}
+	
+						// For each possible *Number Of Features* and each combination of those:
+						base.addDistances(a, b, distances);
+						
+					} // for (int j = 0; j <= (train.size()-size); j++)
 					
-					for (int i = 0; i < getDescriptor().getAttributes().size(); i++) {
-						AttributeDescriptor attr = getDescriptor().getAttributes().get(i);
-						distances[i] = getDescriptor().getAttributes().get(i)
-								.getDistanceComparator().calculateDistance(
-								a.getAspects().get(i), 
-								b.getAspects().get(i), 
-								attr); // This also enhance distances
-					}
-
-					// For each possible *Number Of Features* and each combination of those:
-					base.addCombinations(a, b, distances);
-					
-				} // for (int j = 0; j <= (train.size()-size); j++)
+				} //for (MAT<?> T : trajectories) { --//-- for (int i = 0; i < train.size(); i++)
 				
-				bar.update(k);
+				bar.plus();
 				
-			} //for (MAT<?> T : trajectories) { --//-- for (int i = 0; i < train.size(); i++)
+			} // for (int start = 0; start <= (n - size); start++)
 			
-		} // for (int start = 0; start <= (n - size); start++)
+		} // for (int m = 0; m < trajectories.size(); m++) {	
 
 		return base;
 	}
 	
-	private void multithreadComputeBaseDistances(MAT<?> trajectory, List<MAT<MO>> trajectories, int N_THREADS) {
-		base = new Matrix3D(exploreDimensions, numberOfFeatures, maxNumberOfFeatures);
-		StatusBar bar = new StatusBar("Computing Base Distances", trajectories.size());
+	public static <MO> void multithreadComputeBaseDistances(List<MAT<MO>> trajectories, int N_THREADS, Descriptor descriptor) {
+		ProgressBar bar = new ProgressBar("Computing Base Distances", 
+				Mov3letsUtils.getInstance().totalPoints((List) trajectories));
+
+		base = new Matrix3D(descriptor.getFlag("explore_dimensions"),
+							descriptor.numberOfFeatures(), 
+							descriptor.getParamAsInt("max_number_of_features"));
 		
-		ThreadPoolExecutor executor = (ThreadPoolExecutor) 
+		ExecutorService executor = (ExecutorService) 
 				Executors.newFixedThreadPool(N_THREADS);
 		List<Future<Matrix3D>> futures = new ArrayList<Future<Matrix3D>>();
-		int N = trajectories.size();
-		int L = N/N_THREADS;
-		for (int i = 0; i < N; i += L) {
-			Callable<Matrix3D> task = new PrecomputeBaseDistances<MO>(trajectory, 
-					trajectories.subList(i, Math.min(N, i + L)), 
+		
+		for (int i = 0; i < trajectories.size(); i++) {
+			Callable<Matrix3D> task = new PrecomputeBaseDistances<MO>(i, trajectories, 
 					new Matrix3D(base.getCombinations()), 
-					getDescriptor(), bar);
+					descriptor, bar);
 			futures.add(executor.submit(task));
 		}
+		
 		for (Future<Matrix3D> future : futures) {
 			try {
 				base.putAll(future.get());
+//				future.cancel(true);
 				System.gc();
 			} catch (InterruptedException | ExecutionException e) {
 				e.printStackTrace();
@@ -441,7 +534,7 @@ public class PrecomputeMoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 
 				// Here we get from mdist:
 //				values = getDistances(menor.get(j), maior.get(i + j));
-				values = mdist.getBaseDistances(menor.get(j), maior.get(i + j), comb);
+				values = mdist.getBaseDistances(menor.get(j), maior.get(i + j));
 
 				// TODO Do it better:
 				for (int k = 0; k < comb.length; k++) {					

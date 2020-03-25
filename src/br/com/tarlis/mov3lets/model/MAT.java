@@ -32,7 +32,7 @@ import java.util.Map;
  */
 public class MAT<MO> {
 
-	private int tid;
+	private int tid = -1;
 	private MO movingObject;
 	private List<?> aspects = null;
 	private List<Point> points = new ArrayList<Point>();

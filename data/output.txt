@@ -1,8 +1,9 @@
+Wed Mar 25 15:54:10 BRT 2020
 Starting MASTERMovelets extractor 
 Configurations:
 	Datasets directory:	/home/tarlis/Documents/Research/data/FoursquareNY/
 	Results directory:	/home/tarlis/Documents/Research/results/
-	Description file :	FoursquareNY_ALL_v3.json
+	Description file :	FoursquareNY_Poi_v3.json
 	Using Index:		false
 	String Interning:	false
 	Allowed Threads:	4
@@ -17,17 +18,218 @@ Configurations:
 	Output:			discrete
 	WITHOUT Last Prunning
 	Attributes:
-	 - Attr: 1 - day/nominal (weekday/-1.0)
 	 - Attr: 2 - poi/nominal (equals/-1.0)
-	 - Attr: 3 - root_type/nominal (equals/-1.0)
-	 - Attr: 4 - price/numeric (difference/-1.0)
-	 - Attr: 5 - rating/numeric (difference/-1.0)
-	 - Attr: 6 - weather/nominal (equals/-1.0)
-	 - Attr: 7 - lat_lon/space2d (euclidean/-1.0)
-	 - Attr: 8 - time/numeric (difference/-1.0)
 
 
-Memory usage (KiB), Memory Total: 196608,000, Memory Free: 153968,617, Memory Used: 42639,383
-[1] ==> LOAD INPUT: 231.275099ms
-Computing Base Distances: [----10%----20%----30%----40%----50%----60%----70%----80%----90%-----] 100%
---------
+Memory usage (KiB), Memory Total: 163840,000, Memory Free: 147011,914, Memory Used: 16828,086
+[1] ==> LOAD INPUT: 136.010058ms
+Movelet Discovery: / [                                                  ]   0%	[Discovering movelets] >> Class: 6.
+	[Discovering movelets] >> Class: 6.
+	[Discovering movelets] >> Class: 6.
+	[Discovering movelets] >> Class: 6.
+	[Discovering movelets] >> Trajectory: 130. Trajectory Size: 13. Number of Candidates: 91. Total of Movelets: 6. Max Size: 2052. Used Features: 1
+	[Discovering movelets] >> Class: 6.
+	[Discovering movelets] >> Trajectory: 132. Trajectory Size: 11. Number of Candidates: 66. Total of Movelets: 9. Max Size: 2052. Used Features: 1
+	[Discovering movelets] >> Class: 6.
+	[Discovering movelets] >> Trajectory: 128. Trajectory Size: 18. Number of Candidates: 171. Total of Movelets: 10. Max Size: 2052. Used Features: 1
+	[Discovering movelets] >> Class: 6.
+	[Discovering movelets] >> Trajectory: 129. Trajectory Size: 22. Number of Candidates: 253. Total of Movelets: 9. Max Size: 2052. Used Features: 1
+	[Discovering movelets] >> Trajectory: 127. Trajectory Size: 22. Number of Candidates: 253. Total of Movelets: 13. Max Size: 2052. Used Features: 1
+	[Discovering movelets] >> Class: 6.
+	[Discovering movelets] >> Class: 6.
+java.util.concurrent.ExecutionException: java.lang.NullPointerException
+	at java.base/java.util.concurrent.FutureTask.report(FutureTask.java:122)
+	at java.base/java.util.concurrent.FutureTask.get(FutureTask.java:191)
+	at br.com.tarlis.mov3lets.method.Mov3lets.selectCandidates(Mov3lets.java:167)
+	at br.com.tarlis.mov3lets.method.Mov3lets.mov3lets(Mov3lets.java:99)
+	at br.com.tarlis.mov3lets.run.Mov3letsRun.main(Mov3letsRun.java:64)
+Caused by: java.lang.NullPointerException
+	at br.com.tarlis.mov3lets.method.output.json.SubtrajectoryGSON.<init>(SubtrajectoryGSON.java:54)
+	at br.com.tarlis.mov3lets.method.output.JSONOutputter.fromSubtrajectory(JSONOutputter.java:114)
+	at br.com.tarlis.mov3lets.method.output.JSONOutputter.write(JSONOutputter.java:59)
+	at br.com.tarlis.mov3lets.method.discovery.DiscoveryAdapter.output(DiscoveryAdapter.java:104)
+	at br.com.tarlis.mov3lets.method.discovery.MoveletsDiscovery.discover(MoveletsDiscovery.java:169)
+	at br.com.tarlis.mov3lets.method.discovery.DiscoveryAdapter.call(DiscoveryAdapter.java:80)
+	at br.com.tarlis.mov3lets.method.discovery.DiscoveryAdapter.call(DiscoveryAdapter.java:1)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
+	at java.base/java.lang.Thread.run(Thread.java:834)
+java.util.concurrent.ExecutionException: java.lang.NullPointerException
+	at java.base/java.util.concurrent.FutureTask.report(FutureTask.java:122)
+	at java.base/java.util.concurrent.FutureTask.get(FutureTask.java:191)
+	at br.com.tarlis.mov3lets.method.Mov3lets.selectCandidates(Mov3lets.java:167)
+	at br.com.tarlis.mov3lets.method.Mov3lets.mov3lets(Mov3lets.java:99)
+	at br.com.tarlis.mov3lets.run.Mov3letsRun.main(Mov3letsRun.java:64)
+Caused by: java.lang.NullPointerException
+	at br.com.tarlis.mov3lets.method.output.json.SubtrajectoryGSON.<init>(SubtrajectoryGSON.java:54)
+	at br.com.tarlis.mov3lets.method.output.JSONOutputter.fromSubtrajectory(JSONOutputter.java:114)
+	at br.com.tarlis.mov3lets.method.output.JSONOutputter.write(JSONOutputter.java:59)
+	at br.com.tarlis.mov3lets.method.discovery.DiscoveryAdapter.output(DiscoveryAdapter.java:104)
+	at br.com.tarlis.mov3lets.method.discovery.MoveletsDiscovery.discover(MoveletsDiscovery.java:169)
+	at br.com.tarlis.mov3lets.method.discovery.DiscoveryAdapter.call(DiscoveryAdapter.java:80)
+	at br.com.tarlis.mov3lets.method.discovery.DiscoveryAdapter.call(DiscoveryAdapter.java:1)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
+	at java.base/java.lang.Thread.run(Thread.java:834)
+java.util.concurrent.ExecutionException: java.lang.NullPointerException
+	at java.base/java.util.concurrent.FutureTask.report(FutureTask.java:122)
+	at java.base/java.util.concurrent.FutureTask.get(FutureTask.java:191)
+	at br.com.tarlis.mov3lets.method.Mov3lets.selectCandidates(Mov3lets.java:167)
+	at br.com.tarlis.mov3lets.method.Mov3lets.mov3lets(Mov3lets.java:99)
+	at br.com.tarlis.mov3lets.run.Mov3letsRun.main(Mov3letsRun.java:64)
+Caused by: java.lang.NullPointerException
+	at br.com.tarlis.mov3lets.method.output.json.SubtrajectoryGSON.<init>(SubtrajectoryGSON.java:54)
+	at br.com.tarlis.mov3lets.method.output.JSONOutputter.fromSubtrajectory(JSONOutputter.java:114)
+	at br.com.tarlis.mov3lets.method.output.JSONOutputter.write(JSONOutputter.java:59)
+	at br.com.tarlis.mov3lets.method.discovery.DiscoveryAdapter.output(DiscoveryAdapter.java:104)
+	at br.com.tarlis.mov3lets.method.discovery.MoveletsDiscovery.discover(MoveletsDiscovery.java:169)
+	at br.com.tarlis.mov3lets.method.discovery.DiscoveryAdapter.call(DiscoveryAdapter.java:80)
+	at br.com.tarlis.mov3lets.method.discovery.DiscoveryAdapter.call(DiscoveryAdapter.java:1)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
+	at java.base/java.lang.Thread.run(Thread.java:834)
+java.util.concurrent.ExecutionException: java.lang.NullPointerException
+	at java.base/java.util.concurrent.FutureTask.report(FutureTask.java:122)
+	at java.base/java.util.concurrent.FutureTask.get(FutureTask.java:191)
+	at br.com.tarlis.mov3lets.method.Mov3lets.selectCandidates(Mov3lets.java:167)
+	at br.com.tarlis.mov3lets.method.Mov3lets.mov3lets(Mov3lets.java:99)
+	at br.com.tarlis.mov3lets.run.Mov3letsRun.main(Mov3letsRun.java:64)
+Caused by: java.lang.NullPointerException
+	at br.com.tarlis.mov3lets.method.output.json.SubtrajectoryGSON.<init>(SubtrajectoryGSON.java:54)
+	at br.com.tarlis.mov3lets.method.output.JSONOutputter.fromSubtrajectory(JSONOutputter.java:114)
+	at br.com.tarlis.mov3lets.method.output.JSONOutputter.write(JSONOutputter.java:59)
+	at br.com.tarlis.mov3lets.method.discovery.DiscoveryAdapter.output(DiscoveryAdapter.java:104)
+	at br.com.tarlis.mov3lets.method.discovery.MoveletsDiscovery.discover(MoveletsDiscovery.java:169)
+	at br.com.tarlis.mov3lets.method.discovery.DiscoveryAdapter.call(DiscoveryAdapter.java:80)
+	at br.com.tarlis.mov3lets.method.discovery.DiscoveryAdapter.call(DiscoveryAdapter.java:1)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
+	at java.base/java.lang.Thread.run(Thread.java:834)
+java.util.concurrent.ExecutionException: java.lang.NullPointerException
+	at java.base/java.util.concurrent.FutureTask.report(FutureTask.java:122)
+	at java.base/java.util.concurrent.FutureTask.get(FutureTask.java:191)
+	at br.com.tarlis.mov3lets.method.Mov3lets.selectCandidates(Mov3lets.java:167)
+	at br.com.tarlis.mov3lets.method.Mov3lets.mov3lets(Mov3lets.java:99)
+	at br.com.tarlis.mov3lets.run.Mov3letsRun.main(Mov3letsRun.java:64)
+Caused by: java.lang.NullPointerException
+	at br.com.tarlis.mov3lets.method.output.json.SubtrajectoryGSON.<init>(SubtrajectoryGSON.java:54)
+	at br.com.tarlis.mov3lets.method.output.JSONOutputter.fromSubtrajectory(JSONOutputter.java:114)
+	at br.com.tarlis.mov3lets.method.output.JSONOutputter.write(JSONOutputter.java:59)
+	at br.com.tarlis.mov3lets.method.discovery.DiscoveryAdapter.output(DiscoveryAdapter.java:104)
+	at br.com.tarlis.mov3lets.method.discovery.MoveletsDiscovery.discover(MoveletsDiscovery.java:169)
+	at br.com.tarlis.mov3lets.method.discovery.DiscoveryAdapter.call(DiscoveryAdapter.java:80)
+	at br.com.tarlis.mov3lets.method.discovery.DiscoveryAdapter.call(DiscoveryAdapter.java:1)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
+	at java.base/java.lang.Thread.run(Thread.java:834)
+	[Discovering movelets] >> Trajectory: 137. Trajectory Size: 19. Number of Candidates: 190. Total of Movelets: 8. Max Size: 2052. Used Features: 1
+	[Discovering movelets] >> Class: 7.
+	[Discovering movelets] >> Trajectory: 139. Trajectory Size: 15. Number of Candidates: 120. Total of Movelets: 10. Max Size: 2052. Used Features: 1
+	[Discovering movelets] >> Class: 7.
+	[Discovering movelets] >> Trajectory: 134. Trajectory Size: 22. Number of Candidates: 253. Total of Movelets: 11. Max Size: 2052. Used Features: 1
+	[Discovering movelets] >> Class: 7.
+java.util.concurrent.ExecutionException: java.lang.NullPointerException
+	at java.base/java.util.concurrent.FutureTask.report(FutureTask.java:122)
+	at java.base/java.util.concurrent.FutureTask.get(FutureTask.java:191)
+	at br.com.tarlis.mov3lets.method.Mov3lets.selectCandidates(Mov3lets.java:167)
+	at br.com.tarlis.mov3lets.method.Mov3lets.mov3lets(Mov3lets.java:99)
+	at br.com.tarlis.mov3lets.run.Mov3letsRun.main(Mov3letsRun.java:64)
+Caused by: java.lang.NullPointerException
+	at br.com.tarlis.mov3lets.method.output.json.SubtrajectoryGSON.<init>(SubtrajectoryGSON.java:54)
+	at br.com.tarlis.mov3lets.method.output.JSONOutputter.fromSubtrajectory(JSONOutputter.java:114)
+	at br.com.tarlis.mov3lets.method.output.JSONOutputter.write(JSONOutputter.java:59)
+	at br.com.tarlis.mov3lets.method.discovery.DiscoveryAdapter.output(DiscoveryAdapter.java:104)
+	at br.com.tarlis.mov3lets.method.discovery.MoveletsDiscovery.discover(MoveletsDiscovery.java:169)
+	at br.com.tarlis.mov3lets.method.discovery.DiscoveryAdapter.call(DiscoveryAdapter.java:80)
+	at br.com.tarlis.mov3lets.method.discovery.DiscoveryAdapter.call(DiscoveryAdapter.java:1)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
+	at java.base/java.lang.Thread.run(Thread.java:834)
+java.util.concurrent.ExecutionException: java.lang.NullPointerException
+	at java.base/java.util.concurrent.FutureTask.report(FutureTask.java:122)
+	at java.base/java.util.concurrent.FutureTask.get(FutureTask.java:191)
+	at br.com.tarlis.mov3lets.method.Mov3lets.selectCandidates(Mov3lets.java:167)
+	at br.com.tarlis.mov3lets.method.Mov3lets.mov3lets(Mov3lets.java:99)
+	at br.com.tarlis.mov3lets.run.Mov3letsRun.main(Mov3letsRun.java:64)
+Caused by: java.lang.NullPointerException
+	at br.com.tarlis.mov3lets.method.output.json.SubtrajectoryGSON.<init>(SubtrajectoryGSON.java:54)
+	at br.com.tarlis.mov3lets.method.output.JSONOutputter.fromSubtrajectory(JSONOutputter.java:114)
+	at br.com.tarlis.mov3lets.method.output.JSONOutputter.write(JSONOutputter.java:59)
+	at br.com.tarlis.mov3lets.method.discovery.DiscoveryAdapter.output(DiscoveryAdapter.java:104)
+	at br.com.tarlis.mov3lets.method.discovery.MoveletsDiscovery.discover(MoveletsDiscovery.java:169)
+	at br.com.tarlis.mov3lets.method.discovery.DiscoveryAdapter.call(DiscoveryAdapter.java:80)
+	at br.com.tarlis.mov3lets.method.discovery.DiscoveryAdapter.call(DiscoveryAdapter.java:1)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
+	at java.base/java.lang.Thread.run(Thread.java:834)
+	[Discovering movelets] >> Trajectory: 138. Trajectory Size: 18. Number of Candidates: 171. Total of Movelets: 8. Max Size: 2052. Used Features: 1
+java.util.concurrent.ExecutionException: java.lang.NullPointerException
+	at java.base/java.util.concurrent.FutureTask.report(FutureTask.java:122)
+	at java.base/java.util.concurrent.FutureTask.get(FutureTask.java:191)
+	at br.com.tarlis.mov3lets.method.Mov3lets.selectCandidates(Mov3lets.java:167)
+	at br.com.tarlis.mov3lets.method.Mov3lets.mov3lets(Mov3lets.java:99)
+	at br.com.tarlis.mov3lets.run.Mov3letsRun.main(Mov3letsRun.java:64)
+	[Discovering movelets] >> Class: 7.
+Caused by: java.lang.NullPointerException
+	at br.com.tarlis.mov3lets.method.output.json.SubtrajectoryGSON.<init>(SubtrajectoryGSON.java:54)
+	at br.com.tarlis.mov3lets.method.output.JSONOutputter.fromSubtrajectory(JSONOutputter.java:114)
+	at br.com.tarlis.mov3lets.method.output.JSONOutputter.write(JSONOutputter.java:59)
+	at br.com.tarlis.mov3lets.method.discovery.DiscoveryAdapter.output(DiscoveryAdapter.java:104)
+	at br.com.tarlis.mov3lets.method.discovery.MoveletsDiscovery.discover(MoveletsDiscovery.java:169)
+	at br.com.tarlis.mov3lets.method.discovery.DiscoveryAdapter.call(DiscoveryAdapter.java:80)
+	at br.com.tarlis.mov3lets.method.discovery.DiscoveryAdapter.call(DiscoveryAdapter.java:1)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
+	at java.base/java.lang.Thread.run(Thread.java:834)
+java.util.concurrent.ExecutionException: java.lang.NullPointerException
+	at java.base/java.util.concurrent.FutureTask.report(FutureTask.java:122)
+	at java.base/java.util.concurrent.FutureTask.get(FutureTask.java:191)
+	at br.com.tarlis.mov3lets.method.Mov3lets.selectCandidates(Mov3lets.java:167)
+	at br.com.tarlis.mov3lets.method.Mov3lets.mov3lets(Mov3lets.java:99)
+	at br.com.tarlis.mov3lets.run.Mov3letsRun.main(Mov3letsRun.java:64)
+Caused by: java.lang.NullPointerException
+	at br.com.tarlis.mov3lets.method.output.json.SubtrajectoryGSON.<init>(SubtrajectoryGSON.java:54)
+	at br.com.tarlis.mov3lets.method.output.JSONOutputter.fromSubtrajectory(JSONOutputter.java:114)
+	at br.com.tarlis.mov3lets.method.output.JSONOutputter.write(JSONOutputter.java:59)
+	at br.com.tarlis.mov3lets.method.discovery.DiscoveryAdapter.output(DiscoveryAdapter.java:104)
+	at br.com.tarlis.mov3lets.method.discovery.MoveletsDiscovery.discover(MoveletsDiscovery.java:169)
+	at br.com.tarlis.mov3lets.method.discovery.DiscoveryAdapter.call(DiscoveryAdapter.java:80)
+	at br.com.tarlis.mov3lets.method.discovery.DiscoveryAdapter.call(DiscoveryAdapter.java:1)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
+	at java.base/java.lang.Thread.run(Thread.java:834)
+	[Discovering movelets] >> Trajectory: 146. Trajectory Size: 14. Number of Candidates: 105. Total of Movelets: 8. Max Size: 2052. Used Features: 1
+	[Discovering movelets] >> Trajectory: 141. Trajectory Size: 18. Number of Candidates: 171. Total of Movelets: 6. Max Size: 2052. Used Features: 1
+	[Discovering movelets] >> Class: 7.
+java.util.concurrent.ExecutionException: java.lang.NullPointerException
+	at java.base/java.util.concurrent.FutureTask.report(FutureTask.java:122)
+	at java.base/java.util.concurrent.FutureTask.get(FutureTask.java:191)
+	at br.com.tarlis.mov3lets.method.Mov3lets.selectCandidates(Mov3lets.java:167)
+	at br.com.tarlis.mov3lets.method.Mov3lets.mov3lets(Mov3lets.java:99)
+	at br.com.tarlis.mov3lets.run.Mov3letsRun.main(Mov3letsRun.java:64)
+Caused by: java.lang.NullPointerException
+	at br.com.tarlis.mov3lets.method.output.json.SubtrajectoryGSON.<init>(SubtrajectoryGSON.java:54)
+	at br.com.tarlis.mov3lets.method.output.JSONOutputter.fromSubtrajectory(JSONOutputter.java:114)
+	at br.com.tarlis.mov3lets.method.output.JSONOutputter.write(JSONOutputter.java:59)
+	at br.com.tarlis.mov3lets.method.discovery.DiscoveryAdapter.output(DiscoveryAdapter.java:104)
+	at br.com.tarlis.mov3lets.method.discovery.MoveletsDiscovery.discover(MoveletsDiscovery.java:169)
+	at br.com.tarlis.mov3lets.method.discovery.DiscoveryAdapter.call(DiscoveryAdapter.java:80)
+	at br.com.tarlis.mov3lets.method.discovery.DiscoveryAdapter.call(DiscoveryAdapter.java:1)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
+	at java.base/java.lang.Thread.run(Thread.java:834)
+	[Discovering movelets] >> Class: 7.
+	[Discovering movelets] >> Trajectory: 148. Trajectory Size: 11. Number of Candidates: 66. Total of Movelets: 4. Max Size: 2052. Used Features: 1
+	[Discovering movelets] >> Class: 7.
+	[Discovering movelets] >> Trajectory: 145. Trajectory Size: 19. Number of Candidates: 190. Total of Movelets: 10. Max Size: 2052. Used Features: 1
+	[Discovering movelets] >> Class: 7.

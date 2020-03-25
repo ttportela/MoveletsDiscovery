@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
 
 import org.apache.commons.math3.util.Combinations;
 
@@ -27,6 +29,13 @@ public class Matrix3D extends HashMap<Tuple<Point, Point, Integer>, List<Double>
 	}
 		
 	public Matrix3D(boolean exploreDimensions, int numberOfFeatures, int maxNumberOfFeatures) {
+		
+		switch (maxNumberOfFeatures) {
+			case -1: maxNumberOfFeatures = numberOfFeatures; break;
+			case -2: maxNumberOfFeatures = (int) Math.ceil(Math.log(numberOfFeatures))+1; break;
+			default: break;
+		}
+		
 		makeCombinations(exploreDimensions, numberOfFeatures, maxNumberOfFeatures);
 	}
 	
@@ -76,6 +85,10 @@ public class Matrix3D extends HashMap<Tuple<Point, Point, Integer>, List<Double>
 	public void add(Point a, Point b, int index, List<Double> value) {
 		super.put(new Tuple<Point, Point, Integer>(a, b, index), value);
 	}
+	
+	public void add(Point a, Point b, List<Double> value) {
+		super.put(new Tuple<Point, Point, Integer>(a, b, 0), value);
+	}
 
 	/**
 	 * @param a
@@ -85,6 +98,10 @@ public class Matrix3D extends HashMap<Tuple<Point, Point, Integer>, List<Double>
 	 */
 	public void add(Point a, Point b, int index, Double value) {
 		super.put(new Tuple<Point, Point, Integer>(a, b, index), Arrays.asList(value));
+	}	
+
+	public void add(Point a, Point b, Double value) {
+		super.put(new Tuple<Point, Point, Integer>(a, b, 0), Arrays.asList(value));
 	}
 
 	/**
@@ -92,16 +109,24 @@ public class Matrix3D extends HashMap<Tuple<Point, Point, Integer>, List<Double>
 	 * @param b
 	 * @param distances
 	 */
-	public void addCombinations(Point a, Point b, double[] distances) {
+//	public void addCombinations(Point a, Point b, double[] distances) {
+//		// For each possible *Number Of Features* and each combination of those:
+//		for (int i = 0; i < getCombinations().size(); i++) {
+//			List<Integer> comb = getCombinations().get(i);
+//			List<Double> distComb = new ArrayList<Double>();
+//			for (Integer c : comb) {
+//				distComb.add(distances[c]);
+//			}
+//			add(a, b, i, distComb);
+//		}
+//	}
+	
+	public void addDistances(Point a, Point b, double[] distances) {
 		// For each possible *Number Of Features* and each combination of those:
-		for (int i = 0; i < getCombinations().size(); i++) {
-			List<Integer> comb = getCombinations().get(i);
-			List<Double> distComb = new ArrayList<Double>();
-			for (Integer c : comb) {
-				distComb.add(distances[c]);
-			}
-			add(a, b, i, distComb);
-		}
+		if (super.containsKey(new Tuple<Point, Point, Integer>(a, b, 0)))
+			System.out.println("TEM");
+		super.put(new Tuple<Point, Point, Integer>(a, b, 0), 
+				DoubleStream.of(distances).boxed().collect(Collectors.toList()));
 	}
 
 	/**
@@ -123,6 +148,10 @@ public class Matrix3D extends HashMap<Tuple<Point, Point, Integer>, List<Double>
 	public List<Double> get(Point a, Point b, int index) {
 		return super.get(new Tuple<Point, Point, Integer>(a, b, index));
 	}
+	
+	public List<Double> get(Point a, Point b) {
+		return super.get(new Tuple<Point, Point, Integer>(a, b, 0));
+	}
 
 	/**
 	 * @param point
@@ -130,12 +159,9 @@ public class Matrix3D extends HashMap<Tuple<Point, Point, Integer>, List<Double>
 	 * @param comb
 	 * @return
 	 */
-	public double[] getBaseDistances(Point a, Point b, int[] comb) {
-		double[] distances = new double[comb.length];
-		for (int k = 0; k < comb.length; k++) {
-			distances[k] = super.get(new Tuple<Point, Point, Integer>(a, b, comb[k])).get(0);
-		}
-		return distances;
+	public double[] getBaseDistances(Point a, Point b) {
+		return super.get(new Tuple<Point, Point, Integer>(a, b, 0))
+				.stream().mapToDouble(Double::doubleValue).toArray();
 	}
 	
 	@Override

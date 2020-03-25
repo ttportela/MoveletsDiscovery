@@ -57,8 +57,8 @@ public class IndexedLoader<T extends MAT<?>> extends DefaultLoader<T> {
 			poi.setTrajectory(mat);
 			for (AttributeDescriptor attr : descriptor.getAttributes()) {
 				poi.getAspects().add(instantiateAspect(attr, line.get(attr.getOrder()-1)));
-				mat.getPoints().add(poi);
 			}
+			mat.getPoints().add(poi);
 		}
 		csvParser.close();
 

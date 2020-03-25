@@ -18,6 +18,9 @@
 package br.com.tarlis.mov3lets.utils;
 
 import java.util.HashMap;
+import java.util.List;
+
+import br.com.tarlis.mov3lets.model.MAT;
 
 /**
  * @author Tarlis Portela <tarlis@tarlis.com.br>
@@ -106,6 +109,16 @@ public class Mov3letsUtils {
 
 	public void printMemory() {
 		if (getInstance().log != null) getInstance().log.printMemory();
+	}
+	
+	public long totalPoints(List<MAT<?>> trajectories){
+		long size = 0;
+		
+		for (MAT<?> T : trajectories) {
+			size += T.getPoints().size();
+		}
+		
+		return size;
 	}
 
 }

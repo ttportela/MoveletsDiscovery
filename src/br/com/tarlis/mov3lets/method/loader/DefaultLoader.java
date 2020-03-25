@@ -29,27 +29,24 @@ public class DefaultLoader<T extends MAT<?>> extends LoaderAdapter<T> {
 	public List<T> loadTrajectories(String file, Descriptor descriptor) throws IOException {
 		List<MAT<String>> trajectories = new ArrayList<MAT<String>>();
 		// IF MO type is String:
-		String mo = "";
-		MAT<String> mat = null;
+//		MO mo = new MO();
+		MAT<String> mat = new MAT<String>();
 			
 		CSVParser csvParser = CSVFormat.DEFAULT.parse(new InputStreamReader((new FileInputStream(file))));
 		csvParser.iterator().next();
 		for (CSVRecord line : csvParser) {
 			int tid = Integer.parseInt(line.get(descriptor.getIdFeature().getOrder()-1));
 			
-			// Create a MO:
-			String label = line.get(descriptor.getLabelFeature().getOrder()-1);
-			if (!mo.equals(label)) {
-				if (mat != null) 
-				    trajectories.add(mat);
+			if (mat.getTid() != tid) {
+				mat = new MAT<String>();
+				mat.setTid(tid);
+				trajectories.add(mat);
+
 				// Can use like this:
 //				mo = (MO) new MovingObject<String>(label);
-//				mat = new MAT<MovingObject<String>>();
 				// OR -- this for typing String:
-				mo = label;
-				mat = new MAT<String>();
-				mat.setMovingObject(mo);
-				mat.setTid(tid);
+				String label = line.get(descriptor.getLabelFeature().getOrder()-1);
+				mat.setMovingObject(label);
 			}
 			
 			// For each attribute of POI
@@ -58,8 +55,8 @@ public class DefaultLoader<T extends MAT<?>> extends LoaderAdapter<T> {
 			for (AttributeDescriptor attr : descriptor.getAttributes()) {
 //				poi.getAspects().put(attr.getText(), instantiateAspect(attr, line.get(attr.getOrder()-1)));
 				poi.getAspects().add(instantiateAspect(attr, line.get(attr.getOrder()-1)));
-				mat.getPoints().add(poi);
 			}
+			mat.getPoints().add(poi);
 		}
 		csvParser.close();
 

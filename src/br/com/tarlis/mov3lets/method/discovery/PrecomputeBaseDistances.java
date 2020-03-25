@@ -8,18 +8,18 @@ import br.com.tarlis.mov3lets.method.descriptor.Descriptor;
 import br.com.tarlis.mov3lets.method.structures.Matrix3D;
 import br.com.tarlis.mov3lets.model.MAT;
 import br.com.tarlis.mov3lets.model.Point;
-import br.com.tarlis.mov3lets.utils.StatusBar;
+import br.com.tarlis.mov3lets.utils.ProgressBar;
 
 public class PrecomputeBaseDistances<MO> implements Callable<Matrix3D> {
 	
-	private MAT<?> trajectory;
+	private int fromIndex;
 	private List<MAT<MO>> trajectories;
 	private Matrix3D base;
 	private Descriptor descriptor;
-	private StatusBar bar;
+	private ProgressBar bar;
 	
-	public PrecomputeBaseDistances(MAT<?> trajectory, List<MAT<MO>> trajectories, Matrix3D base, Descriptor descriptor, StatusBar bar) {
-		this.trajectory = trajectory;
+	public PrecomputeBaseDistances(int fromIndex, List<MAT<MO>> trajectories, Matrix3D base, Descriptor descriptor, ProgressBar bar) {
+		this.fromIndex = fromIndex;
 		this.trajectories = trajectories;
 		this.base = base;
 		this.descriptor = descriptor;
@@ -28,25 +28,24 @@ public class PrecomputeBaseDistances<MO> implements Callable<Matrix3D> {
 
 	@Override
 	public Matrix3D call() throws Exception {
-		return computeBaseDistances(trajectory, this.trajectories);
+		return computeBaseDistances(fromIndex, this.trajectories);
 	}
 	
-	public Matrix3D computeBaseDistances(MAT<?> trajectory, List<MAT<MO>> trajectories){
-//		int index = trajectories.indexOf(trajectory);
-		int n = trajectory.getPoints().size();
-		int size = 1;
+	public Matrix3D computeBaseDistances(int fromIndex, List<MAT<MO>> trajectories){
+		MAT<?> trajectory = trajectories.get(fromIndex);
+//		int n = trajectory.getPoints().size();
+//		int size = 1;
 		
-		for (int start = 0; start <= (n - size); start++) {
-//			base[start] = new double[train.size()][][];				
+		for (Point a : trajectory.getPoints()) {
+//		for (int start = 0; start <= (n - size); start++) {		
+//			Point a = trajectory.getPoints().get(start);
 			
-//			for (MAT<?> T : trajectories) {
-			for (int k = 0; k < trajectories.size(); k++) {
-						
+			for (int k = fromIndex; k < trajectories.size(); k++) {
 				MAT<?> T = trajectories.get(k);
-				Point a = trajectory.getPoints().get(start);
 				
-				for (int j = 0; j <= (T.getPoints().size()-size); j++) {
-					Point b = T.getPoints().get(j);
+				for (Point b : T.getPoints()) {
+//				for (int j = 0; j <= (T.getPoints().size()-size); j++) {
+//					Point b = T.getPoints().get(j);
 					
 					double[] distances = new double[this.descriptor.getAttributes().size()];
 					
@@ -60,17 +59,19 @@ public class PrecomputeBaseDistances<MO> implements Callable<Matrix3D> {
 					}
 
 					// For each possible *Number Of Features* and each combination of those:
-					base.addCombinations(a, b, distances);
+					base.addDistances(a, b, distances);
 					
 				} // for (int j = 0; j <= (train.size()-size); j++)
 				
-				bar.plusOne();
-				
 			} //for (MAT<?> T : trajectories) { --//-- for (int i = 0; i < train.size(); i++)
+			
+			bar.plus();
 			
 		} // for (int start = 0; start <= (n - size); start++)
 
 		return base;
 	}
+	
+	
 	
 }

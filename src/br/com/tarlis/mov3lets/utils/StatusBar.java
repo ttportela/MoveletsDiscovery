@@ -2,8 +2,8 @@ package br.com.tarlis.mov3lets.utils;
 
 public class StatusBar {
 	private int progress = -1;
-	private int total = 0;
-	private int done = 0;
+	private long total = 0;
+	private long done = 0;
 	private String mark = null;
 
     /**
@@ -11,14 +11,18 @@ public class StatusBar {
      */
     public StatusBar() { }
     
-    public StatusBar(String name, int total) { 
+    public StatusBar(String name, long total) { 
     	this.mark = name;
     	this.total = total;
     }    
 
-    public synchronized void plusOne() {
-    	update(++done, this.total);
+    public synchronized void plus() {
+    	update(done+1, this.total);
     }
+
+	public synchronized void plus(long size) {
+    	update((done+size), this.total);
+	}
 
     /**
      * called whenever the progress bar needs to be updated.
@@ -27,8 +31,7 @@ public class StatusBar {
      * @param done an int representing the work done so far
      * @param total an int representing the total work
      */
-    public void update(int done) {
-    	this.done = done;
+    public synchronized void update(long done) {
     	update(done, this.total);
     }
 
@@ -39,14 +42,14 @@ public class StatusBar {
      * @param done an int representing the work done so far
      * @param total an int representing the total work
      */
-    public void update(int done, int total) {
+    public synchronized void update(long done, long total) {
     	this.done = done;
     	if (this.progress == -1) {
     		start();
     	}
 
-        int percent = (++done * 100) / total;
-        int extrachars = (percent / 2) - this.progress;
+    	long percent = (++this.done * 100) / total;
+    	int extrachars = (int) ((percent / 2) - this.progress);
         
         this.progress += extrachars;
 
@@ -55,12 +58,12 @@ public class StatusBar {
 	        	System.out.print(mark);
 	        }
 
-        if (done == total) {
+        if (this.done == total) {
             stop();
         }
     }
 
-    private boolean printStep() {
+    private synchronized boolean printStep() {
 		switch (this.progress*2) {
 		case 10:
 			System.out.print("10%"); return true;
@@ -84,7 +87,7 @@ public class StatusBar {
 		return false;
 	}
 
-	private void start() {
+	private synchronized void start() {
     	this.progress = 0;
     	if (mark != null) {
     		System.out.print(mark + ": [");
@@ -94,7 +97,7 @@ public class StatusBar {
     		
     }
 
-    private void stop() {
+    private synchronized void stop() {
     	System.out.print("] 100%");
         System.out.flush();
         System.out.println();
