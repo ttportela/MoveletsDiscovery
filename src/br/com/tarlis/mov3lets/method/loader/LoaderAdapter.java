@@ -1,6 +1,7 @@
 package br.com.tarlis.mov3lets.method.loader;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,14 +12,21 @@ public abstract class LoaderAdapter<T extends MAT<?>> {
 	
 	public abstract List<T> loadTrajectories(String file, Descriptor descriptor) throws IOException;
 	
+	public List<T> load(String file, Descriptor descriptor) throws IOException {
+		String curpath = descriptor.hasParam("curpath")? descriptor.getParamAsText("curpath") : "./";
+		
+		List<T> data = loadTrajectories(Paths.get(curpath, file).toString(), descriptor);
+		return data;
+	}
+	
 	public List<T> load(Descriptor descriptor) throws IOException {
 		String curpath = descriptor.hasParam("curpath")? descriptor.getParamAsText("curpath") : "./";
 		
-		List<T> train = new ArrayList<T>();
+		List<T> data = new ArrayList<T>();
 		for (String file : descriptor.getInputFiles()) {
-			train.addAll(loadTrajectories(curpath + file, descriptor));
+			data.addAll(loadTrajectories(Paths.get(curpath, file).toString(), descriptor));
 		}
-		return train;
+		return data;
 	}
 
 }

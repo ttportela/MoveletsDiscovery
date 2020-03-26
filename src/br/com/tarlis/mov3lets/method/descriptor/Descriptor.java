@@ -45,7 +45,7 @@ public class Descriptor {
 	private List<AttributeDescriptor> attributes = null;
 	private List<String> inputFiles = null;
 	
-	private HashMap<String, Object> params = new HashMap<String, Object>();
+	private HashMap<String, Object> params;
 
 	/**
 	 * @return the idFeature
@@ -246,6 +246,10 @@ public class Descriptor {
 	 */
 	public HashMap<String, Object> getParams() {
 		return params;
+	}
+	
+	public void setParams(HashMap<String, Object> params) {
+		this.params = params;
 	}
 
 	/**

@@ -1,9 +1,12 @@
 package br.com.tarlis.mov3lets.method.output.json;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.ArrayUtils;
 
 import br.com.tarlis.mov3lets.method.descriptor.Descriptor;
 import br.com.tarlis.mov3lets.method.qualitymeasure.LeftSidePureQuality;
@@ -23,9 +26,9 @@ public class SubtrajectoryGSON {
 	
 	private String label;
 
-//	private HashMap<String, IFeature> features;
+//	private List<HashMap<String, Object>> features;
 	
-//	private List<HashMap<String, IFeature>> points_with_only_the_used_features;
+	private List<HashMap<String, Object>> points_with_only_the_used_features;
 		
 	private HashMap<String, Double> maxValues;
 	
@@ -37,36 +40,32 @@ public class SubtrajectoryGSON {
 	
 	private int[] positions;
 	
-	private List<Point> data;
+//	private List<Point> data;
+	private List<HashMap<String, Object>> data;
 	
 	private Map<String,Double> quality;
 	
 	public SubtrajectoryGSON(int start, int end, int trajectory, String label,
-			int[] pointFeatures, double[] splitpoints, double[][] distances, 
-			List<Subtrajectory> bestAlignments, Quality quality, List<Point> data) {
+			List<HashMap<String, Object>> features, int[] pointFeatures, 
+			HashMap<String, Double> maxValues, double[] splitpoints, double[][] distances, 
+			List<Subtrajectory> bestAlignments, Quality quality, 
+			List<HashMap<String, Object>> only_used_features) {
 		super();
-		this.start = start;
-		this.end = end;
-		this.trajectory = trajectory;
-		this.label = label;
-//		this.features = features;		
-		this.distances = distances;
-		this.positions = bestAlignments.stream().mapToInt(e -> (e!=null) ? e.getStart() : -1).toArray();
-		this.pointFeatures = pointFeatures;
-		this.splitpoints = splitpoints;
-		this.quality = quality.getData();
-		this.maxValues = new HashMap<>();
-//		this.points_with_only_the_used_features = only_used_features;
-		this.data = data;
-		
-		// TODO Features?
-//		for (FeatureComparisonDesc featureComparisonDesc : description.getPointComparisonDesc().getFeatureComparisonDesc()) {
-//			maxValues.put(featureComparisonDesc.getText(), featureComparisonDesc.getMaxValue());				
-//		}
-//
-//		for (FeatureComparisonDesc featureComparisonDesc : description.getSubtrajectoryComparisonDesc().getFeatureComparisonDesc()) {
-//			maxValues.put(featureComparisonDesc.getText(), featureComparisonDesc.getMaxValue());				
-//		}
+		init(start, end, trajectory, label, features, pointFeatures, maxValues, 
+				splitpoints, distances, bestAlignments, quality, only_used_features);
+	}
+
+	public SubtrajectoryGSON(int start, int end, int trajectory, String label,
+			List<HashMap<String, Object>> features, int[] pointFeatures, 
+			HashMap<String, Double> maxValues, double[] splitpoints, double[][] distances, 
+			List<Subtrajectory> bestAlignments, double proportion, 
+			List<Point> data, List<HashMap<String, Object>> only_used_features) {
+		super();
+		init(start, end, trajectory, label, features, pointFeatures, maxValues, 
+				splitpoints, distances, bestAlignments, null, only_used_features);
+		this.quality = new HashMap<>();
+		this.quality.put("proportion", proportion);
+	
 	}
 	
 	public SubtrajectoryGSON(int start, int trajectory, String label, int[] pointFeatures, double [] splitpoints, 
@@ -81,6 +80,63 @@ public class SubtrajectoryGSON {
 		this.positions = bestAlignments.stream().mapToInt(e -> (e!=null) ? e.getStart() : -1).toArray();
 		this.quality = quality.getData();
 //		this.points_with_only_the_used_features = only_used_features;
+	}
+	
+	public SubtrajectoryGSON(Subtrajectory subtrajectory, Descriptor descriptor) {
+		super();
+		int[] list_features = subtrajectory.getPointFeatures();
+		
+		List<HashMap<String, Object>> features = new ArrayList<>();
+		List<HashMap<String, Object>> used_features = new ArrayList<>();
+		
+		HashMap<String, Double> maxValues = new HashMap<String, Double>();
+		for(int j=0; j < descriptor.getAttributes().size(); j++) {
+			if(ArrayUtils.contains(list_features, j))
+				maxValues.put(descriptor.getAttributes().get(j).getText(), descriptor.getAttributes().get(j).getComparator().getMaxValue());
+		}
+		
+		for(int i=0; i < subtrajectory.getPoints().size(); i++) {
+			
+			Point point = subtrajectory.getPoints().get(i);
+
+			HashMap<String, Object> features_in_point = new HashMap<>();
+			HashMap<String, Object> used_features_in_point = new HashMap<>();
+			
+			for(int j=0; j < descriptor.getAttributes().size(); j++) {
+				features_in_point.put(descriptor.getAttributes().get(j).getText(), point.getAspects().get(j).getValue());				
+				
+				if(ArrayUtils.contains(list_features, j))
+					used_features_in_point.put(descriptor.getAttributes().get(j).getText(), point.getAspects().get(j).getValue());
+			}
+
+			features.add(features_in_point);
+			used_features.add(used_features_in_point);
+		}
+		
+		init(subtrajectory.getStart(), subtrajectory.getEnd(), subtrajectory.getTrajectory().getTid(), 
+				subtrajectory.getTrajectory().getMovingObject().toString(), features, subtrajectory.getPointFeatures(), 
+				maxValues, subtrajectory.getSplitpoints(), subtrajectory.getDistances(), subtrajectory.getBestAlignments(),
+				subtrajectory.getQuality(), used_features);
+	}
+	
+	private void init(int start, int end, int trajectory, String label,
+			List<HashMap<String, Object>> features, int[] pointFeatures, 
+			HashMap<String, Double> maxValues, double[] splitpoints, double[][] distances, 
+			List<Subtrajectory> bestAlignments, Quality quality, 
+			List<HashMap<String, Object>> only_used_features) {
+		this.start = start;
+		this.end = end;
+		this.trajectory = trajectory;
+		this.label = label;
+//		this.features = features;		
+		this.distances = distances;
+		this.positions = bestAlignments.stream().mapToInt(e -> (e!=null) ? e.getStart() : -1).toArray();
+		this.pointFeatures = pointFeatures;
+		this.splitpoints = splitpoints;
+		this.quality = quality.getData();
+		this.maxValues = maxValues;
+		this.points_with_only_the_used_features = only_used_features;
+		this.data = features;
 	}
 
 	public int getStart() {
@@ -115,21 +171,21 @@ public class SubtrajectoryGSON {
 		this.label = label;
 	}
 
-	public List<Point> getData() {
+	public List<HashMap<String, Object>> getData() {
 		return data;
 	}
 	
-	public void setData(List<Point> data) {
+	public void setData(List<HashMap<String, Object>> data) {
 		this.data = data;
 	}
 	
-//	public void setUsedFeatures(List<HashMap<String, Feature>> Data) {
-//		this.points_with_only_the_used_features = Data;
-//	}
-//	
-//	public List<HashMap<String, Feature>> getOnlyUsedFeatures() {
-//		return points_with_only_the_used_features;
-//	}
+	public void setUsedFeatures(List<HashMap<String, Object>> data) {
+		this.points_with_only_the_used_features = data;
+	}
+	
+	public List<HashMap<String, Object>> getOnlyUsedFeatures() {
+		return points_with_only_the_used_features;
+	}
 	
 	public double[] getSplitpoints() {
 		return splitpoints;
@@ -139,11 +195,11 @@ public class SubtrajectoryGSON {
 		this.splitpoints = splitpoints;
 	}
 
-//	public HashMap<String, Feature> getFeatures() {
+//	public List<HashMap<String, Object>> getFeatures() {
 //		return features;
 //	}
 //
-//	public void setFeatures(HashMap<String, Feature> features) {
+//	public void setFeatures(List<HashMap<String, Object>> features) {
 //		this.features = features;
 //	}
 

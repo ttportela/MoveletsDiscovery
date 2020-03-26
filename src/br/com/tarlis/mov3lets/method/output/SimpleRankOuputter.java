@@ -25,7 +25,7 @@ public class SimpleRankOuputter<MO> extends OutputterAdapter<MO> {
 	 * @param descriptor
 	 */
 	public SimpleRankOuputter(String filePath, Descriptor descriptor) {
-		super(filePath, descriptor);
+		super(filePath, descriptor, false);
 		writeColumns();
 	}
 
@@ -73,7 +73,7 @@ public class SimpleRankOuputter<MO> extends OutputterAdapter<MO> {
 	}
 
 	@Override
-	public void write(List<MAT<MO>> trajectories, List<Subtrajectory> movelets) {
+	public void write(String filename, List<MAT<MO>> trajectories, List<Subtrajectory> movelets) {
 //		System.out.println("\t==> Output Rank of Movelets:");
 		
 		List<HashMap<String, String>> rank = new ArrayList<HashMap<String,String>>();

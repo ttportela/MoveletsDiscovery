@@ -18,9 +18,9 @@
 package br.com.tarlis.mov3lets.model;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 /**
@@ -38,7 +38,7 @@ public class MAT<MO> {
 	private List<Point> points = new ArrayList<Point>();
 	
 	// Attributtes resulting of method discovery.
-	private Map<String,Double> attributes = new HashMap<>();;
+	private Map<String,Double> attributes = new ConcurrentHashMap<>();;
 	
 	/**
 	 * @return the tid

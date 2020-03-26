@@ -107,7 +107,7 @@ public class Mov3letsUtils {
 		if (getInstance().log != null) getInstance().log.traceE(s, e);
 	}
 
-	public void printMemory() {
+	public synchronized static void printMemory() {
 		if (getInstance().log != null) getInstance().log.printMemory();
 	}
 	

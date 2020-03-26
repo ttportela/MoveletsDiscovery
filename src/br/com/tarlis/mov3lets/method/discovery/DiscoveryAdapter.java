@@ -27,6 +27,7 @@ import br.com.tarlis.mov3lets.method.output.JSONOutputter;
 import br.com.tarlis.mov3lets.method.output.OutputterAdapter;
 import br.com.tarlis.mov3lets.model.MAT;
 import br.com.tarlis.mov3lets.model.Subtrajectory;
+import br.com.tarlis.mov3lets.utils.ProgressBar;
 
 /**
  * @author Tarlis Portela <tarlis@tarlis.com.br>
@@ -35,8 +36,11 @@ import br.com.tarlis.mov3lets.model.Subtrajectory;
 public abstract class DiscoveryAdapter<MO> implements Callable<Integer> {
 
 	protected Descriptor descriptor;
+	protected ProgressBar progressBar;
 	
 	protected MAT<MO> trajectory;
+	protected List<MAT<MO>> train;
+	protected List<MAT<MO>> test;
 	protected List<MAT<MO>> data;
 
 	protected List<Subtrajectory> candidates;
@@ -47,29 +51,27 @@ public abstract class DiscoveryAdapter<MO> implements Callable<Integer> {
 	 * @param train
 	 * @param candidates 
 	 */
-	public DiscoveryAdapter(MAT<MO> trajectory, List<MAT<MO>> train, List<Subtrajectory> candidates, 
+	public DiscoveryAdapter(MAT<MO> trajectory, List<MAT<MO>> train, List<MAT<MO>> test, List<Subtrajectory> candidates, 
 			Descriptor descriptor) {
-		this.trajectory = trajectory;
-		this.data = train;
-		this.candidates = candidates;
-		this.descriptor = descriptor;
-		this.outputers = new ArrayList<OutputterAdapter<MO>>();
-		this.outputers.add(new CSVOutputter<MO>(getDescriptor()));
-		this.outputers.add(new JSONOutputter<MO>(getDescriptor()));
-		this.outputers.add(new CSVOutputter<MO>(getDescriptor()));
+		init(trajectory, train, test, candidates, descriptor);
 	}
 	
-	/**
-	 * @param train
-	 * @param candidates 
-	 */
-	public DiscoveryAdapter(MAT<MO> trajectory, List<MAT<MO>> train, List<Subtrajectory> candidates, 
+	public DiscoveryAdapter(MAT<MO> trajectory, List<MAT<MO>> train, List<MAT<MO>> test, List<Subtrajectory> candidates, 
 			Descriptor descriptor, List<OutputterAdapter<MO>> outputers) {
+		init(trajectory, train, test, candidates, descriptor);
+		this.outputers = outputers;
+	}
+	
+	private void init(MAT<MO> trajectory, List<MAT<MO>> train, List<MAT<MO>> test, List<Subtrajectory> candidates, 
+			Descriptor descriptor) {
 		this.trajectory = trajectory;
-		this.data = train;
+		this.train = train;
+		this.test = test;
 		this.candidates = candidates;
 		this.descriptor = descriptor;
-		this.outputers = outputers;
+		this.data = new ArrayList<MAT<MO>>();
+		this.data.addAll(train);
+		this.data.addAll(test);
 	}
 	
 	public abstract void discover(); 
@@ -96,13 +98,24 @@ public abstract class DiscoveryAdapter<MO> implements Callable<Integer> {
 		return descriptor;
 	}
 	
-	public void output(List<MAT<MO>> trajectories, List<Subtrajectory> movelets) {
-		// By Default, it writes a JSON and a CSV in a attribute-value format	
+	public void output(String filename, List<MAT<MO>> trajectories, List<Subtrajectory> movelets) {	
+		// This sets the default outputters, otherwise use the configured ones	
+		// By Default, it writes a JSON and a CSV in a attribute-value format
+		defaultOutputters();
 		// It puts distances as trajectory attributes
 		for (OutputterAdapter<MO> output : outputers) {
-			output.attributesToTrajectories(trajectories, movelets);	
-			output.write(trajectories, movelets);			
+			output.write(filename, trajectories, movelets);			
 		}
+	}
+	
+	public boolean defaultOutputters() {
+		if (this.outputers == null) {
+			this.outputers = new ArrayList<OutputterAdapter<MO>>();
+			this.outputers.add(new CSVOutputter<MO>(getDescriptor()));
+			this.outputers.add(new JSONOutputter<MO>(getDescriptor()));
+			return true;
+		}
+		return false;
 	}
 	
 	/**
@@ -117,6 +130,14 @@ public abstract class DiscoveryAdapter<MO> implements Callable<Integer> {
 	 */
 	public List<OutputterAdapter<MO>> getOutputers() {
 		return outputers;
+	}
+	
+	public ProgressBar getProgressBar() {
+		return progressBar;
+	}
+	
+	public void setProgressBar(ProgressBar progressBar) {
+		this.progressBar = progressBar;
 	}
 
 }

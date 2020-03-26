@@ -33,9 +33,9 @@ public class SupervisedMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 	/**
 	 * @param train
 	 */
-	public SupervisedMoveletsDiscovery(MAT<MO> trajectory, List<MAT<MO>> train, List<Subtrajectory> candidates, QualityMeasure qualityMeasure, 
+	public SupervisedMoveletsDiscovery(MAT<MO> trajectory, List<MAT<MO>> train, List<MAT<MO>> test, List<Subtrajectory> candidates, QualityMeasure qualityMeasure, 
 			Descriptor descriptor) {
-		super(trajectory, train, candidates, qualityMeasure, descriptor);
+		super(trajectory, train, test, candidates, qualityMeasure, descriptor);
 	}
 
 }

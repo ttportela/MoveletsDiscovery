@@ -61,15 +61,15 @@ public class MoveletsDiscovery_old<MO> extends DiscoveryAdapter<MO> {
 	 * @param train
 	 * @param candidates 
 	 */
-	public MoveletsDiscovery_old(MAT<MO> trajectory, List<MAT<MO>> train, List<Subtrajectory> candidates, QualityMeasure qualityMeasure, 
+	public MoveletsDiscovery_old(MAT<MO> trajectory, List<MAT<MO>> train, List<MAT<MO>> test, List<Subtrajectory> candidates, QualityMeasure qualityMeasure, 
 			Descriptor descriptor, List<OutputterAdapter<MO>> outputers) {
-		super(trajectory, train, candidates, descriptor, outputers);
+		super(trajectory, train, test, candidates, descriptor, outputers);
 		init(qualityMeasure);
 	}
 	
-	public MoveletsDiscovery_old(MAT<MO> trajectory, List<MAT<MO>> train, List<Subtrajectory> candidates, QualityMeasure qualityMeasure, 
+	public MoveletsDiscovery_old(MAT<MO> trajectory, List<MAT<MO>> train, List<MAT<MO>> test, List<Subtrajectory> candidates, QualityMeasure qualityMeasure, 
 			Descriptor descriptor) {
-		super(trajectory, train, candidates, descriptor);
+		super(trajectory, train, test, candidates, descriptor);
 		init(qualityMeasure);
 	}
 
@@ -166,7 +166,7 @@ public class MoveletsDiscovery_old<MO> extends DiscoveryAdapter<MO> {
 
 		// TODO TEST Output?
 		/** STEP 3.0: Output Movelets */
-		super.output(this.data, candidates);	
+		super.output("trainAndTest", this.data, candidates);	
 		
 		/* If a test trajectory set was provided, it does the same.
 		 * and return otherwise 

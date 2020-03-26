@@ -24,9 +24,9 @@ public class HiperMoveletsDiscovery<MO> extends SupervisedMoveletsDiscovery<MO> 
 	 * @param qualityMeasure
 	 * @param descriptor
 	 */
-	public HiperMoveletsDiscovery(MAT<MO> trajectory, List<MAT<MO>> train, List<Subtrajectory> candidates,
+	public HiperMoveletsDiscovery(MAT<MO> trajectory, List<MAT<MO>> train, List<MAT<MO>> test, List<Subtrajectory> candidates,
 			QualityMeasure qualityMeasure, Descriptor descriptor) {
-		super(trajectory, train, candidates, qualityMeasure, descriptor);
+		super(trajectory, train, test, candidates, qualityMeasure, descriptor);
 	}
 
 }

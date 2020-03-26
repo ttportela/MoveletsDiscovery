@@ -36,9 +36,9 @@ public class PivotsMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 	 * @param train
 	 * @param candidates 
 	 */
-	public PivotsMoveletsDiscovery(MAT<MO> trajectory, List<MAT<MO>> train, List<Subtrajectory> candidates, QualityMeasure qualityMeasure, 
+	public PivotsMoveletsDiscovery(MAT<MO> trajectory, List<MAT<MO>> train, List<MAT<MO>> test, List<Subtrajectory> candidates, QualityMeasure qualityMeasure, 
 			Descriptor descriptor) {
-		super(trajectory, train, candidates, qualityMeasure, descriptor);
+		super(trajectory, train, test, candidates, qualityMeasure, descriptor);
 	}
 
 }

@@ -32,6 +32,7 @@ public class IndexedLoader<T extends MAT<?>> extends DefaultLoader<T> {
 		String mo = "";
 		MAT<String> mat = null;
 			
+		file += ".csv";
 		CSVParser csvParser = CSVFormat.DEFAULT.parse(new InputStreamReader((new FileInputStream(file))));
 		csvParser.iterator().next();
 		for (CSVRecord line : csvParser) {

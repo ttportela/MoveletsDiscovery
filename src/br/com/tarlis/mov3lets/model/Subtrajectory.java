@@ -17,10 +17,12 @@
  */
 package br.com.tarlis.mov3lets.model;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import br.com.tarlis.mov3lets.method.qualitymeasure.Quality;
+import br.com.tarlis.mov3lets.model.aspect.Aspect;
 
 /**
  * @author Tarlis Portela <tarlis@tarlis.com.br>
@@ -33,9 +35,7 @@ public class Subtrajectory {
  
 	private MAT<?> trajectory;
 	private List<Point> points;
-	
-	private int combinationIndex = 1;
-	
+		
 //	private List<List<Double>> distances;
 	private double[][] distances;
 	private List<Subtrajectory> bestAlignments;
@@ -43,7 +43,7 @@ public class Subtrajectory {
 	private Quality quality;
 	private double proportionInClass;
 
-//	private HashMap<String, IFeature> features;
+	private HashMap<String, Aspect<?>> features;
 	
 	//TODO necessary?????????????????????????????:
 	public Map<String, double[]> splitpointData; 
@@ -164,24 +164,10 @@ public class Subtrajectory {
 	public void setPoints(List<Point> points) {
 		this.points = points;
 	}
-	
-	/**
-	 * @return the combinationIndex
-	 */
-	public int getCombinationIndex() {
-		return combinationIndex;
-	}
-	
-	/**
-	 * @param combinationIndex the combinationIndex to set
-	 */
-	public void setCombinationIndex(int combinationIndex) {
-		this.combinationIndex = combinationIndex;
-	}
 
-//	public void setFeatures(HashMap<String, IFeature> features) {
-//		this.features = features;
-//	}
+	public void setFeatures(HashMap<String, Aspect<?>> features) {
+		this.features = features;
+	}
 
 	public int getSize() {
 		return end - start + 1;

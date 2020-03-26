@@ -27,11 +27,13 @@ public class DefaultLoader<T extends MAT<?>> extends LoaderAdapter<T> {
 
 	@Override
 	public List<T> loadTrajectories(String file, Descriptor descriptor) throws IOException {
+		
 		List<MAT<String>> trajectories = new ArrayList<MAT<String>>();
 		// IF MO type is String:
 //		MO mo = new MO();
 		MAT<String> mat = new MAT<String>();
-			
+
+		file += ".csv";
 		CSVParser csvParser = CSVFormat.DEFAULT.parse(new InputStreamReader((new FileInputStream(file))));
 		csvParser.iterator().next();
 		for (CSVRecord line : csvParser) {

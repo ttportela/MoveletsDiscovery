@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -31,10 +31,10 @@ public class JSONOutputter<MO> extends OutputterAdapter<MO> {
 	/**
 	 * @param filePath
 	 */
-	public JSONOutputter(String filePath, Descriptor descriptor) {
-		super(filePath, descriptor);
+	public JSONOutputter(String filePath, Descriptor descriptor, boolean subfolderClasses) {
+		super(filePath, descriptor, subfolderClasses);
 	}
-
+	
 	/**
 	 * @param filePath
 	 */
@@ -42,8 +42,12 @@ public class JSONOutputter<MO> extends OutputterAdapter<MO> {
 		super(descriptor);
 	}
 
+	public JSONOutputter(String resultDirPath, Descriptor descriptor) {
+		super(resultDirPath, descriptor, true);
+	}
+
 	@Override
-	public void write(List<MAT<MO>> trajectories, List<Subtrajectory> movelets) {
+	public void write(String filename, List<MAT<MO>> trajectories, List<Subtrajectory> movelets) {
 		List<Map<String,Object>> classOfTrajectories = new ArrayList<>();
 		
 		for (MAT<MO> t : trajectories) {			
@@ -56,17 +60,22 @@ public class JSONOutputter<MO> extends OutputterAdapter<MO> {
 		List <SubtrajectoryGSON> subtrajectoryToGSONs = new ArrayList<>();
 		
 		for (Subtrajectory movelet : movelets) {
-			subtrajectoryToGSONs.add(fromSubtrajectory(movelet));	
+//			subtrajectoryToGSONs.add(fromSubtrajectory(movelet));
+			subtrajectoryToGSONs.add(new SubtrajectoryGSON(movelet, getDescriptor()));
 		}
 		
 		TOGSON toGSON = new TOGSON(classOfTrajectories, subtrajectoryToGSONs);
 		
 		try {
-			File file = new File(getFilePath() + "moveletsOnTrain.json"); 
+			File file = getFile(movelets.get(0).getTrajectory().getMovingObject().toString(), 
+					"moveletsOn"+ StringUtils.capitalize(filename) + ".json");
+//			String f = getFilePath() + movelets.get(0).getTrajectory().getMovingObject() 
+//					+ System.getProperty("file.separator") + "moveletsOn"+ StringUtils.capitalize(filename) + ".json";
+//			File file = new File(f); 
 			file.getParentFile().mkdirs(); // TODO remove gambia ?
 			
-			FileWriter fileWriter = new FileWriter(getFilePath() + "moveletsOnTrain.json");
-			Gson gson = new GsonBuilder().setPrettyPrinting().create();
+			FileWriter fileWriter = new FileWriter(file);
+			Gson gson = new GsonBuilder().serializeSpecialFloatingPointValues().setPrettyPrinting().create();
 			
 			gson.toJson(toGSON, fileWriter);
 			fileWriter.close();
@@ -79,41 +88,47 @@ public class JSONOutputter<MO> extends OutputterAdapter<MO> {
 		}  
 	}
 	
-	public SubtrajectoryGSON fromSubtrajectory(Subtrajectory s){
-		
-//		int number_of_point = s.getPoints().size();
-		
-		List<String> features_in_movelet = new ArrayList<>();
-		
-		int[] list_features = s.getPointFeatures();
-		
-		for(int i=0; i<= getDescriptor().getAttributes().size(); i++) {
-			if(ArrayUtils.contains(list_features, i))				
-				features_in_movelet.add(getDescriptor().getAttributes().get(i).getText());
-		}
-		
-		// TODO Features needed???
-//		List<HashMap<String, IFeature>> used_features = new ArrayList<>();
+//	public SubtrajectoryGSON fromSubtrajectory(Subtrajectory s) {
+//		
+//		int[] list_features = s.getPointFeatures();
+//		
+//		List<HashMap<String, Object>> features = new ArrayList<>();
+//		List<HashMap<String, Object>> used_features = new ArrayList<>();
+//		
+//		HashMap<String, Double> maxValues = new HashMap<String, Double>();
+//		for(int j=0; j < getDescriptor().getAttributes().size(); j++) {
+//			if(ArrayUtils.contains(list_features, j))
+//				maxValues.put(getDescriptor().getAttributes().get(j).getText(), getDescriptor().getAttributes().get(j).getComparator().getMaxValue());
+//		}
 //		
 //		for(int i=0; i<s.getPoints().size(); i++) {
 //			
 //			Point point = s.getPoints().get(i);
+//
+//			HashMap<String, Object> features_in_point = new HashMap<>();
+//			HashMap<String, Object> used_features_in_point = new HashMap<>();
 //			
-//			HashMap<String, IFeature> features_in_point = new HashMap<>();
-//			
-//			for(String feature:features_in_movelet) {
-//				features_in_point.put(feature, point.getFeature(feature));
+//			for(int j=0; j < getDescriptor().getAttributes().size(); j++) {
+//				features_in_point.put(getDescriptor().getAttributes().get(j).getText(), point.getAspects().get(j).getValue());				
+//				
+//				if(ArrayUtils.contains(list_features, j))
+//					used_features_in_point.put(getDescriptor().getAttributes().get(j).getText(), point.getAspects().get(j).getValue());
 //			}
-//			
-//			used_features.add(features_in_point);
+//
+//			features.add(features_in_point);
+//			used_features.add(used_features_in_point);
 //		}
-//		return new SubtrajectoryGSON(s.getStart(), s.getEnd(), s.getTrajectory().getTid(), 
-//				s.getTrajectory().getMovingObject(), s.getFeatures(), s.getPointFeatures(), s.getSplitpoints(), s.getDistances(), s.getBestAlignments(),
-//				s.getQuality(), description, s.getData(), used_features);
-		
-		return new SubtrajectoryGSON(s.getStart(), s.getEnd(), s.getTrajectory().getTid(), 
-				s.getTrajectory().getMovingObject().toString(), s.getPointFeatures(), s.getSplitpoints(), 
-				s.getDistances(), s.getBestAlignments(), s.getQuality(), s.getPoints());
-	}
+//
+//		if (s.getQuality() != null)		
+//			return new SubtrajectoryGSON(s.getStart(), s.getEnd(), s.getTrajectory().getTid(), 
+//					s.getTrajectory().getMovingObject().toString(), features, s.getPointFeatures(), 
+//					maxValues, s.getSplitpoints(), s.getDistances(), s.getBestAlignments(),
+//					s.getQuality(), s.getPoints(), used_features);
+//		else 
+//			return new SubtrajectoryGSON(s.getStart(), s.getEnd(), s.getTrajectory().getTid(), 
+//					s.getTrajectory().getMovingObject().toString(), features, s.getPointFeatures(), 
+//					maxValues, s.getSplitpoints(), s.getDistances(), s.getBestAlignments(),
+//					s.getProportionInClass(), s.getPoints(), used_features);
+//	}
 
 }
