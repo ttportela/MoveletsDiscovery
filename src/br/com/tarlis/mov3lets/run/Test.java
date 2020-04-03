@@ -17,7 +17,9 @@
  */
 package br.com.tarlis.mov3lets.run;
 
-import br.com.tarlis.mov3lets.utils.ProgressBar;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author Tarlis Portela <tarlis@tarlis.com.br>
@@ -29,24 +31,27 @@ public class Test {
 	 * @param args
 	 */
 	public static void main(String[] arg) throws Exception {
-//		List<Integer> numbers = new ArrayList<Integer>(
-//			    Arrays.asList(5,3,1,2,9,5,0,7,8)
-//			);
+		List<Double> numbers = new ArrayList<Double>(
+			    Arrays.asList(5.0,3.0,1.0,2.0,9.0,5.0,0.0,7.0,8.0)
+			);
 
-		ProgressBar bar = new ProgressBar("Computing Base Distances");
-
-//        System.out.println("Process Starts Now!");
-
-        bar.update(0, 1000);
-        for(int i=0;i<1100;i++) {
-                        // do something!
-            for(int j=0;j<10000000;j++)
-                for(int p=0;p<10000000;p++);
-            // update the progress bar
-            bar.update(i, 1000);
-            bar.trace("Testendo: " + i);
-        }
+//		ProgressBar bar = new ProgressBar("Computing Base Distances");
+//
+////        System.out.println("Process Starts Now!");
+//
+//        bar.update(0, 1000);
+//        for(int i=0;i<1100;i++) {
+//                        // do something!
+//            for(int j=0;j<10000000;j++)
+//                for(int p=0;p<10000000;p++);
+//            // update the progress bar
+//            bar.update(i, 1000);
+//            bar.trace("Testendo: " + i);
+//        }
 //        System.out.println("Process Completed!");
+		
+		// create an empty array list with an initial capacity
+//	    SparseVector arr = new SparseVector()	
 	}
 	
 	 // the exception comes from the use of accessing the main thread

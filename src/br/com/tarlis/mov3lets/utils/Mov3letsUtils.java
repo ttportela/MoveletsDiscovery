@@ -69,7 +69,8 @@ public class Mov3letsUtils {
 	 * 
 	 */
 	public synchronized void startTimer(String timer) {
-		timers.put(timer, System.nanoTime());
+//		timers.put(timer, System.nanoTime());
+		timers.put(timer, System.currentTimeMillis());
 //		this.log.trace("[Timer Set] " + timer);
 	}
 	
@@ -78,7 +79,9 @@ public class Mov3letsUtils {
 	 */
 	public synchronized long stopTimer(String timer) {
 		if (timers.containsKey(timer)) {
-			long time = (System.nanoTime() - timers.get(timer));
+//			long time = (System.nanoTime() - timers.get(timer));
+			long time = (System.currentTimeMillis() - timers.get(timer));
+			timers.remove(timer);
 			this.log.printTimer(timer, time);
 			return time;
 		} else
@@ -88,12 +91,12 @@ public class Mov3letsUtils {
 	/**
 	 * 
 	 */
-	public synchronized void printTimer(String timer) {
-		if (this.log != null && timers.containsKey(timer))
-			this.log.printTimer(timer, (System.nanoTime() - timers.get(timer)));
-		else
-			this.log.trace("No timer found: " + timer);
-	}
+//	public synchronized void printTimer(String timer) {
+//		if (this.log != null && timers.containsKey(timer))
+//			this.log.printTimer(timer, (System.nanoTime() - timers.get(timer)));
+//		else
+//			this.log.trace("No timer found: " + timer);
+//	}
 	
 	public synchronized static void trace(String s) {
 		if (getInstance().log != null) getInstance().log.trace(s);

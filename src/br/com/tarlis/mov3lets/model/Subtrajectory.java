@@ -17,6 +17,7 @@
  */
 package br.com.tarlis.mov3lets.model;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -99,6 +100,7 @@ public class Subtrajectory {
 //		this.distances = new HashMap<Aspect<?>, Double>();
 		this.distances = new double[pointFeatures.length][numberOfTrajectories];
 //		this.features = new HashMap<>();
+		this.bestAlignments = new ArrayList<Subtrajectory>();
 	}
 
 	public boolean[] getGoodTrajectories() {

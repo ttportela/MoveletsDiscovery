@@ -22,6 +22,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -29,6 +30,7 @@ import org.apache.commons.io.FilenameUtils;
 
 import br.com.tarlis.mov3lets.method.Mov3lets;
 import br.com.tarlis.mov3lets.method.descriptor.Descriptor;
+import br.com.tarlis.mov3lets.model.MAT;
 import br.com.tarlis.mov3lets.utils.Mov3letsUtils;
 
 /**
@@ -70,15 +72,24 @@ public class Mov3letsRun {
 		params.put("result_dir_path", configRespath(descFile, mov.getDescriptor()));
 		
 		// STEP 1 - Input:
-		Mov3letsUtils.getInstance().startTimer("[1] ==> LOAD INPUT");
+		Mov3letsUtils.getInstance().startTimer("[1] >> Load Input");
 //				Mov3letsUtils.getInstance().printMemory();
 		try {
 			mov.setTrain(mov.loadTrajectories("train"));
 			mov.setTest(mov.loadTrajectories("test"));
 		} catch (IOException e) {
-			showUsage(params, "-curpath\tCould not load train and/or test datasets!");
+			showUsage(params, "-curpath\tCould not load train dataset!");
 			e.printStackTrace();
 			return;
+		}
+		
+		try {
+			// Try loading the test dataset
+			mov.setTest(mov.loadTrajectories("test"));
+		} catch (IOException e) {
+			// Empty if can't
+			Mov3letsUtils.trace("Empty test dataset... [continue]");
+			mov.setTest(new ArrayList<MAT<String>>());
 		}
 		
 		if (mov.getTrain().isEmpty()) { 
@@ -88,14 +99,14 @@ public class Mov3letsRun {
 				
 		// Set Result Dir:
 		mov.setResultDirPath(mov.getDescriptor().getParamAsText("result_dir_path"));
-		Mov3letsUtils.getInstance().stopTimer("[1] ==> LOAD INPUT");
 		Mov3letsUtils.trace(showConfiguration(mov.getDescriptor()));
+		Mov3letsUtils.getInstance().stopTimer("[1] >> Load Input");
 		Mov3letsUtils.printMemory();
 		
 		// STEP 2 - RUN:
-		Mov3letsUtils.getInstance().startTimer("[Runtime] ==> ");
+		Mov3letsUtils.getInstance().startTimer("[2] >> Processing time");
 		mov.mov3lets();
-		Mov3letsUtils.getInstance().stopTimer("[Runtime] ==> ");
+		Mov3letsUtils.getInstance().stopTimer("[2] >> Processing time");
 //		System.out.println(inputFile);
 		
 		// End Date:
@@ -162,6 +173,7 @@ public class Mov3letsRun {
 		params.put("pivot_porcentage",			 10);
 		params.put("only_pivots",				 false);
 		params.put("verbose",				 	 true);
+		params.put("version",				 	 "2.0");
 		
 		return params;
 	}
@@ -270,6 +282,10 @@ public class Mov3letsRun {
 			case "-v":
 			case "-verbose":
 				params.put("verbose", Boolean.valueOf(value));
+				break;
+			case "-d":
+			case "-version":
+				params.put("verbose", value);
 				break;
 			default:
 				System.err.println("Parâmetro " + key + " inválido.");

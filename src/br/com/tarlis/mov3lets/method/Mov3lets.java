@@ -31,10 +31,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import br.com.tarlis.mov3lets.method.descriptor.Descriptor;
+import br.com.tarlis.mov3lets.method.discovery.BaseCaseMoveletsDiscovery;
 import br.com.tarlis.mov3lets.method.discovery.DiscoveryAdapter;
+import br.com.tarlis.mov3lets.method.discovery.HiperMoveletsDiscovery;
+import br.com.tarlis.mov3lets.method.discovery.MoveletsDiscovery;
 import br.com.tarlis.mov3lets.method.discovery.PivotsMoveletsDiscovery;
 import br.com.tarlis.mov3lets.method.discovery.PrecomputeMoveletsDiscovery;
-import br.com.tarlis.mov3lets.method.discovery.SupervisedMoveletsDiscovery;
+import br.com.tarlis.mov3lets.method.discovery.SuperMoveletsDiscovery;
 import br.com.tarlis.mov3lets.method.loader.DefaultLoader;
 import br.com.tarlis.mov3lets.method.loader.IndexedLoader;
 import br.com.tarlis.mov3lets.method.loader.InterningLoader;
@@ -78,14 +81,140 @@ public class Mov3lets<MO> {
 	 * @throws UnsupportedEncodingException 
 	 */
 	public void mov3lets() {
+		int N_THREADS = getDescriptor().getParamAsInt("nthreads");
+		
+		// STEP 1 - Load Trajectories: is done before this method starts.
+		if (getDescriptor().getParamAsText("version").equals("3.0"))
+			PrecomputeMoveletsDiscovery.initBaseCases(
+				Stream.concat(train.stream(), test.stream()).collect(Collectors.toList()), 
+				N_THREADS, getDescriptor());
+				
 		// STEP 2 - Select Candidates:
-		Mov3letsUtils.getInstance().startTimer("[2] ==> Extracting Movelets");
+//		Mov3letsUtils.getInstance().startTimer("[2.1] >> Extracting Movelets");
+		List<Subtrajectory> candidates = new ArrayList<Subtrajectory>();
+		List<MO> classes = train.stream().map(e -> (MO) e.getMovingObject()).distinct().collect(Collectors.toList());
+		QualityMeasure qualityMeasure = new LeftSidePureCVLigth(train, 
+									    		getDescriptor().getParamAsInt("samples"), 
+									    		getDescriptor().getParamAsDouble("sampleSize"), 
+									    		getDescriptor().getParamAsText("medium"));
+		
+		List<DiscoveryAdapter<MO>> lsMDs = instantiate(classes, candidates, qualityMeasure);		
+		
+		/* Keeping up with Progress output */
+		ProgressBar progressBar = new ProgressBar("[2] >> Movelet Discovery", train.size());
+//		progressBar.setInline(false);
+		int progress = 0;
+		progressBar.update(progress, train.size());
+		
+		if (N_THREADS > 1) {
+			ExecutorService executor = (ExecutorService) 
+					Executors.newFixedThreadPool(N_THREADS);
+			List<Future<Integer>> resultList = new ArrayList<>();
+			
+
+			/** STEP 2.1: Starts at discovering movelets */
+			for (DiscoveryAdapter<MO> moveletsDiscovery : lsMDs) {
+				moveletsDiscovery.setProgressBar(progressBar);
+				resultList.add(executor.submit(moveletsDiscovery));
+			}
+			
+			/** STEP 2.1: --------------------------------- */
+			for (Future<Integer> future : resultList) {
+				try {
+					future.get();
+					progressBar.update(progress++, train.size());
+					System.gc();
+					Executors.newCachedThreadPool();
+				} catch (InterruptedException | ExecutionException e) {
+					e.getCause().printStackTrace();
+				}
+			}
+			executor.shutdown();
+		} else {
+			
+			/** STEP 2.1: Starts at discovering movelets */
+			for (DiscoveryAdapter<MO> moveletsDiscovery : lsMDs) {
+				moveletsDiscovery.setProgressBar(progressBar);
+				moveletsDiscovery.discover();
+				progressBar.update(progress++, train.size());
+				System.gc();
+			}
+			
+		}
+		
+		
+		
 //		List<Subtrajectory> candidates = 
-		selectCandidates(train, test, new LeftSidePureCVLigth(train, 
-	    		getDescriptor().getParamAsInt("samples"), 
-	    		getDescriptor().getParamAsDouble("sampleSize"), 
-	    		getDescriptor().getParamAsText("medium")));
-		Mov3letsUtils.getInstance().startTimer("[2] ==> Extracting Movelets");
+//		selectCandidates(train, test, new LeftSidePureCVLigth(train, 
+//	    		getDescriptor().getParamAsInt("samples"), 
+//	    		getDescriptor().getParamAsDouble("sampleSize"), 
+//	    		getDescriptor().getParamAsText("medium")));
+//		Mov3letsUtils.getInstance().startTimer("[2.1] >> Extracting Movelets");
+	}
+
+	private List<DiscoveryAdapter<MO>> instantiate(List<MO> classes, List<Subtrajectory> candidates, QualityMeasure qualityMeasure) {
+		List<DiscoveryAdapter<MO>> lsMDs = new ArrayList<DiscoveryAdapter<MO>>();
+		
+		/** STEP 2.1: Starts at discovering movelets */
+		for (MO myclass : classes) {
+			if ( ! Paths.get(resultDirPath, myclass.toString(), "test.csv").toFile().exists() ) {
+				List<MAT<MO>> trajsFromClass = train.stream().filter(e-> myclass.equals(e.getMovingObject())).collect(Collectors.toList());
+
+				DiscoveryAdapter<MO> moveletsDiscovery;
+				
+				if (getDescriptor().getFlag("supervised") || getDescriptor().getParamAsText("version").equals("super")) {
+					
+					moveletsDiscovery = new SuperMoveletsDiscovery<MO>(trajsFromClass, train, test, candidates, qualityMeasure, getDescriptor());/** Configuring outputs: */
+					
+					configOutput(moveletsDiscovery);
+					lsMDs.add(moveletsDiscovery);
+				
+				} else if (getDescriptor().getParamAsText("version").equals("hiper")) {
+					
+					moveletsDiscovery = new HiperMoveletsDiscovery<MO>(trajsFromClass, train, test, candidates, qualityMeasure, getDescriptor());
+					
+					configOutput(moveletsDiscovery);
+					lsMDs.add(moveletsDiscovery);
+				
+				} else {
+				
+					for (MAT<MO> trajectory : trajsFromClass) {
+						if (getDescriptor().getFlag("pivots") || getDescriptor().getParamAsText("version").equals("pivots")) {
+							
+							moveletsDiscovery = new PivotsMoveletsDiscovery<MO>(trajectory, train, test, candidates, qualityMeasure, getDescriptor());
+						
+						} else if (getDescriptor().getParamAsText("version").equals("1.0")) {
+							
+							moveletsDiscovery = new MoveletsDiscovery<MO>(trajectory, train, test, candidates, qualityMeasure, getDescriptor());
+						
+						} else if (getDescriptor().getParamAsText("version").equals("3.0")) {
+							
+							moveletsDiscovery = new PrecomputeMoveletsDiscovery<MO>(trajectory, train, test, candidates, qualityMeasure, getDescriptor());
+						
+						} else {
+							
+							moveletsDiscovery = new BaseCaseMoveletsDiscovery<MO>(trajectory, train, test, candidates, qualityMeasure, getDescriptor());
+						
+						}
+						
+						configOutput(moveletsDiscovery);
+						lsMDs.add(moveletsDiscovery);
+					}
+				
+				}
+			} else {
+				Mov3letsUtils.trace("[Class: " + myclass + "] >> Movelets previously discovered.");
+			}
+		}
+		
+		return lsMDs;
+	}
+
+	public void configOutput(DiscoveryAdapter<MO> moveletsDiscovery) {
+		moveletsDiscovery.setOutputers(new ArrayList<OutputterAdapter<MO>>());
+		moveletsDiscovery.getOutputers().add(new JSONOutputter<MO>(resultDirPath, getDescriptor()));
+		moveletsDiscovery.getOutputers().add(new CSVOutputter<MO>(resultDirPath, getDescriptor()));
+//		moveletsDiscovery.getOutputers().add(new CSVOutputter<MO>(resultDirPath, getDescriptor(), false));
 	}
 
 	/**
@@ -111,76 +240,76 @@ public class Mov3lets<MO> {
 	 * @param test 
 	 * @param qualityMeasure 
 	 */
-	private List<Subtrajectory> selectCandidates(List<MAT<MO>> train, List<MAT<MO>> test, QualityMeasure qualityMeasure) {
-		List<MO> classes = train.stream().map(e -> (MO) e.getMovingObject()).distinct().collect(Collectors.toList());
-		
-		List<Subtrajectory> candidates = new ArrayList<Subtrajectory>();
-		
-		int N_THREADS = getDescriptor().getParamAsInt("nthreads");
-		
-		PrecomputeMoveletsDiscovery.initBaseCases(
-				Stream.concat(train.stream(), test.stream()).collect(Collectors.toList()), 
-				N_THREADS, getDescriptor());
-				
-		ExecutorService executor = (ExecutorService) 
-				Executors.newFixedThreadPool(N_THREADS);
-		List<Future<Integer>> resultList = new ArrayList<>();
-		
-		/* Keeping up with Progress output */
-		ProgressBar progressBar = new ProgressBar("Movelet Discovery", train.size());
-//		progressBar.setInline(false);
-		int progress = 0;
-		progressBar.update(progress, train.size());
-		
-		/** STEP 2.1: Starts at discovering movelets */
-		for (MO myclass : classes) {
-			if ( ! Paths.get(resultDirPath, myclass.toString(), "test.csv").toFile().exists() ) {
-				List<MAT<MO>> trajsFromClass = train.stream().filter(e-> myclass.equals(e.getMovingObject())).collect(Collectors.toList());
-				
-				for (MAT<MO> trajectory : trajsFromClass) {
-					DiscoveryAdapter<MO> moveletsDiscovery;
-					if (getDescriptor().getFlag("pivots")) {
-						moveletsDiscovery = new PivotsMoveletsDiscovery<MO>(trajectory, train, test, candidates, qualityMeasure, 
-								getDescriptor());
-					} else if (getDescriptor().getFlag("supervised")) {
-						moveletsDiscovery = new SupervisedMoveletsDiscovery<MO>(trajectory, train, test, candidates, qualityMeasure, 
-								getDescriptor());
-					} else {
-//						moveletsDiscovery = new BaseCaseMoveletsDiscovery<MO>(trajectory, train, test, candidates, qualityMeasure, getDescriptor());
+//	private List<Subtrajectory> selectCandidates(List<MAT<MO>> train, List<MAT<MO>> test, QualityMeasure qualityMeasure) {
+//		List<MO> classes = train.stream().map(e -> (MO) e.getMovingObject()).distinct().collect(Collectors.toList());
+//		
+//		List<Subtrajectory> candidates = new ArrayList<Subtrajectory>();
+//		
+//		int N_THREADS = getDescriptor().getParamAsInt("nthreads");
+//		
+////		PrecomputeMoveletsDiscovery.initBaseCases(
+////				Stream.concat(train.stream(), test.stream()).collect(Collectors.toList()), 
+////				N_THREADS, getDescriptor());
+//				
+//		ExecutorService executor = (ExecutorService) 
+//				Executors.newFixedThreadPool(N_THREADS);
+//		List<Future<Integer>> resultList = new ArrayList<>();
+//		
+//		/* Keeping up with Progress output */
+//		ProgressBar progressBar = new ProgressBar("[2.2] >> Movelet Discovery", train.size());
+////		progressBar.setInline(false);
+//		int progress = 0;
+//		progressBar.update(progress, train.size());
+//		
+//		/** STEP 2.1: Starts at discovering movelets */
+//		for (MO myclass : classes) {
+//			if ( ! Paths.get(resultDirPath, myclass.toString(), "test.csv").toFile().exists() ) {
+//				List<MAT<MO>> trajsFromClass = train.stream().filter(e-> myclass.equals(e.getMovingObject())).collect(Collectors.toList());
+//				
+//				for (MAT<MO> trajectory : trajsFromClass) {
+//					DiscoveryAdapter<MO> moveletsDiscovery;
+//					if (getDescriptor().getFlag("pivots")) {
+//						moveletsDiscovery = new PivotsMoveletsDiscovery<MO>(trajectory, train, test, candidates, qualityMeasure, 
+//								getDescriptor());
+//					} else if (getDescriptor().getFlag("supervised")) {
+//						moveletsDiscovery = new SupervisedMoveletsDiscovery<MO>(trajectory, train, test, candidates, qualityMeasure, 
+//								getDescriptor());
+//					} else {
+////						moveletsDiscovery = new BaseCaseMoveletsDiscovery<MO>(trajectory, train, test, candidates, qualityMeasure, getDescriptor());
 //						moveletsDiscovery = new MoveletsDiscovery<MO>(trajectory, train, test, candidates, qualityMeasure, getDescriptor());
-						moveletsDiscovery = new PrecomputeMoveletsDiscovery<MO>(trajectory, train, test, candidates, qualityMeasure, getDescriptor());
-					}
-					
-					/** Configuring outputs: */
-					moveletsDiscovery.setProgressBar(progressBar);
-					moveletsDiscovery.setOutputers(new ArrayList<OutputterAdapter<MO>>());
-					moveletsDiscovery.getOutputers().add(new JSONOutputter<MO>(resultDirPath, getDescriptor()));
-					moveletsDiscovery.getOutputers().add(new CSVOutputter<MO>(resultDirPath, getDescriptor()));
-//					moveletsDiscovery.getOutputers().add(new CSVOutputter<MO>(resultDirPath, getDescriptor(), false));
-
-//					progressBar.update(progress++, train.size());
-					resultList.add(executor.submit(moveletsDiscovery));
-//					moveletsDiscovery.discover();
-				}
-			} else {
-				Mov3letsUtils.trace("\t[Class: " + myclass + "] >> Movelets previously discovered.");
-			}
-		}
-		/** STEP 2.1: --------------------------------- */
-		for (Future<Integer> future : resultList) {
-			try {
-				future.get();
-				progressBar.update(progress++, train.size());
-				System.gc();
-				Executors.newCachedThreadPool();
-			} catch (InterruptedException | ExecutionException e) {
-				e.getCause().printStackTrace();
-			}
-		}
-		executor.shutdown();
-		
-		return candidates;
-	}
+////						moveletsDiscovery = new PrecomputeMoveletsDiscovery<MO>(trajectory, train, test, candidates, qualityMeasure, getDescriptor());
+//					}
+//					
+//					/** Configuring outputs: */
+//					moveletsDiscovery.setProgressBar(progressBar);
+//					moveletsDiscovery.setOutputers(new ArrayList<OutputterAdapter<MO>>());
+//					moveletsDiscovery.getOutputers().add(new JSONOutputter<MO>(resultDirPath, getDescriptor()));
+//					moveletsDiscovery.getOutputers().add(new CSVOutputter<MO>(resultDirPath, getDescriptor()));
+////					moveletsDiscovery.getOutputers().add(new CSVOutputter<MO>(resultDirPath, getDescriptor(), false));
+//
+////					progressBar.update(progress++, train.size());
+//					resultList.add(executor.submit(moveletsDiscovery));
+////					moveletsDiscovery.discover();
+//				}
+//			} else {
+//				Mov3letsUtils.trace("\t[Class: " + myclass + "] >> Movelets previously discovered.");
+//			}
+//		}
+//		/** STEP 2.1: --------------------------------- */
+//		for (Future<Integer> future : resultList) {
+//			try {
+//				future.get();
+//				progressBar.update(progress++, train.size());
+//				System.gc();
+//				Executors.newCachedThreadPool();
+//			} catch (InterruptedException | ExecutionException e) {
+//				e.getCause().printStackTrace();
+//			}
+//		}
+//		executor.shutdown();
+//		
+//		return candidates;
+//	}
 
 	/**
 	 * @return the descriptor

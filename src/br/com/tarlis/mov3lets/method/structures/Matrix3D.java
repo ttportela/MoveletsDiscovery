@@ -5,25 +5,24 @@ package br.com.tarlis.mov3lets.method.structures;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
 import org.apache.commons.math3.util.Combinations;
 
-import br.com.tarlis.mov3lets.model.MAT;
 import br.com.tarlis.mov3lets.model.Point;
 
 /**
  * @author tarlis
  *
  */
-public class Matrix3D extends HashMap<Tuple<Point, Point, Integer>, List<Double>> {
+public class Matrix3D extends ConcurrentHashMap<Integer, double[]> {
 
-	private double DEFAULT = Double.POSITIVE_INFINITY;
+//	private double DEFAULT = Double.POSITIVE_INFINITY;
 	private List<List<Integer>> combinations = new ArrayList<List<Integer>>();
-	
+		
 	public Matrix3D(List<List<Integer>> combinations) {
 		this.combinations = combinations;
 	}
@@ -62,6 +61,19 @@ public class Matrix3D extends HashMap<Tuple<Point, Point, Integer>, List<Double>
 
 	}
 	
+    public int hashCode(Point a, Point b) {
+        int result = a == null ? 0 : a.hashCode();
+
+        final int h = b == null ? 0 : b.hashCode();
+        
+        if (result > h)
+        	result = 37 * result + h ^ (h >>> 16);
+        else
+        	result = 37 * h + result ^ (result >>> 16);
+
+        return result;
+    }
+	
 	/**
 	 * @return the combinations
 	 */
@@ -82,12 +94,12 @@ public class Matrix3D extends HashMap<Tuple<Point, Point, Integer>, List<Double>
 	 * @param index
 	 * @param value
 	 */
-	public void add(Point a, Point b, int index, List<Double> value) {
-		super.put(new Tuple<Point, Point, Integer>(a, b, index), value);
-	}
+//	public void add(Point a, Point b, int index, List<Double> value) {
+//		super.put(hashCode(a, b), value);
+//	}
 	
-	public void add(Point a, Point b, List<Double> value) {
-		super.put(new Tuple<Point, Point, Integer>(a, b, 0), value);
+	public void add(Point a, Point b, double[] value) {
+		super.put(hashCode(a, b), value);
 	}
 
 	/**
@@ -96,13 +108,13 @@ public class Matrix3D extends HashMap<Tuple<Point, Point, Integer>, List<Double>
 	 * @param index
 	 * @param value
 	 */
-	public void add(Point a, Point b, int index, Double value) {
-		super.put(new Tuple<Point, Point, Integer>(a, b, index), Arrays.asList(value));
-	}	
+//	public void add(Point a, Point b, int index, Double value) {
+//		super.put(new Tuple<Point, Point, Integer>(a, b, index), Arrays.asList(value));
+//	}	
 
-	public void add(Point a, Point b, Double value) {
-		super.put(new Tuple<Point, Point, Integer>(a, b, 0), Arrays.asList(value));
-	}
+//	public void add(Point a, Point b, Double value) {
+//		super.put(hashCode(a, b), Arrays.asList(value));
+//	}
 
 	/**
 	 * @param a
@@ -123,10 +135,10 @@ public class Matrix3D extends HashMap<Tuple<Point, Point, Integer>, List<Double>
 	
 	public void addDistances(Point a, Point b, double[] distances) {
 		// For each possible *Number Of Features* and each combination of those:
-		if (super.containsKey(new Tuple<Point, Point, Integer>(a, b, 0)))
-			System.out.println("TEM");
-		super.put(new Tuple<Point, Point, Integer>(a, b, 0), 
-				DoubleStream.of(distances).boxed().collect(Collectors.toList()));
+//		if (super.containsKey(new Tuple<Point, Point, Integer>(a, b, 0)))
+//			System.out.println("TEM");
+		super.put(hashCode(a, b), distances);
+//				DoubleStream.of(distances).boxed().collect(Collectors.toList()));
 	}
 
 	/**
@@ -145,12 +157,12 @@ public class Matrix3D extends HashMap<Tuple<Point, Point, Integer>, List<Double>
 	 * @param k
 	 * @return 
 	 */
-	public List<Double> get(Point a, Point b, int index) {
-		return super.get(new Tuple<Point, Point, Integer>(a, b, index));
-	}
+//	public List<Double> get(Point a, Point b, int index) {
+//		return super.get(hashCode(a, b));
+//	}
 	
-	public List<Double> get(Point a, Point b) {
-		return super.get(new Tuple<Point, Point, Integer>(a, b, 0));
+	public double[] get(Point a, Point b) {
+		return super.get(hashCode(a, b));
 	}
 
 	/**
@@ -160,8 +172,8 @@ public class Matrix3D extends HashMap<Tuple<Point, Point, Integer>, List<Double>
 	 * @return
 	 */
 	public double[] getBaseDistances(Point a, Point b) {
-		return super.get(new Tuple<Point, Point, Integer>(a, b, 0))
-				.stream().mapToDouble(Double::doubleValue).toArray();
+		return super.get(hashCode(a, b));
+//				.stream().mapToDouble(Double::doubleValue).toArray();
 	}
 	
 	@Override

@@ -15,18 +15,18 @@ import br.com.tarlis.mov3lets.model.Subtrajectory;
  * @param <MO>
  *
  */
-public class HiperMoveletsDiscovery<MO> extends SupervisedMoveletsDiscovery<MO> {
+public class HiperMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> {
 
 	/**
-	 * @param trajectory
+	 * @param trajsFromClass
 	 * @param train
 	 * @param candidates
 	 * @param qualityMeasure
 	 * @param descriptor
 	 */
-	public HiperMoveletsDiscovery(MAT<MO> trajectory, List<MAT<MO>> train, List<MAT<MO>> test, List<Subtrajectory> candidates,
+	public HiperMoveletsDiscovery(List<MAT<MO>> trajsFromClass, List<MAT<MO>> train, List<MAT<MO>> test, List<Subtrajectory> candidates,
 			QualityMeasure qualityMeasure, Descriptor descriptor) {
-		super(trajectory, train, test, candidates, qualityMeasure, descriptor);
+		super(null, train, test, candidates, qualityMeasure, descriptor);
 	}
 
 }

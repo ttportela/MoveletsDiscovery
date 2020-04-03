@@ -27,6 +27,8 @@ public class Tuple<M, N, I> extends Pair<M, N> {
 	
 	private I index;
 	
+	private int hash;
+	
     /**
 	 * @param x
 	 * @param y
@@ -34,6 +36,7 @@ public class Tuple<M, N, I> extends Pair<M, N> {
 	public Tuple(M x, N y, I index) {
 		super(x, y);
 		this.index = index;
+		this.hash = Objects.hash(super.hashCode(), getIndex().hashCode());
 	}
 
 	/**
@@ -79,7 +82,8 @@ public class Tuple<M, N, I> extends Pair<M, N> {
      */
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), getIndex().hashCode());
+    	return this.hash;
+//        return Objects.hash(super.hashCode(), getIndex().hashCode());
     }
 
 }

@@ -5,73 +5,203 @@ import java.util.concurrent.Callable;
 
 import br.com.tarlis.mov3lets.method.descriptor.AttributeDescriptor;
 import br.com.tarlis.mov3lets.method.descriptor.Descriptor;
-import br.com.tarlis.mov3lets.method.structures.Matrix3D;
 import br.com.tarlis.mov3lets.model.MAT;
 import br.com.tarlis.mov3lets.model.Point;
 import br.com.tarlis.mov3lets.utils.ProgressBar;
 
-public class PrecomputeBaseDistances<MO> implements Callable<Matrix3D> {
+public class PrecomputeBaseDistances<MO> implements Callable<Integer> {
 	
 	private int fromIndex;
 	private List<MAT<MO>> trajectories;
-	private Matrix3D base;
+	private double[][][][][] base;
 	private Descriptor descriptor;
 	private ProgressBar bar;
 	
-	public PrecomputeBaseDistances(int fromIndex, List<MAT<MO>> trajectories, Matrix3D base, Descriptor descriptor, ProgressBar bar) {
+	public PrecomputeBaseDistances(int fromIndex, List<MAT<MO>> trajectories, double[][][][][] base, Descriptor descriptor, ProgressBar bar) {
 		this.fromIndex = fromIndex;
 		this.trajectories = trajectories;
-		this.base = base;
+//		this.base2 = base;
 		this.descriptor = descriptor;
 		this.bar = bar;
+		this.base = base;
 	}
 
 	@Override
-	public Matrix3D call() throws Exception {
-		return computeBaseDistances(fromIndex, this.trajectories);
+	public Integer call() throws Exception {
+		computeBaseDistances(fromIndex, this.trajectories);
+		return 0;
 	}
 	
-	public Matrix3D computeBaseDistances(int fromIndex, List<MAT<MO>> trajectories){
-		MAT<?> trajectory = trajectories.get(fromIndex);
-//		int n = trajectory.getPoints().size();
-//		int size = 1;
+	public void computeBaseDistances(int idxFrom, List<MAT<MO>> trajectories){
+		MAT<MO> trajectory = trajectories.get(idxFrom);
+		int n = trajectory.getPoints().size();
+		int size = 1;
 		
-		for (Point a : trajectory.getPoints()) {
-//		for (int start = 0; start <= (n - size); start++) {		
-//			Point a = trajectory.getPoints().get(start);
+		base[idxFrom] = new double[(n - size)+1][][][];	
+		
+		for (int start = 0; start <= (n - size); start++) {
 			
-			for (int k = fromIndex; k < trajectories.size(); k++) {
-				MAT<?> T = trajectories.get(k);
+			base[idxFrom][start] = new double[trajectories.size() - idxFrom][][];				
+			
+			for (int i = idxFrom; i < trajectories.size(); i++) {
 				
-				for (Point b : T.getPoints()) {
-//				for (int j = 0; j <= (T.getPoints().size()-size); j++) {
-//					Point b = T.getPoints().get(j);
-					
-					double[] distances = new double[this.descriptor.getAttributes().size()];
-					
-					for (int i = 0; i < this.descriptor.getAttributes().size(); i++) {
-						AttributeDescriptor attr = this.descriptor.getAttributes().get(i);
-						distances[i] = this.descriptor.getAttributes().get(i)
+				MAT<?> T = trajectories.get(i);
+				Point a = trajectory.getPoints().get(start);
+								
+				base[idxFrom][start][i - idxFrom] = new double[(T.getPoints().size()-size)+1][this.descriptor.getAttributes().size()];
+						
+				for (int j = 0; j <= (T.getPoints().size()-size); j++) {
+					Point b = T.getPoints().get(j);
+										
+					for (int k = 0; k < this.descriptor.getAttributes().size(); k++) {
+						AttributeDescriptor attr = this.descriptor.getAttributes().get(k);
+						// For each possible *Number Of Features* and each combination of those:
+						base[idxFrom][start][i - idxFrom][j][k] = this.descriptor.getAttributes().get(k)
 								.getDistanceComparator().calculateDistance(
-								a.getAspects().get(i), 
-								b.getAspects().get(i), 
+								a.getAspects().get(k), 
+								b.getAspects().get(k), 
 								attr); // This also enhance distances
 					}
-
-					// For each possible *Number Of Features* and each combination of those:
-					base.addDistances(a, b, distances);
 					
 				} // for (int j = 0; j <= (train.size()-size); j++)
 				
-			} //for (MAT<?> T : trajectories) { --//-- for (int i = 0; i < train.size(); i++)
+			} //for (int i = 0; i < train.size(); i++)
 			
 			bar.plus();
 			
 		} // for (int start = 0; start <= (n - size); start++)
 
-		return base;
+//		return base;
 	}
 	
+//	private double[][][][] computeBaseDistances1(MAT<?> trajectory, List<MAT<MO>> trajectories){
+//		int n = trajectory.getPoints().size();
+//		int size = 1;
+//		
+//		double[][][][] base = new double[(n - size)+1][][][];		
+//		
+//		for (int start = 0; start <= (n - size); start++) {
+//			
+//			base[start] = new double[trajectories.size()][][];				
+//			
+//			for (int i = 0; i < trajectories.size(); i++) {
+//				
+//				MAT<?> T = trajectories.get(i);
+//				Point a = trajectory.getPoints().get(start);
+//								
+//				base[start][i] = new double[this.descriptor.getAttributes().size()][(trajectories.get(i).getPoints().size()-size)+1];
+//						
+//				for (int j = 0; j <= (T.getPoints().size()-size); j++) {
+//					Point b = T.getPoints().get(j);
+//					
+//
+//					for (int k = 0; k < this.descriptor.getAttributes().size(); k++) {
+//						AttributeDescriptor attr = this.descriptor.getAttributes().get(k);						
+//						double distance = attr.getDistanceComparator().calculateDistance(
+//								a.getAspects().get(k), 
+//								b.getAspects().get(k), 
+//								attr);
+//					
+//						base[start][i][k][j] = (distance != Double.POSITIVE_INFINITY) ? (distance) : Double.POSITIVE_INFINITY;					
+//					
+//					} // for (int k = 0; k < distance.length; k++)
+//					
+//				} // for (int j = 0; j <= (train.size()-size); j++)
+//				
+//			} //for (int i = 0; i < train.size(); i++)
+//			
+//		} // for (int start = 0; start <= (n - size); start++)
+//
+//		return base;
+//	}
+//	
+//	private void computeBaseDistances2(MAT<?> trajectory, List<MAT<MO>> trajectories){
+//		int n = trajectory.getPoints().size();
+//		int size = 1;
+//		
+////		double[][][][] base = new double[(n - size)+1][][][];	
+//		base2 = new Matrix3D(descriptor.getFlag("explore_dimensions"),
+//				descriptor.numberOfFeatures(), 
+//				descriptor.getParamAsInt("max_number_of_features"));
+//		
+//		for (int start = 0; start <= (n - size); start++) {
+//			
+////			base[start] = new double[trajectories.size()][][];				
+//			
+//			for (int i = fromIndex; i < trajectories.size(); i++) {
+//				
+//				MAT<?> T = trajectories.get(i);
+//				Point a = trajectory.getPoints().get(start);
+//								
+////				base[start][i] = new double[this.descriptor.getAttributes().size()][(trajectories.get(i).getPoints().size()-size)+1];
+//						
+//				for (int j = 0; j <= (T.getPoints().size()-size); j++) {
+//					Point b = T.getPoints().get(j);
+//					
+//					double[] distances = new double[this.descriptor.getAttributes().size()];
+//					
+//					for (int k = 0; k < this.descriptor.getAttributes().size(); k++) {
+//						AttributeDescriptor attr = this.descriptor.getAttributes().get(k);
+//						distances[k] = this.descriptor.getAttributes().get(k)
+//								.getDistanceComparator().calculateDistance(
+//								a.getAspects().get(k), 
+//								b.getAspects().get(k), 
+//								attr); // This also enhance distances
+//					}
+//
+//					// For each possible *Number Of Features* and each combination of those:
+//					base2.addDistances(a, b, distances);
+//					
+//				} // for (int j = 0; j <= (train.size()-size); j++)
+//				
+//			} //for (int i = 0; i < train.size(); i++)
+//			
+//			bar.plus();
+//			
+//		} // for (int start = 0; start <= (n - size); start++)
+//
+////		return base;
+//	}
 	
+//	public Matrix3D computeBaseDistances(int fromIndex, List<MAT<MO>> trajectories){
+//		MAT<?> trajectory = trajectories.get(fromIndex);
+////		int n = trajectory.getPoints().size();
+////		int size = 1;
+//		
+//		for (Point a : trajectory.getPoints()) {
+////		for (int start = 0; start <= (n - size); start++) {		
+////			Point a = trajectory.getPoints().get(start);
+//			
+//			for (int k = fromIndex; k < trajectories.size(); k++) {
+//				MAT<?> T = trajectories.get(k);
+//				
+//				for (Point b : T.getPoints()) {
+////				for (int j = 0; j <= (T.getPoints().size()-size); j++) {
+////					Point b = T.getPoints().get(j);
+//					
+//					double[] distances = new double[this.descriptor.getAttributes().size()];
+//					
+//					for (int i = 0; i < this.descriptor.getAttributes().size(); i++) {
+//						AttributeDescriptor attr = this.descriptor.getAttributes().get(i);
+//						distances[i] = this.descriptor.getAttributes().get(i)
+//								.getDistanceComparator().calculateDistance(
+//								a.getAspects().get(i), 
+//								b.getAspects().get(i), 
+//								attr); // This also enhance distances
+//					}
+//
+//					// For each possible *Number Of Features* and each combination of those:
+//					base.addDistances(a, b, distances);
+//					
+//				} // for (int j = 0; j <= (train.size()-size); j++)
+//				
+//			} //for (MAT<?> T : trajectories) { --//-- for (int i = 0; i < train.size(); i++)
+//			
+//			bar.plus();
+//			
+//		} // for (int start = 0; start <= (n - size); start++)
+//
+//		return base;
+//	}
 	
 }

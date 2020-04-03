@@ -59,7 +59,7 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO> {
 //			String header = (!trajectories.get(0).getFeatures().keySet().isEmpty()) ? 
 //					trajectories.get(0).getFeatures().keySet().toString().replaceAll("[\\[|\\]|\\s]", "") + "," : "";
 				
-			if (!append) {
+			if (!append) { //TODO incorreto, necessário adicionar as colunas (movelets) com exceção da classe
 				String header = "";
 				header += (!trajectories.get(0).getAttributes().keySet().isEmpty()) ?
 						trajectories.get(0).getAttributes().keySet().toString().replaceAll("[\\[|\\]|\\s]", "") + "," : ""; 

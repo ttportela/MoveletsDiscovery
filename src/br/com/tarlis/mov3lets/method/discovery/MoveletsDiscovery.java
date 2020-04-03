@@ -93,9 +93,8 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 		// This guarantees the reproducibility
 		Random random = new Random(this.trajectory.getTid());
 		
-		int n = this.data.size();
+//		int n = this.data.size();
 		int maxSize = getDescriptor().getParamAsInt("max_size");
-		maxSize = (maxSize == -1) ? n : maxSize;
 		int minSize = getDescriptor().getParamAsInt("min_size");
 
 		/** STEP 2.1: Starts at discovering movelets */
@@ -147,9 +146,10 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 //		int numberOfCandidates = (maxSize * (maxSize-1) / 2);
 		
 		/** STEP 2.6: It transforms the training and test sets of trajectories using the movelets */
-		
-		/** STEP 2.6: It transforms the training and test sets of trajectories using the movelets */
-		transformOutput(candidates);
+		transformOutput(candidates, this.train, "train");
+		// Compute distances and best alignments for the test trajectories:
+		if (!this.test.isEmpty())
+			transformOutput(candidates, this.test, "test");
 		
 		/* If a test trajectory set was provided, it does the same.
 		 * and return otherwise 
@@ -290,7 +290,7 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 		
 	}
 	
-	private int[][] combinations = null;
+	protected int[][] combinations = null;
 	public int[][] makeCombinations(boolean exploreDimensions, int numberOfFeatures, int maxNumberOfFeatures) {
 		
 		if (combinations != null)
@@ -471,6 +471,18 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 		/** STEP 3.0: Output Movelets */
 		super.output("train", this.data, candidates);
 		super.output("test", this.data, candidates);
+	}
+
+	public void transformOutput(List<Subtrajectory> candidates, List<MAT<MO>> trajectories, String file) {
+		for (Subtrajectory movelet : candidates) {
+			// It initializes the set of distances of all movelets to null
+			movelet.setDistances(null);
+			// In this step the set of distances is filled by this method
+			computeDistances(movelet, trajectories); // computeDistances(movelet, trajectories);
+		}
+		
+		/** STEP 3.0: Output Movelets */
+		super.output(file, trajectories, candidates);
 	}
 	
 	// TODO: esse método é um problema, tem que ver como fazer isso e para que serve.

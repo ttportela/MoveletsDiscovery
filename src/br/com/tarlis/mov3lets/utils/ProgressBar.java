@@ -43,13 +43,13 @@ public class ProgressBar {
 
 	public synchronized void plus(long size) {
     	this.done += size;
-    	update(this.done, this.total, null);
+//    	update(this.done, this.total, null);
 	}
 	
     public synchronized void update(long done, long total) {
     	this.done = done;
     	this.total = total;
-    	update(done, total, null);
+//    	update(done, total, null);
     }
 
     /**
