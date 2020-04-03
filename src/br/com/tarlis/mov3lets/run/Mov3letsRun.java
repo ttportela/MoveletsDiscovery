@@ -53,7 +53,7 @@ public class Mov3letsRun {
 		String descFile = params.get("descfile").toString();
 
 		// Config to - Show trace messages OR Ignore all
-		if (params.containsKey("verbose") && (boolean) params.get("verbose"))
+		if (params.containsKey("verbose") && (Boolean) params.get("verbose"))
 			Mov3letsUtils.getInstance().configLogger();
 		
 //		String inputFile = (args.length > 1? args[1] : "data/foursquare.csv");
@@ -285,7 +285,7 @@ public class Mov3letsRun {
 				break;
 			case "-d":
 			case "-version":
-				params.put("verbose", value);
+				params.put("version", value);
 				break;
 			default:
 				System.err.println("Parâmetro " + key + " inválido.");

@@ -81,8 +81,8 @@ public class Mov3letsUtils {
 		if (timers.containsKey(timer)) {
 //			long time = (System.nanoTime() - timers.get(timer));
 			long time = (System.currentTimeMillis() - timers.get(timer));
-			timers.remove(timer);
 			this.log.printTimer(timer, time);
+			timers.remove(timer);
 			return time;
 		} else
 			return 0L;
