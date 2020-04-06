@@ -96,8 +96,9 @@ public class PrecomputeMoveletsDiscovery<MO> extends BaseCaseMoveletsDiscovery<M
 			}
 		}
 		
-		/** STEP 2.5: SELECTING BEST CANDIDATES */	
-		getCandidates().addAll(rankCandidates(candidates));
+		/** STEP 2.5: SELECTING BEST CANDIDATES */
+		candidates = filterMovelets(candidates);
+		getCandidates().addAll(candidates);
 		
 		/** STEP 2.6: It transforms the training and test sets of trajectories using the movelets */
 		// The train already have the distances and best alignments

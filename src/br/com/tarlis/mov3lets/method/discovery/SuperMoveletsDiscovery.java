@@ -58,7 +58,7 @@ public class SuperMoveletsDiscovery<MO> extends BaseCaseMoveletsDiscovery<MO> {
 		
 		for (MAT<MO> trajectory : trajsFromClass) {
 			// This guarantees the reproducibility
-			Random random = new Random(this.trajectory.getTid());
+			Random random = new Random(trajectory.getTid());
 			/** STEP 2.1: Starts at discovering movelets */
 			progressBar.trace("Class: " + trajectory.getMovingObject() + "."); // Might be saved in HD
 			List<Subtrajectory> candidatesByProp = moveletsProportion(trajectory, this.trajsFromClass, minSize, maxSize, random);
@@ -140,9 +140,10 @@ public class SuperMoveletsDiscovery<MO> extends BaseCaseMoveletsDiscovery<MO> {
 				assesQuality(candidate, new Random(candidate.getTrajectory().getTid()));
 			}
 		}
-		
+
 		/** STEP 2.4: SELECTING BEST CANDIDATES */	
-		getCandidates().addAll(rankCandidates(candidates));
+		candidates = filterMovelets(candidates);
+		getCandidates().addAll(candidates);
 		
 		/** STEP 2.5: It transforms the training and test sets of trajectories using the movelets */
 		transformOutput(candidates, this.train, "train", base); base = null;

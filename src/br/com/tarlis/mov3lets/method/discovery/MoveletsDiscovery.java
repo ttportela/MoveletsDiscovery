@@ -140,8 +140,9 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 			}
 		}
 		
-		/** STEP 2.5: SELECTING BEST CANDIDATES */	
-		getCandidates().addAll(rankCandidates(candidates));
+		/** STEP 2.5: SELECTING BEST CANDIDATES */			
+		candidates = filterMovelets(candidates);
+		getCandidates().addAll(candidates);
 		
 //		int numberOfCandidates = (maxSize * (maxSize-1) / 2);
 		

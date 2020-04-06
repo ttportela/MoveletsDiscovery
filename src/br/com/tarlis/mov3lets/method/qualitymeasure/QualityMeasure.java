@@ -29,9 +29,7 @@ import br.com.tarlis.mov3lets.model.Subtrajectory;
  *
  */
 public abstract class QualityMeasure {
-	
-	public abstract void assesQuality(Subtrajectory candidate);
-	
+		
 	public abstract void assesQuality(Subtrajectory candidate, Random random);
 	
 	public Pair<double[],double[]> fillSplitPointsLimits(Map<String, double[]> splitpointsData, String medium){

@@ -500,8 +500,7 @@ public class LeftSidePureCVLigth extends QualityMeasure {
 	}
 
 	public void assesQuality(Subtrajectory candidate, Random random) {
-		// TODO Auto-generated method stub
-
+		
 		double[][] distances = candidate.getDistances();				
 		String target = candidate.getTrajectory().getMovingObject().toString();
 		
@@ -543,12 +542,6 @@ public class LeftSidePureCVLigth extends QualityMeasure {
 		}
 				
 		return maxDistances;
-	}
-
-
-	@Override
-	public void assesQuality(Subtrajectory candidate) {
-		assesQuality(candidate, new Random());
 	}
 
 
