@@ -287,7 +287,7 @@ public class PrecomputeMoveletsDiscovery<MO> extends BaseCaseMoveletsDiscovery<M
 	
 	public Pair<Subtrajectory, double[]> bestAlignmentByPointFeatures(Subtrajectory s, MAT<MO> t, int idxTs, int idxT) {
 		double[] maxValues = new double[numberOfFeatures];
-		Arrays.fill(maxValues, Double.POSITIVE_INFINITY);
+		Arrays.fill(maxValues, MAX_VALUE);
 				
 		if (s.getSize() > t.getPoints().size())
 			return new Pair<>(null, maxValues);
@@ -303,7 +303,7 @@ public class PrecomputeMoveletsDiscovery<MO> extends BaseCaseMoveletsDiscovery<M
 		double[][] distancesForT = new double[comb.length][diffLength+1];
 						
 		double[] x = new double[comb.length];
-		Arrays.fill(x, Double.POSITIVE_INFINITY);
+		Arrays.fill(x, MAX_VALUE);
 				
 		for (int i = 0; i <= diffLength; i++) {
 
@@ -316,17 +316,17 @@ public class PrecomputeMoveletsDiscovery<MO> extends BaseCaseMoveletsDiscovery<M
 //				values = mdist.getBaseDistances(menor.get(j), maior.get(i + j), comb);
 
 				for (int k = 0; k < comb.length; k++) {					
-					if (currentSum[k] != Double.POSITIVE_INFINITY && values[k] != Double.POSITIVE_INFINITY)
+					if (currentSum[k] != MAX_VALUE && values[k] != MAX_VALUE)
 						currentSum[k] += values[comb[k]]; // * values[comb[k]];
 					else {
-						currentSum[k] = Double.POSITIVE_INFINITY;
+						currentSum[k] = MAX_VALUE;
 					}
 				}
 				
 				
 				if (firstVectorGreaterThanTheSecond(currentSum, x) ){
 					for (int k = 0; k < comb.length; k++) {
-						currentSum[k] = Double.POSITIVE_INFINITY;
+						currentSum[k] = MAX_VALUE;
 					}					
 					break;					
 				} 											
@@ -360,8 +360,8 @@ public class PrecomputeMoveletsDiscovery<MO> extends BaseCaseMoveletsDiscovery<M
 			double distance = distancesForT[j][bestPosition];
 			
 			bestAlignment[j] = 
-					(distance != Double.POSITIVE_INFINITY) ? Math.sqrt(distance / menor.size()) 
-												   : Double.POSITIVE_INFINITY;
+					(distance != MAX_VALUE) ? Math.sqrt(distance / menor.size()) 
+												   : MAX_VALUE;
 			
 		} // for (int j = 0; j < comb.length; j++)
 		

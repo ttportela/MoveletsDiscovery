@@ -109,4 +109,17 @@ public class MAT<MO> {
 		this.attributes = attributes;
 	}
 
+	@Override
+	public String toString() {
+		String string = new String();
+
+		string += "Label: " + getMovingObject().toString() + "\n";
+		string += "Points: \n";
+
+		for (int i = 0; i < getPoints().size(); i++)
+			string += getPoints().get(i).toString() + "\n";
+
+		return string;
+	}
+
 }

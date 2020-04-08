@@ -124,7 +124,7 @@ public class Subtrajectory {
 		string += "Size: " + getSize() + "\n";
 		string += "Origin: t" + getTrajectory().getTid() + " from " + start + " to " + end + "\n";
 		string += "Label: " + getTrajectory().getMovingObject().toString() + "\n";
-		string += "Data: \n";
+//		string += "Data: \n";
 
 		return string;
 	}

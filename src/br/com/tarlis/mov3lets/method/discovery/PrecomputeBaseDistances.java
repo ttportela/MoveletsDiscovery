@@ -102,7 +102,7 @@ public class PrecomputeBaseDistances<MO> implements Callable<Integer> {
 //								b.getAspects().get(k), 
 //								attr);
 //					
-//						base[start][i][k][j] = (distance != Double.POSITIVE_INFINITY) ? (distance) : Double.POSITIVE_INFINITY;					
+//						base[start][i][k][j] = (distance != MAX_VALUE) ? (distance) : MAX_VALUE;					
 //					
 //					} // for (int k = 0; k < distance.length; k++)
 //					

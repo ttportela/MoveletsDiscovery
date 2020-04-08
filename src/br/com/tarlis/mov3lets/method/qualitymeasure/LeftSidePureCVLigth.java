@@ -108,7 +108,7 @@ public class LeftSidePureCVLigth extends QualityMeasure {
 						
 		// Remove candidates with DoubleMax values
 		for (int i = 0; i < nonTargetDistances.size(); i++) {
-			if ( new DescriptiveStatistics( nonTargetDistances.get(i).getSecond()).getMax() == Double.POSITIVE_INFINITY)				
+			if ( new DescriptiveStatistics( nonTargetDistances.get(i).getSecond()).getMax() == MAX_VALUE)				
 				nonTargetDistances.remove(i--);
 		}
 		
@@ -308,7 +308,7 @@ public class LeftSidePureCVLigth extends QualityMeasure {
 		// Agora resultado vai ser usado para acumular os resultados parciais
 		double[][] splitPoints = new double[distances.length][this.samples];
 		
-		Double minCovered = Double.POSITIVE_INFINITY;
+		Double minCovered = MAX_VALUE;
 		
 		for (int i = 0; i < this.samples; i++) {
 			
@@ -538,7 +538,7 @@ public class LeftSidePureCVLigth extends QualityMeasure {
 		double[] maxDistances = new double[distances.length];
 		for (int i = 0; i < maxDistances.length; i++) {
 			maxDistances[i] =
-					Arrays.stream(distances[i]).filter(e -> e != Double.POSITIVE_INFINITY).max().getAsDouble();
+					Arrays.stream(distances[i]).filter(e -> e != MAX_VALUE).max().getAsDouble();
 		}
 				
 		return maxDistances;

@@ -73,5 +73,18 @@ public class Point {
 	public void setAspects(List<Aspect<?>> aspects) {
 		this.aspects = aspects;
 	}
+	
+	@Override
+	public String toString() {	
+		String string = new String();
+		string += "{";
+		int i = 0;
+		for (; i < aspects.size()-1; i++) {
+			string += i + ": " + aspects.get(i).toString() + ",";
+		}
+		string += i + ": " + aspects.get(i).toString() + "}";
+		
+		return string;
+	}
 
 }

@@ -114,6 +114,7 @@ public class Descriptor {
 				instantiateDistanceMeasure(attr);
 			} else {
 				Mov3letsUtils.traceW("Malformed "+ attr.toString());
+				System.exit(1);
 			}
 		}
 	}
@@ -141,15 +142,6 @@ public class Descriptor {
 			Mov3letsUtils.traceE("default comparator was set:", e);
 		}
 	}
-
-	@Override
-	public String toString() {
-		String s = "";
-		for (AttributeDescriptor attribute : attributes) {
-			s += "\t - " + attribute + "\n";
-		}
-		return s;
-	}
 	
 	public static Descriptor load(String fileName) throws UnsupportedEncodingException, FileNotFoundException {
 		Reader reader = new InputStreamReader(
@@ -160,6 +152,15 @@ public class Descriptor {
 
 //		System.out.println(descriptor);
 		return descriptor;
+	}
+
+	@Override
+	public String toString() {
+		String s = "";
+		for (AttributeDescriptor attribute : attributes) {
+			s += "\t - " + attribute + "\n";
+		}
+		return s;
 	}
 	
 	/**

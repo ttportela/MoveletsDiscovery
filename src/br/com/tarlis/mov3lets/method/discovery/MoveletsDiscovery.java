@@ -149,25 +149,11 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 		/** STEP 2.6: It transforms the training and test sets of trajectories using the movelets */
 		transformOutput(candidates, this.train, "train");
 		// Compute distances and best alignments for the test trajectories:
+		/* If a test trajectory set was provided, it does the same.
+		 * and return otherwise */
 		if (!this.test.isEmpty())
 			transformOutput(candidates, this.test, "test");
-		
-		/* If a test trajectory set was provided, it does the same.
-		 * and return otherwise 
-		 *
-		if (test.isEmpty()) return;
-		
-		for (ISubtrajectory movelet : movelets) {
-			movelet.setDistances(null);
-		}
-		
-		new MoveletsFinding(movelets,test,dmbt).run();				
-
-		for (ISubtrajectory movelet : movelets) {
-			Utils.putAttributeIntoTrajectories(test, movelet, output, medium);
-		}
-		
-		Utils.writeAttributesCSV(test, resultDirPath + "test.csv");*/
+				
 	}
 
 	/**
@@ -195,48 +181,34 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 		int size = 1;
 		Integer total_size = 0;
 		
-//		double[][][][] base = null; //computeBaseDistances(trajectory, this.data);
-		
 		if( minSize <= 1 ) {
 			candidates.addAll(findCandidates(trajectory, trajectories, size));
 			candidates.forEach(x -> assesQuality(x, random));
 		}				
 		
-//		double[][][][] lastSize = null; //clone4DArray(base);	
-
 		total_size = total_size + candidates.size();
 		
 		// Tratar o resto dos tamanhos 
 		for (size = 2; size <= maxSize; size++) {
-	
-			// Precompute de distance matrix
-//			double[][][][] newSize = newSize(trajectory, this.data, base, lastSize, size);
-
-			// Create candidates and compute min distances		
-			List<Subtrajectory> candidatesOfSize = findCandidates(trajectory, trajectories, size);
-		
-			total_size = total_size + candidatesOfSize.size();
 			
 			if (size >= minSize){
+
+				// Create candidates and compute min distances		
+				List<Subtrajectory> candidatesOfSize = findCandidates(trajectory, trajectories, size);
+				
+				total_size = total_size + candidatesOfSize.size();
 				
 				//for (Subtrajectory candidate : candidatesOfSize) assesQuality(candidate);				
 				candidatesOfSize.forEach(x -> assesQuality(x, random));
-				
 				candidates.addAll(candidatesOfSize);
 			}
-		
-//			lastSize = newSize;
 						
 		} // for (int size = 2; size <= max; size++)	
-	
-//		base =  null;
-//		lastSize = null;
 
 		candidates = filterMovelets(candidates);
 		
 		progressBar.trace("Class: " + trajectory.getMovingObject() + ". Trajectory: " + trajectory.getTid() + ". Trajectory Size: " + trajectory.getPoints().size() + ". Number of Candidates: " + total_size + ". Total of Movelets: " + candidates.size() + ". Max Size: " + maxSize+ ". Used Features: " + this.maxNumberOfFeatures);
-//		Mov3letsUtils.trace("\t[Discovering movelets] >> Trajectory: " + trajectory.getTid() + ". Trajectory Size: " + trajectory.getPoints().size() + ". Number of Candidates: " + total_size + ". Total of Movelets: " + candidates.size() + ". Max Size: " + maxSize+ ". Used Features: " + this.maxNumberOfFeatures);
-		
+				
 		return candidates;
 	}
 
@@ -320,7 +292,7 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 	
 	public Pair<Subtrajectory, double[]> bestAlignmentByPointFeatures(Subtrajectory s, MAT<MO> t) {
 		double[] maxValues = new double[numberOfFeatures];
-		Arrays.fill(maxValues, Double.POSITIVE_INFINITY);
+		Arrays.fill(maxValues, MAX_VALUE);
 				
 		if (s.getSize() > t.getPoints().size())
 			return new Pair<>(null, maxValues);
@@ -336,7 +308,7 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 		double[][] distancesForT = new double[comb.length][diffLength+1];
 						
 		double[] x = new double[comb.length];
-		Arrays.fill(x, Double.POSITIVE_INFINITY);
+		Arrays.fill(x, MAX_VALUE);
 				
 		for (int i = 0; i <= diffLength; i++) {
 
@@ -349,17 +321,17 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 //				values = mdist.getBaseDistances(menor.get(j), maior.get(i + j), comb);
 
 				for (int k = 0; k < comb.length; k++) {					
-					if (currentSum[k] != Double.POSITIVE_INFINITY && values[k] != Double.POSITIVE_INFINITY)
+					if (currentSum[k] != MAX_VALUE && values[k] != MAX_VALUE)
 						currentSum[k] += values[comb[k]]; // * values[comb[k]];
 					else {
-						currentSum[k] = Double.POSITIVE_INFINITY;
+						currentSum[k] = MAX_VALUE;
 					}
 				}
 				
 				
 				if (firstVectorGreaterThanTheSecond(currentSum, x) ){
 					for (int k = 0; k < comb.length; k++) {
-						currentSum[k] = Double.POSITIVE_INFINITY;
+						currentSum[k] = MAX_VALUE;
 					}					
 					break;					
 				} 											
@@ -393,8 +365,8 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 			double distance = distancesForT[j][bestPosition];
 			
 			bestAlignment[j] = 
-					(distance != Double.POSITIVE_INFINITY) ? Math.sqrt(distance / menor.size()) 
-												   : Double.POSITIVE_INFINITY;
+					(distance != MAX_VALUE) ? Math.sqrt(distance / menor.size()) 
+												   : MAX_VALUE;
 			
 		} // for (int j = 0; j < comb.length; j++)
 		

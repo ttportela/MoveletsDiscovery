@@ -47,6 +47,8 @@ public abstract class DiscoveryAdapter<MO> implements Callable<Integer> {
 	
 	protected List<OutputterAdapter<MO>> outputers = new ArrayList<OutputterAdapter<MO>>();
 	
+	public double MAX_VALUE = Double.MAX_VALUE;
+	
 	/**
 	 * @param train
 	 * @param candidates 

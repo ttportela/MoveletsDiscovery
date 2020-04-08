@@ -202,7 +202,7 @@ public class BaseCaseMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 								b.getAspects().get(k), 
 								attr);
 					
-						base[start][i][k][j] = (distance != Double.POSITIVE_INFINITY) ? (distance) : Double.POSITIVE_INFINITY;					
+						base[start][i][k][j] = (distance != MAX_VALUE) ? (distance) : MAX_VALUE;					
 					
 					} // for (int k = 0; k < distance.length; k++)
 					
@@ -246,7 +246,7 @@ public class BaseCaseMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 												
 						for (int k = 0; k < lastSize[start][i].length; k++) {
 							
-							if (lastSize[start][i][k][j] != Double.POSITIVE_INFINITY)
+							if (lastSize[start][i][k][j] != MAX_VALUE)
 								
 								lastSize[start][i][k][j] += base[start+size-1][i][k][j+size-1];
 						
@@ -343,7 +343,7 @@ public class BaseCaseMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 	
 	public Pair<Subtrajectory, double[]> bestAlignmentByPointFeatures(Subtrajectory s, MAT<MO> t, double[][][][] mdist, int idxt) {
 		double[] maxValues = new double[numberOfFeatures];
-		Arrays.fill(maxValues, Double.POSITIVE_INFINITY);
+		Arrays.fill(maxValues, MAX_VALUE);
 				
 		if (s.getSize() > t.getPoints().size())
 			return new Pair<>(null, maxValues);
@@ -362,7 +362,7 @@ public class BaseCaseMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 		double[][] distancesForT = new double[comb.length][diffLength+1];
 						
 		double[] x = new double[comb.length];
-		Arrays.fill(x, Double.POSITIVE_INFINITY);
+		Arrays.fill(x, MAX_VALUE);
 				
 		for (int i = 0; i <= diffLength; i++) {
 
@@ -376,17 +376,17 @@ public class BaseCaseMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 //				values = mdist[i][j].getBaseDistances(menor.get(j), maior.get(i + j), comb);
 
 				for (int k = 0; k < comb.length; k++) {
-					if (currentSum[k] != Double.POSITIVE_INFINITY && mdist[s.getStart()+j][idxt][k][i+j] != Double.POSITIVE_INFINITY)
+					if (currentSum[k] != MAX_VALUE && mdist[s.getStart()+j][idxt][k][i+j] != MAX_VALUE)
 						currentSum[k] += mdist[s.getStart()+j][idxt][k][i+j]; //values[comb[k]] * values[comb[k]];
 					else {
-						currentSum[k] = Double.POSITIVE_INFINITY;
+						currentSum[k] = MAX_VALUE;
 					}
 				}
 				
 				
 				if (firstVectorGreaterThanTheSecond(currentSum, x) ){
 					for (int k = 0; k < comb.length; k++) {
-						currentSum[k] = Double.POSITIVE_INFINITY;
+						currentSum[k] = MAX_VALUE;
 					}					
 					break;					
 				} 											
@@ -421,8 +421,8 @@ public class BaseCaseMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 			double distance = distancesForT[j][bestPosition];
 			
 			bestAlignment[j] = 
-					(distance != Double.POSITIVE_INFINITY) ? Math.sqrt(distance / menor.size()) 
-												   : Double.POSITIVE_INFINITY;
+					(distance != MAX_VALUE) ? Math.sqrt(distance / menor.size()) 
+												   : MAX_VALUE;
 			
 		} // for (int j = 0; j < comb.length; j++)
 		

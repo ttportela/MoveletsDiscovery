@@ -29,7 +29,9 @@ import br.com.tarlis.mov3lets.model.Subtrajectory;
  *
  */
 public abstract class QualityMeasure {
-		
+	
+	public double MAX_VALUE = Double.MAX_VALUE;
+	
 	public abstract void assesQuality(Subtrajectory candidate, Random random);
 	
 	public Pair<double[],double[]> fillSplitPointsLimits(Map<String, double[]> splitpointsData, String medium){
@@ -64,7 +66,7 @@ public abstract class QualityMeasure {
 		
 		}		
 		
-		return new Pair(splitpointsLI,splitpointsLS);
+		return new Pair<double[], double[]>(splitpointsLI,splitpointsLS);
 	}
 	
 	public boolean isCovered(double[] point, double[] limits){

@@ -136,6 +136,7 @@ public class Mov3letsRun {
 		str += "   -medium\tMedium:\t\t\t" + params.get("medium") + System.getProperty("line.separator");
 		str += "   -mpt\t\tMovelets Per Traj.:\t" + params.get("movelets_per_trajectory") + System.getProperty("line.separator");
 		str += "   -output\tOutput:\t\t\t" + params.get("output") + System.getProperty("line.separator");
+		str += "   -version\tMov. Discovery Impl.:\t" + params.get("version") + System.getProperty("line.separator");
 		
 		str += System.getProperty("line.separator") + "    Optimizations: ";
 		str += System.getProperty("line.separator")
