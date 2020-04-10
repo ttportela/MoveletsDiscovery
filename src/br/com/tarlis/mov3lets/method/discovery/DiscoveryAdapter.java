@@ -38,7 +38,8 @@ public abstract class DiscoveryAdapter<MO> implements Callable<Integer> {
 	protected Descriptor descriptor;
 	protected ProgressBar progressBar;
 	
-	protected MAT<MO> trajectory;
+//	protected MAT<MO> trajectory;
+	protected List<MAT<MO>> trajsFromClass;
 	protected List<MAT<MO>> train;
 	protected List<MAT<MO>> test;
 	protected List<MAT<MO>> data;
@@ -53,27 +54,25 @@ public abstract class DiscoveryAdapter<MO> implements Callable<Integer> {
 	 * @param train
 	 * @param candidates 
 	 */
-	public DiscoveryAdapter(MAT<MO> trajectory, List<MAT<MO>> train, List<MAT<MO>> test, List<Subtrajectory> candidates, 
+	public DiscoveryAdapter(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test, List<Subtrajectory> candidates, 
 			Descriptor descriptor) {
-		init(trajectory, train, test, candidates, descriptor);
+		init(trajsFromClass, data, train, test, candidates, descriptor);
 	}
 	
-	public DiscoveryAdapter(MAT<MO> trajectory, List<MAT<MO>> train, List<MAT<MO>> test, List<Subtrajectory> candidates, 
+	public DiscoveryAdapter(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test, List<Subtrajectory> candidates, 
 			Descriptor descriptor, List<OutputterAdapter<MO>> outputers) {
-		init(trajectory, train, test, candidates, descriptor);
+		init(trajsFromClass, data, train, test, candidates, descriptor);
 		this.outputers = outputers;
 	}
 	
-	private void init(MAT<MO> trajectory, List<MAT<MO>> train, List<MAT<MO>> test, List<Subtrajectory> candidates, 
+	private void init(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test, List<Subtrajectory> candidates, 
 			Descriptor descriptor) {
-		this.trajectory = trajectory;
+		this.trajsFromClass = trajsFromClass;
 		this.train = train;
 		this.test = test;
 		this.candidates = candidates;
 		this.descriptor = descriptor;
-		this.data = new ArrayList<MAT<MO>>();
-		this.data.addAll(train);
-		this.data.addAll(test);
+		this.data = data;
 	}
 	
 	public abstract void discover(); 
@@ -100,14 +99,18 @@ public abstract class DiscoveryAdapter<MO> implements Callable<Integer> {
 		return descriptor;
 	}
 	
-	public void output(String filename, List<MAT<MO>> trajectories, List<Subtrajectory> movelets) {	
+	public void output(String filename, List<MAT<MO>> trajectories, List<Subtrajectory> movelets, boolean delayOutput) {	
 		// This sets the default outputters, otherwise use the configured ones	
 		// By Default, it writes a JSON and a CSV in a attribute-value format
-		defaultOutputters();
+//		defaultOutputters();
 		// It puts distances as trajectory attributes
-		for (OutputterAdapter<MO> output : outputers) {
-			output.write(filename, trajectories, movelets);			
-		}
+		if (outputers != null)
+			for (OutputterAdapter<MO> output : outputers) {
+				output.write(filename, trajectories, movelets, delayOutput);			
+			}
+		
+//		trajectories.forEach(e ->  e.getFeatures().clear()); // TODO needed?
+//		trajectories.forEach(e ->  e.getAttributes().clear());
 	}
 	
 	public boolean defaultOutputters() {

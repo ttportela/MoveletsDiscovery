@@ -38,7 +38,7 @@ public class MAT<MO> {
 	private List<Point> points = new ArrayList<Point>();
 	
 	// Attributtes resulting of method discovery.
-	private Map<String,Double> attributes = new ConcurrentHashMap<>();;
+	private Map<String,Double> attributes = new ConcurrentHashMap<>();
 	
 	/**
 	 * @return the tid

@@ -47,7 +47,10 @@ public class JSONOutputter<MO> extends OutputterAdapter<MO> {
 	}
 
 	@Override
-	public void write(String filename, List<MAT<MO>> trajectories, List<Subtrajectory> movelets) {
+	public void write(String filename, List<MAT<MO>> trajectories, List<Subtrajectory> movelets, boolean delayOutput) {
+		
+		if (delayOutput) return; // Do nothing
+		
 		List<Map<String,Object>> classOfTrajectories = new ArrayList<>();
 		
 		for (MAT<MO> t : trajectories) {			

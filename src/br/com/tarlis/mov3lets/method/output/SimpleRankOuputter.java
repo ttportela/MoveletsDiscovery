@@ -73,8 +73,10 @@ public class SimpleRankOuputter<MO> extends OutputterAdapter<MO> {
 	}
 
 	@Override
-	public void write(String filename, List<MAT<MO>> trajectories, List<Subtrajectory> movelets) {
+	public void write(String filename, List<MAT<MO>> trajectories, List<Subtrajectory> movelets, boolean delayOutput) {
 //		System.out.println("\t==> Output Rank of Movelets:");
+		
+		if (delayOutput) return; // Do nothing
 		
 		List<HashMap<String, String>> rank = new ArrayList<HashMap<String,String>>();
 //		List<HashMap<String, String>> rankALL = new ArrayList<HashMap<String,String>>();

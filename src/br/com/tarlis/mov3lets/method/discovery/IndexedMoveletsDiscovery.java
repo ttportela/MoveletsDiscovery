@@ -34,9 +34,9 @@ public class IndexedMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 	 * @param trajectory
 	 * @param train
 	 */
-	public IndexedMoveletsDiscovery(MAT<MO> trajectory, List<MAT<MO>> train, List<MAT<MO>> test, List<Subtrajectory> candidates, QualityMeasure qualityMeasure, 
-			Descriptor descriptor) {
-		super(trajectory, train, test, candidates, qualityMeasure, descriptor);
+	public IndexedMoveletsDiscovery(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test, List<Subtrajectory> candidates,
+			QualityMeasure qualityMeasure, Descriptor descriptor) {
+		super(trajsFromClass, data, train, test, candidates, qualityMeasure, descriptor);
 	}
 
 }

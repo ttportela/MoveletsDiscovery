@@ -50,62 +50,66 @@ public class PrecomputeMoveletsDiscovery<MO> extends BaseCaseMoveletsDiscovery<M
 	 * @param train
 	 * @param candidates 
 	 */
-	public PrecomputeMoveletsDiscovery(MAT<MO> trajectory, List<MAT<MO>> train, List<MAT<MO>> test, List<Subtrajectory> candidates, QualityMeasure qualityMeasure, 
+	public PrecomputeMoveletsDiscovery(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test, List<Subtrajectory> candidates, QualityMeasure qualityMeasure, 
 			Descriptor descriptor) {
-		super(trajectory, train, test, candidates, qualityMeasure, descriptor);
+		super(trajsFromClass, data, train, test, candidates, qualityMeasure, descriptor);
 	}
 	
+
 	/**
 	 * Looks for candidates in the trajectory, then compares with every other trajectory
 	 */
 	public void discover() {
-				
-		// This guarantees the reproducibility
-		Random random = new Random(this.trajectory.getTid());
 		
 //		int n = this.data.size();
 		int maxSize = getDescriptor().getParamAsInt("max_size");
-//		maxSize = (maxSize == -1) ? n : maxSize;
 		int minSize = getDescriptor().getParamAsInt("min_size");
 
+		List<Subtrajectory> movelets = new ArrayList<Subtrajectory>();
+		
 		/** STEP 2.1: Starts at discovering movelets */
-		progressBar.trace("Class: " + trajectory.getMovingObject() + "."); // Might be saved in HD
-//		Mov3letsUtils.getInstance().startTimer("\tClass >> " + trajectory.getClass());
-		List<Subtrajectory> candidates = moveletsDiscovery(trajectory, this.train, minSize, maxSize, random);
-//		Mov3letsUtils.getInstance().stopTimer("\tClass >> " + trajectory.getClass());
-		/** STEP 2.1: --------------------------------- */
-		
-		/** Summary Candidates: */
-		
-		/** STEP 2.2: Runs the pruning process */
-		if(getDescriptor().getFlag("last_prunning"))
-			candidates = lastPrunningFilter(candidates);
-		/** STEP 2.2: --------------------------------- */
-
-		// TODO
-		for (Subtrajectory candidate : candidates) {
-			/** STEP 2.3: COMPUTE DISTANCES, IF NOT COMPUTED YET [NOT NEEDED]*/
-//			if (candidate.getDistances() == null) {	
-//				computeDistances(candidate);
-//				System.out.println("TODO? COMPUTE DISTANCES MD-96");
-//			}
+		for (MAT<MO> trajectory : trajsFromClass) {
+			List<Subtrajectory> candidates = moveletsDiscovery(trajectory, this.train, minSize, maxSize);
 			
-			/** STEP 2.4: ASSES QUALITY, IF REQUIRED */
-			if (qualityMeasure != null & candidate.getQuality() != null) {
-				assesQuality(candidate, random);
+			/** STEP 2.2: Runs the pruning process */
+			if(getDescriptor().getFlag("last_prunning"))
+				candidates = lastPrunningFilter(candidates);
+			/** STEP 2.2: --------------------------------- */
+			
+			// TODO
+			for (Subtrajectory candidate : candidates) {
+				/** STEP 2.3: COMPUTE DISTANCES, IF NOT COMPUTED YET [NOT NEEDED]*/
+				/** STEP 2.4: ASSES QUALITY, IF REQUIRED */
+				if (qualityMeasure != null & candidate.getQuality() != null) {
+					assesQuality(candidate);
+				}
 			}
+			
+			/** STEP 2.5: SELECTING BEST CANDIDATES */			
+	//		candidates = filterMovelets(candidates); //TODO is necessary?
+			movelets.addAll(candidates);
+						
+			/** STEP 2.6, for this trajectory movelets: 
+			 * It transforms the training and test sets of trajectories using the movelets */
+			int idxStart = this.data.indexOf(trajectory);
+			transformTrajectoryOutput(candidates, this.train, "train", idxStart);
+			// Compute distances and best alignments for the test trajectories:
+			/* If a test trajectory set was provided, it does the same.
+			 * and return otherwise */
+			if (!this.test.isEmpty())
+				transformTrajectoryOutput(candidates, this.test, "test", idxStart);
+			
+			System.gc();
 		}
 		
-		/** STEP 2.5: SELECTING BEST CANDIDATES */
-		candidates = filterMovelets(candidates);
-		getCandidates().addAll(candidates);
-		
-		/** STEP 2.6: It transforms the training and test sets of trajectories using the movelets */
-		// The train already have the distances and best alignments
-		super.output("train", this.train, candidates);
+		/** STEP 2.6, to write all outputs: */
+		super.output("train", this.train, movelets, false);
 		// Compute distances and best alignments for the test trajectories:
+		/* If a test trajectory set was provided, it does the same.
+		 * and return otherwise */
 		if (!this.test.isEmpty())
-			transformOutput(candidates, this.test, "test", this.train.size());
+			super.output("test", this.test, movelets, false);
+				
 	}
 	
 	/*** * * * * * * * * * * * * * * * * * * * ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * >>
@@ -177,9 +181,10 @@ public class PrecomputeMoveletsDiscovery<MO> extends BaseCaseMoveletsDiscovery<M
 	 * @param random
 	 * @return
 	 */
-	public List<Subtrajectory> moveletsDiscovery(MAT<MO> trajectory, List<MAT<MO>> trajectories, int minSize, int maxSize, Random random) {
+	public List<Subtrajectory> moveletsDiscovery(MAT<MO> trajectory, List<MAT<MO>> trajectories, int minSize, int maxSize) {
 		List<Subtrajectory> candidates = new ArrayList<Subtrajectory>();
 
+		Random random = new Random(trajectory.getTid());
 		int n = trajectory.getPoints().size();
 		
 		// TO USE THE LOG, PUT "-Ms -3"
@@ -383,7 +388,7 @@ public class PrecomputeMoveletsDiscovery<MO> extends BaseCaseMoveletsDiscovery<M
 	 * HERE FOLLOWS THE OUTPUT TRANSFORMATIONS:     * * * * * * * * * * * * * * * * * * * * * * * * * * >>
 	 *** * * * * * * * * * * * * * * * * * * **/
 	
-	public void transformOutput(List<Subtrajectory> candidates, List<MAT<MO>> trajectories, 
+	public void transformTrajectoryOutput(List<Subtrajectory> candidates, List<MAT<MO>> trajectories, 
 			String file, int startIdx) {
 		
 		for (Subtrajectory movelet : candidates) {
@@ -394,7 +399,7 @@ public class PrecomputeMoveletsDiscovery<MO> extends BaseCaseMoveletsDiscovery<M
 		}
 		
 		/** STEP 3.0: Output Movelets */
-		super.output(file, trajectories, candidates);
+		super.output(file, trajectories, candidates, true);
 		
 	}
 	

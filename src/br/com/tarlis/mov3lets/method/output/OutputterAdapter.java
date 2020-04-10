@@ -36,7 +36,7 @@ public abstract class OutputterAdapter<MO> {
 		this.subfolderClasses = subfolderClasses;
 	}
 	
-	public abstract void write(String filename, List<MAT<MO>> trajectories, List<Subtrajectory> movelets);
+	public abstract void write(String filename, List<MAT<MO>> trajectories, List<Subtrajectory> movelets, boolean delayOutput);
 	
 	/**
 	 * @return the filePath

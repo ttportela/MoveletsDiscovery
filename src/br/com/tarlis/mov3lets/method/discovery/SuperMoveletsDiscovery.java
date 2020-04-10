@@ -38,23 +38,21 @@ import br.com.tarlis.mov3lets.model.aspect.Aspect;
  */
 public class SuperMoveletsDiscovery<MO> extends BaseCaseMoveletsDiscovery<MO> {
 	
-	protected List<MAT<MO>> trajsFromClass;
 	
 	/**
 	 * @param train
 	 */
-	public SuperMoveletsDiscovery(List<MAT<MO>> trajsFromClass, List<MAT<MO>> train, List<MAT<MO>> test, List<Subtrajectory> candidates, QualityMeasure qualityMeasure, 
+	public SuperMoveletsDiscovery(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test, List<Subtrajectory> candidates, QualityMeasure qualityMeasure, 
 			Descriptor descriptor) {
-		super(null, train, test, candidates, qualityMeasure, descriptor);
-		this.trajsFromClass = trajsFromClass;
+		super(trajsFromClass, data, train, test, candidates, qualityMeasure, descriptor);
 	}
 	
 	public void discover() {
 
 		int maxSize = getDescriptor().getParamAsInt("max_size");
 		int minSize = getDescriptor().getParamAsInt("min_size");
-		
-		List<Subtrajectory> candidates = new ArrayList<Subtrajectory>();
+
+		List<Subtrajectory> movelets = new ArrayList<Subtrajectory>();
 		
 		for (MAT<MO> trajectory : trajsFromClass) {
 			// This guarantees the reproducibility
@@ -120,36 +118,40 @@ public class SuperMoveletsDiscovery<MO> extends BaseCaseMoveletsDiscovery<MO> {
 
 			/* STEP 2.1.6: QUALIFY BEST HALF CANDIDATES 
 			 * * * * * * * * * * * * * * * * * * * * * * * * */
-			
-			progressBar.trace("Class: " + trajectory.getMovingObject() + ". Trajectory: " + trajectory.getTid() + ". Trajectory Size: " + trajectory.getPoints().size() + ". Number of Candidates: " + candidatesByProp.size() + ". Total of Movelets: " + half_ordered_candidates.size() + ". Max Size: " + maxSize+ ". Used Features: " + this.maxNumberOfFeatures);
-			
-			candidates.addAll(half_ordered_candidates);
-		}
-				
-		/** STEP 2.x: --------------------------------- */
-		/** Summary Candidates: */
-		
-		/** STEP 2.2: Runs the pruning process */
-		if(getDescriptor().getFlag("last_prunning"))
-			candidates = lastPrunningFilter(candidates);
-		
-		/** STEP 2.3: --------------------------------- */
-		for (Subtrajectory candidate : candidates) {
-			/** STEP 2.4: ASSES QUALITY, IF REQUIRED */
-			if (qualityMeasure != null & candidate.getQuality() != null) {
-				assesQuality(candidate, new Random(candidate.getTrajectory().getTid()));
+			for (Subtrajectory candidate : half_ordered_candidates) {
+				/** STEP 2.4: ASSES QUALITY, IF REQUIRED */
+				if (qualityMeasure != null & candidate.getQuality() != null) {
+					assesQuality(candidate, new Random(candidate.getTrajectory().getTid()));
+				}
 			}
-		}
 
-		/** STEP 2.4: SELECTING BEST CANDIDATES */	
-		candidates = filterMovelets(candidates);
-		getCandidates().addAll(candidates);
+			/** STEP 2.4: SELECTING BEST CANDIDATES */	
+			List<Subtrajectory> best_candidates = filterMovelets(half_ordered_candidates);
+			
+
+			/** STEP 2.2: Runs the pruning process */
+			if(getDescriptor().getFlag("last_prunning"))
+				best_candidates = lastPrunningFilter(best_candidates); // TODO is this here?
+			
+			movelets.addAll(best_candidates);
+			
+			progressBar.trace("Class: " + trajectory.getMovingObject() + ". Trajectory: " + trajectory.getTid() + ". Trajectory Size: " + trajectory.getPoints().size() + ". Number of Candidates: " + candidatesByProp.size() + ". Total of Movelets: " + best_candidates.size() + ". Max Size: " + maxSize+ ". Used Features: " + this.maxNumberOfFeatures);
+			
+			/** STEP 2.6, for this trajectory movelets: 
+			 * It transforms the training and test sets of trajectories using the movelets */
+			transformTrajectoryOutput(best_candidates, this.train, "train", base);
+			// Compute distances and best alignments for the test trajectories:
+			/* If a test trajectory set was provided, it does the same.
+			 * and return otherwise */
+			if (!this.test.isEmpty())
+				transformTrajectoryOutput(best_candidates, this.test, "test", computeBaseDistances(trajectory, this.test));
+		}		
+
+		/** STEP 2.6, to write all outputs: */
+		super.output("train", this.train, movelets, false);
 		
-		/** STEP 2.5: It transforms the training and test sets of trajectories using the movelets */
-		transformOutput(candidates, this.train, "train", base); base = null;
-		// Compute distances and best alignments for the test trajectories:
 		if (!this.test.isEmpty())
-			transformOutput(candidates, this.test, "test", computeBaseDistances(trajectory, this.test));
+			super.output("test", this.test, movelets, false);
 	}
 	
 	public List<Subtrajectory> moveletsProportion(MAT<MO> trajectory, List<MAT<MO>> trajectories, int minSize, int maxSize, Random random) {

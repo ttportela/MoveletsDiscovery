@@ -7,9 +7,11 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
@@ -28,6 +30,10 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO> {
 	protected String medium = "none"; // Other values minmax, sd, interquartil
 	protected String output = "numeric"; // Other values: normalized?? and discrete
 	
+	protected List<Map<String, Double>> attributesToTrain = new ArrayList<Map<String,Double>>();
+	protected List<Map<String, Double>> attributesToTest = new ArrayList<Map<String,Double>>();
+//	protected List<Map<String, Double>> features = new ArrayList<Map<String,Double>>(); // TODO Necessary?
+	
 	/**
 	 * @param filePath
 	 */
@@ -44,8 +50,14 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO> {
 	}
 
 	@Override
-	public void write(String filename, List<MAT<MO>> trajectories, List<Subtrajectory> movelets) {
-		attributesToTrajectories(trajectories, movelets);	
+	public void write(String filename, List<MAT<MO>> trajectories, List<Subtrajectory> movelets, boolean delayOutput) {
+		List<Map<String, Double>> attributeToTrajectories = 
+				"train".equals(filename)? attributesToTrain : attributesToTest;
+		
+		if (delayOutput) {
+			attributesToTrajectories(trajectories, movelets, attributeToTrajectories);
+			return;
+		}
 		
 		BufferedWriter writer;
 
@@ -61,24 +73,25 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO> {
 				
 			if (!append) { //TODO incorreto, necessário adicionar as colunas (movelets) com exceção da classe
 				String header = "";
-				header += (!trajectories.get(0).getAttributes().keySet().isEmpty()) ?
-						trajectories.get(0).getAttributes().keySet().toString().replaceAll("[\\[|\\]|\\s]", "") + "," : ""; 
+				header += (!attributeToTrajectories.get(0).keySet().isEmpty()) ?
+						attributeToTrajectories.get(0).keySet().toString().replaceAll("[\\[|\\]|\\s]", "") + "," : ""; 
 				
 				header += "class" + System.getProperty("line.separator");
 				
 				writer.write(header);
 			}
 			
-			for (MAT<MO> trajectory : trajectories) {
+			for (int i = 0; i < trajectories.size(); i++) {
+				Map<String,Double> attributes = attributeToTrajectories.get(i);
 				String line = "";
 				// TODO Features?
 //				String line = (!trajectory.getFeatures().values().isEmpty()) ?
 //								trajectory.getFeatures().values().toString().replaceAll("[\\[|\\]|\\s]", "") + "," : "";
 				
-				line += (!trajectory.getAttributes().values().isEmpty()) ?
-						trajectory.getAttributes().values().toString().replaceAll("[\\[|\\]|\\s]", "") + "," : "";
+				line += (!attributes.values().isEmpty()) ?
+						attributes.values().toString().replaceAll("[\\[|\\]|\\s]", "") + "," : "";
 				
-				line += "\"" + trajectory.getMovingObject() + "\""+ System.getProperty("line.separator");
+				line += "\"" + trajectories.get(i).getMovingObject() + "\""+ System.getProperty("line.separator");
 				
 				writer.write(line);
 			}
@@ -90,16 +103,16 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO> {
 		}
 	}
 	
-	public void attributesToTrajectories(List<MAT<MO>> trajectories, List<Subtrajectory> movelets) {
+	protected void attributesToTrajectories(List<MAT<MO>> trajectories, List<Subtrajectory> movelets, List<Map<String, Double>> attributeToTrajectories) {
 		// It puts distances as trajectory attributes
 		for (Subtrajectory movelet : movelets) {
 			switch (output){
 				case "numeric" :
-					attributeToTrajectoriesNumeric(trajectories, movelet);
+					attributeToTrajectoriesNumeric(trajectories, movelet, attributeToTrajectories);
 					break;
 				
 				case "discrete" :	
-					attributeToTrajectoriesDiscrete(trajectories, movelet);
+					attributeToTrajectoriesDiscrete(trajectories, movelet, attributeToTrajectories);
 					break;
 					
 			}
@@ -109,8 +122,9 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO> {
 	/**
 	 * @param trajectories
 	 * @param movelet
+	 * @param attributeToTrajectories 
 	 */
-	private void attributeToTrajectoriesNumeric(List<MAT<MO>> trajectories, Subtrajectory movelet) {
+	protected void attributeToTrajectoriesNumeric(List<MAT<MO>> trajectories, Subtrajectory movelet, List<Map<String, Double>> attributeToTrajectories) {
 		String attributeName =  "sh_TID" + movelet.getTrajectory().getTid() + 
 								"_START" + movelet.getStart() + 
 								"_SIZE" + movelet.getSize() + 
@@ -123,7 +137,7 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO> {
 		Pair<double[], double[]> splitpointLimits = fillSplitPointsLimits(splitpointsData,medium);
 		double[] splitpointsLI = splitpointLimits.getFirst(); // Limite inferior
 		double[] splitpointsLS = splitpointLimits.getSecond(); // Limite superior
-        	
+        
 		for (int i = 0; i <  trajectories.size(); i++) {
 			double distance;
 			if (isCovered(rm.getColumn(i), splitpointsLI))
@@ -133,15 +147,16 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO> {
 			else 
 				distance = 2;
 			
-			trajectories.get(i).getAttributes().put(attributeName, distance);
+			getAttributes(i, attributeToTrajectories).put(attributeName, distance);
 		}
 	}
 
 	/**
 	 * @param trajectories
 	 * @param movelet
+	 * @param attributeToTrajectories 
 	 */
-	private void attributeToTrajectoriesDiscrete(List<MAT<MO>> trajectories, Subtrajectory movelet) {
+	protected void attributeToTrajectoriesDiscrete(List<MAT<MO>> trajectories, Subtrajectory movelet, List<Map<String, Double>> attributeToTrajectories) {
 		String attributeName =  "sh_TID" + movelet.getTrajectory().getTid() + 
 								"_START" + movelet.getStart() + 
 								"_SIZE" + movelet.getSize() + 
@@ -162,12 +177,22 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO> {
 				distance = normalizeNonCovered(rm.getColumn(i), splitpoints, maxDistances);
 			}
 				
-			trajectories.get(i).getAttributes().put(attributeName, distance);
+			getAttributes(i, attributeToTrajectories).put(attributeName, distance);
 		}
+	}
+
+	protected Map<String, Double> getAttributes(int idxTrajectory, List<Map<String, Double>> attributeToTrajectories) {
+		Map<String,Double> attributes;
+		if (attributeToTrajectories.size()-1 < idxTrajectory) {
+			attributes = new ConcurrentHashMap<>();
+			attributeToTrajectories.add(idxTrajectory, attributes);
+		} else 
+			attributes = attributeToTrajectories.get(idxTrajectory);
+		return attributes;
 	}
 	
 
-	public Pair<double[],double[]> fillSplitPointsLimits(Map<String, double[]> splitpointsData, String medium){
+	protected Pair<double[],double[]> fillSplitPointsLimits(Map<String, double[]> splitpointsData, String medium){
 		int n = splitpointsData.get("mean").length;
 		double[] splitpointsLI = new double[n];
 		double[] splitpointsLS = new double[n];
@@ -201,7 +226,7 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO> {
 	 * Para o caso de empate por conta de movelets discretas.
 	 * 
 	 */
-	public boolean isCovered(double[] point, double[] limits){
+	protected boolean isCovered(double[] point, double[] limits){
 		int dimensions = limits.length;
 		
 		for (int i = 0; i < dimensions; i++) {
@@ -216,7 +241,7 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO> {
 		return true;
 	}
 	
-	private double normalizeCovered(double[] point, double[] limits) {
+	protected double normalizeCovered(double[] point, double[] limits) {
 		int dimensions = limits.length;
 		double sumOfProportions = 0;
 		
@@ -227,7 +252,7 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO> {
 		return sumOfProportions / dimensions;
 	}
 
-	private double normalizeNonCovered(double[] point, double[] limits, double[] maxDistances) {
+	protected double normalizeNonCovered(double[] point, double[] limits, double[] maxDistances) {
 		int dimensions = limits.length;
 		double sumOfProportions = 0;
 		
