@@ -26,6 +26,10 @@ import br.com.tarlis.mov3lets.model.aspect.Aspect;
  */
 public abstract class DistanceMeasure<A extends Aspect<?>> {
 	
+	public static double DEFAULT_MAX_VALUE = Double.MAX_VALUE;
+
+	public double MAX_VALUE = DistanceMeasure.DEFAULT_MAX_VALUE;
+	
 	/**
 	 * MEASURES OF DISTANCE (so far)
 	 * ** Nominal: **
@@ -75,13 +79,15 @@ public abstract class DistanceMeasure<A extends Aspect<?>> {
 			return distance;
 	
 		if (distance >= maxValue)
-			return Double.POSITIVE_INFINITY;	
+			return MAX_VALUE;	
 		
 		return distance / maxValue;
 	}
 	
 	public double enhance(double distance) {
-		return distance * distance; // TRUE for: Double.POSITIVE_INFINITY == (Double.POSITIVE_INFINITY * Double.POSITIVE_INFINITY)
+		return (distance != MAX_VALUE) ? (distance * distance) : MAX_VALUE;
+		// TRUE for: MAX_VALUE == (MAX_VALUE * MAX_VALUE)
+		// TRUE for: Double.POSITIVE_INFINITY == (Double.POSITIVE_INFINITY * Double.POSITIVE_INFINITY)
 	}
 	
 	public double calculateDistance(Aspect<?> asp0, Aspect<?> asp1, AttributeDescriptor attr) {

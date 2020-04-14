@@ -331,7 +331,7 @@ public class Mov3letsRun {
 	
 	public static String configRespath(String descFile, Descriptor descriptor) {
 		
-		String resultDirPath = "MasterMovelets";
+		String resultDirPath = "MasterMovelets" + System.getProperty("file.separator");
 		
 //		if (PIVOTS_FILE != null) {
 //			resultDirPath += "_PivotsBOW";
@@ -339,11 +339,12 @@ public class Mov3letsRun {
 //		}
 //		else {
 			if(descriptor.getFlag("pivots"))
-				resultDirPath += "_Pivots" + System.getProperty("file.separator")
-							  +  "Porcentage_" + descriptor.getParamAsText("pivot_porcentage");
+				resultDirPath += "Pivots_"
+							  +  "Porcentage_" + descriptor.getParamAsText("pivot_porcentage")
+							  + "_";
 			else {
 				if(descriptor.getParamAsInt("max_size") == -3) {
-					resultDirPath += "_LOG";
+					resultDirPath += "Log_";
 				} // else resultDirPath = + "_MM"; // No need
 			}
 //		}
@@ -362,7 +363,7 @@ public class Mov3letsRun {
 		else
 			DESCRIPTION_FILE_NAME += "_Witout-Last-Prunning";
 
-		return Paths.get(descriptor.getParamAsText("respath"), resultDirPath, DESCRIPTION_FILE_NAME).toString();
+		return Paths.get(descriptor.getParamAsText("respath"), resultDirPath + DESCRIPTION_FILE_NAME).toString();
 	}
 
 }

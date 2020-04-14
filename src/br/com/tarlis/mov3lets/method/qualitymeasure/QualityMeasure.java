@@ -22,6 +22,7 @@ import java.util.Random;
 
 import org.apache.commons.math3.util.Pair;
 
+import br.com.tarlis.mov3lets.method.distancemeasure.DistanceMeasure;
 import br.com.tarlis.mov3lets.model.Subtrajectory;
 
 /**
@@ -30,7 +31,7 @@ import br.com.tarlis.mov3lets.model.Subtrajectory;
  */
 public abstract class QualityMeasure {
 	
-	public double MAX_VALUE = Double.MAX_VALUE;
+	public double MAX_VALUE = DistanceMeasure.DEFAULT_MAX_VALUE;
 	
 	public abstract void assesQuality(Subtrajectory candidate, Random random);
 	

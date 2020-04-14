@@ -14,7 +14,7 @@ Configurations:
    -medium	Medium:			none
    -mpt		Movelets Per Traj.:	-1
    -output	Output:			discrete
-   -version	Mov. Discovery Impl.:	super
+   -version	Mov. Discovery Impl.:	1.0
 
     Optimizations: 
 	[Index: false], [Interning: false]
@@ -25,21 +25,6 @@ Configurations:
 	 - Attr: 8 - weather/nominal (equals/-1.0)
 
 
-[1] >> Load Input: 341 milliseconds
-Memory usage (KiB), Memory Total: 491008,000, Memory Free: 453231,383, Memory Used: 37776,617
-[Class: 6] >> Movelets previously discovered.
-[Class: 7] >> Movelets previously discovered.
-[Class: 12] >> Movelets previously discovered.
-[2] >> Movelet Discovery: / [                                                  ]   0%                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     [2] >> Movelet Discovery: / [                                                  ]   0% >> Class: 14.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       Exception in thread "main" org.apache.commons.math3.exception.OutOfRangeException: column index (11)
-	at org.apache.commons.math3.linear.MatrixUtils.checkColumnIndex(MatrixUtils.java:484)
-	at org.apache.commons.math3.linear.AbstractRealMatrix.getColumn(AbstractRealMatrix.java:570)
-	at br.com.tarlis.mov3lets.method.qualitymeasure.LeftSidePureCVLigth.prunePoints(LeftSidePureCVLigth.java:76)
-	at br.com.tarlis.mov3lets.method.qualitymeasure.LeftSidePureCVLigth.getBestSplitpointsCV(LeftSidePureCVLigth.java:294)
-	at br.com.tarlis.mov3lets.method.qualitymeasure.LeftSidePureCVLigth.assesQuality(LeftSidePureCVLigth.java:507)
-	at br.com.tarlis.mov3lets.method.discovery.MoveletsDiscovery.assesQuality(MoveletsDiscovery.java:445)
-	at br.com.tarlis.mov3lets.method.discovery.SuperMoveletsDiscovery.lambda$0(SuperMoveletsDiscovery.java:178)
-	at java.util.ArrayList.forEach(ArrayList.java:1257)
-	at br.com.tarlis.mov3lets.method.discovery.SuperMoveletsDiscovery.moveletsProportion(SuperMoveletsDiscovery.java:178)
-	at br.com.tarlis.mov3lets.method.discovery.SuperMoveletsDiscovery.discover(SuperMoveletsDiscovery.java:62)
-	at br.com.tarlis.mov3lets.method.Mov3lets.mov3lets(Mov3lets.java:140)
-	at br.com.tarlis.mov3lets.run.Mov3letsRun.main(Mov3letsRun.java:108)
+[1] >> Load Input: 290 milliseconds
+Memory usage (KiB), Memory Total: 619520,000, Memory Free: 579222,305, Memory Used: 40297,695
+[2] >> Movelet Discovery: / [                                                  ]   0%                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     

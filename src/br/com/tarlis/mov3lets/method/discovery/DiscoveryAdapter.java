@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import br.com.tarlis.mov3lets.method.descriptor.Descriptor;
+import br.com.tarlis.mov3lets.method.distancemeasure.DistanceMeasure;
 import br.com.tarlis.mov3lets.method.output.CSVOutputter;
 import br.com.tarlis.mov3lets.method.output.JSONOutputter;
 import br.com.tarlis.mov3lets.method.output.OutputterAdapter;
@@ -48,7 +49,7 @@ public abstract class DiscoveryAdapter<MO> implements Callable<Integer> {
 	
 	protected List<OutputterAdapter<MO>> outputers = new ArrayList<OutputterAdapter<MO>>();
 	
-	public double MAX_VALUE = Double.MAX_VALUE;
+	public double MAX_VALUE = DistanceMeasure.DEFAULT_MAX_VALUE;
 	
 	/**
 	 * @param train
