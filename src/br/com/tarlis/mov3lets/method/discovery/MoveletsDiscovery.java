@@ -220,6 +220,10 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 			}
 						
 		} // for (int size = 2; size <= max; size++)	
+		
+		for (int i = 0; i < candidates.size(); i++) {
+			System.out.println(i +" => "+ candidates.get(i));
+		}
 
 		candidates = filterMovelets(candidates);
 		
@@ -265,7 +269,7 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 					for (Subtrajectory subtrajectory : list) {						
 						double[] distances = bestAlignmentByPointFeatures(subtrajectory, T).getSecond();
 						for (int j = 0; j < subtrajectory.getPointFeatures().length; j++) {
-							subtrajectory.getDistances()[j][i] = distances[j];							
+							subtrajectory.getDistances()[j][i] = Math.sqrt(distances[j] / size);							
 						}
 					}
 				

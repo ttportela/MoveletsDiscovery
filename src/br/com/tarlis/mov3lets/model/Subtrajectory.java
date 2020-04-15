@@ -18,6 +18,7 @@
 package br.com.tarlis.mov3lets.model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -121,10 +122,16 @@ public class Subtrajectory {
 
 		String string = new String();
 
+//		string += "Origin: t" + getTrajectory().getTid() + " from " + start + " to " + end + ", ";
+//		string += "Size: " + getSize() + ", ";
+//		string += "Label: " + getTrajectory().getMovingObject().toString() + "\n";
+//		string += "Distances: \n";
 		string += "Size: " + getSize() + "\n";
 		string += "Origin: t" + getTrajectory().getTid() + " from " + start + " to " + end + "\n";
 		string += "Label: " + getTrajectory().getMovingObject().toString() + "\n";
-//		string += "Data: \n";
+		string += "Data: \n";
+		for (double[] row : distances) 
+			string += Arrays.toString(row) + "\n"; 
 
 		return string;
 	}
