@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import br.com.tarlis.mov3lets.method.descriptor.Descriptor;
-import br.com.tarlis.mov3lets.method.discovery.BaseCaseMoveletsDiscovery;
+import br.com.tarlis.mov3lets.method.discovery.MemMoveletsDiscovery;
 import br.com.tarlis.mov3lets.method.discovery.DiscoveryAdapter;
 import br.com.tarlis.mov3lets.method.discovery.HiperMoveletsDiscovery;
 import br.com.tarlis.mov3lets.method.discovery.MoveletsDiscovery;
@@ -41,6 +41,7 @@ import br.com.tarlis.mov3lets.method.discovery.SuperMoveletsDiscovery;
 import br.com.tarlis.mov3lets.method.loader.DefaultLoader;
 import br.com.tarlis.mov3lets.method.loader.IndexedLoader;
 import br.com.tarlis.mov3lets.method.loader.InterningLoader;
+import br.com.tarlis.mov3lets.method.loader.ZippedLoader;
 import br.com.tarlis.mov3lets.method.output.CSVOutputter;
 import br.com.tarlis.mov3lets.method.output.JSONOutputter;
 import br.com.tarlis.mov3lets.method.output.OutputterAdapter;
@@ -96,7 +97,7 @@ public class Mov3lets<MO> {
 		List<MO> classes = train.stream().map(e -> (MO) e.getMovingObject()).distinct().collect(Collectors.toList());
 		QualityMeasure qualityMeasure = new LeftSidePureCVLigth(train, 
 									    		getDescriptor().getParamAsInt("samples"), 
-									    		getDescriptor().getParamAsDouble("sampleSize"), 
+									    		getDescriptor().getParamAsDouble("sample_size"), 
 									    		getDescriptor().getParamAsText("medium"));
 
 //		List<Subtrajectory> candidates = new ArrayList<Subtrajectory>();
@@ -124,7 +125,7 @@ public class Mov3lets<MO> {
 			for (Future<Integer> future : resultList) {
 				try {
 					future.get();
-					progressBar.update(progress++, train.size());
+//					progressBar.update(progress++, train.size());
 					System.gc();
 					Executors.newCachedThreadPool();
 				} catch (InterruptedException | ExecutionException e) {
@@ -138,7 +139,7 @@ public class Mov3lets<MO> {
 			for (DiscoveryAdapter<MO> moveletsDiscovery : lsMDs) {
 				moveletsDiscovery.setProgressBar(progressBar);
 				moveletsDiscovery.discover();
-				progressBar.update(progress++, train.size());
+//				progressBar.update(progress++, train.size());
 				System.gc();
 			}
 			
@@ -187,7 +188,7 @@ public class Mov3lets<MO> {
 				
 				} else {
 					
-					moveletsDiscovery = new BaseCaseMoveletsDiscovery<MO>(trajsFromClass, data, train, test, candidates, qualityMeasure, getDescriptor());
+					moveletsDiscovery = new MemMoveletsDiscovery<MO>(trajsFromClass, data, train, test, candidates, qualityMeasure, getDescriptor());
 				
 				}
 				
@@ -223,7 +224,8 @@ public class Mov3lets<MO> {
 		} else if (getDescriptor().getFlag("interning")) {
 			data = new InterningLoader<MAT<MO>>().load(file, getDescriptor());
 		} else {
-			data = new DefaultLoader<MAT<MO>>().load(file, getDescriptor());
+//			data = new DefaultLoader<MAT<MO>>().load(file, getDescriptor());
+			data = new ZippedLoader<MAT<MO>>().load(file, getDescriptor());
 		}
 		return data;
 	}

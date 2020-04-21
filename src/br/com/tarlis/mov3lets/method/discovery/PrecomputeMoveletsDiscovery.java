@@ -41,7 +41,7 @@ import br.com.tarlis.mov3lets.utils.ProgressBar;
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  *
  */
-public class PrecomputeMoveletsDiscovery<MO> extends BaseCaseMoveletsDiscovery<MO> {
+public class PrecomputeMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 	
 	private static double[][][][][] base = null;
 	

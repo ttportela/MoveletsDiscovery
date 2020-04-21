@@ -128,6 +128,7 @@ public class Subtrajectory {
 //		string += "Distances: \n";
 		string += "Size: " + getSize() + "\n";
 		string += "Origin: t" + getTrajectory().getTid() + " from " + start + " to " + end + "\n";
+		string += "Quality: " + getQuality() + "\n";
 		string += "Label: " + getTrajectory().getMovingObject().toString() + "\n";
 		string += "Data: \n";
 		for (double[] row : distances) 

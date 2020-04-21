@@ -35,7 +35,7 @@ import br.com.tarlis.mov3lets.model.Subtrajectory;
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  *
  */
-public class BaseCaseMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
+public class MemMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 	
 	protected double[][][][] base;
 	
@@ -44,7 +44,7 @@ public class BaseCaseMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 	 * @param train
 	 * @param test 
 	 */	
-	public BaseCaseMoveletsDiscovery(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test, List<Subtrajectory> candidates, QualityMeasure qualityMeasure, 
+	public MemMoveletsDiscovery(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test, List<Subtrajectory> candidates, QualityMeasure qualityMeasure, 
 			Descriptor descriptor) {
 		super(trajsFromClass, data, train, test, candidates, qualityMeasure, descriptor);
 	}
@@ -64,10 +64,13 @@ public class BaseCaseMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 		List<Subtrajectory> movelets = new ArrayList<Subtrajectory>();
 		
 		for (MAT<MO> trajectory : trajsFromClass) {
-			List<Subtrajectory> candidates = moveletsDiscovery(trajectory, this.train, minSize, maxSize);
+			// This guarantees the reproducibility
+			Random random = new Random(trajectory.getTid());
+
+			/** STEP 2.1: --------------------------------- */
+			List<Subtrajectory> candidates = moveletsDiscovery(trajectory, this.train, minSize, maxSize, random);
 			
 	//		Mov3letsUtils.getInstance().stopTimer("\tClass >> " + trajectory.getClass());
-			/** STEP 2.1: --------------------------------- */
 			
 			/** Summary Candidates: */
 			
@@ -76,38 +79,43 @@ public class BaseCaseMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 				candidates = lastPrunningFilter(candidates);
 			/** STEP 2.2: --------------------------------- */
 	
-			// TODO
+			/** STEP 2.3, for this trajectory movelets: 
+			 * It transforms the training and test sets of trajectories using the movelets */
 			for (Subtrajectory candidate : candidates) {
-				/** STEP 2.3: COMPUTE DISTANCES, IF NOT COMPUTED YET [NOT NEEDED]*/
-	//			if (candidate.getDistances() == null) {	
-	//				computeDistances(candidate);
-	//				System.out.println("TODO? COMPUTE DISTANCES MD-96");
-	//			}
+				// It initializes the set of distances of all movelets to null
+				candidate.setDistances(null);
+				// In this step the set of distances is filled by this method
+				computeDistances(candidate, this.train, base); // computeDistances(movelet, trajectories);
 				
-				/** STEP 2.4: ASSES QUALITY, IF REQUIRED */
-				if (qualityMeasure != null & candidate.getQuality() != null) {
-					assesQuality(candidate);
-				}
+				assesQuality(candidate, random);
 			}
-			
-			/** STEP 2.5: SELECTING BEST CANDIDATES */
-	//		candidates = filterMovelets(candidates);
+
+			/** STEP 2.4: SELECTING BEST CANDIDATES */			
+			candidates = filterMovelets(candidates);
 			movelets.addAll(candidates);
 			
-			/** STEP 2.6, for this trajectory movelets: 
-			 * It transforms the training and test sets of trajectories using the movelets */
-			transformTrajectoryOutput(candidates, this.train, "train", base);
+			/** STEP 2.3.1: Output Movelets (partial) */
+			super.output("train", this.train, candidates, true);
 			base =  null;
+			
 			// Compute distances and best alignments for the test trajectories:
 			/* If a test trajectory set was provided, it does the same.
 			 * and return otherwise */
-			if (!this.test.isEmpty())
-				transformTrajectoryOutput(candidates, this.test, "test", computeBaseDistances(trajectory, this.test));
+			/** STEP 2.3.2: Output Movelets (partial) */
+			if (!this.test.isEmpty()) {
+				for (Subtrajectory candidate : candidates) {
+					// It initializes the set of distances of all movelets to null
+					candidate.setDistances(null);
+					// In this step the set of distances is filled by this method
+					computeDistances(candidate, this.test, computeBaseDistances(trajectory, this.test));
+				}
+				super.output("test", this.test, candidates, true);
+			}
 			
 			System.gc();
 		}
-		
-		/** STEP 2.6, to write all outputs: */
+
+		/** STEP 2.3.3, to write all outputs: */
 		super.output("train", this.train, movelets, false);
 		
 		if (!this.test.isEmpty())
@@ -126,10 +134,9 @@ public class BaseCaseMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 	 * @param random
 	 * @return
 	 */
-	public List<Subtrajectory> moveletsDiscovery(MAT<MO> trajectory, List<MAT<MO>> trajectories, int minSize, int maxSize) {
+	public List<Subtrajectory> moveletsDiscovery(MAT<MO> trajectory, List<MAT<MO>> trajectories, int minSize, int maxSize, Random random) {
 		List<Subtrajectory> candidates = new ArrayList<Subtrajectory>();
 
-		Random random = new Random(trajectory.getTid());
 		int n = trajectory.getPoints().size();
 		
 		// TO USE THE LOG, PUT "-Ms -3"
@@ -159,7 +166,7 @@ public class BaseCaseMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 		for (size = 2; size <= maxSize; size++) {
 	
 			// Precompute de distance matrix
-			double[][][][] newSize = newSize(trajectory, trajectories, base, lastSize, size);
+   			double[][][][] newSize = newSize(trajectory, trajectories, base, lastSize, size);
 
 			// Create candidates and compute min distances		
 			List<Subtrajectory> candidatesOfSize = findCandidates(trajectory, trajectories, size, newSize);
@@ -170,7 +177,6 @@ public class BaseCaseMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 				
 				//for (Subtrajectory candidate : candidatesOfSize) assesQuality(candidate);				
 				candidatesOfSize.forEach(x -> assesQuality(x, random));
-				
 				candidates.addAll(candidatesOfSize);
 			}
 		
@@ -180,14 +186,25 @@ public class BaseCaseMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 	
 //		base =  null;
 		lastSize = null;
-		
-		for (int i = 0; i < candidates.size(); i++) {
-			System.out.println(i +" => "+ candidates.get(i));
-		}
+
+//		System.out.println("\nCANDIDATES:");
+//		for (int i = 0; i < candidates.size(); i++) {
+//			System.out.println(i +" => "+ candidates.get(i));
+//		}
 
 		candidates = filterMovelets(candidates);
 		
-		progressBar.trace("Class: " + trajectory.getMovingObject() + ". Trajectory: " + trajectory.getTid() + ". Trajectory Size: " + trajectory.getPoints().size() + ". Number of Candidates: " + total_size + ". Total of Movelets: " + candidates.size() + ". Max Size: " + maxSize+ ". Used Features: " + this.maxNumberOfFeatures);
+//		for (int i = 0; i < candidates.size(); i++) {
+//			System.out.println(i +" => "+ candidates.get(i));
+//		}
+		
+		progressBar.plus("Class: " + trajectory.getMovingObject() 
+						+ ". Trajectory: " + trajectory.getTid() 
+						+ ". Trajectory Size: " + trajectory.getPoints().size() 
+						+ ". Number of Candidates: " + total_size 
+						+ ". Total of Movelets: " + candidates.size() 
+						+ ". Max Size: " + maxSize
+						+ ". Used Features: " + this.maxNumberOfFeatures);
 
 		return candidates;
 	}
@@ -326,24 +343,13 @@ public class BaseCaseMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 				
 				for (Subtrajectory subtrajectory : list) {		
 					int bestPosition = (limit > 0) ? bestAlignmentByRanking(ranksForT, subtrajectory.getPointFeatures()) : -1;
-//					for (int j : subtrajectory.getPointFeatures()) {
 					for (int j = 0; j < subtrajectory.getPointFeatures().length; j++) {	
-						double distance = (bestPosition >= 0) ? distancesForT[j][bestPosition] : MAX_VALUE;
-						subtrajectory.getDistances()[j][i] = Math.sqrt(distance / size);									
+						double distance = (bestPosition >= 0) ? 
+								distancesForT[subtrajectory.getPointFeatures()[j]][bestPosition] : MAX_VALUE;
+						subtrajectory.getDistances()[j][i] = (distance != MAX_VALUE) ? 
+								Math.sqrt( distance / size ) : MAX_VALUE;					
 					}
 				}
-				
-//				MAT<MO> T = trajectories.get(i);	
-//				
-//				int limit = T.getPoints().size() - size + 1;
-//				
-//				if (limit > 0)
-//					for (Subtrajectory subtrajectory : list) {						
-//						double[] distances = bestAlignmentByPointFeatures(subtrajectory, T, mdist, i).getSecond();
-//						for (int j = 0; j < subtrajectory.getPointFeatures().length; j++) {
-//							subtrajectory.getDistances()[j][i] = distances[j];							
-//						}
-//					}
 				
 			} // for (int currentFeatures = 1; currentFeatures <= numberOfFeatures; currentFeatures++)
 			
@@ -355,32 +361,25 @@ public class BaseCaseMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 		
 	}
 	
-//	private int[][] combinations = null;
-//	public int[][] makeCombinations(boolean exploreDimensions, int numberOfFeatures, int maxNumberOfFeatures) {
-//		
-//		if (combinations != null)
-//			return combinations;
-//		
-//		int currentFeatures;
-//		if (exploreDimensions){
-//			currentFeatures = 1;
-//		} else {
-//			currentFeatures = numberOfFeatures;
-//		}
-//		
-//		combinations = new int[(int) (Math.pow(2, maxNumberOfFeatures) - 1)][];
-//		int k = 0;
-//		// For each possible NumberOfFeatures and each combination of those: 
-//		for (;currentFeatures <= maxNumberOfFeatures; currentFeatures++) {
-//			for (int[] comb : new Combinations(numberOfFeatures,currentFeatures)) {					
-//				
-//				combinations[k++] = comb;
-//				
-//			} // for (int[] comb : new Combinations(numberOfFeatures,currentFeatures)) 					
-//		} // for (int i = 0; i < train.size(); i++
-//
-//		return combinations;
-//	}
+	public int bestAlignmentByRanking(double[][] ranksForT, int[] comb) {
+		
+		double[] rankMerged = new double[ranksForT[0].length];
+		
+		// In case it's a combination of more than one dimension
+		for (int i = 0; i < comb.length; i++) {
+			for (int j = 0; j < ranksForT[0].length; j++) {
+				rankMerged[j] += ranksForT[comb[i]][j];
+			}
+		}
+
+		int minRankIndex = 0;
+		for (int j = 1; j < rankMerged.length; j++) {
+			if (rankMerged[j] < rankMerged[minRankIndex])
+				minRankIndex = j;
+		}
+		
+		return minRankIndex;
+	}
 	
 	public Pair<Subtrajectory, double[]> bestAlignmentByPointFeatures(Subtrajectory s, MAT<MO> t, double[][][][] mdist, int idxt) {
 		double[] maxValues = new double[numberOfFeatures];
@@ -394,11 +393,13 @@ public class BaseCaseMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 		
 //		int idxs = this.train.indexOf(s.getTrajectory()); 
 //		int idxt = this.train.indexOf(t); // mdist[idxs][idx];
-		
-		int diffLength = maior.size() - menor.size();		
+
+		int size =  s.getSize();
+		int diffLength = maior.size() - size;	
+		int limit = maior.size() - size + 1;
 				
 		int[] comb = s.getPointFeatures();
-		double currentSum[] = new double[comb.length];
+		double[] currentSum = new double[comb.length];
 //		double[] values = new double[numberOfFeatures];
 		double[][] distancesForT = new double[comb.length][diffLength+1];
 						
@@ -417,28 +418,28 @@ public class BaseCaseMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 //				values = mdist[i][j].getBaseDistances(menor.get(j), maior.get(i + j), comb);
 
 				for (int k = 0; k < comb.length; k++) {
-					if (currentSum[k] != MAX_VALUE && mdist[s.getStart()+j][idxt][k][i+j] != MAX_VALUE)
-						currentSum[k] += mdist[s.getStart()+j][idxt][k][i+j]; //values[comb[k]] * values[comb[k]];
+					if (currentSum[k] != MAX_VALUE && mdist[s.getStart()+j][idxt][comb[k]][i+j] != MAX_VALUE)
+						currentSum[k] += mdist[s.getStart()+j][idxt][comb[k]][i+j]; //values[comb[k]] * values[comb[k]];
 					else {
 						currentSum[k] = MAX_VALUE;
 					}
 				}
 				
 				
-				if (firstVectorGreaterThanTheSecond(currentSum, x) ){
-					for (int k = 0; k < comb.length; k++) {
-						currentSum[k] = MAX_VALUE;
-					}					
-					break;					
-				} 											
+//				if (firstVectorGreaterThanTheSecond(currentSum, x) ){
+//					for (int k = 0; k < comb.length; k++) {
+//						currentSum[k] = MAX_VALUE;
+//					}					
+//					break;					
+//				} 											
 				
 			}
 			
-			if (firstVectorGreaterThanTheSecond(x, currentSum) ){
-				for (int k = 0; k < comb.length; k++) {
-					x[k] = currentSum[k];					
-				}				
-			}
+//			if (firstVectorGreaterThanTheSecond(x, currentSum) ){
+//				for (int k = 0; k < comb.length; k++) {
+//					x[k] = currentSum[k];					
+//				}				
+//			}
 			
 			for (int k = 0; k < comb.length; k++) {
 				distancesForT[k][i] = currentSum[k];
@@ -449,21 +450,21 @@ public class BaseCaseMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 		double[][] ranksForT = new double[comb.length][];
 		
 		for (int k = 0; k < comb.length; k++) {
-			ranksForT[k] = rankingAlgorithm.rank(distancesForT[k]);
+//			ranksForT[k] = rankingAlgorithm.rank(distancesForT[k]);
+			ranksForT[k] = rankingAlgorithm.rank(Arrays.stream(distancesForT[k],0,limit).toArray());
 		} // for (int k = 0; k < numberOfFeatures; k++)
 		
 		
-		int bestPosition = bestAlignmentByRanking(ranksForT,comb);
+		int bestPosition = super.bestAlignmentByRanking(ranksForT, comb);
 		
 		double[] bestAlignment = new double[comb.length];
 		
 		for (int j = 0; j < comb.length; j++) {
 			
-			double distance = distancesForT[j][bestPosition];
+			double distance = (bestPosition >= 0) ? distancesForT[j][bestPosition] : MAX_VALUE;
 			
-			bestAlignment[j] = 
-					(distance != MAX_VALUE) ? Math.sqrt(distance / menor.size()) 
-												   : MAX_VALUE;
+			bestAlignment[j] = (distance != MAX_VALUE) ? 
+					Math.sqrt( distance / size ) : MAX_VALUE;
 			
 		} // for (int j = 0; j < comb.length; j++)
 		
@@ -473,58 +474,6 @@ public class BaseCaseMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 //		return bestAlignment;
 		return new Pair<>(new Subtrajectory(start, end , t), bestAlignment);
 	}
-	
-//	public int bestAlignmentByRanking(double[][] ranksForT, int[] comb) {
-//		
-//		double[] rankMerged = new double[ranksForT[0].length];
-//		
-////		if (ranksForT.length > 1)
-//			// In case it's a combination of more than one dimension
-//			for (int i = 0; i < comb.length; i++) {
-//				for (int j = 0; j < ranksForT[0].length; j++) {
-//					rankMerged[j] += ranksForT[comb[i]][j];
-////					rankMerged[j] += ranksForT[i][j]; // It's indexed differently now
-//				}
-//			}
-////		else
-////			// It's one dimention, no need to merge (use directly)
-////			rankMerged = ranksForT[0];
-//
-//		int minRankIndex = 0;
-//		for (int j = 1; j < rankMerged.length; j++) {
-//			if (rankMerged[j] < rankMerged[minRankIndex])
-//				minRankIndex = j;
-//		}
-//		
-//		return minRankIndex;
-//	}
-
-//	public List<Subtrajectory> buildSubtrajectory(
-//			int start, int end, MAT<MO> t, double[][][][] mdist, int numberOfTrajectories, int[][] combinations){
-//		
-//		List<Subtrajectory> list = new ArrayList<>();
-//		
-//		for (int k = 0; k < combinations.length; k++) {
-//			list.add(new Subtrajectory(start, end, t, numberOfTrajectories, combinations[k], k));
-//		}
-//				
-//		return list;
-//	}
-	
-
-	
-	/*** * * * * * * * * * * * * * * * * * * ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * >>
-	 * HERE FOLLOWS THE QUALITY ASSESMENT:    * * * * * * * * * * * * * * * * * * * * * * * * * * * * * >>
-	 *** * * * * * * * * * * * * * * * * * * **/
-	
-	/**
-	 * @param x
-	 * @param random
-	 * @return
-	 */
-//	public void assesQuality(Subtrajectory candidate, Random random) {
-//		qualityMeasure.assesQuality(candidate, random);
-//	}
 	
 	/*** * * * * * * * * * * * * * * * * * * ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * >>
 	 * HERE FOLLOWS THE OUTPUT TRANSFORMATIONS:     * * * * * * * * * * * * * * * * * * * * * * * * * * >>

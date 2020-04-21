@@ -39,6 +39,11 @@ public class ProgressBar {
     public synchronized void plus() {
     	this.done++;
     	update(done, this.total, null);
+    }   
+
+    public synchronized void plus(String message) {
+    	this.done++;
+    	update(done, this.total, message);
     }
 
 	public synchronized void plus(long size) {
@@ -63,7 +68,7 @@ public class ProgressBar {
         char[] workchars = {'|', '/', '-', '\\'};
         String format = this.control + "%s: %c [%s%s] %3d%% %s";
         message = (message != null? ">> "+message : "");
-        message += CharBuffer.allocate( 500 - message.length() ).toString().replace( '\0', ' ' );
+        message += CharBuffer.allocate( 250 - message.length() ).toString().replace( '\0', ' ' );
 
         int percent = (int) ((++done * 100) / total);
         int extrachars = (percent / 2) - this.progress.length();

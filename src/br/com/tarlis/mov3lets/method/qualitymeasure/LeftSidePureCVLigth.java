@@ -24,13 +24,13 @@ import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instances;
 
-public class LeftSidePureCVLigth extends QualityMeasure {
+public class LeftSidePureCVLigth<MO> extends QualityMeasure {
 
 //	private List<MAT> trajectories;
 	
-	private List<String> labels;	
+	private List<MO> labels;	
 	
-	private Map<String,Long> classes;
+	private Map<MO,Long> classes;
 	
 	private int samples = 1;
 	
@@ -40,12 +40,12 @@ public class LeftSidePureCVLigth extends QualityMeasure {
 	
 //	private RankingAlgorithm rankingAlgorithm = new NaturalRanking();
 	
-	public <MO> LeftSidePureCVLigth(List<MAT<MO>> trajectories, int samples, double sampleSize, String medium) {
+	public LeftSidePureCVLigth(List<MAT<MO>> trajectories, int samples, double sampleSize, String medium) {
 //		this.trajectories = trajectories;
 		this.labels = new ArrayList<>();
 	
 		for (int j = 0; j < trajectories.size(); j++) {
-			labels.add(trajectories.get(j).getMovingObject().toString());
+			labels.add(trajectories.get(j).getMovingObject());
 		}		
 		this.classes = this.labels.stream().collect(Collectors.groupingBy(e -> e, Collectors.counting()));
 		this.samples = samples;
@@ -64,7 +64,7 @@ public class LeftSidePureCVLigth extends QualityMeasure {
 		return true;
 	}
 	
-	private List<double[]> prunePoints(double[][] distances, String target, List<String> labels){
+	private List<double[]> prunePoints(double[][] distances, MO target, List<MO> labels){
 		
 		List<Pair<MutableBoolean,double[]>> nonTargetDistances = new ArrayList<>();
 		RealMatrix rm = new Array2DRowRealMatrix(distances);
@@ -215,7 +215,7 @@ public class LeftSidePureCVLigth extends QualityMeasure {
 		return dest;		
 	}
 	
-	private Pair<Integer,double[]> getBestSplitpoints(double[][] distances, String target, List<String> labels, List<double[]> candidates) {
+	private Pair<Integer,double[]> getBestSplitpoints(double[][] distances, MO target, List<MO> labels, List<double[]> candidates) {
 		
 		List<double[]> targetDistances = new ArrayList<>();
 		RealMatrix rm = new Array2DRowRealMatrix(distances);
@@ -243,7 +243,7 @@ public class LeftSidePureCVLigth extends QualityMeasure {
 		return new Pair<Integer,double[]>(bestCount,bestCandidate);
 	}
 	
-	private Pair<double[][],List<String>> choosePointsStratified(double[][] distances, List<String> labels, String target, Random random){
+	private Pair<double[][],List<MO>> choosePointsStratified(double[][] distances, List<MO> labels, MO target, Random random){
 		
 		if (this.sampleSize == 1){
 			return new Pair<>(distances,labels);
@@ -266,7 +266,7 @@ public class LeftSidePureCVLigth extends QualityMeasure {
 		
 		// Selecionar os dados
 		double[][] newDistances = new double[distances.length][choosed.size()];
-		List<String> newLabels = new ArrayList<>();
+		List<MO> newLabels = new ArrayList<>();
 		
 		for (int i = 0; i < choosed.size(); i++) {
 			for (int j = 0; j < newDistances.length; j++) {
@@ -279,10 +279,10 @@ public class LeftSidePureCVLigth extends QualityMeasure {
 		return new Pair<>(newDistances,newLabels);
 	}
 	
-	private Map<String,double[]> getBestSplitpointsCV(Subtrajectory candidate, double[][] distances, String target, Random random) {
+	private Map<String,double[]> getBestSplitpointsCV(Subtrajectory candidate, double[][] distances, MO target, Random random) {
 		
 		List<Pair<Integer,double[]>> results = new ArrayList<>();		
-		Pair<double[][],List<String>> chosePoints = null;
+		Pair<double[][],List<MO>> chosePoints = null;
 		
 		for (int i = 0; i < this.samples; i++) {			
 			
@@ -349,7 +349,7 @@ public class LeftSidePureCVLigth extends QualityMeasure {
 		return count;
 	}
 	
-	public double getInformationGain(double[][] distances, List<String> labels, Map<String, double[]> splitpointsData){
+	public double getInformationGain(double[][] distances, List<MO> labels, Map<String, double[]> splitpointsData){
 		
 		/* First we are going to discretize the distances into a 
 		 * binary vector, where each value can assume two possible values
@@ -357,7 +357,7 @@ public class LeftSidePureCVLigth extends QualityMeasure {
 		 * 2. above or equal the splitpoint 
 		 * */
 		ArrayList<Attribute> atts = new ArrayList<Attribute>(2);
-		ArrayList<String> strClasses = new ArrayList<String>(classes.keySet());
+		ArrayList<MO> strClasses = new ArrayList<MO>(classes.keySet());
 		ArrayList<String> strClassesNumber = new ArrayList<>();
 		for (int i = 0; i < strClasses.size(); i++) {
 			strClassesNumber.add(Integer.toString(i));
@@ -395,7 +395,7 @@ public class LeftSidePureCVLigth extends QualityMeasure {
 	}
 	
 	
-	public double getFMeasure(double[][] distances, List<String> labels, Map<String, double[]> splitpointsData, String target){
+	public double getFMeasure(double[][] distances, List<MO> labels, Map<String, double[]> splitpointsData, MO target){
 		
 		/* First we are going to discretize the distances into a 
 		 * binary vector, where each value can assume two possible values
@@ -403,7 +403,7 @@ public class LeftSidePureCVLigth extends QualityMeasure {
 		 * 2. above or equal the splitpoint 
 		 * */
 		ArrayList<Attribute> atts = new ArrayList<Attribute>(2);
-		ArrayList<String> strClasses = new ArrayList<String>(classes.keySet());
+		ArrayList<MO> strClasses = new ArrayList<MO>(classes.keySet());
 		ArrayList<String> strClassesNumber = new ArrayList<>();
 		for (int i = 0; i < strClasses.size(); i++) {
 			strClassesNumber.add(Integer.toString(i));
@@ -443,7 +443,7 @@ public class LeftSidePureCVLigth extends QualityMeasure {
 		return f1;		
 	}
 
-	public double getInformationGainMedium(double[][] distances, List<String> labels, Map<String, double[]> splitpointsData){
+	public double getInformationGainMedium(double[][] distances, List<MO> labels, Map<String, double[]> splitpointsData){
 		
 		/* First we are going to discretize the distances into a 
 		 * binary vector, where each value can assume two possible values
@@ -451,7 +451,7 @@ public class LeftSidePureCVLigth extends QualityMeasure {
 		 * 2. above or equal the splitpoint 
 		 * */
 		ArrayList<Attribute> atts = new ArrayList<Attribute>(2);
-		ArrayList<String> strClasses = new ArrayList<String>(classes.keySet());
+		ArrayList<MO> strClasses = new ArrayList<MO>(classes.keySet());
 		ArrayList<String> strClassesNumber = new ArrayList<>();
 		for (int i = 0; i < strClasses.size(); i++) {
 			strClassesNumber.add(Integer.toString(i));
@@ -502,7 +502,7 @@ public class LeftSidePureCVLigth extends QualityMeasure {
 	public void assesQuality(Subtrajectory candidate, Random random) {
 		
 		double[][] distances = candidate.getDistances();				
-		String target = candidate.getTrajectory().getMovingObject().toString();
+		MO target = (MO) candidate.getTrajectory().getMovingObject();
 		
 		Map<String,double[]> splitpointsData = getBestSplitpointsCV(candidate, distances, target, random);				
 		
@@ -544,5 +544,8 @@ public class LeftSidePureCVLigth extends QualityMeasure {
 		return maxDistances;
 	}
 
-
+	public void assesQuality(Subtrajectory candidate) {
+		// TODO not used
+		assesQuality(candidate, new Random());
+	}
 }

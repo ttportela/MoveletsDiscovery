@@ -40,31 +40,29 @@ import br.com.tarlis.mov3lets.utils.Mov3letsUtils;
 public class Mov3letsRun {
 	
 	public static void main(String[] args) {
-		// Starting Date:
-		Mov3letsUtils.trace(new Date().toString());
-
 		// PARAMS:
 		HashMap<String, Object> params = configure(args);
+
+		// Config to - Show trace messages OR Ignore all
+		if (params.containsKey("verbose") && (Boolean) params.get("verbose"))
+			Mov3letsUtils.getInstance().configLogger();
+		
+		// Starting Date:
+		Mov3letsUtils.trace(new Date().toString());
 		
 		if (!params.containsKey("descfile")) {
 			showUsage(params, "-descfile\tDescription file must be set!");
 			return;
 		}
 		String descFile = params.get("descfile").toString();
-
-		// Config to - Show trace messages OR Ignore all
-		if (params.containsKey("verbose") && (Boolean) params.get("verbose"))
-			Mov3letsUtils.getInstance().configLogger();
-		
-//		String inputFile = (args.length > 1? args[1] : "data/foursquare.csv");
-		
+				
 		// 2 - RUN
 		Mov3lets<String> mov;
 		try {
 			mov = new Mov3lets<String>(descFile);
 		} catch (UnsupportedEncodingException | FileNotFoundException e) {
 			showUsage(params, "-descfile\tDescription file not found!");
-			e.printStackTrace();
+//			e.printStackTrace();
 			return;
 		}
 
@@ -76,10 +74,9 @@ public class Mov3letsRun {
 //				Mov3letsUtils.getInstance().printMemory();
 		try {
 			mov.setTrain(mov.loadTrajectories("train"));
-			mov.setTest(mov.loadTrajectories("test"));
 		} catch (IOException e) {
-			showUsage(params, "-curpath\tCould not load train dataset!");
-			e.printStackTrace();
+			showUsage(params, "-curpath\tCould not load train dataset: " + e.getMessage());
+//			e.printStackTrace();
 			return;
 		}
 		
@@ -88,7 +85,7 @@ public class Mov3letsRun {
 			mov.setTest(mov.loadTrajectories("test"));
 		} catch (IOException e) {
 			// Empty if can't
-			Mov3letsUtils.trace("Empty test dataset... [continue]");
+			Mov3letsUtils.trace("Empty test dataset: "+ e.getMessage() +" [continue]");
 			mov.setTest(new ArrayList<MAT<String>>());
 		}
 		
@@ -163,7 +160,7 @@ public class Mov3letsRun {
 		params.put("explore_dimensions",		 false);
 		params.put("max_number_of_features",	 -1);
 		params.put("samples",					 1);			
-		params.put("sample_size",				 1);			
+		params.put("sample_size",				 0.5);			
 		params.put("medium",					 "none"); // Other values minmax, sd, interquartil
 		params.put("output",					 "numeric"); // Other values numeric discretized				
 		params.put("pivots",					 false);						

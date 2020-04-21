@@ -67,7 +67,7 @@ public abstract class QualityMeasure {
 		
 		}		
 		
-		return new Pair<double[], double[]>(splitpointsLI,splitpointsLS);
+		return new Pair(splitpointsLI,splitpointsLS);
 	}
 	
 	public boolean isCovered(double[] point, double[] limits){

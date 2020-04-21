@@ -36,7 +36,7 @@ import br.com.tarlis.mov3lets.model.aspect.Aspect;
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  *
  */
-public class SuperMoveletsDiscovery<MO> extends BaseCaseMoveletsDiscovery<MO> {
+public class SuperMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 	
 	
 	/**

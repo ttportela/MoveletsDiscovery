@@ -91,7 +91,7 @@ public abstract class DistanceMeasure<A extends Aspect<?>> {
 	}
 	
 	public double calculateDistance(Aspect<?> asp0, Aspect<?> asp1, AttributeDescriptor attr) {
-		return (distance((A) asp0, (A) asp1, attr));
+		return enhance(distance((A) asp0, (A) asp1, attr));
 	}
 	
 }

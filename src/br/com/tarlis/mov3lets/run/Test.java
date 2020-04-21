@@ -17,9 +17,8 @@
  */
 package br.com.tarlis.mov3lets.run;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.io.BufferedReader;
+import java.io.FileReader;
 
 /**
  * @author Tarlis Portela <tarlis@tarlis.com.br>
@@ -31,147 +30,86 @@ public class Test {
 	 * @param args
 	 */
 	public static void main(String[] arg) throws Exception {
-		List<Double> numbers = new ArrayList<Double>(
-			    Arrays.asList(5.0,3.0,1.0,2.0,9.0,5.0,0.0,7.0,8.0)
-			);
-
-//		ProgressBar bar = new ProgressBar("Computing Base Distances");
-//
-////        System.out.println("Process Starts Now!");
-//
-//        bar.update(0, 1000);
-//        for(int i=0;i<1100;i++) {
-//                        // do something!
-//            for(int j=0;j<10000000;j++)
-//                for(int p=0;p<10000000;p++);
-//            // update the progress bar
-//            bar.update(i, 1000);
-//            bar.trace("Testendo: " + i);
-//        }
-//        System.out.println("Process Completed!");
+		BufferedReader reader1 = new BufferedReader(new FileReader("data/MM_output.txt"));
 		
-		// create an empty array list with an initial capacity
-//	    SparseVector arr = new SparseVector()	
+		BufferedReader reader2 = new BufferedReader(new FileReader("data/M3_output.txt"));
+		
+		String line1 = reader1.readLine();
+		
+		String line2 = reader2.readLine();
+		
+		boolean areEqual = true;
+		
+		int lineNum = 1;
+		
+		while (line1 != null || line2 != null)
+		{
+			if(line1 == null || line2 == null)
+			{
+				areEqual = false;
+				
+				break;
+			}
+			else if(! line1.equalsIgnoreCase(line2))
+			{
+				areEqual = false;
+				
+//				break;
+			}
+			
+			if(!areEqual) {
+				System.out.println("Diff Line-"+lineNum + " at " + indexOfDifference(line1, line2));
+				System.out.println("\t"+line1);
+				System.out.println("\t"+line2);
+			}
+			
+			line1 = reader1.readLine();
+			
+			line2 = reader2.readLine();
+
+			areEqual = true;
+			lineNum++;
+		}
+		
+		System.out.println("Last line: " + lineNum);
+		
+		reader1.close();
+		
+		reader2.close();
+	}
+
+	static int INDEX_NOT_FOUND = -1;
+	public static String difference(String str1, String str2) {
+	    if (str1 == null) {
+	        return str2;
+	    }
+	    if (str2 == null) {
+	        return str1;
+	    }
+	    int at = indexOfDifference(str1, str2);
+	    if (at == INDEX_NOT_FOUND) {
+	        return null;
+	    }
+	    return str2.substring(at);
+	}
+
+	public static int indexOfDifference(CharSequence cs1, CharSequence cs2) {
+	    if (cs1 == cs2) {
+	        return INDEX_NOT_FOUND;
+	    }
+	    if (cs1 == null || cs2 == null) {
+	        return 0;
+	    }
+	    int i;
+	    for (i = 0; i < cs1.length() && i < cs2.length(); ++i) {
+	        if (cs1.charAt(i) != cs2.charAt(i)) {
+	            break;
+	        }
+	    }
+	    if (i < cs2.length() || i < cs1.length()) {
+	        return i;
+	    }
+	    return INDEX_NOT_FOUND;
 	}
 	
-	 // the exception comes from the use of accessing the main thread
-//    public static void main(String[] args) throws InterruptedException
-//    {
-//        /*
-//            Notice the user of print as opposed to println:
-//            the '\b' char cannot go over the new line char.
-//        */
-//        System.out.print("Start[          ]");
-//        System.out.flush(); // the flush method prints it to the screen
-//
-//        // 11 '\b' chars: 1 for the ']', the rest are for the spaces
-//        System.out.print("\u0008\u0008\u0008\u0008\u0008\u0008\u0008\u0008\u0008\u0008\u0008");
-//        System.out.flush();
-//        Thread.sleep(500); // just to make it easy to see the changes
-//
-//        for(int i = 0; i < 10; i++)
-//        {
-//            System.out.print("."); //overwrites a space
-//            System.out.flush();
-//            Thread.sleep(100);
-//        }
-//
-//        System.out.print("] Done\n"); //overwrites the ']' + adds chars
-//        System.out.flush();
-//    }
-
 }
-
-//class ProgressBar {
-//    private StringBuilder progress;
-////	private int progress = -1;
-//	private String mark = "-";
-//
-//	/**
-//	 * initialize progress bar properties.
-//	 */
-//	public ProgressBar() {
-//		start();
-//	}
-//
-//	/**
-//	 * called whenever the progress bar needs to be updated. that is whenever
-//	 * progress was made.
-//	 *
-//	 * @param done  an int representing the work done so far
-//	 * @param total an int representing the total work
-//	 */
-//	public void update(int done, int total) {
-////		if (this.progress == -1) {
-////			start();
-////		}
-//        char[] workchars = {'|', '/', '-', '\\'};
-//        String format = "\r%3d%% [%s] %c";
-//
-//		int percent = (++done * 100) / total;
-//		int extrachars = (percent / 2) - this.progress.length();
-//
-////		this.progress += extrachars;
-//
-////		if (extrachars > 0 && !printStep())
-////			while (extrachars-- > 0) {
-////				System.out.print(mark);
-////			}
-//        while (extrachars-- > 0) {
-//            progress.append(mark);
-//        }
-//
-//        System.out.printf(format, percent, progress,
-//         workchars[done % workchars.length]);
-//
-////		if (done == total) {
-////			stop();
-////		}
-//	}
-//
-////	private boolean printStep() {
-////		switch (this.progress * 2) {
-////		case 10:
-////			System.out.print("10%");
-////			return true;
-////		case 20:
-////			System.out.print("20%");
-////			return true;
-////		case 30:
-////			System.out.print("30%");
-////			return true;
-////		case 40:
-////			System.out.print("40%");
-////			return true;
-////		case 50:
-////			System.out.print("50%");
-////			return true;
-////		case 60:
-////			System.out.print("60%");
-////			return true;
-////		case 70:
-////			System.out.print("70%");
-////			return true;
-////		case 80:
-////			System.out.print("80%");
-////			return true;
-////		case 90:
-////			System.out.print("90%");
-////			return true;
-////		}
-////		return false;
-////	}
-////
-//	private void start() {
-////		this.progress = 0;
-////		System.out.print("[");
-//        this.progress = new StringBuilder(60);
-//	}
-////
-////	private void stop() {
-////		System.out.print("] 100%");
-////		System.out.flush();
-////		System.out.println();
-//////        init();
-////	}
-//}
