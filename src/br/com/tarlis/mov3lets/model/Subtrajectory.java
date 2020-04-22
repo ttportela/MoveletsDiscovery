@@ -126,7 +126,7 @@ public class Subtrajectory {
 //		string += "Size: " + getSize() + ", ";
 //		string += "Label: " + getTrajectory().getMovingObject().toString() + "\n";
 //		string += "Distances: \n";
-		string += "Size: " + getSize() + "\n";
+		string += "Size: " + getSize() + ", Features: " + Arrays.toString(getPointFeatures()) + "\n";
 		string += "Origin: t" + getTrajectory().getTid() + " from " + start + " to " + end + "\n";
 		string += "Quality: " + getQuality() + "\n";
 		string += "Label: " + getTrajectory().getMovingObject().toString() + "\n";

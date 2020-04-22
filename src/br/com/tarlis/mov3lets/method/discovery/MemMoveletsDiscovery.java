@@ -186,17 +186,8 @@ public class MemMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 	
 //		base =  null;
 		lastSize = null;
-
-//		System.out.println("\nCANDIDATES:");
-//		for (int i = 0; i < candidates.size(); i++) {
-//			System.out.println(i +" => "+ candidates.get(i));
-//		}
-
-		candidates = filterMovelets(candidates);
 		
-//		for (int i = 0; i < candidates.size(); i++) {
-//			System.out.println(i +" => "+ candidates.get(i));
-//		}
+		candidates = filterMovelets(candidates);
 		
 		progressBar.plus("Class: " + trajectory.getMovingObject() 
 						+ ". Trajectory: " + trajectory.getTid() 

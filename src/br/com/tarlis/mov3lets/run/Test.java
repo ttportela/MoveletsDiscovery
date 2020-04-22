@@ -30,52 +30,58 @@ public class Test {
 	 * @param args
 	 */
 	public static void main(String[] arg) throws Exception {
-		BufferedReader reader1 = new BufferedReader(new FileReader("data/MM_output.txt"));
-		
-		BufferedReader reader2 = new BufferedReader(new FileReader("data/M3_output.txt"));
-		
-		String line1 = reader1.readLine();
-		
-		String line2 = reader2.readLine();
-		
-		boolean areEqual = true;
-		
-		int lineNum = 1;
-		
-		while (line1 != null || line2 != null)
-		{
-			if(line1 == null || line2 == null)
-			{
-				areEqual = false;
-				
-				break;
-			}
-			else if(! line1.equalsIgnoreCase(line2))
-			{
-				areEqual = false;
-				
+//		BufferedReader reader1 = new BufferedReader(new FileReader("data/MM_output.txt"));
+//		
+//		BufferedReader reader2 = new BufferedReader(new FileReader("data/M3_output.txt"));
+//		
+//		String line1 = reader1.readLine();
+//		
+//		String line2 = reader2.readLine();
+//		
+//		boolean areEqual = true;
+//		
+//		int lineNum = 1;
+//		
+//		while (line1 != null || line2 != null)
+//		{
+//			if(line1 == null || line2 == null)
+//			{
+//				areEqual = false;
+//				
 //				break;
-			}
-			
-			if(!areEqual) {
-				System.out.println("Diff Line-"+lineNum + " at " + indexOfDifference(line1, line2));
-				System.out.println("\t"+line1);
-				System.out.println("\t"+line2);
-			}
-			
-			line1 = reader1.readLine();
-			
-			line2 = reader2.readLine();
-
-			areEqual = true;
-			lineNum++;
-		}
+//			}
+//			else if(! line1.equalsIgnoreCase(line2))
+//			{
+//				areEqual = false;
+//				
+////				break;
+//			}
+//			
+//			if(!areEqual) {
+//				System.out.println("Diff Line-"+lineNum + " at " + indexOfDifference(line1, line2));
+//				System.out.println("\t"+line1);
+//				System.out.println("\t"+line2);
+//			}
+//			
+//			line1 = reader1.readLine();
+//			
+//			line2 = reader2.readLine();
+//
+//			areEqual = true;
+//			lineNum++;
+//		}
+//		
+//		System.out.println("Last line: " + lineNum);
+//		
+//		reader1.close();
+//		
+//		reader2.close();
 		
-		System.out.println("Last line: " + lineNum);
+		double qDiff = (int) ((0.011516314779270634 - 0.00980392156862745) * 1000);
+		System.out.println(qDiff);
+		qDiff = ( qDiff ) / 1000.0;
 		
-		reader1.close();
-		
-		reader2.close();
+		System.out.println(qDiff);
 	}
 
 	static int INDEX_NOT_FOUND = -1;

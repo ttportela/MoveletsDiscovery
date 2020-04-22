@@ -351,8 +351,8 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 //				values = mdist.getBaseDistances(menor.get(j), maior.get(i + j), comb);
 
 				for (int k = 0; k < comb.length; k++) {					
-//					if (currentSum[k] != MAX_VALUE && values[k] != MAX_VALUE)
-					if (currentSum[k] < MAX_VALUE)
+					if (currentSum[k] != MAX_VALUE && values[k] != MAX_VALUE)
+//					if (currentSum[k] < MAX_VALUE)
 						currentSum[k] += values[k]; // * values[comb[k]];
 //						distancesForT[k][i] = values[k];
 					else {

@@ -37,6 +37,7 @@ import br.com.tarlis.mov3lets.method.discovery.HiperMoveletsDiscovery;
 import br.com.tarlis.mov3lets.method.discovery.MoveletsDiscovery;
 import br.com.tarlis.mov3lets.method.discovery.PivotsMoveletsDiscovery;
 import br.com.tarlis.mov3lets.method.discovery.PrecomputeMoveletsDiscovery;
+import br.com.tarlis.mov3lets.method.discovery.ProgressiveMoveletsDiscovery;
 import br.com.tarlis.mov3lets.method.discovery.SuperMoveletsDiscovery;
 import br.com.tarlis.mov3lets.method.loader.DefaultLoader;
 import br.com.tarlis.mov3lets.method.loader.IndexedLoader;
@@ -185,6 +186,10 @@ public class Mov3lets<MO> {
 				} else if (getDescriptor().getParamAsText("version").equals("3.0")) {
 					
 					moveletsDiscovery = new PrecomputeMoveletsDiscovery<MO>(trajsFromClass, data, train, test, candidates, qualityMeasure, getDescriptor());
+				
+				} else if (getDescriptor().getParamAsText("version").equals("4.0")) {
+					
+					moveletsDiscovery = new ProgressiveMoveletsDiscovery<MO>(trajsFromClass, data, train, test, candidates, qualityMeasure, getDescriptor());
 				
 				} else {
 					
