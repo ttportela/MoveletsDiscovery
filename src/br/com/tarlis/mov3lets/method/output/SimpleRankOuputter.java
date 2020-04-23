@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import br.com.tarlis.mov3lets.method.descriptor.Descriptor;
+import br.com.tarlis.mov3lets.method.structures.descriptor.Descriptor;
 import br.com.tarlis.mov3lets.model.MAT;
 import br.com.tarlis.mov3lets.model.Subtrajectory;
 
@@ -92,8 +92,8 @@ public class SimpleRankOuputter<MO> extends OutputterAdapter<MO> {
 			item.put("size", 		m.getSize() + "");
 			item.put("start", 		m.getStart()+"");
 			item.put("end", 		m.getEnd()+"");
-			item.put("quality", 	m.getQuality().getData().get("quality") + "");
-			item.put("proportion", 	m.getProportionInClass() + "");
+			item.put("quality", 	m.getQuality().toString());
+//			item.put("proportion", 	m.getProportionInClass() + "");
 //			System.out.print("\t\t["+(i+1)+"ª]: "
 //					+ item.toString());
 			if (!trajs.contains(m.getTrajectory().getTid())) {

@@ -21,11 +21,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import br.com.tarlis.mov3lets.method.descriptor.Descriptor;
 import br.com.tarlis.mov3lets.method.distancemeasure.DistanceMeasure;
 import br.com.tarlis.mov3lets.method.output.CSVOutputter;
 import br.com.tarlis.mov3lets.method.output.JSONOutputter;
 import br.com.tarlis.mov3lets.method.output.OutputterAdapter;
+import br.com.tarlis.mov3lets.method.structures.descriptor.Descriptor;
 import br.com.tarlis.mov3lets.model.MAT;
 import br.com.tarlis.mov3lets.model.Subtrajectory;
 import br.com.tarlis.mov3lets.utils.ProgressBar;
@@ -82,6 +82,8 @@ public abstract class DiscoveryAdapter<MO> implements Callable<Integer> {
 	public Integer call() throws Exception {
 		
 		discover();
+		
+		System.gc();
 		
 		return 0;
 	}

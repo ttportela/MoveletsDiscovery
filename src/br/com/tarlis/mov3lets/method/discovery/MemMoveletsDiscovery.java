@@ -24,9 +24,9 @@ import java.util.Random;
 
 import org.apache.commons.math3.util.Pair;
 
-import br.com.tarlis.mov3lets.method.descriptor.AttributeDescriptor;
-import br.com.tarlis.mov3lets.method.descriptor.Descriptor;
 import br.com.tarlis.mov3lets.method.qualitymeasure.QualityMeasure;
+import br.com.tarlis.mov3lets.method.structures.descriptor.AttributeDescriptor;
+import br.com.tarlis.mov3lets.method.structures.descriptor.Descriptor;
 import br.com.tarlis.mov3lets.model.MAT;
 import br.com.tarlis.mov3lets.model.Point;
 import br.com.tarlis.mov3lets.model.Subtrajectory;
@@ -73,11 +73,6 @@ public class MemMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 	//		Mov3letsUtils.getInstance().stopTimer("\tClass >> " + trajectory.getClass());
 			
 			/** Summary Candidates: */
-			
-			/** STEP 2.2: Runs the pruning process */
-			if(getDescriptor().getFlag("last_prunning"))
-				candidates = lastPrunningFilter(candidates);
-			/** STEP 2.2: --------------------------------- */
 	
 			/** STEP 2.3, for this trajectory movelets: 
 			 * It transforms the training and test sets of trajectories using the movelets */
@@ -85,13 +80,19 @@ public class MemMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 				// It initializes the set of distances of all movelets to null
 				candidate.setDistances(null);
 				// In this step the set of distances is filled by this method
-				computeDistances(candidate, this.train, base); // computeDistances(movelet, trajectories);
+				computeDistances(candidate, this.train); //, base); // computeDistances(movelet, trajectories);
 				
 				assesQuality(candidate, random);
 			}
 
 			/** STEP 2.4: SELECTING BEST CANDIDATES */			
 			candidates = filterMovelets(candidates);
+
+			/** STEP 2.2: Runs the pruning process */
+			if(getDescriptor().getFlag("last_prunning"))
+				candidates = lastPrunningFilter(candidates);
+			/** STEP 2.2: --------------------------------- */
+			
 			movelets.addAll(candidates);
 			
 			/** STEP 2.3.1: Output Movelets (partial) */
@@ -107,7 +108,7 @@ public class MemMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 					// It initializes the set of distances of all movelets to null
 					candidate.setDistances(null);
 					// In this step the set of distances is filled by this method
-					computeDistances(candidate, this.test, computeBaseDistances(trajectory, this.test));
+					computeDistances(candidate, this.test); //, computeBaseDistances(trajectory, this.test));
 				}
 				super.output("test", this.test, candidates, true);
 			}
@@ -352,7 +353,10 @@ public class MemMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 		
 	}
 	
-	public int bestAlignmentByRanking(double[][] ranksForT, int[] comb) {
+	public int bestAlignmentByRanking(double[][] ranksForT, int[] comb, boolean reindex) {
+		
+		if (reindex)
+			return super.bestAlignmentByRanking(ranksForT, comb);
 		
 		double[] rankMerged = new double[ranksForT[0].length];
 		
@@ -391,7 +395,7 @@ public class MemMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 				
 		int[] comb = s.getPointFeatures();
 		double[] currentSum = new double[comb.length];
-//		double[] values = new double[numberOfFeatures];
+		double[] values = new double[numberOfFeatures];
 		double[][] distancesForT = new double[comb.length][diffLength+1];
 						
 		double[] x = new double[comb.length];
@@ -403,50 +407,40 @@ public class MemMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 						
 			for (int j = 0; j < menor.size(); j++) {
 
-//				values = getDistances(menor.get(j), maior.get(i + j));
-				// Here we get from mdist:
-//				double[][][] distancesForAllT = mdist[i];
-//				values = mdist[i][j].getBaseDistances(menor.get(j), maior.get(i + j), comb);
-
-				for (int k = 0; k < comb.length; k++) {
-					if (currentSum[k] != MAX_VALUE && mdist[s.getStart()+j][idxt][comb[k]][i+j] != MAX_VALUE)
-						currentSum[k] += mdist[s.getStart()+j][idxt][comb[k]][i+j]; //values[comb[k]] * values[comb[k]];
-					else {
-						currentSum[k] = MAX_VALUE;
+				if (mdist == null) {
+					values = getDistances(menor.get(j), maior.get(i + j), comb);
+					
+					for (int k = 0; k < comb.length; k++) {					
+						if (currentSum[k] != MAX_VALUE && values[k] != MAX_VALUE)
+							currentSum[k] += values[k];
+						else 
+							currentSum[k] = MAX_VALUE;
+						
 					}
-				}
-				
-				
-//				if (firstVectorGreaterThanTheSecond(currentSum, x) ){
-//					for (int k = 0; k < comb.length; k++) {
-//						currentSum[k] = MAX_VALUE;
-//					}					
-//					break;					
-//				} 											
-				
-			}
+				} else {
+					for (int k = 0; k < comb.length; k++) {
+						if (currentSum[k] != MAX_VALUE && mdist[s.getStart()+j][idxt][comb[k]][i+j] != MAX_VALUE)
+							currentSum[k] += mdist[s.getStart()+j][idxt][comb[k]][i+j]; //values[comb[k]] * values[comb[k]];
+						else
+							currentSum[k] = MAX_VALUE;
 			
-//			if (firstVectorGreaterThanTheSecond(x, currentSum) ){
-//				for (int k = 0; k < comb.length; k++) {
-//					x[k] = currentSum[k];					
-//				}				
-//			}
+					}
+				}	
+			}
 			
 			for (int k = 0; k < comb.length; k++) {
 				distancesForT[k][i] = currentSum[k];
 			}
 		}
 		
-//		double[][] ranksForT = new double[distancesForT.length][];
 		double[][] ranksForT = new double[comb.length][];
 		
 		for (int k = 0; k < comb.length; k++) {
-//			ranksForT[k] = rankingAlgorithm.rank(distancesForT[k]);
 			ranksForT[k] = rankingAlgorithm.rank(Arrays.stream(distancesForT[k],0,limit).toArray());
 		} // for (int k = 0; k < numberOfFeatures; k++)
 		
 		
-		int bestPosition = super.bestAlignmentByRanking(ranksForT, comb);
+		int bestPosition = bestAlignmentByRanking(ranksForT, comb, (mdist == null? true : false));
 		
 		double[] bestAlignment = new double[comb.length];
 		

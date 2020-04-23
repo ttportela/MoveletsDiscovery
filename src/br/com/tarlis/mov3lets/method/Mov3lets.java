@@ -30,7 +30,6 @@ import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import br.com.tarlis.mov3lets.method.descriptor.Descriptor;
 import br.com.tarlis.mov3lets.method.discovery.MemMoveletsDiscovery;
 import br.com.tarlis.mov3lets.method.discovery.DiscoveryAdapter;
 import br.com.tarlis.mov3lets.method.discovery.HiperMoveletsDiscovery;
@@ -48,6 +47,7 @@ import br.com.tarlis.mov3lets.method.output.JSONOutputter;
 import br.com.tarlis.mov3lets.method.output.OutputterAdapter;
 import br.com.tarlis.mov3lets.method.qualitymeasure.LeftSidePureCVLigth;
 import br.com.tarlis.mov3lets.method.qualitymeasure.QualityMeasure;
+import br.com.tarlis.mov3lets.method.structures.descriptor.Descriptor;
 import br.com.tarlis.mov3lets.model.MAT;
 import br.com.tarlis.mov3lets.model.Subtrajectory;
 import br.com.tarlis.mov3lets.utils.Mov3letsUtils;
@@ -101,14 +101,15 @@ public class Mov3lets<MO> {
 									    		getDescriptor().getParamAsDouble("sample_size"), 
 									    		getDescriptor().getParamAsText("medium"));
 
-//		List<Subtrajectory> candidates = new ArrayList<Subtrajectory>();
-		List<DiscoveryAdapter<MO>> lsMDs = instantiate(classes, null, qualityMeasure);		
+//		List<Subtrajectory> candidates = new ArrayList<Subtrajectory>();	
 		
 		/* Keeping up with Progress output */
 		ProgressBar progressBar = new ProgressBar("[2] >> Movelet Discovery", train.size());
 //		progressBar.setInline(false);
 		int progress = 0;
 		progressBar.update(progress, train.size());
+		
+		List<DiscoveryAdapter<MO>> lsMDs = instantiate(classes, null, qualityMeasure, progressBar);	
 		
 		if (N_THREADS > 1) {
 			ExecutorService executor = (ExecutorService) 
@@ -156,7 +157,7 @@ public class Mov3lets<MO> {
 //		Mov3letsUtils.getInstance().startTimer("[2.1] >> Extracting Movelets");
 	}
 
-	private List<DiscoveryAdapter<MO>> instantiate(List<MO> classes, List<Subtrajectory> candidates, QualityMeasure qualityMeasure) {
+	private List<DiscoveryAdapter<MO>> instantiate(List<MO> classes, List<Subtrajectory> candidates, QualityMeasure qualityMeasure, ProgressBar progressBar) {
 		List<DiscoveryAdapter<MO>> lsMDs = new ArrayList<DiscoveryAdapter<MO>>();
 		
 		/** STEP 2.1: Starts at discovering movelets */
@@ -202,7 +203,7 @@ public class Mov3lets<MO> {
 				lsMDs.add(moveletsDiscovery);
 				
 			} else {
-				Mov3letsUtils.trace("[Class: " + myclass + "] >> Movelets previously discovered.");
+				progressBar.plus("[Class: " + myclass + "]: Movelets previously discovered.");
 			}
 		}
 		

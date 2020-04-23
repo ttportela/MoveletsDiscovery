@@ -31,6 +31,11 @@ public abstract class Quality {
 	
 	public abstract boolean hasZeroQuality();
 	
-	public abstract <Q extends Quality> int compareTo(Q other);	
+	public abstract <Q extends Quality> int compareTo(Q other);
+
+	@Override
+	public String toString() {
+		return getData().toString();
+	}
 
 }

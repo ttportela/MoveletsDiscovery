@@ -67,10 +67,5 @@ public class LeftSidePureQuality extends Quality {
 		return (data.get("quality") == 0);
 		
 	}
-	
-	@Override
-	public String toString() {
-		return data.toString();
-	}
 
 }

@@ -29,7 +29,12 @@ import java.util.HashMap;
 import org.apache.commons.io.FilenameUtils;
 
 import br.com.tarlis.mov3lets.method.Mov3lets;
-import br.com.tarlis.mov3lets.method.descriptor.Descriptor;
+import br.com.tarlis.mov3lets.method.discovery.HiperMoveletsDiscovery;
+import br.com.tarlis.mov3lets.method.discovery.MoveletsDiscovery;
+import br.com.tarlis.mov3lets.method.discovery.PivotsMoveletsDiscovery;
+import br.com.tarlis.mov3lets.method.discovery.PrecomputeMoveletsDiscovery;
+import br.com.tarlis.mov3lets.method.discovery.ProgressiveMoveletsDiscovery;
+import br.com.tarlis.mov3lets.method.structures.descriptor.Descriptor;
 import br.com.tarlis.mov3lets.model.MAT;
 import br.com.tarlis.mov3lets.utils.Mov3letsUtils;
 
@@ -328,7 +333,21 @@ public class Mov3letsRun {
 	
 	public static String configRespath(String descFile, Descriptor descriptor) {
 		
-		String resultDirPath = "MasterMovelets" + System.getProperty("file.separator");
+		String resultDirPath = "MASTERMovelets" + System.getProperty("file.separator");
+		
+		if (descriptor.getFlag("supervised") || descriptor.getParamAsText("version").equals("super")) {
+			resultDirPath += "Super_";
+		} else if (descriptor.getParamAsText("version").equals("hiper")) {
+			resultDirPath += "Hiper_";
+		} else if (descriptor.getFlag("pivots") || descriptor.getParamAsText("version").equals("pivots")) {			
+			resultDirPath += "Pivots_";		
+		} else if (descriptor.getParamAsText("version").equals("1.0")) {
+			resultDirPath += "V1_";
+		} else if (descriptor.getParamAsText("version").equals("3.0")) {
+			resultDirPath += "V3_";
+		} else if (descriptor.getParamAsText("version").equals("4.0")) {
+			resultDirPath += "V4_";
+		}
 		
 //		if (PIVOTS_FILE != null) {
 //			resultDirPath += "_PivotsBOW";
@@ -336,8 +355,8 @@ public class Mov3letsRun {
 //		}
 //		else {
 			if(descriptor.getFlag("pivots"))
-				resultDirPath += "Pivots_"
-							  +  "Porcentage_" + descriptor.getParamAsText("pivot_porcentage")
+//				resultDirPath += "Pivots_"
+				resultDirPath +=  "Porcentage_" + descriptor.getParamAsText("pivot_porcentage")
 							  + "_";
 			else {
 				if(descriptor.getParamAsInt("max_size") == -3) {
@@ -356,9 +375,9 @@ public class Mov3letsRun {
 			DESCRIPTION_FILE_NAME += "_MNF-" + descriptor.getParamAsInt("max_number_of_features"); 
 		
 		if(descriptor.getFlag("last_prunning"))
-			DESCRIPTION_FILE_NAME += "_With-Last-Prunning";
-		else
-			DESCRIPTION_FILE_NAME += "_Witout-Last-Prunning";
+			DESCRIPTION_FILE_NAME += "_WithLastPrunning";
+//		else
+//			DESCRIPTION_FILE_NAME += "_Witout-Last-Prunning";
 
 		return Paths.get(descriptor.getParamAsText("respath"), resultDirPath + DESCRIPTION_FILE_NAME).toString();
 	}

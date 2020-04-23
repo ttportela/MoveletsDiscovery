@@ -36,22 +36,22 @@ public class ProgressBar {
     	update(0, total, null);
     }    
 
-    public synchronized void plus() {
+    public void plus() {
     	this.done++;
     	update(done, this.total, null);
     }   
 
-    public synchronized void plus(String message) {
+    public void plus(String message) {
     	this.done++;
     	update(done, this.total, message);
     }
 
-	public synchronized void plus(long size) {
+	public void plus(long size) {
     	this.done += size;
 //    	update(this.done, this.total, null);
 	}
 	
-    public synchronized void update(long done, long total) {
+    public void update(long done, long total) {
     	this.done = done;
     	this.total = total;
 //    	update(done, total, null);
@@ -67,7 +67,7 @@ public class ProgressBar {
     public synchronized void update(long done, long total, String message) {
         char[] workchars = {'|', '/', '-', '\\'};
         String format = this.control + "%s: %c [%s%s] %3d%% %s";
-        message = (message != null? ">> "+message : "");
+        message = (message != null? ">> "+message + "." : "");
         message += CharBuffer.allocate( 250 - message.length() ).toString().replace( '\0', ' ' );
 
         int percent = (int) ((++done * 100) / total);
@@ -83,7 +83,7 @@ public class ProgressBar {
 
     }
 
-	public synchronized void trace(String message) {
+	public void trace(String message) {
     	update(this.done, this.total, message);
 	}
     

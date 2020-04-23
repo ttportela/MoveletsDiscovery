@@ -29,8 +29,8 @@ import java.util.concurrent.Future;
 
 import org.apache.commons.math3.util.Pair;
 
-import br.com.tarlis.mov3lets.method.descriptor.Descriptor;
 import br.com.tarlis.mov3lets.method.qualitymeasure.QualityMeasure;
+import br.com.tarlis.mov3lets.method.structures.descriptor.Descriptor;
 import br.com.tarlis.mov3lets.model.MAT;
 import br.com.tarlis.mov3lets.model.Point;
 import br.com.tarlis.mov3lets.model.Subtrajectory;

@@ -33,9 +33,9 @@ import org.apache.commons.math3.stat.ranking.RankingAlgorithm;
 import org.apache.commons.math3.util.Combinations;
 import org.apache.commons.math3.util.Pair;
 
-import br.com.tarlis.mov3lets.method.descriptor.AttributeDescriptor;
-import br.com.tarlis.mov3lets.method.descriptor.Descriptor;
 import br.com.tarlis.mov3lets.method.qualitymeasure.QualityMeasure;
+import br.com.tarlis.mov3lets.method.structures.descriptor.AttributeDescriptor;
+import br.com.tarlis.mov3lets.method.structures.descriptor.Descriptor;
 import br.com.tarlis.mov3lets.model.MAT;
 import br.com.tarlis.mov3lets.model.Point;
 import br.com.tarlis.mov3lets.model.Subtrajectory;
@@ -530,7 +530,7 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 		 * */
 		Pair<Subtrajectory, double[]> distance;
 		
-		double[][] trajectoryDistancesToCandidate = new double[candidate.getSplitpoints().length]
+		double[][] trajectoryDistancesToCandidate = new double[candidate.getPointFeatures().length]
 															  [trajectories.size()];
 		
 		List<Subtrajectory> bestAlignments = new ArrayList<Subtrajectory>();
@@ -541,7 +541,7 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 			
 			distance = bestAlignmentByPointFeatures(candidate, trajectories.get(i));
 			
-			for (int j = 0; j < candidate.getSplitpoints().length; j++) {
+			for (int j = 0; j < candidate.getPointFeatures().length; j++) {
 				trajectoryDistancesToCandidate[j][i] = distance.getSecond()[j];							
 			}
 						

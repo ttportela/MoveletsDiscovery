@@ -24,8 +24,8 @@ import java.util.Random;
 import org.apache.commons.math3.stat.ranking.NaturalRanking;
 import org.apache.commons.math3.stat.ranking.RankingAlgorithm;
 
-import br.com.tarlis.mov3lets.method.descriptor.Descriptor;
 import br.com.tarlis.mov3lets.method.qualitymeasure.QualityMeasure;
+import br.com.tarlis.mov3lets.method.structures.descriptor.Descriptor;
 import br.com.tarlis.mov3lets.model.MAT;
 import br.com.tarlis.mov3lets.model.Subtrajectory;
 
@@ -79,20 +79,19 @@ public class ProgressiveMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 
 		// It starts with the base case: size = 1
 		Integer total_size = 0;
+		maxSizeUsed = 0;
 		
-		List<Subtrajectory> candidatesOfSize = new ArrayList<Subtrajectory>();;
-		if( minSize <= 1 ) {
-			candidatesOfSize.addAll( findCandidates(trajectory, trajectories, 1) ); // super.findCandidates
-			candidatesOfSize.forEach(x -> assesQuality(x, random));
-		}				
+		// Size 1:
+		List<Subtrajectory> candidatesOfSize = findCandidates(trajectory, trajectories, 1); // super.findCandidates
+		candidatesOfSize.forEach(x -> assesQuality(x, random));			
 		
-		if ( minSize <= 2 ){
+		if ( minSize < maxSize ){
 
 			/** This is the difference: find candidates until the quality increases, qualify and returns 
 			 * - As we filter candidates from the overlapping points, this returns only one starting from each 
 			 *   point of the trajectory (with the best quality) */	
 			for (Subtrajectory candidate : candidatesOfSize) {
-				candidates.add(findCandidate(candidate, trajectory, trajectories, 2, minSize, maxSize, random)); // size = 2
+				candidates.add(findCandidate(candidate, trajectory, trajectories, minSize+1, minSize, maxSize, random)); // size = 2
 			}
 
 			total_size = total_size + candidates.size();
@@ -110,8 +109,6 @@ public class ProgressiveMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 		for (int i = 0; i < candidates.size(); i++) {
 			System.out.println(i +" => "+ candidates.get(i));
 		}
-
-		System.out.println(biggest + " - " + trajectory.getPoints().size());
 		
 		progressBar.plus("Class: " + trajectory.getMovingObject() 
 						+ ". Trajectory: " + trajectory.getTid() 
@@ -119,11 +116,13 @@ public class ProgressiveMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 						+ ". Number of Candidates: " + total_size 
 						+ ". Total of Movelets: " + candidates.size() 
 						+ ". Max Size: " + maxSize
+						+ ". Max Size Used: " + maxSizeUsed
 						+ ". Used Features: " + this.maxNumberOfFeatures);
 				
 		return candidates;
 	}
 
+	private int maxSizeUsed = 0;
 	/**
 	 * 
 	 * [THE GREAT GAP]
@@ -137,7 +136,7 @@ public class ProgressiveMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 	 */
 	public Subtrajectory findCandidate(Subtrajectory previousCandidate, MAT<MO> trajectory, List<MAT<MO>> trajectories, int size, int minSize, int maxSize, Random random) {
 				
-		biggest = biggest > size? biggest : size;
+		maxSizeUsed = maxSizeUsed > size? maxSizeUsed : size;
 		
 		// Both conditions are search end points:
 		if (size > maxSize) {
@@ -163,7 +162,8 @@ public class ProgressiveMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 			if (nextCandidate.getQuality().compareTo(best.getQuality()) <= 0)
 				best = nextCandidate;
 			
-			if (previousCandidate.getQuality().compareTo(nextCandidate.getQuality()) <= 0)
+			// if quality is decreasing
+			if (previousCandidate.getQuality().compareTo(candidate.getQuality()) <= 0 && candidate.getQuality().compareTo(nextCandidate.getQuality()) <= 0)
 				return best;
 			
 			nextCandidate = findCandidate(nextCandidate, trajectory, trajectories, size+2, minSize, maxSize, random);
@@ -193,7 +193,6 @@ public class ProgressiveMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 		assesQuality(candidate, random);
 		return candidate;
 	}
-	private int biggest = 0;
 
 	private Subtrajectory nextSize(Subtrajectory s, MAT<MO> T, int numberOfTrajectories) {
 		return new Subtrajectory(s.getStart(), s.getEnd()+1, T, s.getPointFeatures(), numberOfTrajectories);

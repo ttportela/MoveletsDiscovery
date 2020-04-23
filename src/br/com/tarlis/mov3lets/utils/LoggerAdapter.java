@@ -27,14 +27,11 @@ public abstract class LoggerAdapter {
 	public void printMemory() {
 		System.gc();
 		Runtime rt = Runtime.getRuntime();
-		double total = rt.totalMemory() / 1024.0;
-		double free = rt.freeMemory() / 1024.0;
+		double total = rt.totalMemory() / (1024.0 * 1024.0);
+		double free = rt.freeMemory() / (1024.0 * 1024.0);
         double used = (total - free);
         
-		trace(String.format("Memory usage (KiB), Memory Total: %.3f, Memory Free: %.3f, Memory Used: %.3f",
-                    total,
-                    free,
-                    used));
+		trace("Memory Usage (MiB), Memory Total: "+total+". Memory Free: "+free+". Memory Used: "+used+".");
 	}
 
 }

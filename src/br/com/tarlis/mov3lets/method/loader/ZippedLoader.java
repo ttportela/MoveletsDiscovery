@@ -17,8 +17,8 @@ import java.util.zip.ZipInputStream;
 
 import org.apache.commons.io.FileUtils;
 
-import br.com.tarlis.mov3lets.method.descriptor.AttributeDescriptor;
-import br.com.tarlis.mov3lets.method.descriptor.Descriptor;
+import br.com.tarlis.mov3lets.method.structures.descriptor.AttributeDescriptor;
+import br.com.tarlis.mov3lets.method.structures.descriptor.Descriptor;
 import br.com.tarlis.mov3lets.model.MAT;
 import br.com.tarlis.mov3lets.model.Point;
 

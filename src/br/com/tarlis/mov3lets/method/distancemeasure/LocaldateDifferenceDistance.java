@@ -20,7 +20,7 @@ package br.com.tarlis.mov3lets.method.distancemeasure;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
-import br.com.tarlis.mov3lets.method.descriptor.AttributeDescriptor;
+import br.com.tarlis.mov3lets.method.structures.descriptor.AttributeDescriptor;
 import br.com.tarlis.mov3lets.model.aspect.Aspect;
 
 /**

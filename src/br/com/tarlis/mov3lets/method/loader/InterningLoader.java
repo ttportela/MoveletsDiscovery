@@ -7,7 +7,7 @@ import java.util.HashMap;
 
 import org.apache.commons.math3.util.Pair;
 
-import br.com.tarlis.mov3lets.method.descriptor.AttributeDescriptor;
+import br.com.tarlis.mov3lets.method.structures.descriptor.AttributeDescriptor;
 import br.com.tarlis.mov3lets.model.MAT;
 import br.com.tarlis.mov3lets.model.aspect.Aspect;
 
@@ -15,7 +15,7 @@ import br.com.tarlis.mov3lets.model.aspect.Aspect;
  * @author tarlisportela
  *
  */
-public class InterningLoader<T extends MAT<?>> extends IndexedLoader<T> {
+public class InterningLoader<T extends MAT<?>> extends ZippedLoader<T> {
 	
 	protected HashMap<Pair<String, String>, Aspect<?>> MEM = new HashMap<Pair<String,String>, Aspect<?>>();
 	

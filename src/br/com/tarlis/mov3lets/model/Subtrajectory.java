@@ -43,7 +43,7 @@ public class Subtrajectory {
 	private List<Subtrajectory> bestAlignments;
 	
 	private Quality quality;
-	private double proportionInClass;
+//	private double proportionInClass;
 
 	private HashMap<String, Aspect<?>> features;
 	
@@ -60,6 +60,8 @@ public class Subtrajectory {
 	private double[] maxDistances;
 
 	private boolean[] goodTrajectories;
+	
+//	private List<MAT<?>> coveredInClass;
 
 	public Subtrajectory(int start, int end, MAT<?> t) {
 		super();
@@ -122,17 +124,12 @@ public class Subtrajectory {
 
 		String string = new String();
 
-//		string += "Origin: t" + getTrajectory().getTid() + " from " + start + " to " + end + ", ";
-//		string += "Size: " + getSize() + ", ";
-//		string += "Label: " + getTrajectory().getMovingObject().toString() + "\n";
-//		string += "Distances: \n";
+		string += "Origin: t" + getTrajectory().getTid() + " from " + start + " to " + end + ", ";
 		string += "Size: " + getSize() + ", Features: " + Arrays.toString(getPointFeatures()) + "\n";
-		string += "Origin: t" + getTrajectory().getTid() + " from " + start + " to " + end + "\n";
-		string += "Quality: " + getQuality() + "\n";
 		string += "Label: " + getTrajectory().getMovingObject().toString() + "\n";
-		string += "Data: \n";
-		for (double[] row : distances) 
-			string += Arrays.toString(row) + "\n"; 
+		string += "Quality: " + getQuality() + "\n";
+//		string += "Distances: \n";
+//		string += "Data: \n";
 
 		return string;
 	}
@@ -308,18 +305,25 @@ public class Subtrajectory {
 		this.splitpointData = splitpointData;
 	}
 	
-	/**
-	 * @return the proportionInClass
-	 */
-	public double getProportionInClass() {
-		return proportionInClass;
-	}
-	
-	/**
-	 * @param proportionInClass the proportionInClass to set
-	 */
-	public void setProportionInClass(double proportionInClass) {
-		this.proportionInClass = proportionInClass;
-	}
-	
+//	/**
+//	 * @return the proportionInClass
+//	 */
+//	public double getProportionInClass() {
+//		return proportionInClass;
+//	}
+//	
+//	/**
+//	 * @param proportionInClass the proportionInClass to set
+//	 */
+//	public void setProportionInClass(double proportionInClass) {
+//		this.proportionInClass = proportionInClass;
+//	}
+//	
+//	public List<MAT<?>> getCoveredInClass() {
+//		return coveredInClass;
+//	}
+//	
+//	public void setCoveredInClass(List<MAT<?>> coveredInClass) {
+//		this.coveredInClass = coveredInClass;
+//	}
 }
