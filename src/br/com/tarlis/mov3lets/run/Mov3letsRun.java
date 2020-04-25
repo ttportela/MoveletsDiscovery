@@ -29,11 +29,6 @@ import java.util.HashMap;
 import org.apache.commons.io.FilenameUtils;
 
 import br.com.tarlis.mov3lets.method.Mov3lets;
-import br.com.tarlis.mov3lets.method.discovery.HiperMoveletsDiscovery;
-import br.com.tarlis.mov3lets.method.discovery.MoveletsDiscovery;
-import br.com.tarlis.mov3lets.method.discovery.PivotsMoveletsDiscovery;
-import br.com.tarlis.mov3lets.method.discovery.PrecomputeMoveletsDiscovery;
-import br.com.tarlis.mov3lets.method.discovery.ProgressiveMoveletsDiscovery;
 import br.com.tarlis.mov3lets.method.structures.descriptor.Descriptor;
 import br.com.tarlis.mov3lets.model.MAT;
 import br.com.tarlis.mov3lets.utils.Mov3letsUtils;
@@ -66,7 +61,7 @@ public class Mov3letsRun {
 		try {
 			mov = new Mov3lets<String>(descFile);
 		} catch (UnsupportedEncodingException | FileNotFoundException e) {
-			showUsage(params, "-descfile\tDescription file not found!");
+			showUsage(params, "-descfile\tDescription file not found: " + e.getMessage());
 //			e.printStackTrace();
 			return;
 		}
@@ -124,21 +119,24 @@ public class Mov3letsRun {
 	public static String printParams(HashMap<String, Object> params) {
 		String str = "Configurations:" + System.getProperty("line.separator");
 
-		str += "   -curpath\tDatasets directory:\t" + params.get("curpath") + System.getProperty("line.separator");
-		str += "   -respath\tResults directory:\t" + (params.containsKey("result_dir_path")? params.get("result_dir_path") : params.get("respath")) + System.getProperty("line.separator");
-		str += "   -descfile\tDescription file :\t" + params.get("descfile") + System.getProperty("line.separator");
-		str += "   -nt\t\tAllowed Threads:\t" + params.get("nthreads") + System.getProperty("line.separator");
-		str += "   -ms\t\tMin size:\t\t" + params.get("min_size") + System.getProperty("line.separator");
-		str += "   -Ms\t\tMax size:\t\t" + params.get("max_size") + "\t[(Any positive) OR (all sizes, -1) OR *(deprecated, -2)* OR (log, -3)]" + System.getProperty("line.separator");
-		str += "   -mnf\t\tMax # of Features:\t" + params.get("max_number_of_features") + "\t[(Any positive) OR (explore dimensions, -1) OR (log, -2)]" + System.getProperty("line.separator");
-		str += "   -ed\t\tExplore dimensions:\t" + params.get("explore_dimensions") + "\t[Same as -mnf -1]" + System.getProperty("line.separator");
-		str += "   -samples\tSamples:\t\t" + params.get("samples") + System.getProperty("line.separator");
-		str += "   -sampleSize\tSample Size:\t\t" + params.get("sample_size") + System.getProperty("line.separator");
-		str += "   -q\t\tQuality Measure:\t" + params.get("str_quality_measure") + System.getProperty("line.separator");
-		str += "   -medium\tMedium:\t\t\t" + params.get("medium") + System.getProperty("line.separator");
-		str += "   -mpt\t\tMovelets Per Traj.:\t" + params.get("movelets_per_trajectory") + System.getProperty("line.separator");
-		str += "   -output\tOutput:\t\t\t" + params.get("output") + System.getProperty("line.separator");
-		str += "   -version\tMov. Discovery Impl.:\t" + params.get("version") + System.getProperty("line.separator");
+		str += "   -curpath					Datasets directory: 			" + params.get("curpath") + System.getProperty("line.separator");
+		str += "   -respath					Results directory: 				" + (params.containsKey("result_dir_path")? params.get("result_dir_path") : params.get("respath")) + System.getProperty("line.separator");
+		str += "   -descfile 					Description file : 				" + params.get("descfile") + System.getProperty("line.separator");
+		str += "   -nt 							Allowed Threads: 				" + params.get("nthreads") + System.getProperty("line.separator");
+		str += "   -ms							Min size: 								" + params.get("min_size") + System.getProperty("line.separator");
+		str += "   -Ms							Max size 								" + params.get("max_size")  + System.getProperty("line.separator")
+		    	+ "										[(Any positive) OR (all sizes, -1) OR (log, -3)]" + System.getProperty("line.separator");
+		str += "   -mnf 						Max # of Features: 				" + params.get("max_number_of_features") 
+				+ "										[(Any positive) OR (explore dimensions, -1) OR (log, -2)]" + System.getProperty("line.separator");
+		str += "   -ed 							Explore dimensions: 			" + params.get("explore_dimensions") + System.getProperty("line.separator")
+				+ " 										[Same as -mnf -1]" + System.getProperty("line.separator");
+		str += "   -samples 					Samples: 							" + params.get("samples") + System.getProperty("line.separator");
+		str += "   -sampleSize  			Sample Size: 						" + params.get("sample_size") + System.getProperty("line.separator");
+		str += "   -q 							Quality Measure: 				" + params.get("str_quality_measure") + System.getProperty("line.separator");
+		str += "   -medium 					Medium:								" + params.get("medium") + System.getProperty("line.separator");
+		str += "   -mpt 						Movelets Per Traj.: 				" + params.get("movelets_per_trajectory") + System.getProperty("line.separator");
+		str += "   -output 					Output:								" + params.get("output") + System.getProperty("line.separator");
+		str += "   -version 					Mov. Discovery Impl.:			" + params.get("version") + System.getProperty("line.separator");
 		
 		str += System.getProperty("line.separator") + "    Optimizations: ";
 		str += System.getProperty("line.separator")
@@ -160,7 +158,7 @@ public class Mov3letsRun {
 		params.put("nthreads",					 1);
 		params.put("min_size",					 2);
 		params.put("max_size",					 -1); // unlimited maxSize
-		params.put("str_quality_measure",		 "LSP");
+		params.put("str_quality_measure",		 "LSP"); // LSP | PROP
 //		params.put("cache",						 true); // Deprecated: Cache Always.	
 		params.put("explore_dimensions",		 false);
 		params.put("max_number_of_features",	 -1);
@@ -175,6 +173,7 @@ public class Mov3letsRun {
 		params.put("last_prunning",				 false);		
 		params.put("pivot_porcentage",			 10);
 		params.put("only_pivots",				 false);
+		params.put("interning",  				 true);
 		params.put("verbose",				 	 true);
 		params.put("version",				 	 "2.0");
 		

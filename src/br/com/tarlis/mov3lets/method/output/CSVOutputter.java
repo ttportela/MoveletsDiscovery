@@ -20,6 +20,7 @@ import org.apache.commons.math3.util.Pair;
 import br.com.tarlis.mov3lets.method.structures.descriptor.Descriptor;
 import br.com.tarlis.mov3lets.model.MAT;
 import br.com.tarlis.mov3lets.model.Subtrajectory;
+import br.com.tarlis.mov3lets.utils.Mov3letsUtils;
 
 /**
  * @author tarlis
@@ -56,6 +57,11 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO> {
 		
 		if (delayOutput) {
 			attributesToTrajectories(trajectories, movelets, attributeToTrajectories);
+			return;
+		}
+		
+		if (movelets.isEmpty()) {
+			Mov3letsUtils.traceW("Empty movelets set [NOT OUTPUTTED]");
 			return;
 		}
 		

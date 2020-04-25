@@ -50,6 +50,11 @@ public class ProgressBar {
     	this.done += size;
 //    	update(this.done, this.total, null);
 	}
+
+	public void plus(long size, String message) {
+    	this.done += size;
+    	update(this.done, this.total, message);
+	}
 	
     public void update(long done, long total) {
     	this.done = done;

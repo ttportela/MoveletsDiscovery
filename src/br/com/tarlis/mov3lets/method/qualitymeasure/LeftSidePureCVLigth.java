@@ -498,6 +498,57 @@ public class LeftSidePureCVLigth<MO> extends QualityMeasure {
 		                
 		return infogain;
 	}
+	
+	public Pair<double[],double[]> fillSplitPointsLimits(Map<String, double[]> splitpointsData, String medium){
+		int n = splitpointsData.get("mean").length;
+		double[] splitpointsLI = new double[n];
+		double[] splitpointsLS = new double[n];
+		
+		switch (medium){
+		
+			case "interquartil" :
+				splitpointsLI = splitpointsData.get("p25");
+				splitpointsLS = splitpointsData.get("p75");				
+				break;
+			case "sd" :
+				for (int i = 0; i < n; i++) {
+					splitpointsLI[i] = splitpointsData.get("mean")[i] - splitpointsData.get("sd")[i];
+					splitpointsLS[i] = splitpointsData.get("mean")[i] + splitpointsData.get("sd")[i];
+				}
+				break;
+			case "minmax" :
+				splitpointsLI = splitpointsData.get("min");
+				splitpointsLS = splitpointsData.get("max");				
+				break;
+			case "mean" :
+				splitpointsLI = splitpointsData.get("mean");
+				splitpointsLS = splitpointsData.get("mean");	
+				break;	
+				
+			default :
+				splitpointsLI = splitpointsData.get("mean");
+				splitpointsLS = splitpointsData.get("mean");					
+		
+		}		
+		
+		return new Pair(splitpointsLI,splitpointsLS);
+	}
+	
+	public boolean isCovered(double[] point, double[] limits){
+		
+		int dimensions = limits.length;
+		
+		for (int i = 0; i < dimensions; i++) {
+			if (limits[i] > 0){
+				if (point[i] >= limits[i])
+					return false;
+			} else
+				if (point[i] > limits[i])
+					return false;
+		}
+		
+		return true;
+	}
 
 	public void assesQuality(Subtrajectory candidate, Random random) {
 		
@@ -530,18 +581,6 @@ public class LeftSidePureCVLigth<MO> extends QualityMeasure {
 		candidate.setSplitpoints(splitpointsData.get("mean"));
 		candidate.setSplitpointData(splitpointsData);
 		candidate.setMaxDistances(maxDistances);
-	}
-
-
-	private double[] getMaxDistances(double[][] distances) {
-		
-		double[] maxDistances = new double[distances.length];
-		for (int i = 0; i < maxDistances.length; i++) {
-			maxDistances[i] =
-					Arrays.stream(distances[i]).filter(e -> e != MAX_VALUE).max().getAsDouble();
-		}
-				
-		return maxDistances;
 	}
 
 	public void assesQuality(Subtrajectory candidate) {

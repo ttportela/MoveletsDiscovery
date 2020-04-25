@@ -30,15 +30,14 @@ import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import br.com.tarlis.mov3lets.method.discovery.MemMoveletsDiscovery;
 import br.com.tarlis.mov3lets.method.discovery.DiscoveryAdapter;
 import br.com.tarlis.mov3lets.method.discovery.HiperMoveletsDiscovery;
+import br.com.tarlis.mov3lets.method.discovery.MemMoveletsDiscovery;
 import br.com.tarlis.mov3lets.method.discovery.MoveletsDiscovery;
 import br.com.tarlis.mov3lets.method.discovery.PivotsMoveletsDiscovery;
 import br.com.tarlis.mov3lets.method.discovery.PrecomputeMoveletsDiscovery;
 import br.com.tarlis.mov3lets.method.discovery.ProgressiveMoveletsDiscovery;
 import br.com.tarlis.mov3lets.method.discovery.SuperMoveletsDiscovery;
-import br.com.tarlis.mov3lets.method.loader.DefaultLoader;
 import br.com.tarlis.mov3lets.method.loader.IndexedLoader;
 import br.com.tarlis.mov3lets.method.loader.InterningLoader;
 import br.com.tarlis.mov3lets.method.loader.ZippedLoader;
@@ -46,11 +45,11 @@ import br.com.tarlis.mov3lets.method.output.CSVOutputter;
 import br.com.tarlis.mov3lets.method.output.JSONOutputter;
 import br.com.tarlis.mov3lets.method.output.OutputterAdapter;
 import br.com.tarlis.mov3lets.method.qualitymeasure.LeftSidePureCVLigth;
+import br.com.tarlis.mov3lets.method.qualitymeasure.ProportionQualityMeasure;
 import br.com.tarlis.mov3lets.method.qualitymeasure.QualityMeasure;
 import br.com.tarlis.mov3lets.method.structures.descriptor.Descriptor;
 import br.com.tarlis.mov3lets.model.MAT;
 import br.com.tarlis.mov3lets.model.Subtrajectory;
-import br.com.tarlis.mov3lets.utils.Mov3letsUtils;
 import br.com.tarlis.mov3lets.utils.ProgressBar;
 
 /**
@@ -96,10 +95,15 @@ public class Mov3lets<MO> {
 		// STEP 2 - Select Candidates:
 //		Mov3letsUtils.getInstance().startTimer("[2.1] >> Extracting Movelets");
 		List<MO> classes = train.stream().map(e -> (MO) e.getMovingObject()).distinct().collect(Collectors.toList());
-		QualityMeasure qualityMeasure = new LeftSidePureCVLigth(train, 
+		
+		QualityMeasure qualityMeasure;
+		if (getDescriptor().getParamAsText("str_quality_measure").equalsIgnoreCase("LSP"))
+			qualityMeasure = new LeftSidePureCVLigth<MO>(train, 
 									    		getDescriptor().getParamAsInt("samples"), 
 									    		getDescriptor().getParamAsDouble("sample_size"), 
 									    		getDescriptor().getParamAsText("medium"));
+		else 
+			qualityMeasure = new ProportionQualityMeasure<MO>(this.train);
 
 //		List<Subtrajectory> candidates = new ArrayList<Subtrajectory>();	
 		
@@ -203,7 +207,8 @@ public class Mov3lets<MO> {
 				lsMDs.add(moveletsDiscovery);
 				
 			} else {
-				progressBar.plus("[Class: " + myclass + "]: Movelets previously discovered.");
+				int trajsFromClass = (int) train.stream().filter(e-> myclass.equals(e.getMovingObject())).count();
+				progressBar.plus(trajsFromClass, "[Class: " + myclass + "]: Movelets previously discovered.");
 			}
 		}
 		

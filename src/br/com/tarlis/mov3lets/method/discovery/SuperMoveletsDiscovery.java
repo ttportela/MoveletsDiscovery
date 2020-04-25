@@ -41,7 +41,7 @@ public class SuperMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 	
 	protected final double TAU = 0.5;
 
-	QualityMeasure proportionMeasure;
+	ProportionQualityMeasure<MO> proportionMeasure;
 	
 	/**
 	 * @param train
@@ -49,7 +49,7 @@ public class SuperMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 	public SuperMoveletsDiscovery(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test, List<Subtrajectory> candidates, QualityMeasure qualityMeasure, 
 			Descriptor descriptor) {
 		super(trajsFromClass, data, train, test, candidates, qualityMeasure, descriptor);
-		this.proportionMeasure = new ProportionQualityMeasure<MO>(this.trajsFromClass, TAU, 0.0); // GAMMA = 0: required maximum distance
+		this.proportionMeasure = new ProportionQualityMeasure<MO>(this.trajsFromClass, TAU);
 	}
 	
 	public void discover() {
@@ -63,7 +63,7 @@ public class SuperMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 			// This guarantees the reproducibility
 			Random random = new Random(trajectory.getTid());
 			/** STEP 2.1: Starts at discovering movelets */
-			progressBar.trace("Super Movelets Discovery for Class: " + trajectory.getMovingObject() + "."); // Might be saved in HD
+			progressBar.trace("Super Movelets Discovery for Class: " + trajectory.getMovingObject()); // Might be saved in HD
 			List<Subtrajectory> candidates = moveletsDiscovery(trajectory, this.trajsFromClass, minSize, maxSize, random);
 			
 			/** STEP 2.3, for this trajectory movelets: 
@@ -181,7 +181,7 @@ public class SuperMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 //		base =  null;
 		lastSize = null;
 		
-		candidatesByProp.forEach(x -> proportionMeasure.assesQuality(x, random));
+		candidatesByProp.forEach(x -> proportionMeasure.assesClassQuality(x, random));
 //		for (Subtrajectory candidate : candidatesByProp)
 //			candidate.setProportionInClass(calculateProportion(candidate));
 
@@ -192,16 +192,6 @@ public class SuperMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 			if(candidate.getQuality().getData().get("proportion") >= TAU)
 				orderedCandidates.add(candidate);
 		
-		/* STEP 2.1.3: SORT THE CANDIDATES BY PROPORTION VALUE
-		 * * * * * * * * * * * * * * * * * * * * * * * * * */
-		orderedCandidates.sort(new Comparator<Subtrajectory>() {
-			@Override
-			public int compare(Subtrajectory o1, Subtrajectory o2) {
-				
-				return (-1) * o1.getQuality().compareTo(o2.getQuality());			
-				
-			}
-		});
 				
 		/* STEP 2.1.4: IDENTIFY EQUAL CANDIDATES
 		 * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -235,9 +225,21 @@ public class SuperMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 			
 		}
 		
-		/* STEP 2.1.5: SELECT ONLY HALF OF THE CANDIDATES 
-		 * * * * * * * * * * * * * * * * * * * * * * * * */
-//		List<Subtrajectory> half_ordered_candidates = orderedCandidates.subList(0, (int) Math.ceil((double) orderedCandidates.size()/(double) 2));
+		if (bestCandidates.isEmpty()) { 
+			/* STEP 2.1.3: SORT THE CANDIDATES BY PROPORTION VALUE
+			 * * * * * * * * * * * * * * * * * * * * * * * * * */
+			candidatesByProp.sort(new Comparator<Subtrajectory>() {
+				@Override
+				public int compare(Subtrajectory o1, Subtrajectory o2) {
+					
+					return (-1) * o1.getQuality().compareTo(o2.getQuality());			
+					
+				}
+			});
+			/* STEP 2.1.5: SELECT ONLY HALF OF THE CANDIDATES (IF Nothing found)
+			 * * * * * * * * * * * * * * * * * * * * * * * * */
+			bestCandidates = candidatesByProp.subList(0, (int) Math.ceil((double) candidatesByProp.size() * TAU));
+		}
 				
 //		candidates = filterMovelets(candidates);
 		

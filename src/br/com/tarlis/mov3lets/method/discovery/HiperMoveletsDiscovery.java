@@ -46,16 +46,16 @@ public class HiperMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> {
 		
 		while (queue.size() > 0) {
 			MAT<MO> trajectory = queue.get(0);
+			queue.remove(trajectory);
 			trajsLooked++;
 			
 			// This guarantees the reproducibility
 			Random random = new Random(trajectory.getTid());
 			/** STEP 2.1: Starts at discovering movelets */
-			progressBar.trace("Hiper Movelets Discovery for Class: " + trajectory.getMovingObject() + "."); // Might be saved in HD
+			progressBar.trace("Hiper Movelets Discovery for Class: " + trajectory.getMovingObject()); // Might be saved in HD
 			List<Subtrajectory> candidates = moveletsDiscovery(trajectory, this.trajsFromClass, minSize, maxSize, random);
 			
 			/** UPDATE QUEUE: */
-			queue.remove(trajectory);
 			// Remove from queue other covered trajectories: - by Tarlis
 			int removed = queue.size();
 			for (Subtrajectory candidate : candidates) {
@@ -109,7 +109,8 @@ public class HiperMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> {
 			System.gc();
 		}		
 		
-		progressBar.trace("Class: " + trajsFromClass.get(0).getMovingObject() 
+		progressBar.plus(trajsIgnored, 
+						   "Class: " + trajsFromClass.get(0).getMovingObject() 
 					   + ". Total of Movelets: " + movelets.size() 
 					   + ". Trajs. Looked: " + trajsLooked 
 					   + ". Trajs. Ignored: " + trajsIgnored);

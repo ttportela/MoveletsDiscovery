@@ -21,6 +21,7 @@ import br.com.tarlis.mov3lets.method.output.json.TOGSON;
 import br.com.tarlis.mov3lets.method.structures.descriptor.Descriptor;
 import br.com.tarlis.mov3lets.model.MAT;
 import br.com.tarlis.mov3lets.model.Subtrajectory;
+import br.com.tarlis.mov3lets.utils.Mov3letsUtils;
 
 /**
  * @author tarlis
@@ -50,6 +51,11 @@ public class JSONOutputter<MO> extends OutputterAdapter<MO> {
 	public void write(String filename, List<MAT<MO>> trajectories, List<Subtrajectory> movelets, boolean delayOutput) {
 		
 		if (delayOutput) return; // Do nothing
+		
+		if (movelets.isEmpty()) {
+			Mov3letsUtils.traceW("Empty movelets set [NOT OUTPUTTED]");
+			return;
+		}
 		
 		List<Map<String,Object>> classOfTrajectories = new ArrayList<>();
 		

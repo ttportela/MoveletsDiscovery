@@ -28,8 +28,10 @@ public class ProportionQuality extends Quality {
 	@Override
 	public int compareTo(Quality other) {
 				
+		String measure = this.getData().containsKey("proportion")? "proportion" : "quality";
+		
 		// First it compares the quality score		
-		int quality = Double.compare(this.getData().get("proportion"), other.getData().get("proportion"));
+		int quality = Double.compare(this.getData().get(measure), other.getData().get(measure));
 		if (quality != 0)
 			// in descending order
 			return (-1) * quality;
@@ -69,13 +71,17 @@ public class ProportionQuality extends Quality {
 		return 0;
 	}
 
-	@Override
-	public boolean hasZeroQuality() {		
-		return (data.get("proportion") == 0);
+	public double getValue() {
+		return data.get( this.getData().containsKey("proportion")? "proportion" : "quality" );
 	}
 	
-	public boolean hasHalfProportion() {		
-		return (data.get("proportion") > 0);
+	@Override
+	public boolean hasZeroQuality() {		
+		return (getValue() == 0);
+	}
+	
+	public boolean hasHalfQuality() {		
+		return (getValue() > 0);
 	}
 	
 	@Override

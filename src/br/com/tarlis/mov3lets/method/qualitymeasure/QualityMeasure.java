@@ -17,6 +17,7 @@
  */
 package br.com.tarlis.mov3lets.method.qualitymeasure;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Random;
 
@@ -34,56 +35,16 @@ public abstract class QualityMeasure {
 	public double MAX_VALUE = DistanceMeasure.DEFAULT_MAX_VALUE;
 	
 	public abstract void assesQuality(Subtrajectory candidate, Random random);
-	
-	public Pair<double[],double[]> fillSplitPointsLimits(Map<String, double[]> splitpointsData, String medium){
-		int n = splitpointsData.get("mean").length;
-		double[] splitpointsLI = new double[n];
-		double[] splitpointsLS = new double[n];
+
+	protected double[] getMaxDistances(double[][] distances) {
 		
-		switch (medium){
-		
-			case "interquartil" :
-				splitpointsLI = splitpointsData.get("p25");
-				splitpointsLS = splitpointsData.get("p75");				
-				break;
-			case "sd" :
-				for (int i = 0; i < n; i++) {
-					splitpointsLI[i] = splitpointsData.get("mean")[i] - splitpointsData.get("sd")[i];
-					splitpointsLS[i] = splitpointsData.get("mean")[i] + splitpointsData.get("sd")[i];
-				}
-				break;
-			case "minmax" :
-				splitpointsLI = splitpointsData.get("min");
-				splitpointsLS = splitpointsData.get("max");				
-				break;
-			case "mean" :
-				splitpointsLI = splitpointsData.get("mean");
-				splitpointsLS = splitpointsData.get("mean");	
-				break;	
-				
-			default :
-				splitpointsLI = splitpointsData.get("mean");
-				splitpointsLS = splitpointsData.get("mean");					
-		
-		}		
-		
-		return new Pair(splitpointsLI,splitpointsLS);
-	}
-	
-	public boolean isCovered(double[] point, double[] limits){
-		
-		int dimensions = limits.length;
-		
-		for (int i = 0; i < dimensions; i++) {
-			if (limits[i] > 0){
-				if (point[i] >= limits[i])
-					return false;
-			} else
-				if (point[i] > limits[i])
-					return false;
+		double[] maxDistances = new double[distances.length];
+		for (int i = 0; i < maxDistances.length; i++) {
+			maxDistances[i] =
+					Arrays.stream(distances[i]).filter(e -> e != MAX_VALUE).max().getAsDouble();
 		}
-		
-		return true;
+				
+		return maxDistances;
 	}
 
 }

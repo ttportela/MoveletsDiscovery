@@ -105,6 +105,7 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 			Random random = new Random(trajectory.getTid());
 
 			/** STEP 2.1: --------------------------------- */
+			progressBar.trace("Movelets Discovery for Class [No MEM]: " + trajectory.getMovingObject());
 			List<Subtrajectory> candidates = moveletsDiscovery(trajectory, this.train, minSize, maxSize, random);
 		
 	//		Mov3letsUtils.getInstance().stopTimer("\tClass >> " + trajectory.getClass());
