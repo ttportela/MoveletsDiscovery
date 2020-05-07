@@ -11,11 +11,11 @@ import org.apache.commons.lang3.StringUtils;
  * 100% ################################################## |
  */
 public class ProgressBar {
-    private StringBuilder progress;
-    private String prefix = "";
-	private long total = 0;
-	private long done = 0;
-	private char control = '\r';
+    protected StringBuilder progress;
+    protected String prefix = "";
+    protected long total = 0;
+    protected long done = 0;
+    protected char control = '\r';
 
     /**
      * initialize progress bar properties.
@@ -102,4 +102,12 @@ public class ProgressBar {
     private void init() {
         this.progress = new StringBuilder(60);
     }
+    
+    public void setPrefix(String prefix) {
+		this.prefix = prefix;
+	}
+    
+    public void setTotal(long total) {
+		this.total = total;
+	}
 }

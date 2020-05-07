@@ -39,7 +39,8 @@ import br.com.tarlis.mov3lets.model.aspect.Aspect;
  */
 public class SuperMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 	
-	protected final double TAU = 0.5;
+	protected final double TAU 	= 0.5;
+	protected double GAMMA 		= 0.1;
 
 	ProportionQualityMeasure<MO> proportionMeasure;
 	
@@ -58,31 +59,18 @@ public class SuperMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 		int minSize = getDescriptor().getParamAsInt("min_size");
 
 		List<Subtrajectory> movelets = new ArrayList<Subtrajectory>();
+
+		progressBar.trace("Super Movelets Discovery for Class: " + trajsFromClass.get(0).getMovingObject());
 		
 		for (MAT<MO> trajectory : trajsFromClass) {
 			// This guarantees the reproducibility
 			Random random = new Random(trajectory.getTid());
 			/** STEP 2.1: Starts at discovering movelets */
-			progressBar.trace("Super Movelets Discovery for Class: " + trajectory.getMovingObject()); // Might be saved in HD
 			List<Subtrajectory> candidates = moveletsDiscovery(trajectory, this.trajsFromClass, minSize, maxSize, random);
 			
-			/** STEP 2.3, for this trajectory movelets: 
-			 * It transforms the training and test sets of trajectories using the movelets */
-			for (Subtrajectory candidate : candidates) {
-				// It initializes the set of distances of all movelets to null
-				candidate.setDistances(null);
-				candidate.setQuality(null);
-				// In this step the set of distances is filled by this method
-				computeDistances(candidate, this.train); // computeDistances(movelet, trajectories);
-
-				/* STEP 2.1.6: QUALIFY BEST HALF CANDIDATES 
-				 * * * * * * * * * * * * * * * * * * * * * * * * */
-				assesQuality(candidate);
-//				assesQuality(candidate, random); //TODO change?
-			}
-
-			/** STEP 2.2: SELECTING BEST CANDIDATES */	
-			candidates = filterMovelets(candidates);
+//			progressBar.trace("Class: " + trajectory.getMovingObject() 
+//					+ ". Trajectory: " + trajectory.getTid() 
+//					+ ". Used GAMMA: " + GAMMA);
 			
 			/** STEP 2.3: Runs the pruning process */
 			if(getDescriptor().getFlag("last_prunning"))
@@ -106,6 +94,7 @@ public class SuperMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 				}
 				super.output("test", this.test, candidates, true);
 			}
+			
 			
 			System.gc();
 		}		
@@ -181,9 +170,45 @@ public class SuperMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 //		base =  null;
 		lastSize = null;
 		
-		candidatesByProp.forEach(x -> proportionMeasure.assesClassQuality(x, random));
-//		for (Subtrajectory candidate : candidatesByProp)
-//			candidate.setProportionInClass(calculateProportion(candidate));
+		return selectBestCandidates(trajectory, maxSize, random, candidatesByProp);
+	}
+
+	public List<Subtrajectory> selectBestCandidates(MAT<MO> trajectory, int maxSize, Random random,
+			List<Subtrajectory> candidatesByProp) {
+		List<Subtrajectory> bestCandidates = new ArrayList<Subtrajectory>();
+		double[] percentiles = {0.1, 0.2, 0.3, 0.4, 0.5};
+		
+		for (double gamma : percentiles) {
+			bestCandidates = filterByProportion(candidatesByProp, GAMMA = gamma, random);
+			bestCandidates = filterByQuality(bestCandidates, random);
+			if (bestCandidates.size() > 0)
+				break;
+		}
+		
+		if (bestCandidates.isEmpty()) { 
+			/* STEP 2.1.5: SELECT ONLY HALF OF THE CANDIDATES (IF Nothing found)
+			 * * * * * * * * * * * * * * * * * * * * * * * * */
+			calculateProportion(candidatesByProp, 1.0, random); GAMMA = 0.0;
+			bestCandidates = candidatesByProp.subList(0, (int) Math.ceil((double) candidatesByProp.size() * TAU));
+
+			/** STEP 2.2: SELECTING BEST CANDIDATES */	
+			bestCandidates = filterByQuality(bestCandidates, random);
+		}
+		
+		progressBar.plus("Class: " + trajectory.getMovingObject() 
+						+ ". Trajectory: " + trajectory.getTid() 
+						+ ". Trajectory Size: " + trajectory.getPoints().size() 
+						+ ". Number of Candidates: " + candidatesByProp.size() 
+						+ ". Total of Movelets: " + bestCandidates.size() 
+						+ ". Max Size: " + maxSize
+						+ ". Used Features: " + this.maxNumberOfFeatures 
+						+ ". Used GAMMA: " + GAMMA);
+
+		return bestCandidates;
+	}
+
+	public List<Subtrajectory> filterByProportion(List<Subtrajectory> candidatesByProp, double gamma, Random random) {
+		calculateProportion(candidatesByProp, gamma, random);
 
 		/* STEP 2.1.2: SELECT ONLY CANDIDATES WITH PROPORTION > 50%
 		 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -192,6 +217,7 @@ public class SuperMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 			if(candidate.getQuality().getData().get("proportion") >= TAU)
 				orderedCandidates.add(candidate);
 		
+		if (orderedCandidates.isEmpty()) return orderedCandidates;
 				
 		/* STEP 2.1.4: IDENTIFY EQUAL CANDIDATES
 		 * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -221,100 +247,45 @@ public class SuperMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 //					attribute_usage[candidate.getPointFeatures().length-1]++;
 				}
 			}
-				
-			
 		}
 		
-		if (bestCandidates.isEmpty()) { 
-			/* STEP 2.1.3: SORT THE CANDIDATES BY PROPORTION VALUE
-			 * * * * * * * * * * * * * * * * * * * * * * * * * */
-			candidatesByProp.sort(new Comparator<Subtrajectory>() {
-				@Override
-				public int compare(Subtrajectory o1, Subtrajectory o2) {
-					
-					return (-1) * o1.getQuality().compareTo(o2.getQuality());			
-					
-				}
-			});
-			/* STEP 2.1.5: SELECT ONLY HALF OF THE CANDIDATES (IF Nothing found)
-			 * * * * * * * * * * * * * * * * * * * * * * * * */
-			bestCandidates = candidatesByProp.subList(0, (int) Math.ceil((double) candidatesByProp.size() * TAU));
-		}
-				
-//		candidates = filterMovelets(candidates);
-		
-		progressBar.plus("Class: " + trajectory.getMovingObject() 
-						+ ". Trajectory: " + trajectory.getTid() 
-						+ ". Trajectory Size: " + trajectory.getPoints().size() 
-						+ ". Number of Candidates: " + candidatesByProp.size() 
-						+ ". Total of Movelets: " + bestCandidates.size() 
-						+ ". Max Size: " + maxSize
-						+ ". Used Features: " + this.maxNumberOfFeatures);
-
 		return bestCandidates;
 	}
 
-//	public List<Subtrajectory> moveletsProportion(MAT<MO> trajectory, List<MAT<MO>> trajectories, int minSize, int maxSize, Random random) {
-//		List<Subtrajectory> candidates = new ArrayList<Subtrajectory>();
-//
-//		int n = trajectory.getPoints().size();
-//		
-//		// TO USE THE LOG, PUT "-Ms -3"
-//		switch (maxSize) {
-//			case -1: maxSize = n; break;
-//			case -2: maxSize = (int) Math.round( Math.log10(n) / Math.log10(2) ); break;	
-//			case -3: maxSize = (int) Math.ceil(Math.log(n))+1; break;	
-//			default: break;
-//		}
-//
-//		// It starts with the base case	
-//		int size = 1;
-//		Integer total_size = 0;
-//		
-//		base = computeBaseDistances(trajectory, trajectories);
-//		
-//		if( minSize <= 1 ) {
-//			candidates.addAll(findCandidates(trajectory, trajectories, size, base));
-//			candidates.forEach(x -> assesQuality(x, random));
-//		}				
-//		
-//		double[][][][] lastSize = clone4DArray(base);		
-//
-//		total_size = total_size + candidates.size();
-//		
-//		// Tratar o resto dos tamanhos 
-//		for (size = 2; size <= maxSize; size++) {
-//	
-//			// Precompute de distance matrix
-//			double[][][][] newSize = newSize(trajectory, trajectories, base, lastSize, size);
-//
-//			// Create candidates and compute min distances		
-//			List<Subtrajectory> candidatesOfSize = findCandidates(trajectory, trajectories, size, newSize);
-//		
-//			total_size = total_size + candidatesOfSize.size();
-//			
-//			if (size >= minSize){
-//				
-//				//for (Subtrajectory candidate : candidatesOfSize) assesQuality(candidate);				
-//				candidatesOfSize.forEach(x -> assesQuality(x, random));
-//				
-//				candidates.addAll(candidatesOfSize);
-//			}
-//		
-//			lastSize = newSize;
-//						
-//		} // for (int size = 2; size <= max; size++)	
-//	
-////		base =  null;
-//		lastSize = null;
-//
-//		candidates = filterMovelets(candidates);
-//		
-//		for (Subtrajectory candidate : candidates)
-//			candidate.setProportionInClass(calculateProportion(candidate));
-//
-//		return candidates;
-//	}
+	public void calculateProportion(List<Subtrajectory> candidatesByProp, double gamma, Random random) {
+		candidatesByProp.forEach(x -> proportionMeasure.assesClassQuality(x, gamma, random));
+		
+		/* STEP 2.1.3: SORT THE CANDIDATES BY PROPORTION VALUE
+		 * * * * * * * * * * * * * * * * * * * * * * * * * */
+		candidatesByProp.sort(new Comparator<Subtrajectory>() {
+			@Override
+			public int compare(Subtrajectory o1, Subtrajectory o2) {
+				
+				return (-1) * o1.getQuality().compareTo(o2.getQuality());			
+				
+			}
+		});
+	}
+
+	public List<Subtrajectory> filterByQuality(List<Subtrajectory> bestCandidates, Random random) {
+		/** STEP 2.3, for this trajectory movelets: 
+		 * It transforms the training and test sets of trajectories using the movelets */
+		for (Subtrajectory candidate : bestCandidates) {
+			// It initializes the set of distances of all movelets to null
+			candidate.setDistances(null);
+			candidate.setQuality(null);
+			// In this step the set of distances is filled by this method
+			computeDistances(candidate, this.train); // computeDistances(movelet, trajectories);
+
+			/* STEP 2.1.6: QUALIFY BEST HALF CANDIDATES 
+			 * * * * * * * * * * * * * * * * * * * * * * * * */
+			assesQuality(candidate);
+//			assesQuality(candidate, random); //TODO change?
+		}
+
+		/** STEP 2.2: SELECTING BEST CANDIDATES */	
+		return filterMovelets(bestCandidates);
+	}
 	
 	public List<HashMap<Integer, Aspect<?>>> getDimensions(Subtrajectory candidate) {
 		

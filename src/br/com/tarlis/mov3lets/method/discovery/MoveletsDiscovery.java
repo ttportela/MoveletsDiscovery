@@ -99,13 +99,14 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 //		Mov3letsUtils.getInstance().startTimer("\tClass >> " + trajectory.getClass());
 		
 		List<Subtrajectory> movelets = new ArrayList<Subtrajectory>();
+
+		progressBar.trace("Movelets Discovery for Class [No MEM]: " + trajsFromClass.get(0).getMovingObject());
 		
 		for (MAT<MO> trajectory : trajsFromClass) {
 			// This guarantees the reproducibility
 			Random random = new Random(trajectory.getTid());
 
 			/** STEP 2.1: --------------------------------- */
-			progressBar.trace("Movelets Discovery for Class [No MEM]: " + trajectory.getMovingObject());
 			List<Subtrajectory> candidates = moveletsDiscovery(trajectory, this.train, minSize, maxSize, random);
 		
 	//		Mov3letsUtils.getInstance().stopTimer("\tClass >> " + trajectory.getClass());

@@ -43,7 +43,7 @@ public class Descriptor {
 	private AttributeDescriptor idFeature = null;
 	private AttributeDescriptor labelFeature = null;
 	private List<AttributeDescriptor> attributes = null;
-	private List<String> inputFiles = null;
+	private LoaderDescriptor input = null;
 	
 	private HashMap<String, Object> params;
 
@@ -88,19 +88,13 @@ public class Descriptor {
 	public void setAttributes(List<AttributeDescriptor> attributes) {
 		this.attributes = attributes;
 	}
-
-	/**
-	 * @return the inputFiles
-	 */
-	public List<String> getInputFiles() {
-		return inputFiles;
+	
+	public LoaderDescriptor getInput() {
+		return input;
 	}
-
-	/**
-	 * @param inputFiles the inputFiles to set
-	 */
-	public void setInputFiles(List<String> inputFiles) {
-		this.inputFiles = inputFiles;
+	
+	public void setInput(LoaderDescriptor input) {
+		this.input = input;
 	}
 
 	/**
@@ -116,6 +110,32 @@ public class Descriptor {
 				Mov3letsUtils.traceW("Malformed "+ attr.toString());
 				System.exit(1);
 			}
+		}
+		
+		if (getInput() != null && getInput().getFormat() != null) {
+			// Config input format:
+			switch (getInput().getFormat()) {
+				case "CSV":
+					setParam("data_format", "CSV");
+					break;
+				case "CZIP":
+				default:
+					setParam("data_format", "CZIP");
+					break;
+			}
+			
+			// Config Optimization:
+			switch (getInput().getLoader()) {
+				case "indexed":
+					setFlag("indexed", true);
+					break;
+				case "interning":
+				case "default":
+				default:
+					setFlag("interning", true);
+					break;
+			}
+			
 		}
 	}
 	
@@ -143,11 +163,13 @@ public class Descriptor {
 		}
 	}
 	
-	public static Descriptor load(String fileName) throws UnsupportedEncodingException, FileNotFoundException {
+	public static Descriptor load(String fileName, HashMap<String, Object> params) throws UnsupportedEncodingException, FileNotFoundException {
 		Reader reader = new InputStreamReader(
 				new FileInputStream(fileName), "UTF-8");
         Gson gson = new GsonBuilder().create();
         Descriptor descriptor = gson.fromJson(reader, Descriptor.class);
+        
+        descriptor.setParams(params);
         descriptor.configure();
 
 //		System.out.println(descriptor);

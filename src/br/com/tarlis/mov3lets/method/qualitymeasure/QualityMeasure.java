@@ -17,26 +17,51 @@
  */
 package br.com.tarlis.mov3lets.method.qualitymeasure;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
 import org.apache.commons.math3.util.Pair;
 
 import br.com.tarlis.mov3lets.method.distancemeasure.DistanceMeasure;
+import br.com.tarlis.mov3lets.model.MAT;
 import br.com.tarlis.mov3lets.model.Subtrajectory;
 
 /**
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  *
  */
-public abstract class QualityMeasure {
+public abstract class QualityMeasure<MO> {
 	
 	public double MAX_VALUE = DistanceMeasure.DEFAULT_MAX_VALUE;
 	
+	protected List<MO> labels;
+	protected List<MAT<MO>> trajectories;
+	
+	protected int samples = 1;
+	
+	protected double sampleSize = 1;
+	
+	protected String medium = "none";	
+	
+	public QualityMeasure(List<MAT<MO>> trajectories, int samples, double sampleSize, String medium) {
+		this.labels = new ArrayList<>();
+	
+		for (int j = 0; j < trajectories.size(); j++) {
+			labels.add(trajectories.get(j).getMovingObject());
+		}	
+		this.trajectories = trajectories;	
+		this.samples = samples;
+		this.sampleSize = sampleSize;
+		this.medium = medium;
+	}
+	
 	public abstract void assesQuality(Subtrajectory candidate, Random random);
 
-	protected double[] getMaxDistances(double[][] distances) {
+	public double[] getMaxDistances(double[][] distances) {
 		
 		double[] maxDistances = new double[distances.length];
 		for (int i = 0; i < maxDistances.length; i++) {
@@ -45,6 +70,117 @@ public abstract class QualityMeasure {
 		}
 				
 		return maxDistances;
+	}
+	
+	public Pair<double[][],List<MO>> choosePointsStratified(double[][] distances, List<MO> labels, MO target, Random random){
+		
+//		if (this.sampleSize == 1){
+//			return new Pair<>(distances,labels);
+//		}
+		
+		List<Integer> positive = new ArrayList<>();
+		List<Integer> negative = new ArrayList<>();
+		for (int i = 0; i < labels.size(); i++) {
+			if (labels.get(i).equals(target))
+				positive.add(i);
+			else
+				negative.add(i);
+		}
+		
+		List<Integer> choosed = new ArrayList<>();
+		Collections.shuffle(positive,random);
+		choosed.addAll(positive.subList(0, (int) (positive.size() * this.sampleSize) ) );		
+		Collections.shuffle(negative,random);
+		choosed.addAll(negative.subList(0, (int) (negative.size() * this.sampleSize) ) );
+		
+		// Selecionar os dados
+		double[][] newDistances = new double[distances.length][choosed.size()];
+		List<MO> newLabels = new ArrayList<>();
+		
+		for (int i = 0; i < choosed.size(); i++) {
+			for (int j = 0; j < newDistances.length; j++) {
+				newDistances[j][i] = distances[j][choosed.get(i)];
+			}
+			newLabels.add(labels.get(choosed.get(i)));			
+		}
+		
+		
+		return new Pair<>(newDistances,newLabels);
+	}
+	
+	public boolean firstVectorGreaterThanTheSecond(double [] first, double [] second){
+		
+		for (int i = 0; i < first.length; i++) {
+			if (first[i] <= second[i])
+				return false;
+		}
+		
+		return true;
+	}
+	
+	public Pair<double[],double[]> fillSplitPointsLimits(Map<String, double[]> splitpointsData, String medium){
+		int n = splitpointsData.get("mean").length;
+		double[] splitpointsLI = new double[n];
+		double[] splitpointsLS = new double[n];
+		
+		switch (medium){
+		
+			case "interquartil" :
+				splitpointsLI = splitpointsData.get("p25");
+				splitpointsLS = splitpointsData.get("p75");				
+				break;
+			case "sd" :
+				for (int i = 0; i < n; i++) {
+					splitpointsLI[i] = splitpointsData.get("mean")[i] - splitpointsData.get("sd")[i];
+					splitpointsLS[i] = splitpointsData.get("mean")[i] + splitpointsData.get("sd")[i];
+				}
+				break;
+			case "minmax" :
+				splitpointsLI = splitpointsData.get("min");
+				splitpointsLS = splitpointsData.get("max");				
+				break;
+			case "mean" :
+				splitpointsLI = splitpointsData.get("mean");
+				splitpointsLS = splitpointsData.get("mean");	
+				break;	
+				
+			default :
+				splitpointsLI = splitpointsData.get("mean");
+				splitpointsLS = splitpointsData.get("mean");					
+		
+		}		
+		
+		return new Pair<double[],double[]>(splitpointsLI,splitpointsLS);
+	}
+	
+	public int countCovered(List<double[]> targetDistances, double[] candidate){
+		
+		int count = 0;
+		
+		for (int i = 0; i < targetDistances.size(); i++) {
+			
+			if (isCovered(targetDistances.get(i), candidate))
+				count++;
+			
+		}
+		
+		return count;
+	}
+	
+	public boolean isCovered(double[] point, double[] limits){
+		
+		int dimensions = limits.length;
+		
+		for (int i = 0; i < dimensions; i++) {
+			if (limits[i] > 0){
+				if (point[i] >= limits[i])
+					return false;
+			} else
+				if (point[i] > limits[i])
+					return false;
+		}
+		
+		return true;
 	}
 
 }

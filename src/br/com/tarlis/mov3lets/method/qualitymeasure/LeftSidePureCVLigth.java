@@ -2,7 +2,6 @@ package br.com.tarlis.mov3lets.method.qualitymeasure;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -24,47 +23,88 @@ import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instances;
 
-public class LeftSidePureCVLigth<MO> extends QualityMeasure {
+public class LeftSidePureCVLigth<MO> extends QualityMeasure<MO> {
 
 //	private List<MAT> trajectories;
 	
-	private List<MO> labels;	
-	
 	private Map<MO,Long> classes;
-	
-	private int samples = 1;
-	
-	private double sampleSize = 1;
-	
-	private String medium = "none";	
 	
 //	private RankingAlgorithm rankingAlgorithm = new NaturalRanking();
 	
 	public LeftSidePureCVLigth(List<MAT<MO>> trajectories, int samples, double sampleSize, String medium) {
+		super(trajectories, samples, sampleSize, medium);
 //		this.trajectories = trajectories;
-		this.labels = new ArrayList<>();
-	
-		for (int j = 0; j < trajectories.size(); j++) {
-			labels.add(trajectories.get(j).getMovingObject());
-		}		
 		this.classes = this.labels.stream().collect(Collectors.groupingBy(e -> e, Collectors.counting()));
-		this.samples = samples;
-		this.sampleSize = sampleSize;
-		this.medium = medium;
 	}
 	
+//	private List<double[]> createStairPoints(List<double[]> candidates){
+//		
+//		if (candidates.isEmpty())
+//			return candidates;
+//		
+//		List<double[]> candidates2 = new ArrayList<>();
+//		int dimensions = candidates.get(0).length;
+//		for (int i = 0; i < (candidates.size()-dimensions+1); i++) {
+//			
+//			double[] maxFoundForDimensions = new double[dimensions]; 
+//			
+//			for (int j = 0; j < dimensions; j++) {
+//				
+//				maxFoundForDimensions[j] = candidates.get(i+0)[j];
+//				
+//				for (int k = 1; k < dimensions; k++) {
+//					if (candidates.get(i+k)[j] > maxFoundForDimensions[j])
+//						maxFoundForDimensions[j] = candidates.get(i+k)[j];
+//				}
+//				
+//			}
+//			
+//			candidates2.add(maxFoundForDimensions);			
+//		}
+//		
+//		return candidates2;
+//	}
 	
-	private boolean firstVectorGreaterThanTheSecond(double [] first, double [] second){
+	public double[][] clone2DArray(double [][] source){
+		double[][] dest = new double[source.length][];
+		for (int i = 0; i < dest.length; i++) {
+			dest[i] = new double[source[i].length];
+			for (int j = 0; j < dest[i].length; j++) {
+				dest[i][j] = source[i][j];				
+			}
+		}
+		return dest;		
+	}
+	
+	public Pair<Integer,double[]> getBestSplitpoints(double[][] distances, MO target, List<MO> labels, List<double[]> candidates) {
 		
-		for (int i = 0; i < first.length; i++) {
-			if (first[i] <= second[i])
-				return false;
+		List<double[]> targetDistances = new ArrayList<>();
+		RealMatrix rm = new Array2DRowRealMatrix(distances);
+		
+		/* Select only the distance of the non-target label
+		 * */
+		for (int i = 0; i < labels.size(); i++) {
+			if (labels.get(i).equals(target))				
+				targetDistances.add( rm.getColumn(i) );
 		}
 		
-		return true;
+		double[] bestCandidate = new double[distances.length];
+		int bestCount = 0;
+		int currentCount;
+		
+		for (double[] currentCandidate : candidates) {
+			currentCount = countCovered(targetDistances,currentCandidate);
+			
+			if (currentCount > bestCount){
+				 bestCount = currentCount;
+				 bestCandidate = currentCandidate;
+			 }			
+		}
+						
+		return new Pair<Integer,double[]>(bestCount,bestCandidate);
 	}
 	
-	private List<double[]> prunePoints(double[][] distances, MO target, List<MO> labels){
+	public List<double[]> prunePoints(double[][] distances, MO target, List<MO> labels){
 		
 		List<Pair<MutableBoolean,double[]>> nonTargetDistances = new ArrayList<>();
 		RealMatrix rm = new Array2DRowRealMatrix(distances);
@@ -175,111 +215,7 @@ public class LeftSidePureCVLigth<MO> extends QualityMeasure {
 		return candidates;
 	}
 	
-	
-//	private List<double[]> createStairPoints(List<double[]> candidates){
-//		
-//		if (candidates.isEmpty())
-//			return candidates;
-//		
-//		List<double[]> candidates2 = new ArrayList<>();
-//		int dimensions = candidates.get(0).length;
-//		for (int i = 0; i < (candidates.size()-dimensions+1); i++) {
-//			
-//			double[] maxFoundForDimensions = new double[dimensions]; 
-//			
-//			for (int j = 0; j < dimensions; j++) {
-//				
-//				maxFoundForDimensions[j] = candidates.get(i+0)[j];
-//				
-//				for (int k = 1; k < dimensions; k++) {
-//					if (candidates.get(i+k)[j] > maxFoundForDimensions[j])
-//						maxFoundForDimensions[j] = candidates.get(i+k)[j];
-//				}
-//				
-//			}
-//			
-//			candidates2.add(maxFoundForDimensions);			
-//		}
-//		
-//		return candidates2;
-//	}
-	
-	public double[][] clone2DArray(double [][] source){
-		double[][] dest = new double[source.length][];
-		for (int i = 0; i < dest.length; i++) {
-			dest[i] = new double[source[i].length];
-			for (int j = 0; j < dest[i].length; j++) {
-				dest[i][j] = source[i][j];				
-			}
-		}
-		return dest;		
-	}
-	
-	private Pair<Integer,double[]> getBestSplitpoints(double[][] distances, MO target, List<MO> labels, List<double[]> candidates) {
-		
-		List<double[]> targetDistances = new ArrayList<>();
-		RealMatrix rm = new Array2DRowRealMatrix(distances);
-		
-		/* Select only the distance of the non-target label
-		 * */
-		for (int i = 0; i < labels.size(); i++) {
-			if (labels.get(i).equals(target))				
-				targetDistances.add( rm.getColumn(i) );
-		}
-		
-		double[] bestCandidate = new double[distances.length];
-		int bestCount = 0;
-		int currentCount;
-		
-		for (double[] currentCandidate : candidates) {
-			currentCount = countCovered(targetDistances,currentCandidate);
-			
-			if (currentCount > bestCount){
-				 bestCount = currentCount;
-				 bestCandidate = currentCandidate;
-			 }			
-		}
-						
-		return new Pair<Integer,double[]>(bestCount,bestCandidate);
-	}
-	
-	private Pair<double[][],List<MO>> choosePointsStratified(double[][] distances, List<MO> labels, MO target, Random random){
-		
-		if (this.sampleSize == 1){
-			return new Pair<>(distances,labels);
-		}
-		
-		List<Integer> positive = new ArrayList<>();
-		List<Integer> negative = new ArrayList<>();
-		for (int i = 0; i < labels.size(); i++) {
-			if (labels.get(i).equals(target))
-				positive.add(i);
-			else
-				negative.add(i);
-		}
-		
-		List<Integer> choosed = new ArrayList<>();
-		Collections.shuffle(positive,random);
-		choosed.addAll(positive.subList(0, (int) (positive.size() * this.sampleSize) ) );		
-		Collections.shuffle(negative,random);
-		choosed.addAll(negative.subList(0, (int) (negative.size() * this.sampleSize) ) );
-		
-		// Selecionar os dados
-		double[][] newDistances = new double[distances.length][choosed.size()];
-		List<MO> newLabels = new ArrayList<>();
-		
-		for (int i = 0; i < choosed.size(); i++) {
-			for (int j = 0; j < newDistances.length; j++) {
-				newDistances[j][i] = distances[j][choosed.get(i)];
-			}
-			newLabels.add(labels.get(choosed.get(i)));			
-		}
-		
-		
-		return new Pair<>(newDistances,newLabels);
-	}
-	
-	private Map<String,double[]> getBestSplitpointsCV(Subtrajectory candidate, double[][] distances, MO target, Random random) {
+	public Map<String,double[]> getBestSplitpointsCV(Subtrajectory candidate, double[][] distances, MO target, Random random) {
 		
 		List<Pair<Integer,double[]>> results = new ArrayList<>();		
 		Pair<double[][],List<MO>> chosePoints = null;
@@ -333,20 +269,6 @@ public class LeftSidePureCVLigth<MO> extends QualityMeasure {
 		splitpointsData.put("mean", splitPointsMean);		
 		
 		return splitpointsData;
-	}
-	
-	private int countCovered(List<double[]> targetDistances, double[] candidate){
-		
-		int count = 0;
-		
-		for (int i = 0; i < targetDistances.size(); i++) {
-			
-			if (isCovered(targetDistances.get(i), candidate))
-				count++;
-			
-		}
-		
-		return count;
 	}
 	
 	public double getInformationGain(double[][] distances, List<MO> labels, Map<String, double[]> splitpointsData){
@@ -497,57 +419,6 @@ public class LeftSidePureCVLigth<MO> extends QualityMeasure {
 		}
 		                
 		return infogain;
-	}
-	
-	public Pair<double[],double[]> fillSplitPointsLimits(Map<String, double[]> splitpointsData, String medium){
-		int n = splitpointsData.get("mean").length;
-		double[] splitpointsLI = new double[n];
-		double[] splitpointsLS = new double[n];
-		
-		switch (medium){
-		
-			case "interquartil" :
-				splitpointsLI = splitpointsData.get("p25");
-				splitpointsLS = splitpointsData.get("p75");				
-				break;
-			case "sd" :
-				for (int i = 0; i < n; i++) {
-					splitpointsLI[i] = splitpointsData.get("mean")[i] - splitpointsData.get("sd")[i];
-					splitpointsLS[i] = splitpointsData.get("mean")[i] + splitpointsData.get("sd")[i];
-				}
-				break;
-			case "minmax" :
-				splitpointsLI = splitpointsData.get("min");
-				splitpointsLS = splitpointsData.get("max");				
-				break;
-			case "mean" :
-				splitpointsLI = splitpointsData.get("mean");
-				splitpointsLS = splitpointsData.get("mean");	
-				break;	
-				
-			default :
-				splitpointsLI = splitpointsData.get("mean");
-				splitpointsLS = splitpointsData.get("mean");					
-		
-		}		
-		
-		return new Pair(splitpointsLI,splitpointsLS);
-	}
-	
-	public boolean isCovered(double[] point, double[] limits){
-		
-		int dimensions = limits.length;
-		
-		for (int i = 0; i < dimensions; i++) {
-			if (limits[i] > 0){
-				if (point[i] >= limits[i])
-					return false;
-			} else
-				if (point[i] > limits[i])
-					return false;
-		}
-		
-		return true;
 	}
 
 	public void assesQuality(Subtrajectory candidate, Random random) {

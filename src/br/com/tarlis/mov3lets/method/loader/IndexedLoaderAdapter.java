@@ -9,7 +9,7 @@ import br.com.tarlis.mov3lets.model.MAT;
  * @author tarlisportela
  *
  */
-public class IndexedLoader<T extends MAT<?>> extends DefaultLoader<T> {
+public abstract class IndexedLoaderAdapter<T extends MAT<?>> extends LoaderAdapter<T> {
 
 	
 

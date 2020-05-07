@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -38,8 +39,10 @@ import br.com.tarlis.mov3lets.method.discovery.PivotsMoveletsDiscovery;
 import br.com.tarlis.mov3lets.method.discovery.PrecomputeMoveletsDiscovery;
 import br.com.tarlis.mov3lets.method.discovery.ProgressiveMoveletsDiscovery;
 import br.com.tarlis.mov3lets.method.discovery.SuperMoveletsDiscovery;
-import br.com.tarlis.mov3lets.method.loader.IndexedLoader;
-import br.com.tarlis.mov3lets.method.loader.InterningLoader;
+import br.com.tarlis.mov3lets.method.loader.CSVInternLoader;
+import br.com.tarlis.mov3lets.method.loader.CSVLoader;
+import br.com.tarlis.mov3lets.method.loader.LoaderAdapter;
+import br.com.tarlis.mov3lets.method.loader.ZippedInternLoader;
 import br.com.tarlis.mov3lets.method.loader.ZippedLoader;
 import br.com.tarlis.mov3lets.method.output.CSVOutputter;
 import br.com.tarlis.mov3lets.method.output.JSONOutputter;
@@ -66,14 +69,17 @@ public class Mov3lets<MO> {
 	private List<MAT<MO>> data = null;
 	private List<MAT<MO>> train = null;
 	private List<MAT<MO>> test = null;
+	
+	public static ProgressBar progressBar = new ProgressBar();
 
 	/**
+	 * @param params 
 	 * @param descFile
 	 * @throws FileNotFoundException 
 	 * @throws UnsupportedEncodingException 
 	 */
-	public Mov3lets(String descriptorFile) throws UnsupportedEncodingException, FileNotFoundException {
-		this.descriptor = Descriptor.load(descriptorFile);
+	public Mov3lets(String descriptorFile, HashMap<String, Object> params) throws UnsupportedEncodingException, FileNotFoundException {
+		this.descriptor = Descriptor.load(descriptorFile, params);
 	}
 
 	/**
@@ -103,12 +109,16 @@ public class Mov3lets<MO> {
 									    		getDescriptor().getParamAsDouble("sample_size"), 
 									    		getDescriptor().getParamAsText("medium"));
 		else 
-			qualityMeasure = new ProportionQualityMeasure<MO>(this.train);
+			qualityMeasure = new ProportionQualityMeasure<MO>(this.train,
+									    		getDescriptor().getParamAsInt("samples"), 
+									    		getDescriptor().getParamAsDouble("sample_size"), 
+									    		getDescriptor().getParamAsText("medium"));
 
 //		List<Subtrajectory> candidates = new ArrayList<Subtrajectory>();	
 		
 		/* Keeping up with Progress output */
-		ProgressBar progressBar = new ProgressBar("[2] >> Movelet Discovery", train.size());
+		progressBar.setPrefix("[2] >> Movelet Discovery");
+		progressBar.setTotal(train.size());
 //		progressBar.setInline(false);
 		int progress = 0;
 		progressBar.update(progress, train.size());
@@ -223,22 +233,59 @@ public class Mov3lets<MO> {
 		return outs;
 	}
 
+	public void loadTrain() throws IOException {
+		LoaderAdapter loader = instantiateLoader();
+		
+		if (getDescriptor().getInput() != null && getDescriptor().getInput().getTrain() != null) {
+			setTrain(new ArrayList<MAT<MO>>());
+			for (String file : getDescriptor().getInput().getTrain()) {
+				getTrain().addAll(loader.load(file, getDescriptor()));
+			}
+		} else {
+			setTrain(loader.load("train", getDescriptor()));
+		}
+	}
+
+	public void loadTest() throws IOException {
+		LoaderAdapter loader = instantiateLoader();
+		
+		if (getDescriptor().getInput() != null && getDescriptor().getInput().getTrain() != null) {
+			setTest(new ArrayList<MAT<MO>>());
+			for (String file : getDescriptor().getInput().getTrain()) {
+				getTest().addAll(loader.load(file, getDescriptor()));
+			}
+		} else {
+			setTest(loader.load("test", getDescriptor()));
+		}
+	}
+
 	/**
 	 * STEP 1
 	 * @return
 	 * @throws IOException
 	 */
-	public List<MAT<MO>> loadTrajectories(String file) throws IOException {
-		List<MAT<MO>> data;
-		if (getDescriptor().getFlag("indexed")) {
-			data = new IndexedLoader<MAT<MO>>().load(file, getDescriptor());
-		} else if (getDescriptor().getFlag("interning")) {
-			data = new InterningLoader<MAT<MO>>().load(file, getDescriptor());
+	public LoaderAdapter instantiateLoader() {
+		LoaderAdapter loader;
+//		if (getDescriptor().getFlag("indexed")) { // For future implementations
+//			data = new IndexedLoaderAdapter<MAT<MO>>().load(file, getDescriptor());
+//		} else 
+		if (getDescriptor().getFlag("interning")) {
+
+			if ("CSV".equals(getDescriptor().getParamAsText("data_format")))			
+				loader = new CSVInternLoader<MAT<MO>>();
+			else
+				loader = new ZippedInternLoader<MAT<MO>>(); // DEFAULT
+			
 		} else {
-//			data = new DefaultLoader<MAT<MO>>().load(file, getDescriptor());
-			data = new ZippedLoader<MAT<MO>>().load(file, getDescriptor());
+
+			if ("CSV".equals(getDescriptor().getParamAsText("data_format")))			
+				loader = new CSVLoader<MAT<MO>>();
+			else
+				loader = new ZippedLoader<MAT<MO>>();
+			
 		}
-		return data;
+		
+		return loader;
 	}
 	
 	/**

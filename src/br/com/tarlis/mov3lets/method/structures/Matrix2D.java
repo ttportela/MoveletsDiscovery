@@ -19,7 +19,6 @@ package br.com.tarlis.mov3lets.method.structures;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 import br.com.tarlis.mov3lets.model.MAT;
 import br.com.tarlis.mov3lets.model.Point;

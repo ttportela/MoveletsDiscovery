@@ -17,9 +17,6 @@
  */
 package br.com.tarlis.mov3lets.run;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-
 /**
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  *

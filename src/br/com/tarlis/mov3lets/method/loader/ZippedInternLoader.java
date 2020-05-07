@@ -22,7 +22,7 @@ import br.com.tarlis.mov3lets.method.structures.descriptor.Descriptor;
 import br.com.tarlis.mov3lets.model.MAT;
 import br.com.tarlis.mov3lets.model.Point;
 
-public class ZippedLoader<T extends MAT<?>> extends CSVLoader<T> {
+public class ZippedInternLoader<T extends MAT<?>> extends CSVInternLoader<T> {
 
 	@Override
 	public List<T> load(String file, Descriptor descriptor) throws IOException {

@@ -4,11 +4,8 @@
 package br.com.tarlis.mov3lets.method.structures;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
-import java.util.stream.DoubleStream;
 
 import org.apache.commons.math3.util.Combinations;
 

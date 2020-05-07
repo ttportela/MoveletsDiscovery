@@ -15,7 +15,7 @@ import br.com.tarlis.mov3lets.model.aspect.Aspect;
  * @author tarlisportela
  *
  */
-public class InterningLoader<T extends MAT<?>> extends ZippedLoader<T> {
+public abstract class InterningLoaderAdapter<T extends MAT<?>> extends LoaderAdapter<T> {
 	
 	protected HashMap<Pair<String, String>, Aspect<?>> MEM = new HashMap<Pair<String,String>, Aspect<?>>();
 	

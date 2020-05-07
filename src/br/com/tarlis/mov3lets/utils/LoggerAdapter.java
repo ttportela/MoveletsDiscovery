@@ -3,6 +3,11 @@
  */
 package br.com.tarlis.mov3lets.utils;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
+import org.apache.commons.lang3.exception.ExceptionUtils;
+
 /**
  * @author tarlis
  *
@@ -20,7 +25,9 @@ public abstract class LoggerAdapter {
 	}
 	
 	public synchronized void traceE(String s, Exception e) {
-		System.err.println("Error: " + s);
+		trace("\n[Error] " + s);
+		String stacktrace = ExceptionUtils.getStackTrace(e);
+        trace(stacktrace);
 		e.printStackTrace();
 	}
 
