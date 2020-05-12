@@ -249,9 +249,9 @@ public class Mov3lets<MO> {
 	public void loadTest() throws IOException {
 		LoaderAdapter loader = instantiateLoader();
 		
-		if (getDescriptor().getInput() != null && getDescriptor().getInput().getTrain() != null) {
+		if (getDescriptor().getInput() != null && getDescriptor().getInput().getTest() != null) {
 			setTest(new ArrayList<MAT<MO>>());
-			for (String file : getDescriptor().getInput().getTrain()) {
+			for (String file : getDescriptor().getInput().getTest()) {
 				getTest().addAll(loader.load(file, getDescriptor()));
 			}
 		} else {

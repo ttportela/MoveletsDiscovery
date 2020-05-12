@@ -4,14 +4,18 @@
 package br.com.tarlis.mov3lets.method.discovery;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+
+import org.apache.commons.math3.util.Combinations;
 
 import br.com.tarlis.mov3lets.method.qualitymeasure.ProportionQuality;
 import br.com.tarlis.mov3lets.method.qualitymeasure.QualityMeasure;
 import br.com.tarlis.mov3lets.method.structures.descriptor.Descriptor;
 import br.com.tarlis.mov3lets.model.MAT;
 import br.com.tarlis.mov3lets.model.Subtrajectory;
+import br.com.tarlis.mov3lets.utils.Mov3letsUtils;
 
 /**
  * @author tarlis
@@ -58,9 +62,9 @@ public class HiperMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> {
 			/** STEP 2.1: Starts at discovering movelets */
 			List<Subtrajectory> candidates = moveletsDiscovery(trajectory, this.trajsFromClass, minSize, maxSize, random);
 			
-			progressBar.trace("Class: " + trajsFromClass.get(0).getMovingObject() 
-					+ ". Trajectory: " + trajectory.getTid() 
-					+ ". Used GAMMA: " + GAMMA);
+//			progressBar.trace("Class: " + trajsFromClass.get(0).getMovingObject() 
+//					+ ". Trajectory: " + trajectory.getTid() 
+//					+ ". Used GAMMA: " + GAMMA);
 			
 			trajsIgnored += (removed - queue.size());
 			
@@ -113,34 +117,30 @@ public class HiperMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> {
 
 	public List<Subtrajectory> selectBestCandidates(MAT<MO> trajectory, int maxSize, Random random,
 			List<Subtrajectory> candidatesByProp) {
-		List<Subtrajectory> bestCandidates = new ArrayList<Subtrajectory>();
-		double[] percentiles = {0.1, 0.2, 0.3, 0.4, 0.5};
+		List<Subtrajectory> bestCandidates;
+
+		GAMMA = getDescriptor().getParamAsDouble("gamma");
+		bestCandidates = filterByProportion(candidatesByProp, GAMMA, random);
+		List<MAT<MO>> covered = getCoveredInClass(bestCandidates);
 		
-		for (double gamma : percentiles) {
-			bestCandidates = filterByProportion(candidatesByProp, GAMMA = gamma, random);
-			List<MAT<MO>> covered = getCoveredInClass(bestCandidates);
-			
-			bestCandidates = filterByQuality(bestCandidates, random);
-			if (bestCandidates.size() > 0) {
-				queue.removeAll(covered);
-				break;
-			}
-		}
-		
+		bestCandidates = filterByQuality(bestCandidates, random);
+		if (bestCandidates.size() > 0) {
+			/** UPDATE QUEUE: */
+			queue.removeAll(covered);
+		} else
 		if (bestCandidates.isEmpty()) { 
 			/* STEP 2.1.5: SELECT ONLY HALF OF THE CANDIDATES (IF Nothing found)
 			 * * * * * * * * * * * * * * * * * * * * * * * * */
-			calculateProportion(candidatesByProp, 1.0, random); GAMMA = 0.0;
+			calculateProportion(candidatesByProp, GAMMA, random); // GAMMA = 0.0;
 			bestCandidates = candidatesByProp.subList(0, (int) Math.ceil((double) candidatesByProp.size() * TAU));
 			
 			/** UPDATE QUEUE: */
-			queue.removeAll(getCoveredInClass(bestCandidates));
+//			queue.removeAll(getCoveredInClass(bestCandidates));
 
 			/** STEP 2.2: SELECTING BEST CANDIDATES */	
 			bestCandidates = filterByQuality(bestCandidates, random);
 		}
 
-		
 		progressBar.plus("Class: " + trajectory.getMovingObject() 
 						+ ". Trajectory: " + trajectory.getTid() 
 						+ ". Trajectory Size: " + trajectory.getPoints().size() 
@@ -148,6 +148,46 @@ public class HiperMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> {
 						+ ". Total of Movelets: " + bestCandidates.size() 
 						+ ". Max Size: " + maxSize
 						+ ". Used Features: " + this.maxNumberOfFeatures 
+						+ ". Memory Use: " + Mov3letsUtils.getUsedMemory() 
+						+ ". Used GAMMA: " + GAMMA);
+
+		return bestCandidates;
+	}
+
+	public List<Subtrajectory> selectBestCandidates_bkp(MAT<MO> trajectory, int maxSize, Random random,
+			List<Subtrajectory> candidatesByProp) {
+		List<Subtrajectory> bestCandidates;
+
+		GAMMA = getDescriptor().getParamAsDouble("gamma");
+		bestCandidates = filterByProportion(candidatesByProp, GAMMA, random);
+		List<MAT<MO>> covered = getCoveredInClass(bestCandidates);
+		
+		bestCandidates = filterByQuality(bestCandidates, random);
+		if (bestCandidates.size() > 0) {
+			/** UPDATE QUEUE: */
+			queue.removeAll(covered);
+		} else
+		if (bestCandidates.isEmpty()) { 
+			/* STEP 2.1.5: SELECT ONLY HALF OF THE CANDIDATES (IF Nothing found)
+			 * * * * * * * * * * * * * * * * * * * * * * * * */
+			calculateProportion(candidatesByProp, 1.0, random); GAMMA = 0.0;
+			bestCandidates = candidatesByProp.subList(0, (int) Math.ceil((double) candidatesByProp.size() * TAU));
+			
+			/** UPDATE QUEUE: */
+//			queue.removeAll(getCoveredInClass(bestCandidates));
+
+			/** STEP 2.2: SELECTING BEST CANDIDATES */	
+			bestCandidates = filterByQuality(bestCandidates, random);
+		}
+
+		progressBar.plus("Class: " + trajectory.getMovingObject() 
+						+ ". Trajectory: " + trajectory.getTid() 
+						+ ". Trajectory Size: " + trajectory.getPoints().size() 
+						+ ". Number of Candidates: " + candidatesByProp.size() 
+						+ ". Total of Movelets: " + bestCandidates.size() 
+						+ ". Max Size: " + maxSize
+						+ ". Used Features: " + this.maxNumberOfFeatures 
+						+ ". Memory Use: " + Mov3letsUtils.getUsedMemory() 
 						+ ". Used GAMMA: " + GAMMA);
 
 		return bestCandidates;
@@ -158,10 +198,85 @@ public class HiperMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> {
 		// Remove from queue other covered trajectories: - by Tarlis
 		for (Subtrajectory candidate : bestCandidates) {
 //			if (candidate.getProportionInClass() > 0.5)
-			covered.addAll((List) ((ProportionQuality) candidate.getQuality()).getCoveredInClass() );
+
+//			if(candidate.getQuality().getData().get("proportion") >= GAMMA)
+				covered.addAll((List) ((ProportionQuality) candidate.getQuality()).getCoveredInClass() );
 		}
 		
 		return covered;
+	}
+
+//	public List<MAT<MO>> getCoveredInClass(List<Subtrajectory> bestCandidates) {
+//		Map<MAT<?>, Integer> covered = new HashMap<MAT<?>, Integer>();
+//		final MutableInt mostFreq = new MutableInt(0);
+//		// Remove from queue other covered trajectories: - by Tarlis
+//		for (Subtrajectory candidate : bestCandidates) {
+////			if (candidate.getProportionInClass() > 0.5)
+//
+//			for (MAT<?> T : ((ProportionQuality) candidate.getQuality()).getCoveredInClass()) {
+//				if (!T.equals(candidate.getTrajectory())) {
+//					int k = (covered.containsKey(T)? covered.get(T): 0) + 1;
+//					if (mostFreq.v < k) mostFreq.v = k;
+//					covered.put(T, k);
+//				}
+//			}
+//		}
+//		
+//		return  (List) covered.entrySet()
+//                .stream()
+//                .filter( e -> e.getValue() >= mostFreq.v)
+//                .map(Map.Entry::getKey)
+//                .collect(Collectors.toList());
+//	}
+
+	public int[][] makeCombinations(boolean exploreDimensions, int numberOfFeatures, int maxNumberOfFeatures) {
+		
+		if (combinations != null)
+			return combinations;
+		
+		if (!getDescriptor().getFlag("LDM"))
+			return super.makeCombinations(exploreDimensions, numberOfFeatures, maxNumberOfFeatures);
+		
+		List<int[]> selected = new ArrayList<int[]>();
+		
+		int currentFeatures;
+		if (exploreDimensions){
+			currentFeatures = 1;
+		} else {
+			currentFeatures = numberOfFeatures;
+		}
+		
+//		combinations = new int[(int) (Math.pow(2, maxNumberOfFeatures) - 1)][];
+//		int k = 0;
+		// For each possible NumberOfFeatures and each combination of those: 
+		for (;currentFeatures <= maxNumberOfFeatures; currentFeatures++) {
+			for (int[] comb : new Combinations(numberOfFeatures,currentFeatures)) {					
+				
+				if (!hasDuplicates(comb))
+					selected.add(comb);
+//				combinations[k++] = comb;
+				
+			} // for (int[] comb : new Combinations(numberOfFeatures,currentFeatures)) 					
+		} // for (int i = 0; i < train.size(); i++
+
+		return selected.toArray(new int[selected.size()][]);
+	}
+
+	public boolean hasDuplicates(int[] comb) {
+
+		int[] orders = new int[comb.length];
+		for (int j = 0; j < comb.length; j++) {
+			orders[j] = getDescriptor().getAttributes().get(comb[j]).getOrder();
+		}
+		
+		Arrays.sort(orders);
+		for(int i = 1; i < orders.length; i++) {
+		    if(orders[i] == orders[i - 1]) {
+		        return true;
+		    }
+		}
+		
+		return false;
 	}
 
 }

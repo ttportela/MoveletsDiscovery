@@ -3,9 +3,6 @@
  */
 package br.com.tarlis.mov3lets.utils;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 /**

@@ -17,6 +17,12 @@
  */
 package br.com.tarlis.mov3lets.run;
 
+import java.util.Arrays;
+import java.util.Random;
+
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.apache.commons.math3.stat.descriptive.rank.Percentile;
+
 /**
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  *
@@ -27,59 +33,52 @@ public class Test {
 	 * @param args
 	 */
 	public static void main(String[] arg) throws Exception {
-//		BufferedReader reader1 = new BufferedReader(new FileReader("data/MM_output.txt"));
-//		
-//		BufferedReader reader2 = new BufferedReader(new FileReader("data/M3_output.txt"));
-//		
-//		String line1 = reader1.readLine();
-//		
-//		String line2 = reader2.readLine();
-//		
-//		boolean areEqual = true;
-//		
-//		int lineNum = 1;
-//		
-//		while (line1 != null || line2 != null)
-//		{
-//			if(line1 == null || line2 == null)
-//			{
-//				areEqual = false;
-//				
-//				break;
-//			}
-//			else if(! line1.equalsIgnoreCase(line2))
-//			{
-//				areEqual = false;
-//				
-////				break;
-//			}
-//			
-//			if(!areEqual) {
-//				System.out.println("Diff Line-"+lineNum + " at " + indexOfDifference(line1, line2));
-//				System.out.println("\t"+line1);
-//				System.out.println("\t"+line2);
-//			}
-//			
-//			line1 = reader1.readLine();
-//			
-//			line2 = reader2.readLine();
-//
-//			areEqual = true;
-//			lineNum++;
-//		}
-//		
-//		System.out.println("Last line: " + lineNum);
-//		
-//		reader1.close();
-//		
-//		reader2.close();
+
+		Random rand = new Random();
+		double[] array = new double[] {0.0, 0.0035322201743636997, 0.0035322201743636997, 0.001000591338675085, 0.0035322201743636997, 1.1576523712435181E-4, 0.0035322201743636997, 0.0035322201743636997, 0.0};
+	    //populate the array with doubles
+//	    for(int i =0; i < array.length; i++) {
+//	        array[i] = rand.nextDouble();
+//	    }
+
+	    int n = array.length; 
+	    System.out.println(IQR(array, n));
+	    
+
+		DescriptiveStatistics ds = new DescriptiveStatistics(array);
+		System.out.println( ds.getPercentile(0.25*100) );	
 		
-		double qDiff = (int) ((0.011516314779270634 - 0.00980392156862745) * 1000);
-		System.out.println(qDiff);
-		qDiff = ( qDiff ) / 1000.0;
-		
-		System.out.println(qDiff);
+
+		System.out.println( array );	
 	}
+	
+	private static int median(double a[],  
+			int l, int r) 
+	{ 
+		int n = r - l + 1; 
+		n = (n + 1) / 2 - 1; 
+		return n + l; 
+	}
+	
+	private static double IQR(double [] a, int n) 
+	{ 
+	    Arrays.sort(a); 
+	  
+	    // Index of median  
+	    // of entire data 
+	    int mid_index = median(a, 0, n); 
+	  
+	    // Median of first half 
+	    double Q1 = a[median(a, 0,  
+	                      mid_index)]; 
+	  
+	    // Median of second half 
+	    double Q3 = a[median(a,  
+	               mid_index + 1, n)]; 
+	  
+	    // IQR calculation 
+	    return Q1; //(Q3 - Q1); 
+	} 
 
 	static int INDEX_NOT_FOUND = -1;
 	public static String difference(String str1, String str2) {

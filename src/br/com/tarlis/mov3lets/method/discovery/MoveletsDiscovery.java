@@ -125,28 +125,29 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 	//		MyCounter.data.put("MoveletsFound", (long) movelets.size());
 	//		MyCounter.numberOfShapelets = movelets.size();
 			
-			/** STEP 2.2: Runs the pruning process */
-			if(getDescriptor().getFlag("last_prunning"))
-				candidates = lastPrunningFilter(candidates);
-			/** STEP 2.2: --------------------------------- */
-			
 	//		MyCounter.data.put("MoveletsAfterPruning", (long) movelets.size());
 			
 	//		int numberOfCandidates = (maxSize * (maxSize-1) / 2);
 
 			/** STEP 2.3, for this trajectory movelets: 
 			 * It transforms the training and test sets of trajectories using the movelets */
-			for (Subtrajectory candidate : candidates) {
-				// It initializes the set of distances of all movelets to null
-				candidate.setDistances(null);
-				// In this step the set of distances is filled by this method
-				computeDistances(candidate, this.train);
-				
-				assesQuality(candidate, random);
-			}
+//			for (Subtrajectory candidate : candidates) {
+//				// It initializes the set of distances of all movelets to null
+//				candidate.setDistances(null);
+//				// In this step the set of distances is filled by this method
+//				computeDistances(candidate, this.train);
+//				
+//				assesQuality(candidate, random);
+//			}
 
 			/** STEP 2.4: SELECTING BEST CANDIDATES */			
 			candidates = filterMovelets(candidates);
+
+			/** STEP 2.2: Runs the pruning process */
+			if(getDescriptor().getFlag("last_prunning"))
+				candidates = lastPrunningFilter(candidates);
+			/** STEP 2.2: --------------------------------- */
+
 			movelets.addAll(candidates);
 			
 			/** STEP 2.3.1: Output Movelets (partial) */

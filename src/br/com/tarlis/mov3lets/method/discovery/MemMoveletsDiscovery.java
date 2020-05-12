@@ -73,19 +73,19 @@ public class MemMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 			List<Subtrajectory> candidates = moveletsDiscovery(trajectory, this.train, minSize, maxSize, random);
 			
 	//		Mov3letsUtils.getInstance().stopTimer("\tClass >> " + trajectory.getClass());
-			
+						
 			/** Summary Candidates: */
 	
 			/** STEP 2.3, for this trajectory movelets: 
 			 * It transforms the training and test sets of trajectories using the movelets */
-			for (Subtrajectory candidate : candidates) {
-				// It initializes the set of distances of all movelets to null
-				candidate.setDistances(null);
-				// In this step the set of distances is filled by this method
-				computeDistances(candidate, this.train); //, base); // computeDistances(movelet, trajectories);
-				
-				assesQuality(candidate, random);
-			}
+//			for (Subtrajectory candidate : candidates) {
+//				// It initializes the set of distances of all movelets to null
+//				candidate.setDistances(null);
+//				// In this step the set of distances is filled by this method
+//				computeDistances(candidate, this.train); // computeDistances(movelet, trajectories);
+//				
+//				assesQuality(candidate, random);
+//			}
 
 			/** STEP 2.4: SELECTING BEST CANDIDATES */			
 			candidates = filterMovelets(candidates);
@@ -106,6 +106,7 @@ public class MemMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 			 * and return otherwise */
 			/** STEP 2.3.2: Output Movelets (partial) */
 			if (!this.test.isEmpty()) {
+//				base = computeBaseDistances(trajectory, this.test);
 				for (Subtrajectory candidate : candidates) {
 					// It initializes the set of distances of all movelets to null
 					candidate.setDistances(null);

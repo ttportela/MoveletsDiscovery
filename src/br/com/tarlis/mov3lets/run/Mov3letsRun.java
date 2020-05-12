@@ -129,7 +129,7 @@ public class Mov3letsRun {
 	public static String printParams(HashMap<String, Object> params, Descriptor descriptor) {
 		String str = "Configurations:" + System.getProperty("line.separator");
 		
-		String[] columns = {"Option", "Description", "Value", "Help"};
+//		String[] columns = {"Option", "Description", "Value", "Help"};
 		Object[][] data = {
 //				{"-curpath", 			"Datasets directory", 		params.get("curpath"), 						""},
 //				{"-respath", 			"Results directory", 		(params.containsKey("result_dir_path")? params.get("result_dir_path") : params.get("respath")), 				""},
@@ -175,7 +175,7 @@ public class Mov3letsRun {
 		
 		AsciiTable at = new AsciiTable();
 		at.addRule();
-		at.addRow(columns);
+		at.addRow("Option", "Description", "Value", "Help");
 		at.addRule();
 		for (Object[] row : data) {
 			at.addRow(row);
@@ -189,8 +189,9 @@ public class Mov3letsRun {
 		
 		if (descriptor != null) {
 			at.addRow("Attributes:", "", "Type:", "Comparrator:");
+			int i = 1;
 			for (AttributeDescriptor attr : descriptor.getAttributes())
-				at.addRow("", attr.getOrder() + " - " + attr.getText(), attr.getType(), attr.getComparator().toString());
+				at.addRow(i++, attr.getOrder() + " - " + attr.getText(), attr.getType(), attr.getComparator().toString());
 		}
 		at.addRule();
 		
@@ -234,6 +235,8 @@ public class Mov3letsRun {
 		params.put("interning",  				 true);
 		params.put("verbose",				 	 true);
 		params.put("version",				 	 "2.0");
+		params.put("gamma",					 	 1.0);
+		params.put("LDM",					 	 false);
 		
 		return params;
 	}
@@ -351,7 +354,15 @@ public class Mov3letsRun {
 			case "-version":
 				params.put("version", value.toLowerCase());
 				if ("pivots".equalsIgnoreCase(value)) params.put("pivots",  true);
-				break;
+				break;		
+			case "-gamma":	
+			case "-G":
+				params.put("gamma", Double.valueOf(value));			
+				break;	
+			case "-LDM":	
+			case "-ldm":
+				params.put("LDM", Boolean.valueOf(value));			
+				break;				
 			default:
 				System.err.println("Parâmetro " + key + " inválido.");
 				System.exit(1);

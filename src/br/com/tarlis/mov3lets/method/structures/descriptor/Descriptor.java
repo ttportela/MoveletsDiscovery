@@ -23,6 +23,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -103,6 +104,9 @@ public class Descriptor {
 	public void configure() {
 		attributes.removeAll(Collections.singletonList(null));
 		
+		if ("hiper".equals(getParamAsText("version")) && getFlag("LDM"))
+			attributes = LDMAttributes();
+		
 		for (AttributeDescriptor attr : attributes) {
 			if (attr.getComparator() != null && attr.getComparator().getDistance() != null) {
 				instantiateDistanceMeasure(attr);
@@ -139,16 +143,67 @@ public class Descriptor {
 		}
 	}
 	
+	public List<AttributeDescriptor> LDMAttributes() {
+		List<AttributeDescriptor> newAttributes = new ArrayList<AttributeDescriptor>();
+		
+		for (AttributeDescriptor attr : attributes) {
+			if (attr.getType().equalsIgnoreCase("nominal") && attr.getComparator().getDistance().equalsIgnoreCase("weekday"))
+				attr.setType("nominalday");
+			
+			switch (attr.getType()) {
+			case "numeric":
+				newAttributes.add(new AttributeDescriptor(attr.getOrder(), attr.getType(), attr.getText(), "difference", -1.0));
+				newAttributes.add(new AttributeDescriptor(attr.getOrder(), attr.getType(), attr.getText(), "diffnotneg", -1.0));
+				newAttributes.add(new AttributeDescriptor(attr.getOrder(), attr.getType(), attr.getText(), "equals", -1.0));
+				newAttributes.add(new AttributeDescriptor(attr.getOrder(), attr.getType(), attr.getText(), "proportion", -1.0));
+				break;
+			case "space2d":
+			case "composite_space2d":
+				newAttributes.add(new AttributeDescriptor(attr.getOrder(), attr.getType(), attr.getText(), "euclidean", -1.0));
+				newAttributes.add(new AttributeDescriptor(attr.getOrder(), attr.getType(), attr.getText(), "manhattan", -1.0));
+				break;
+			case "time":
+				newAttributes.add(new AttributeDescriptor(attr.getOrder(), attr.getType(), attr.getText(), "difference", -1.0));
+				break;
+			case "datetime":
+				newAttributes.add(new AttributeDescriptor(attr.getOrder(), attr.getType(), attr.getText(), "difference", -1.0));
+				break;
+			case "localdate":
+				newAttributes.add(new AttributeDescriptor(attr.getOrder(), attr.getType(), attr.getText(), "diffdaysofweek", -1.0));
+				newAttributes.add(new AttributeDescriptor(attr.getOrder(), attr.getType(), attr.getText(), "difference", -1.0));
+				newAttributes.add(new AttributeDescriptor(attr.getOrder(), attr.getType(), attr.getText(), "equaldayofweek", -1.0));
+				newAttributes.add(new AttributeDescriptor(attr.getOrder(), attr.getType(), attr.getText(), "isworkdayorweekend", -1.0));
+				break;
+			case "localtime":
+				newAttributes.add(new AttributeDescriptor(attr.getOrder(), attr.getType(), attr.getText(), "difference", -1.0));
+				break;
+			case "nominalday":
+				newAttributes.add(new AttributeDescriptor(attr.getOrder(), attr.getType(), attr.getText(), "weekday", -1.0));
+				break;
+			case "foursquarevenue":
+			case "gowallacheckin":
+			case "nominal":
+			default:
+//				newAttributes.add(new AttributeDescriptor(attr.getOrder(), attr.getType(), attr.getText(), "equals", -1.0));
+				newAttributes.add(new AttributeDescriptor(attr.getOrder(), attr.getType(), attr.getText(), "equalsignorecase", -1.0));
+			}
+		}
+		
+		return newAttributes;
+	}
+
 	/**
 	 * @param attr
 	 */
 	private void instantiateDistanceMeasure(AttributeDescriptor attr) {
-		String className = attr.getType();
+		String className = attr.getType().replace("composite_", "");
+		
 		className = "br.com.tarlis.mov3lets.method.distancemeasure." 
 				+ className.substring(0, 1).toUpperCase() + className.substring(1).toLowerCase();
 		className += attr.getComparator().getDistance().substring(0, 1).toUpperCase() 
 				+ attr.getComparator().getDistance().substring(1).toLowerCase();
 		className += "Distance";
+		
 		try {
 			attr.setDistanceComparator((DistanceMeasure<?>) Class.forName(className).getConstructor().newInstance());
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException

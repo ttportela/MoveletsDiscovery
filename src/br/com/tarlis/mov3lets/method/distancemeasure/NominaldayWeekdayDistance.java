@@ -15,56 +15,35 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package br.com.tarlis.mov3lets.method.structures.descriptor;
+package br.com.tarlis.mov3lets.method.distancemeasure;
+
+import br.com.tarlis.mov3lets.method.structures.descriptor.AttributeDescriptor;
+import br.com.tarlis.mov3lets.model.aspect.Aspect;
 
 /**
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  *
  */
-public class Comparator {
+public class NominaldayWeekdayDistance extends DistanceMeasure<Aspect<String>> {
 
-	private String distance;
-    private Double maxValue = -1.0;
-    
-    public Comparator() {
-
-	}
-    
-	public Comparator(String distance, Double maxValue) {
-		this.distance = distance;
-		this.maxValue = maxValue;
-	}
-
-
-
-	/**
-	 * @return the distance
-	 */
-	public String getDistance() {
-		return distance;
-	}
-	/**
-	 * @param distance the distance to set
-	 */
-	public void setDistance(String distance) {
-		this.distance = distance != null? distance.trim().toLowerCase() : distance;
-	}
-	/**
-	 * @return the maxValue
-	 */
-	public Double getMaxValue() {
-		return maxValue;
-	}
-	/**
-	 * @param maxValue the maxValue to set
-	 */
-	public void setMaxValue(Double maxValue) {
-		this.maxValue = maxValue;
+	@Override
+	public double distance(Aspect<String> asp0, Aspect<String> asp1, AttributeDescriptor attr) {
+		return weekdayDistance(asp0.getValue(), asp1.getValue());
 	}
 	
-	@Override
-	public String toString() {
-		return getDistance() +"/"+ getMaxValue();
+	/** SAME as Original Movelets */
+	public double weekdayDistance(String value1, String value2){
+		if ( isWeekendDay(value1) && isWeekendDay(value2))
+			return 0;
+		else if ( !isWeekendDay(value1) && !isWeekendDay(value2))
+			return 0;
+		else 
+			return 1;
+	}	
+	
+	/** SAME as Original Movelets */
+	public boolean isWeekendDay(String value1){
+		return value1.equalsIgnoreCase("Sunday") || value1.equalsIgnoreCase("Saturday");
 	}
 
 }

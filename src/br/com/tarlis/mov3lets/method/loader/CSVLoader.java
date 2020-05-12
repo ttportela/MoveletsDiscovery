@@ -15,7 +15,7 @@ import br.com.tarlis.mov3lets.method.structures.descriptor.Descriptor;
 import br.com.tarlis.mov3lets.model.MAT;
 import br.com.tarlis.mov3lets.model.Point;
 
-public class CSVLoader<T extends MAT<?>> extends LoaderAdapter<T> {
+public class CSVLoader<T extends MAT<?>> implements LoaderAdapter<T> {
 
 	@Override
 	public List<T> loadTrajectories(String file, Descriptor descriptor) throws IOException {
@@ -48,7 +48,11 @@ public class CSVLoader<T extends MAT<?>> extends LoaderAdapter<T> {
 			poi.setTrajectory(mat);
 			for (AttributeDescriptor attr : descriptor.getAttributes()) {
 //				poi.getAspects().put(attr.getText(), instantiateAspect(attr, line.get(attr.getOrder()-1)));
-				poi.getAspects().add(instantiateAspect(attr, line.get(attr.getOrder()-1)));
+				if (attr.getType().startsWith("composite_")) {
+					String value = line.get(attr.getOrder()-1) + " " + line.get(attr.getOrder());
+					poi.getAspects().add(instantiateAspect(attr, value));
+				} else 
+					poi.getAspects().add(instantiateAspect(attr, line.get(attr.getOrder()-1)));
 			}
 			mat.getPoints().add(poi);
 		}

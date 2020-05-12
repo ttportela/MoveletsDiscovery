@@ -96,7 +96,13 @@ public class ZippedLoader<T extends MAT<?>> extends CSVLoader<T> {
 			Point poi = new Point();	
 			poi.setTrajectory(mat);
 			for (AttributeDescriptor attr : descriptor.getAttributes()) {
-				poi.getAspects().add(instantiateAspect(attr, row[attr.getOrder()-1]));
+				
+				if (attr.getType().startsWith("composite_")) {
+					String value = row[attr.getOrder()-1] + " " + row[attr.getOrder()];
+					poi.getAspects().add(instantiateAspect(attr, value));
+				} else 
+					poi.getAspects().add(instantiateAspect(attr, row[attr.getOrder()-1]));
+				
 			}
 			mat.getPoints().add(poi);
 		}

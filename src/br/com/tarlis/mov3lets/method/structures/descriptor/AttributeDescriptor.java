@@ -31,6 +31,19 @@ public class AttributeDescriptor {
     private Comparator comparator;
     private DistanceMeasure<?> distanceComparator = null;
     
+    public AttributeDescriptor() {
+    	
+	}
+    
+	public AttributeDescriptor(Integer order, String type, String text, String distance, Double maxValue) {
+		this.order = order;
+		this.type = type;
+		this.text = text;
+		this.comparator = new Comparator(distance, maxValue);
+	}
+
+
+
 	/**
 	 * @return the order
 	 */

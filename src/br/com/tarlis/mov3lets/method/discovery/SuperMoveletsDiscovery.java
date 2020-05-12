@@ -175,22 +175,18 @@ public class SuperMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 
 	public List<Subtrajectory> selectBestCandidates(MAT<MO> trajectory, int maxSize, Random random,
 			List<Subtrajectory> candidatesByProp) {
-		List<Subtrajectory> bestCandidates = new ArrayList<Subtrajectory>();
-		double[] percentiles = {0.1, 0.2, 0.3, 0.4, 0.5};
-		
-		for (double gamma : percentiles) {
-			bestCandidates = filterByProportion(candidatesByProp, GAMMA = gamma, random);
-			bestCandidates = filterByQuality(bestCandidates, random);
-			if (bestCandidates.size() > 0)
-				break;
-		}
-		
+		List<Subtrajectory> bestCandidates;
+
+		GAMMA = getDescriptor().getParamAsDouble("gamma");
+		bestCandidates = filterByProportion(candidatesByProp, GAMMA, random);
+		bestCandidates = filterByQuality(bestCandidates, random);
 		if (bestCandidates.isEmpty()) { 
 			/* STEP 2.1.5: SELECT ONLY HALF OF THE CANDIDATES (IF Nothing found)
 			 * * * * * * * * * * * * * * * * * * * * * * * * */
-			calculateProportion(candidatesByProp, 1.0, random); GAMMA = 0.0;
+			calculateProportion(candidatesByProp, 1.0, random); 
 			bestCandidates = candidatesByProp.subList(0, (int) Math.ceil((double) candidatesByProp.size() * TAU));
-
+			GAMMA = 0.0;
+			
 			/** STEP 2.2: SELECTING BEST CANDIDATES */	
 			bestCandidates = filterByQuality(bestCandidates, random);
 		}
@@ -248,6 +244,8 @@ public class SuperMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 				}
 			}
 		}
+		
+		bestCandidates = bestCandidates.subList(0, (int) Math.ceil((double) bestCandidates.size() * GAMMA));
 		
 		return bestCandidates;
 	}

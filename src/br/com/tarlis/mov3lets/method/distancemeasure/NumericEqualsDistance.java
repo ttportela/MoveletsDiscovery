@@ -24,26 +24,11 @@ import br.com.tarlis.mov3lets.model.aspect.Aspect;
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  *
  */
-public class NominalWeekdayDistance extends DistanceMeasure<Aspect<String>> {
+public class NumericEqualsDistance extends DistanceMeasure<Aspect<Double>> {
 
 	@Override
-	public double distance(Aspect<String> asp0, Aspect<String> asp1, AttributeDescriptor attr) {
-		return weekdayDistance(asp0.getValue(), asp1.getValue());
-	}
-	
-	/** SAME as Original Movelets */
-	public double weekdayDistance(String value1, String value2){
-		if ( isWeekendDay(value1) && isWeekendDay(value2))
-			return 0;
-		else if ( !isWeekendDay(value1) && !isWeekendDay(value2))
-			return 0;
-		else 
-			return 1;
-	}	
-	
-	/** SAME as Original Movelets */
-	public boolean isWeekendDay(String value1){
-		return value1.equalsIgnoreCase("Sunday") || value1.equalsIgnoreCase("Saturday");
+	public double distance(Aspect<Double> asp0, Aspect<Double> asp1, AttributeDescriptor attr) {
+		return asp0.getValue().equals(asp1.getValue())? 0 : 1;
 	}
 
 }

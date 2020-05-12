@@ -124,4 +124,11 @@ public class Mov3letsUtils {
 		return size;
 	}
 
+	public synchronized static double getUsedMemory() {
+		Runtime rt = Runtime.getRuntime();
+		double total = rt.totalMemory() / (1024.0 * 1024.0);
+		double free = rt.freeMemory() / (1024.0 * 1024.0);
+        return (total - free);
+	}
+
 }
