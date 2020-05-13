@@ -215,7 +215,7 @@ public class Mov3letsRun {
 //		params.put("descfile",					 null);
 //		params.put("outside_pivots",			 null);
 		params.put("nthreads",					 1);
-		params.put("min_size",					 2);
+		params.put("min_size",					 1);
 		params.put("max_size",					 -1); // unlimited maxSize
 		params.put("str_quality_measure",		 "LSP"); // LSP | PROP
 //		params.put("cache",						 true); // Deprecated: Cache Always.	

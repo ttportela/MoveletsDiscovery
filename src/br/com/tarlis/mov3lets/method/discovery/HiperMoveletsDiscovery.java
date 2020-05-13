@@ -195,16 +195,30 @@ public class HiperMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> {
 
 	public List<MAT<MO>> getCoveredInClass(List<Subtrajectory> bestCandidates) {
 		List<MAT<MO>> covered = new ArrayList<MAT<MO>>();
+		covered.addAll((List) ((ProportionQuality) bestCandidates.get(0).getQuality()).getCoveredInClass());
 		// Remove from queue other covered trajectories: - by Tarlis
-		for (Subtrajectory candidate : bestCandidates) {
-//			if (candidate.getProportionInClass() > 0.5)
-
-//			if(candidate.getQuality().getData().get("proportion") >= GAMMA)
-				covered.addAll((List) ((ProportionQuality) candidate.getQuality()).getCoveredInClass() );
+		for (int i = 1; i < bestCandidates.size(); i++) {
+			covered.retainAll((List) ((ProportionQuality) bestCandidates.get(i).getQuality()).getCoveredInClass() );
 		}
 		
 		return covered;
 	}
+
+//	public List<MAT<MO>> getCoveredInClass(List<Subtrajectory> bestCandidates) {
+////		List<MAT<MO>> covered = new ArrayList<MAT<MO>>();
+////		// Remove from queue other covered trajectories: - by Tarlis
+////		for (Subtrajectory candidate : bestCandidates) {
+//////			if (candidate.getProportionInClass() > 0.5)
+////
+//////			if(candidate.getQuality().getData().get("proportion") >= GAMMA)
+////				covered.addAll((List) ((ProportionQuality) candidate.getQuality()).getCoveredInClass() );
+////		}
+//		
+//		if (!bestCandidates.isEmpty())
+//			return (List) ((ProportionQuality) bestCandidates.get(bestCandidates.size()-1).getQuality()).getCoveredInClass();
+//		else
+//			return new ArrayList<MAT<MO>>();
+//	}
 
 //	public List<MAT<MO>> getCoveredInClass(List<Subtrajectory> bestCandidates) {
 //		Map<MAT<?>, Integer> covered = new HashMap<MAT<?>, Integer>();

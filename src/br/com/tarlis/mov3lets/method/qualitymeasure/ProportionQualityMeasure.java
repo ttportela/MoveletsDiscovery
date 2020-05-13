@@ -62,7 +62,7 @@ public class ProportionQualityMeasure<MO> extends QualityMeasure<MO> {
 	public boolean isCovered(double[] point, double[] limits, double gamma){
 		
 		for (int i = 0; i < limits.length; i++) {
-			if (point[i] > (limits[i]*gamma))
+			if (point[i] > (limits[i]))
 				return false;
 		}
 		
@@ -459,45 +459,41 @@ public class ProportionQualityMeasure<MO> extends QualityMeasure<MO> {
 		List<MAT<MO>> coveredInClass = new ArrayList<MAT<MO>>();
 		
 		double[][] distances = candidate.getDistances();
-		double[] splitPoints = getMaxDistances(candidate.getDistances());//new double[candidate.getDistances().length];	
+		double[] maxValues = getMaxDistances(distances);//new double[candidate.getDistances().length];	
+		double[] splitPoints = new double[distances.length];
 		
 		double proportion  = 0.0;
 		
-		double pZero = 0.0;
-		int[] freq = new int[distances[0].length];
-		
 		for (int i = 0; i < distances.length; i++) {
-			splitPoints[i] = splitPoints[i] * gamma;
-			double total = 0.0;	
+			splitPoints[i] = maxValues[i] * gamma;
 			double sum = 0.0;
-			double pSum = 0.0;
 			
 			for (int j = 0; j < distances[i].length; j++) {
-				if (distances[i][j] != MAX_VALUE) {
-					if (distances[i][j] <= splitPoints[i])
-						sum += distances[i][j];
-
-					if (distances[i][j] == 0.0) {
-						pSum += 1.0;
-						freq[j] += 1;
-					}
-					
-					total += distances[i][j];
-				}
+				if (distances[i][j] <= splitPoints[i])
+					sum += maxValues[i] - distances[i][j];
 			}
 			
-			proportion += sum / total;
-			pZero += pSum / (double) distances[i].length;
+			double total = (maxValues[i] * (double) distances[i].length);
+			if (total > 0.0)
+				proportion += sum / total;
+			else
+				proportion += 1.0;
 			
 		}
 		
 		proportion 		= proportion / (double) distances.length;
-		pZero 			= pZero / (double) distances.length;
 		
-		if (pZero > TAU) {
-			for (int j = 0; j < freq.length; j++) {
-				if (freq[j] > distances[0].length)
+		if (proportion >= TAU) {
+			RealMatrix rm = new Array2DRowRealMatrix(candidate.getDistances());
+			for (int j = 0; j < candidate.getDistances()[0].length; j++) {
+				
+				if (isCovered(rm.getColumn(j), splitPoints, gamma)) {
 					coveredInClass.add(this.trajectories.get(j));
+				} 
+	//			else {
+	//				coveredOutClass.add(this.trajectories.get(j));
+	//			}
+				
 			}
 		}
 		

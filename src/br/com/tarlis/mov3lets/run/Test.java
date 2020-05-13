@@ -34,22 +34,42 @@ public class Test {
 	 */
 	public static void main(String[] arg) throws Exception {
 
-		Random rand = new Random();
-		double[] array = new double[] {0.0, 0.0035322201743636997, 0.0035322201743636997, 0.001000591338675085, 0.0035322201743636997, 1.1576523712435181E-4, 0.0035322201743636997, 0.0035322201743636997, 0.0};
-	    //populate the array with doubles
-//	    for(int i =0; i < array.length; i++) {
-//	        array[i] = rand.nextDouble();
-//	    }
+//		Random rand = new Random();
+//		double[] max = new double[] {10.0};
+////		double[][] distances = new double[][] {{1.0, 1.0, 1.0, 0.001000591338675085, 0.0, 10.0, 1.0, 1.0, 0.0}};
+//		double[][] distances = new double[][] {{0.0, 0.0, 1.0, 0.001000591338675085, 0.0, 10.0, 0.0, 0.0, 0.0, 0.5}};
+//		
+//		double proportion = 0.0;
+//		for (int i = 0; i < distances.length; i++) {
+////			double pSum = 0.0;
+//			double total = 0.0;	
+//			double sum = 0.0;
+//			double split = max[i]*0.1;
+//			
+//			for (int j = 0; j < distances[i].length; j++) {
+//					if (distances[i][j] <= split)
+//						sum += max[i] - distances[i][j];
+//
+////					if (distances[i][j] == 0.0) {
+////						pSum += 1.0;
+////						freq[j] += 1;
+////					}
+//					
+//			}
+//
+//			total = max[i] * (double) distances[i].length;
+//			System.out.println(sum);
+//			System.out.println(total);
+//			System.out.println(split);
+//			proportion += (sum / total);
+////			pZero += pSum / (double) distances[i].length;
+//			
+//		}	
 
-	    int n = array.length; 
-	    System.out.println(IQR(array, n));
-	    
-
-		DescriptiveStatistics ds = new DescriptiveStatistics(array);
-		System.out.println( ds.getPercentile(0.25*100) );	
+		System.out.println(0.0 / 0.0);
+//		System.out.println(proportion);
+//		System.out.println(proportion >= (1.0 / 2.0));
 		
-
-		System.out.println( array );	
 	}
 	
 	private static int median(double a[],  

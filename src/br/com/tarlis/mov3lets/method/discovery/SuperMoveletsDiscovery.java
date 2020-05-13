@@ -212,6 +212,8 @@ public class SuperMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 		for(Subtrajectory candidate : candidatesByProp)
 			if(candidate.getQuality().getData().get("proportion") >= TAU)
 				orderedCandidates.add(candidate);
+			else 
+				break;
 		
 		if (orderedCandidates.isEmpty()) return orderedCandidates;
 				
@@ -259,7 +261,8 @@ public class SuperMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 			@Override
 			public int compare(Subtrajectory o1, Subtrajectory o2) {
 				
-				return (-1) * o1.getQuality().compareTo(o2.getQuality());			
+//				return (-1) * o1.getQuality().compareTo(o2.getQuality());
+				return o1.getQuality().compareTo(o2.getQuality());				
 				
 			}
 		});
