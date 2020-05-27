@@ -20,7 +20,7 @@ import br.com.tarlis.mov3lets.model.Subtrajectory;
  * @param <MO>
  *
  */
-public class HiperenMoveletsDiscovery<MO> extends HiperPivotsMoveletsDiscovery<MO> {
+public class HiperenMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO> {
 
 	protected List<MAT<MO>> sampleTrajectories;
 

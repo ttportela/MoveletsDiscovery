@@ -5,10 +5,13 @@ package br.com.tarlis.mov3lets.method.discovery;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.apache.commons.math3.util.Combinations;
 
@@ -131,7 +134,7 @@ public class HiperMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> {
 //		GAMMA = getDescriptor().getParamAsDouble("gamma");
 		bestCandidates = filterByProportion(candidatesByProp, random);
 		
-		bestCandidates = filterByQuality(bestCandidates, random);
+		bestCandidates = filterByQuality(bestCandidates, random, trajectory);
 		Set<MAT<MO>> covered = getCoveredInClass(bestCandidates);
 		if (bestCandidates.size() > 0) {
 			/** UPDATE QUEUE: */
@@ -163,28 +166,50 @@ public class HiperMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> {
 		return bestCandidates;
 	}
 
+//	public Set<MAT<MO>> getCoveredInClass(List<Subtrajectory> bestCandidates) {
+//		Set<MAT<MO>> covered = new LinkedHashSet<MAT<MO>>();
+////		int[] count = new int[this.trajsFromClass.size()];
+//		// To remove from queue other covered trajectories: - by Tarlis
+//		for (int i = 0; i < bestCandidates.size(); i++) {
+////			for (MAT<?> T : bestCandidates.get(i).getCovered()) {
+////				count[this.trajsFromClass.indexOf(T)] += 1;
+////			}
+//			if (covered.isEmpty())
+//				covered.addAll((List) bestCandidates.get(i).getCovered());
+//			else
+//				covered.retainAll((List) bestCandidates.get(i).getCovered());
+//		}
+//		
+////		for (int j = 0; j < count.length; j++) {
+////			if (count[j] >= this.trajsFromClass.size() * TAU)
+////				covered.add(this.trajsFromClass.get(j));
+////		}
+//		
+//		return covered;
+//	}
+
+
+	
 	public Set<MAT<MO>> getCoveredInClass(List<Subtrajectory> bestCandidates) {
 		Set<MAT<MO>> covered = new LinkedHashSet<MAT<MO>>();
-//		int[] count = new int[this.trajsFromClass.size()];
-		// To remove from queue other covered trajectories: - by Tarlis
+		Map<MAT<?>, Integer> count = new HashMap<MAT<?>, Integer>();
+
 		for (int i = 0; i < bestCandidates.size(); i++) {
-//			for (MAT<?> T : bestCandidates.get(i).getCovered()) {
-//				count[this.trajsFromClass.indexOf(T)] += 1;
-//			}
-			if (covered.isEmpty())
-				covered.addAll((List) bestCandidates.get(i).getCovered());
-			else
-				covered.retainAll((List) bestCandidates.get(i).getCovered());
+			for (MAT<?> T : bestCandidates.get(i).getCovered()) {
+				int x = count.getOrDefault(T, 0); 
+				x++;
+				count.put(T, x);
+			}
 		}
 		
-//		for (int j = 0; j < count.length; j++) {
-//			if (count[j] >= this.trajsFromClass.size() * TAU)
-//				covered.add(this.trajsFromClass.get(j));
-//		}
+		for (Entry<MAT<?>, Integer> e : count.entrySet()) {
+			if (e.getValue() >= (this.trajsFromClass.size() / 2))
+				covered.add((MAT<MO>) e.getKey());
+		}
 		
 		return covered;
 	}
-
+	
 	public int[][] makeCombinations(boolean exploreDimensions, int numberOfFeatures, int maxNumberOfFeatures) {
 		
 		if (combinations != null)

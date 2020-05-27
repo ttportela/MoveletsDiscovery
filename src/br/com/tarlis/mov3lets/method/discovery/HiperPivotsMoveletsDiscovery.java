@@ -5,13 +5,8 @@ package br.com.tarlis.mov3lets.method.discovery;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Random;
-import java.util.Set;
 
 import br.com.tarlis.mov3lets.method.qualitymeasure.QualityMeasure;
 import br.com.tarlis.mov3lets.method.structures.descriptor.Descriptor;
@@ -107,9 +102,9 @@ public class HiperPivotsMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO>
 		/** STEP 2.2: SELECTING BEST CANDIDATES */	
 //		orderCandidates(candidatesByProp);
 //		List<Subtrajectory> bestCandidates = filterEqualCandidates(candidatesByProp);
-//		bestCandidates = filterByQuality(candidatesByProp, random);
+//		bestCandidates = filterByQuality(candidatesByProp, random, trajectory);
 		
-		List<Subtrajectory> bestCandidates = filterByQuality(candidatesByProp, random);
+		List<Subtrajectory> bestCandidates = filterByQuality(candidatesByProp, random, trajectory);
 		
 		queue.removeAll(getCoveredInClass(bestCandidates));		
 	
@@ -207,33 +202,33 @@ public class HiperPivotsMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO>
 		return orderedCandidates;
 	}
 	
-	public Set<MAT<MO>> getCoveredInClass(List<Subtrajectory> bestCandidates) {
-		Set<MAT<MO>> covered = new LinkedHashSet<MAT<MO>>();
-		Map<MAT<?>, Integer> count = new HashMap<MAT<?>, Integer>();
-
-		for (int i = 0; i < bestCandidates.size(); i++) {
-			for (MAT<?> T : bestCandidates.get(i).getCovered()) {
-				int x = count.getOrDefault(T, 0); 
-				x++;
-				count.put(T, x);
-			}
-//			if (covered.isEmpty())
-//				covered.addAll((List) bestCandidates.get(i).getCovered());
-//			else
-//				covered.retainAll((List) bestCandidates.get(i).getCovered());
-		}
-		
-		for (Entry<MAT<?>, Integer> e : count.entrySet()) {
-			if (e.getValue() >= (this.trajsFromClass.size() / 2))
-				covered.add((MAT<MO>) e.getKey());
-		}
-		
-//		for (int j = 0; j < count.length; j++) {
-//			if (count[j] >= this.trajsFromClass.size() * TAU)
-//				covered.add(this.trajsFromClass.get(j));
+//	public Set<MAT<MO>> getCoveredInClass(List<Subtrajectory> bestCandidates) {
+//		Set<MAT<MO>> covered = new LinkedHashSet<MAT<MO>>();
+//		Map<MAT<?>, Integer> count = new HashMap<MAT<?>, Integer>();
+//
+//		for (int i = 0; i < bestCandidates.size(); i++) {
+//			for (MAT<?> T : bestCandidates.get(i).getCovered()) {
+//				int x = count.getOrDefault(T, 0); 
+//				x++;
+//				count.put(T, x);
+//			}
+////			if (covered.isEmpty())
+////				covered.addAll((List) bestCandidates.get(i).getCovered());
+////			else
+////				covered.retainAll((List) bestCandidates.get(i).getCovered());
 //		}
-		
-		return covered;
-	}
+//		
+//		for (Entry<MAT<?>, Integer> e : count.entrySet()) {
+//			if (e.getValue() >= (this.trajsFromClass.size() / 2))
+//				covered.add((MAT<MO>) e.getKey());
+//		}
+//		
+////		for (int j = 0; j < count.length; j++) {
+////			if (count[j] >= this.trajsFromClass.size() * TAU)
+////				covered.add(this.trajsFromClass.get(j));
+////		}
+//		
+//		return covered;
+//	}
 
 }

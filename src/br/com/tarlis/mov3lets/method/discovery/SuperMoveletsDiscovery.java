@@ -189,7 +189,7 @@ public class SuperMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 
 //		GAMMA = getDescriptor().getParamAsDouble("gamma");
 		bestCandidates = filterByProportion(candidatesByProp, random);
-		bestCandidates = filterByQuality(bestCandidates, random);
+		bestCandidates = filterByQuality(bestCandidates, random, trajectory);
 //		if (bestCandidates.isEmpty()) { 
 //			/* STEP 2.1.5: SELECT ONLY HALF OF THE CANDIDATES (IF Nothing found)
 //			 * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -286,7 +286,7 @@ public class SuperMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 		});
 	}
 
-	public List<Subtrajectory> filterByQuality(List<Subtrajectory> bestCandidates, Random random) {
+	public List<Subtrajectory> filterByQuality(List<Subtrajectory> bestCandidates, Random random, MAT<MO> trajectory) {
 		/** STEP 2.3, for this trajectory movelets: 
 		 * It transforms the training and test sets of trajectories using the movelets */
 		for (Subtrajectory candidate : bestCandidates) {
@@ -305,6 +305,66 @@ public class SuperMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 		/** STEP 2.2: SELECTING BEST CANDIDATES */	
 		return filterMovelets(bestCandidates);
 	}
+	
+//	public List<Subtrajectory> filterByQuality(List<Subtrajectory> list, Random random, 
+//			MAT<MO> trajectory) {
+//		
+//		// Sort by size:
+//		list.sort(new Comparator<Subtrajectory>() {
+//			@Override
+//			public int compare(Subtrajectory o1, Subtrajectory o2) {
+//				
+//				return Integer.compare(o1.getSize(), o2.getSize());				
+//				
+//			}
+//		});
+//		
+//		int n = trajectory.getPoints().size();
+//		
+//		double[][][][] mdist = computeBaseDistances(trajectory, this.train);
+//		
+//		for (int size = 1; size <= n; size++) {
+//						
+//			for (Subtrajectory subtrajectory : list) {	
+//				
+//				if (subtrajectory.getSize() != size) continue;
+//				
+//				double[][][] distancesForAllT = mdist[subtrajectory.getStart()];
+//				
+//				// For each trajectory in the database
+//				for (int i = 0; i < this.train.size(); i++) {
+//					MAT<MO> T = this.train.get(i);	
+//					
+//					double[][] distancesForT = distancesForAllT[i];
+//					double[][] ranksForT = new double[distancesForT.length][];
+//					
+//					int limit = T.getPoints().size() - size + 1;
+//					
+//					if (limit > 0)
+//						for (int k = 0; k < numberOfFeatures; k++) {				
+//							ranksForT[k] = rankingAlgorithm.rank(Arrays.stream(distancesForT[k],0,limit).toArray());
+//						} // for (int k = 0; k < numberOfFeatures; k++)
+//						
+//					int bestPosition = (limit > 0) ? bestAlignmentByRanking(ranksForT, subtrajectory.getPointFeatures()) : -1;
+//					for (int j = 0; j < subtrajectory.getPointFeatures().length; j++) {	
+//						double distance = (bestPosition >= 0) ? 
+//								distancesForT[subtrajectory.getPointFeatures()[j]][bestPosition] : MAX_VALUE;
+//						subtrajectory.getDistances()[j][i] = (distance != MAX_VALUE) ? 
+//								Math.sqrt( distance / size ) : MAX_VALUE;					
+//					}
+//					
+//				} // for (int currentFeatures = 1; currentFeatures <= numberOfFeatures; currentFeatures++)
+//				
+//				assesQuality(subtrajectory, random);
+//					
+//			} // for (int start = 0; start <= (n - size); start++)
+//			
+//			mdist = newSize(trajectory, this.train, base, mdist, size+1);
+//		}
+//		
+//		return filterMovelets(list);
+//		
+//	}
 	
 	public List<HashMap<Integer, Aspect<?>>> getDimensions(Subtrajectory candidate) {
 		
