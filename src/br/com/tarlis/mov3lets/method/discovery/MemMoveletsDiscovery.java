@@ -88,36 +88,36 @@ public class MemMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 //			}
 
 			/** STEP 2.4: SELECTING BEST CANDIDATES */			
-			candidates = filterMovelets(candidates);
-
-			/** STEP 2.2: Runs the pruning process */
-			if(getDescriptor().getFlag("last_prunning"))
-				candidates = lastPrunningFilter(candidates);
-			/** STEP 2.2: --------------------------------- */
-			
-			movelets.addAll(candidates);
-			
-			/** STEP 2.3.1: Output Movelets (partial) */
-			super.output("train", this.train, candidates, true);
-			base =  null;
-			
-			// Compute distances and best alignments for the test trajectories:
-			/* If a test trajectory set was provided, it does the same.
-			 * and return otherwise */
-			/** STEP 2.3.2: Output Movelets (partial) */
-			if (!this.test.isEmpty()) {
-//				base = computeBaseDistances(trajectory, this.test);
-				for (Subtrajectory candidate : candidates) {
-					// It initializes the set of distances of all movelets to null
-					candidate.setDistances(null);
-					// In this step the set of distances is filled by this method
-					computeDistances(candidate, this.test); //, computeBaseDistances(trajectory, this.test));
-				}
-				super.output("test", this.test, candidates, true);
-			}
+//			candidates = filterMovelets(candidates);		
+			movelets.addAll(filterMovelets(candidates));
 			
 			System.gc();
 		}
+		
+		/** STEP 2.2: Runs the pruning process */
+		if(getDescriptor().getFlag("last_prunning"))
+			movelets = lastPrunningFilter(movelets);
+		/** STEP 2.2: --------------------------------- */
+		
+		/** STEP 2.3.1: Output Movelets (partial) */
+		super.output("train", this.train, movelets, true);
+		base =  null;
+		
+		// Compute distances and best alignments for the test trajectories:
+		/* If a test trajectory set was provided, it does the same.
+		 * and return otherwise */
+		/** STEP 2.3.2: Output Movelets (partial) */
+		if (!this.test.isEmpty()) {
+//			base = computeBaseDistances(trajectory, this.test);
+			for (Subtrajectory candidate : movelets) {
+				// It initializes the set of distances of all movelets to null
+				candidate.setDistances(null);
+				// In this step the set of distances is filled by this method
+				computeDistances(candidate, this.test); //, computeBaseDistances(trajectory, this.test));
+			}
+			super.output("test", this.test, movelets, true);
+		}
+		/** --------------------------------- */
 
 		/** STEP 2.3.3, to write all outputs: */
 		super.output("train", this.train, movelets, false);

@@ -139,36 +139,37 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 //				
 //				assesQuality(candidate, random);
 //			}
-
+			
 			/** STEP 2.4: SELECTING BEST CANDIDATES */			
-			candidates = filterMovelets(candidates);
-
-			/** STEP 2.2: Runs the pruning process */
-			if(getDescriptor().getFlag("last_prunning"))
-				candidates = lastPrunningFilter(candidates);
-			/** STEP 2.2: --------------------------------- */
-
-			movelets.addAll(candidates);
-			
-			/** STEP 2.3.1: Output Movelets (partial) */
-			super.output("train", this.train, candidates, true);
-			
-			// Compute distances and best alignments for the test trajectories:
-			/* If a test trajectory set was provided, it does the same.
-			 * and return otherwise */
-			/** STEP 2.3.2: Output Movelets (partial) */
-			if (!this.test.isEmpty()) {
-				for (Subtrajectory candidate : candidates) {
-					// It initializes the set of distances of all movelets to null
-					candidate.setDistances(null);
-					// In this step the set of distances is filled by this method
-					computeDistances(candidate, this.test);
-				}
-				super.output("test", this.test, candidates, true);
-			}
+//			candidates = filterMovelets(candidates);		
+			movelets.addAll(filterMovelets(candidates));
 			
 			System.gc();
 		}
+		
+		/** STEP 2.2: Runs the pruning process */
+		if(getDescriptor().getFlag("last_prunning"))
+			movelets = lastPrunningFilter(movelets);
+		/** STEP 2.2: --------------------------------- */
+		
+		/** STEP 2.3.1: Output Movelets (partial) */
+		super.output("train", this.train, movelets, true);
+		
+		// Compute distances and best alignments for the test trajectories:
+		/* If a test trajectory set was provided, it does the same.
+		 * and return otherwise */
+		/** STEP 2.3.2: Output Movelets (partial) */
+		if (!this.test.isEmpty()) {
+//			base = computeBaseDistances(trajectory, this.test);
+			for (Subtrajectory candidate : movelets) {
+				// It initializes the set of distances of all movelets to null
+				candidate.setDistances(null);
+				// In this step the set of distances is filled by this method
+				computeDistances(candidate, this.test); //, computeBaseDistances(trajectory, this.test));
+			}
+			super.output("test", this.test, movelets, true);
+		}
+		/** --------------------------------- */
 		
 		/** STEP 2.3.3, to write all outputs: */
 		super.output("train", this.train, movelets, false);
@@ -442,13 +443,14 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 		return minRankIndex;
 	}
 
+	protected int K = 0;
 	public List<Subtrajectory> buildSubtrajectory(
 			int start, int end, MAT<MO> t, int numberOfTrajectories, int[][] combinations){
 		
 		List<Subtrajectory> list = new ArrayList<>();
 		
 		for (int k = 0; k < combinations.length; k++) {
-			list.add(new Subtrajectory(start, end, t, numberOfTrajectories, combinations[k], k));
+			list.add(new Subtrajectory(start, end, t, numberOfTrajectories, combinations[k], K++));
 		}
 				
 		return list;

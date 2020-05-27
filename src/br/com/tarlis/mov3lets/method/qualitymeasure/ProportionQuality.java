@@ -27,11 +27,9 @@ public class ProportionQuality extends Quality {
 	
 	@Override
 	public int compareTo(Quality other) {
-				
-		String measure = this.getData().containsKey("proportion")? "proportion" : "quality";
-		
+						
 		// First it compares the quality score		
-		int quality = Double.compare(this.getData().get(measure), other.getData().get(measure));
+		int quality = Double.compare(this.getData().get("quality"), other.getData().get("quality"));
 		if (quality != 0)
 			// in descending order
 			return (-1) * quality;

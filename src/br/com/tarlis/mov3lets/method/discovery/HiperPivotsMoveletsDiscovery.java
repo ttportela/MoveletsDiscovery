@@ -5,8 +5,13 @@ package br.com.tarlis.mov3lets.method.discovery;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
+import java.util.Set;
 
 import br.com.tarlis.mov3lets.method.qualitymeasure.QualityMeasure;
 import br.com.tarlis.mov3lets.method.structures.descriptor.Descriptor;
@@ -21,8 +26,6 @@ import br.com.tarlis.mov3lets.utils.Mov3letsUtils;
  */
 public class HiperPivotsMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO> {
 
-	protected List<MAT<MO>> queue;
-
 	/**
 	 * @param trajsFromClass
 	 * @param train
@@ -34,8 +37,6 @@ public class HiperPivotsMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO>
 			QualityMeasure qualityMeasure, Descriptor descriptor) {
 		super(trajsFromClass, data, train, test, candidates, qualityMeasure, descriptor);
 	}
-	
-
 	
 	/**
 	 * @param trajectory2
@@ -66,14 +67,14 @@ public class HiperPivotsMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO>
 		
 		List<Subtrajectory> candidatesOfSize = findCandidates(trajectory, trajectories, size, base);
 		
-		GAMMA = getDescriptor().getParamAsDouble("gamma");
-		candidatesOfSize = filterByProportion(candidatesOfSize, GAMMA, random);
+//		GAMMA = getDescriptor().getParamAsDouble("gamma");
+		candidatesOfSize = filterByProportion(candidatesOfSize, random);
 
 		if( minSize <= 1 ) {
 			candidatesByProp.addAll(candidatesOfSize);
 		}				
 		
-		double[][][][] lastSize = clone4DArray(base);		
+		double[][][][] newSize = clone4DArray(base);		
 
 		total_size = total_size + candidatesOfSize.size();
 		
@@ -81,11 +82,11 @@ public class HiperPivotsMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO>
 		for (size = 2; size <= maxSize; size++) {
 			
 			// Precompute de distance matrix
-   			double[][][][] newSize = newSize(trajectory, trajectories, base, lastSize, size);
+   			newSize = newSize(trajectory, trajectories, base, newSize, size);
 			
 			candidatesOfSize = growPivots(candidatesOfSize, trajectory, trajectories, base, newSize, size);
-			GAMMA = getDescriptor().getParamAsDouble("gamma");
-			candidatesOfSize = filterByProportion(candidatesOfSize, GAMMA, random);
+//			GAMMA = getDescriptor().getParamAsDouble("gamma");
+			candidatesOfSize = filterByProportion(candidatesOfSize, random);
 	
 			total_size = total_size + candidatesOfSize.size();
 			
@@ -96,17 +97,21 @@ public class HiperPivotsMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO>
 				candidatesByProp.addAll(candidatesOfSize);
 			}
 		
-			lastSize = newSize;
+//			lastSize = newSize;
 						
 		} // for (int size = 2; size <= max; size++)	
 	
-//		base =  null;
-		lastSize = null;
-		
-		queue.removeAll(getCoveredInClass(candidatesByProp));
+		base =  null;
+		newSize = null;
 		
 		/** STEP 2.2: SELECTING BEST CANDIDATES */	
+//		orderCandidates(candidatesByProp);
+//		List<Subtrajectory> bestCandidates = filterEqualCandidates(candidatesByProp);
+//		bestCandidates = filterByQuality(candidatesByProp, random);
+		
 		List<Subtrajectory> bestCandidates = filterByQuality(candidatesByProp, random);
+		
+		queue.removeAll(getCoveredInClass(bestCandidates));		
 	
 		progressBar.plus("Class: " + trajectory.getMovingObject() 
 						+ ". Trajectory: " + trajectory.getTid() 
@@ -115,13 +120,12 @@ public class HiperPivotsMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO>
 						+ ". Total of Movelets: " + bestCandidates.size() 
 						+ ". Max Size: " + maxSize
 						+ ". Used Features: " + this.maxNumberOfFeatures 
-						+ ". Memory Use: " + Mov3letsUtils.getUsedMemory() 
-						+ ". Used GAMMA: " + GAMMA);
+						+ ". Memory Use: " + Mov3letsUtils.getUsedMemory());
 	
 		return bestCandidates;
 	}
 
-	private List<Subtrajectory> growPivots(List<Subtrajectory> candidatesOfSize, MAT<MO> trajectory,
+	public List<Subtrajectory> growPivots(List<Subtrajectory> candidatesOfSize, MAT<MO> trajectory,
 			List<MAT<MO>> trajectories, double[][][][] base, double[][][][] newSize, int size) {
 		List<Subtrajectory> newCandidates = new ArrayList<Subtrajectory>();
 		
@@ -138,9 +142,7 @@ public class HiperPivotsMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO>
 		return newCandidates;
 	}
 
-
-
-	private Subtrajectory buildNewSize(Subtrajectory candidate, MAT<MO> trajectory, List<MAT<MO>> trajectories,
+	public Subtrajectory buildNewSize(Subtrajectory candidate, MAT<MO> trajectory, List<MAT<MO>> trajectories,
 			double[][][][] mdist, int size, boolean left) {
 		
 		int start = candidate.getStart() - (left? 1 : 0);
@@ -179,6 +181,59 @@ public class HiperPivotsMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO>
 		}
 		
 		return subtrajectory;
+	}
+
+	public List<Subtrajectory> filterByProportion(List<Subtrajectory> candidatesByProp, Random random) {
+		calculateProportion(candidatesByProp, random);
+
+		/* STEP 2.1.2: SELECT ONLY CANDIDATES WITH PROPORTION > 50%
+		 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+		List<Subtrajectory> orderedCandidates = new ArrayList<>();
+		for(Subtrajectory candidate : candidatesByProp)
+			if(candidate.getQuality().getData().get("quality") >= TAU)
+				orderedCandidates.add(candidate);
+			else 
+				break;
+		
+//		if (orderedCandidates.isEmpty()) return orderedCandidates;
+				
+		/* STEP 2.1.4: IDENTIFY EQUAL CANDIDATES -> not for pivots
+		 * * * * * * * * * * * * * * * * * * * * * * * * */
+//		List<Subtrajectory> bestCandidates = orderedCandidates;// new ArrayList<>();
+//		
+//		bestCandidates = bestCandidates.subList(0, (int) Math.ceil((double) bestCandidates.size() * GAMMA));
+//		
+//		return bestCandidates;
+		return orderedCandidates;
+	}
+	
+	public Set<MAT<MO>> getCoveredInClass(List<Subtrajectory> bestCandidates) {
+		Set<MAT<MO>> covered = new LinkedHashSet<MAT<MO>>();
+		Map<MAT<?>, Integer> count = new HashMap<MAT<?>, Integer>();
+
+		for (int i = 0; i < bestCandidates.size(); i++) {
+			for (MAT<?> T : bestCandidates.get(i).getCovered()) {
+				int x = count.getOrDefault(T, 0); 
+				x++;
+				count.put(T, x);
+			}
+//			if (covered.isEmpty())
+//				covered.addAll((List) bestCandidates.get(i).getCovered());
+//			else
+//				covered.retainAll((List) bestCandidates.get(i).getCovered());
+		}
+		
+		for (Entry<MAT<?>, Integer> e : count.entrySet()) {
+			if (e.getValue() >= (this.trajsFromClass.size() / 2))
+				covered.add((MAT<MO>) e.getKey());
+		}
+		
+//		for (int j = 0; j < count.length; j++) {
+//			if (count[j] >= this.trajsFromClass.size() * TAU)
+//				covered.add(this.trajsFromClass.get(j));
+//		}
+		
+		return covered;
 	}
 
 }

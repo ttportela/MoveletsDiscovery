@@ -34,6 +34,7 @@ import java.util.stream.Stream;
 import br.com.tarlis.mov3lets.method.discovery.DiscoveryAdapter;
 import br.com.tarlis.mov3lets.method.discovery.HiperMoveletsDiscovery;
 import br.com.tarlis.mov3lets.method.discovery.HiperPivotsMoveletsDiscovery;
+import br.com.tarlis.mov3lets.method.discovery.HiperenMoveletsDiscovery;
 import br.com.tarlis.mov3lets.method.discovery.MemMoveletsDiscovery;
 import br.com.tarlis.mov3lets.method.discovery.MoveletsDiscovery;
 import br.com.tarlis.mov3lets.method.discovery.PivotsMoveletsDiscovery;
@@ -194,6 +195,10 @@ public class Mov3lets<MO> {
 				} else if (getDescriptor().getParamAsText("version").equals("hpivots")) {
 					
 					moveletsDiscovery = new HiperPivotsMoveletsDiscovery<MO>(trajsFromClass, data, train, test, candidates, qualityMeasure, getDescriptor());
+				
+				} else if (getDescriptor().getParamAsText("version").equals("hiperen")) {
+					
+					moveletsDiscovery = new HiperenMoveletsDiscovery<MO>(trajsFromClass, data, train, test, candidates, qualityMeasure, getDescriptor());
 				
 				} else if (getDescriptor().getFlag("pivots") || getDescriptor().getParamAsText("version").equals("pivots")) {
 					

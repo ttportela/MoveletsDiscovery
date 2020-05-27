@@ -64,7 +64,7 @@ public abstract class QualityMeasure<MO> {
 	public double[] getMaxDistances(double[][] distances) {
 		
 		double[] maxDistances = new double[distances.length];
-		for (int i = 0; i < maxDistances.length; i++) {
+		for (int i = 0; i < distances.length; i++) {
 			maxDistances[i] =
 					Arrays.stream(distances[i]).filter(e -> e != MAX_VALUE).max().getAsDouble();
 		}

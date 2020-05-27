@@ -35,41 +35,52 @@ public class Test {
 	public static void main(String[] arg) throws Exception {
 
 //		Random rand = new Random();
-//		double[] max = new double[] {10.0};
-////		double[][] distances = new double[][] {{1.0, 1.0, 1.0, 0.001000591338675085, 0.0, 10.0, 1.0, 1.0, 0.0}};
-//		double[][] distances = new double[][] {{0.0, 0.0, 1.0, 0.001000591338675085, 0.0, 10.0, 0.0, 0.0, 0.0, 0.5}};
-//		
-//		double proportion = 0.0;
-//		for (int i = 0; i < distances.length; i++) {
-////			double pSum = 0.0;
-//			double total = 0.0;	
-//			double sum = 0.0;
-//			double split = max[i]*0.1;
-//			
-//			for (int j = 0; j < distances[i].length; j++) {
-//					if (distances[i][j] <= split)
-//						sum += max[i] - distances[i][j];
-//
-////					if (distances[i][j] == 0.0) {
-////						pSum += 1.0;
-////						freq[j] += 1;
-////					}
-//					
-//			}
-//
-//			total = max[i] * (double) distances[i].length;
+		double[] max = new double[] {1.0};
+		double[][] distancesin = new double[][] {{1.0, 1.0, 1.0, 0.001000591338675085, 0.0, 1.0, 1.0, 1.0, 0.0}};
+		double[][] distancesout = new double[][] {{0.0, 0.0, 1.0, 0.001000591338675085, 0.0, 1.0, 0.0, 0.0, 0.0, 0.5}};
+		
+		double pt  = 0.5; //prop(max, distancesin);
+		double pnt = 0.0; // prop(max, distancesout);
+
+		double info = -(pt * Math.log(pt)) -(pnt * Math.log(pnt));
+//		double info = -(pt * Math.log(pt)) -(pnt * Math.log(pnt)); // Information, based on proportion/probability
+		double info2 = (pt)-(pnt); // Just proportion/probability
+
+		System.out.println(pt);
+		System.out.println(pnt);
+		System.out.println(info);
+		System.out.println(info2);
+		
+	}
+
+	private static double prop(double[] max, double[][] distances) {
+		double proportion = 0.0;
+		for (int i = 0; i < distances.length; i++) {
+//			double pSum = 0.0;
+			double total = 0.0;	
+			double sum = 0.0;
+			double split = max[i]*0.1;
+			
+			for (int j = 0; j < distances[i].length; j++) {
+					if (distances[i][j] <= split)
+						sum += max[i] - distances[i][j];
+
+//					if (distances[i][j] == 0.0) {
+//						pSum += 1.0;
+//						freq[j] += 1;
+//					}
+					
+			}
+
+			total = max[i] * (double) distances[i].length;
 //			System.out.println(sum);
 //			System.out.println(total);
 //			System.out.println(split);
-//			proportion += (sum / total);
-////			pZero += pSum / (double) distances[i].length;
-//			
-//		}	
-
-		System.out.println(0.0 / 0.0);
-//		System.out.println(proportion);
-//		System.out.println(proportion >= (1.0 / 2.0));
-		
+			proportion += (sum / total);
+//			pZero += pSum / (double) distances[i].length;
+			
+		}
+		return proportion;
 	}
 	
 	private static int median(double a[],  

@@ -59,7 +59,7 @@ public class Subtrajectory {
 
 	private boolean[] goodTrajectories;
 	
-//	private List<MAT<?>> coveredInClass;
+	private List<MAT<?>> covered;
 
 	public Subtrajectory(int start, int end, MAT<?> t) {
 		super();
@@ -316,12 +316,12 @@ public class Subtrajectory {
 //	public void setProportionInClass(double proportionInClass) {
 //		this.proportionInClass = proportionInClass;
 //	}
-//	
-//	public List<MAT<?>> getCoveredInClass() {
-//		return coveredInClass;
-//	}
-//	
-//	public void setCoveredInClass(List<MAT<?>> coveredInClass) {
-//		this.coveredInClass = coveredInClass;
-//	}
+	
+	public List<MAT<?>> getCovered() {
+		return covered;
+	}
+	
+	public void setCovered(List<MAT<?>> covered) {
+		this.covered = covered;
+	}
 }

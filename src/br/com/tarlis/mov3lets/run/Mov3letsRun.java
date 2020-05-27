@@ -33,7 +33,7 @@ import br.com.tarlis.mov3lets.method.structures.descriptor.AttributeDescriptor;
 import br.com.tarlis.mov3lets.method.structures.descriptor.Descriptor;
 import br.com.tarlis.mov3lets.model.MAT;
 import br.com.tarlis.mov3lets.utils.Mov3letsUtils;
-import de.vandermeer.asciitable.AsciiTable;
+import br.com.tarlis.mov3lets.utils.TableList;
 
 /**
  * @author Tarlis Portela <tarlis@tarlis.com.br>
@@ -136,21 +136,21 @@ public class Mov3letsRun {
 //				{"-descfile", 			"Description file", 		params.get("descfile"), 					""},
 				{"-nt", 				"Allowed Threads", 			params.get("nthreads"), 					""},
 				{"-ms", 				"Min size", 				params.get("min_size"), 					""},
-				{"-Ms", 				"Max size", 				params.get("max_size"), 					"Any positive,"},
-				{"", 					"", 						"",						 					"All sizes: -1,"},
-				{"", 					"", 						"", 										"Log: -3"},
-				{"-mnf", 				"Max Number of",			params.get("max_number_of_features"), 		"Any positive,"},
-				{"", 					"Dimensions", 				"",						 					"Explore dim.: -1,"},
-				{"", 					"", 						"", 										"Log: -3"},
-				{"-ed", 				"Explore dimensions", 		params.get("explore_dimensions"), 			"Same as -mnf -1"},
+				{"-Ms", 				"Max size", 				params.get("max_size"), 					"Any positive, All sizes: -1, Log: -3"},
+//				{"", 					"", 						"",						 					"All sizes: -1,"},
+//				{"", 					"", 						"", 										"Log: -3"},
+				{"-mnf", 				"Max Number of Dimensions",	params.get("max_number_of_features"), 		"Any positive, Explore dim.: -1, Log: -3"},
+//				{"", 					"", 						"",						 					"Explore dim.: -1,"},
+//				{"", 					"", 						"", 										"Log: -3"},
+//				{"-ed", 				"Explore dimensions", 		params.get("explore_dimensions"), 			"Same as -mnf -1"},
 				{"-samples", 			"Samples", 					params.get("samples"), 						""},
 				{"-sampleSize", 		"Sample Size", 				params.get("sample_size"), 					""},
 				{"-q", 					"Quality Measure", 			params.get("str_quality_measure"), 			""},
 				{"-medium", 			"Medium", 					params.get("medium"), 						""},
-				{"-mpt", 				"Movelets Per Traj.", 		params.get("movelets_per_trajectory"), 		"Auto: -1"},
+				{"-mpt", 				"Movelets Per Traj.", 		params.get("movelets_per_trajectory"), 		"Any positive, Auto: -1"},
 				{"-output", 			"Output", 					params.get("output"), 						""},
 				{"", 					"", 						"", 										""},
-				{"-version", 			"Version Impl.", 			params.get("version"), 						"1.0, 2.0, super, hiper"},
+				{"-version", 			"Version Impl.", 			params.get("version"), 						"1.0, 2.0, super, hiper, hpivots"},
 				{"", 					"-- Last Prunning",			params.get("last_prunning"), 				""},
 			};
 		
@@ -173,18 +173,18 @@ public class Mov3letsRun {
 //		str += "   -output 				Output:						" + params.get("output") + System.getProperty("line.separator");
 //		str += "   -version 				Mov. Discovery Impl.:			" + params.get("version") + System.getProperty("line.separator");
 		
-		AsciiTable at = new AsciiTable();
-		at.addRule();
-		at.addRow("Option", "Description", "Value", "Help");
-		at.addRule();
+		TableList at = new TableList("Option", "Description", "Value", "Help");
+//		at.addRule();
+//		at.addRow("Option", "Description", "Value", "Help");
+//		at.addRule();
 		for (Object[] row : data) {
 			at.addRow(row);
 		}
-		at.addRule();
+//		at.addRule();
 
-		at.addRow("Optimizations:", "", "", "");
-		at.addRow("", "Index", 		(params.containsKey("index")? 	  (boolean)params.get("index") 	   : false), 	"");
-		at.addRow("", "Interning", 	(params.containsKey("interning")? (boolean)params.get("interning") : false), 	"");
+//		at.addRow("Optimizations:", "", "", "");
+//		at.addRow("", "Interning", 	(params.containsKey("interning")? (boolean)params.get("interning") : false), 	"");
+//		at.addRow("", "Index", 		(params.containsKey("index")? 	  (boolean)params.get("index") 	   : false), 	"");
 		at.addRule();
 		
 		if (descriptor != null) {
@@ -193,9 +193,8 @@ public class Mov3letsRun {
 			for (AttributeDescriptor attr : descriptor.getAttributes())
 				at.addRow(i++, attr.getOrder() + " - " + attr.getText(), attr.getType(), attr.getComparator().toString());
 		}
-		at.addRule();
 		
-		str += at.render();
+		str += at.print();
 		
 //		str += System.getProperty("line.separator") + "    Optimizations: ";
 //		str += System.getProperty("line.separator")
@@ -235,7 +234,8 @@ public class Mov3letsRun {
 		params.put("interning",  				 true);
 		params.put("verbose",				 	 true);
 		params.put("version",				 	 "2.0");
-		params.put("gamma",					 	 1.0);
+		params.put("tau",					 	 0.5);
+//		params.put("gamma",					 	 1.0);
 		params.put("LDM",					 	 false);
 		
 		return params;
@@ -355,10 +355,14 @@ public class Mov3letsRun {
 				params.put("version", value.toLowerCase());
 				if ("pivots".equalsIgnoreCase(value)) params.put("pivots",  true);
 				break;		
-			case "-gamma":	
-			case "-G":
-				params.put("gamma", Double.valueOf(value));			
+			case "-tau":	
+			case "-T":
+				params.put("tau", Double.valueOf(value));			
 				break;	
+//			case "-gamma":	
+//			case "-G":
+//				params.put("gamma", Double.valueOf(value));			
+//				break;	
 			case "-LDM":	
 			case "-ldm":
 				params.put("LDM", Boolean.valueOf(value));			
@@ -410,7 +414,7 @@ public class Mov3letsRun {
 		
 		if (descriptor.getFlag("supervised") || descriptor.getParamAsText("version").equals("super")) {
 			resultDirPath += "Super_";
-		} else if (descriptor.getParamAsText("version").equals("hiper")) {
+		} else if (descriptor.getParamAsText("version").equals("hiper") || descriptor.getParamAsText("version").equals("hpivots")) {
 			resultDirPath += "Hiper_";
 		} else if (descriptor.getFlag("pivots") || descriptor.getParamAsText("version").equals("pivots")) {			
 			resultDirPath += "Pivots_";		

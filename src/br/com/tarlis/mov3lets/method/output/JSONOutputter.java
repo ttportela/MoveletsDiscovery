@@ -53,7 +53,7 @@ public class JSONOutputter<MO> extends OutputterAdapter<MO> {
 		if (delayOutput) return; // Do nothing
 		
 		if (movelets.isEmpty()) {
-			Mov3letsUtils.traceW("Empty movelets set [NOT OUTPUTTED]");
+//			Mov3letsUtils.traceW("Empty movelets set [NOT OUTPUTTED]");
 			return;
 		}
 		
