@@ -32,14 +32,15 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import br.com.tarlis.mov3lets.method.discovery.DiscoveryAdapter;
+import br.com.tarlis.mov3lets.method.discovery.HiperCEMoveletsDiscovery;
+import br.com.tarlis.mov3lets.method.discovery.HiperENMoveletsDiscovery;
 import br.com.tarlis.mov3lets.method.discovery.HiperMoveletsDiscovery;
+import br.com.tarlis.mov3lets.method.discovery.HiperPivotsCEMoveletsDiscovery;
 import br.com.tarlis.mov3lets.method.discovery.HiperPivotsMoveletsDiscovery;
-import br.com.tarlis.mov3lets.method.discovery.HiperenMoveletsDiscovery;
 import br.com.tarlis.mov3lets.method.discovery.MemMoveletsDiscovery;
 import br.com.tarlis.mov3lets.method.discovery.MoveletsDiscovery;
 import br.com.tarlis.mov3lets.method.discovery.PivotsMoveletsDiscovery;
 import br.com.tarlis.mov3lets.method.discovery.PrecomputeMoveletsDiscovery;
-import br.com.tarlis.mov3lets.method.discovery.ProgressiveMoveletsDiscovery;
 import br.com.tarlis.mov3lets.method.discovery.SuperMoveletsDiscovery;
 import br.com.tarlis.mov3lets.method.loader.CSVInternLoader;
 import br.com.tarlis.mov3lets.method.loader.CSVLoader;
@@ -54,7 +55,6 @@ import br.com.tarlis.mov3lets.method.qualitymeasure.ProportionQualityMeasure;
 import br.com.tarlis.mov3lets.method.qualitymeasure.QualityMeasure;
 import br.com.tarlis.mov3lets.method.structures.descriptor.Descriptor;
 import br.com.tarlis.mov3lets.model.MAT;
-import br.com.tarlis.mov3lets.model.Subtrajectory;
 import br.com.tarlis.mov3lets.utils.ProgressBar;
 
 /**
@@ -125,7 +125,7 @@ public class Mov3lets<MO> {
 		int progress = 0;
 		progressBar.update(progress, train.size());
 		
-		List<DiscoveryAdapter<MO>> lsMDs = instantiate(classes, null, qualityMeasure, progressBar);	
+		List<DiscoveryAdapter<MO>> lsMDs = instantiate(classes, qualityMeasure, progressBar);	
 		
 		if (N_THREADS > 1) {
 			ExecutorService executor = (ExecutorService) 
@@ -144,8 +144,8 @@ public class Mov3lets<MO> {
 				try {
 					future.get();
 //					progressBar.update(progress++, train.size());
-					System.gc();
 					Executors.newCachedThreadPool();
+					System.gc();
 				} catch (InterruptedException | ExecutionException e) {
 					e.getCause().printStackTrace();
 				}
@@ -163,17 +163,9 @@ public class Mov3lets<MO> {
 			
 		}
 		
-		
-		
-//		List<Subtrajectory> candidates = 
-//		selectCandidates(train, test, new LeftSidePureCVLigth(train, 
-//	    		getDescriptor().getParamAsInt("samples"), 
-//	    		getDescriptor().getParamAsDouble("sampleSize"), 
-//	    		getDescriptor().getParamAsText("medium")));
-//		Mov3letsUtils.getInstance().startTimer("[2.1] >> Extracting Movelets");
 	}
 
-	private List<DiscoveryAdapter<MO>> instantiate(List<MO> classes, List<Subtrajectory> candidates, QualityMeasure qualityMeasure, ProgressBar progressBar) {
+	private List<DiscoveryAdapter<MO>> instantiate(List<MO> classes, QualityMeasure qualityMeasure, ProgressBar progressBar) {
 		List<DiscoveryAdapter<MO>> lsMDs = new ArrayList<DiscoveryAdapter<MO>>();
 		
 		/** STEP 2.1: Starts at discovering movelets */
@@ -186,39 +178,47 @@ public class Mov3lets<MO> {
 				// Discovery by Class:
 				if (getDescriptor().getFlag("supervised") || getDescriptor().getParamAsText("version").equals("super")) {
 					
-					moveletsDiscovery = new SuperMoveletsDiscovery<MO>(trajsFromClass, data, train, test, candidates, qualityMeasure, getDescriptor());
+					moveletsDiscovery = new SuperMoveletsDiscovery<MO>(trajsFromClass, data, train, test, qualityMeasure, getDescriptor());
 				
 				} else if (getDescriptor().getParamAsText("version").equals("hiper")) {
 					
-					moveletsDiscovery = new HiperMoveletsDiscovery<MO>(trajsFromClass, data, train, test, candidates, qualityMeasure, getDescriptor());
+					moveletsDiscovery = new HiperMoveletsDiscovery<MO>(trajsFromClass, data, train, test, qualityMeasure, getDescriptor());
 				
-				} else if (getDescriptor().getParamAsText("version").equals("hpivots")) {
+				} else if (getDescriptor().getParamAsText("version").equals("hiper-pvt")) {
 					
-					moveletsDiscovery = new HiperPivotsMoveletsDiscovery<MO>(trajsFromClass, data, train, test, candidates, qualityMeasure, getDescriptor());
+					moveletsDiscovery = new HiperPivotsMoveletsDiscovery<MO>(trajsFromClass, data, train, test, qualityMeasure, getDescriptor());
 				
-				} else if (getDescriptor().getParamAsText("version").equals("hiperen")) {
+				} else if (getDescriptor().getParamAsText("version").equals("hiper-ce")) {
 					
-					moveletsDiscovery = new HiperenMoveletsDiscovery<MO>(trajsFromClass, data, train, test, candidates, qualityMeasure, getDescriptor());
+					moveletsDiscovery = new HiperCEMoveletsDiscovery<MO>(trajsFromClass, data, train, test, qualityMeasure, getDescriptor());
+				
+				} else if (getDescriptor().getParamAsText("version").equals("hiper-pvt-ce")) {
+					
+					moveletsDiscovery = new HiperPivotsCEMoveletsDiscovery<MO>(trajsFromClass, data, train, test, qualityMeasure, getDescriptor());
+				
+				} else if (getDescriptor().getParamAsText("version").equals("hiper-en")) {
+					
+					moveletsDiscovery = new HiperENMoveletsDiscovery<MO>(trajsFromClass, data, train, test, qualityMeasure, getDescriptor());
 				
 				} else if (getDescriptor().getFlag("pivots") || getDescriptor().getParamAsText("version").equals("pivots")) {
 					
-					moveletsDiscovery = new PivotsMoveletsDiscovery<MO>(trajsFromClass, data, train, test, candidates, qualityMeasure, getDescriptor());
+					moveletsDiscovery = new PivotsMoveletsDiscovery<MO>(trajsFromClass, data, train, test, qualityMeasure, getDescriptor());
 				
 				} else if (getDescriptor().getParamAsText("version").equals("1.0")) {
 					
-					moveletsDiscovery = new MoveletsDiscovery<MO>(trajsFromClass, data, train, test, candidates, qualityMeasure, getDescriptor());
+					moveletsDiscovery = new MoveletsDiscovery<MO>(trajsFromClass, data, train, test, qualityMeasure, getDescriptor());
 				
-				} else if (getDescriptor().getParamAsText("version").equals("3.0")) {
-					
-					moveletsDiscovery = new PrecomputeMoveletsDiscovery<MO>(trajsFromClass, data, train, test, candidates, qualityMeasure, getDescriptor());
+//				} else if (getDescriptor().getParamAsText("version").equals("3.0")) {
+//					
+//					moveletsDiscovery = new PrecomputeMoveletsDiscovery<MO>(trajsFromClass, data, train, test, qualityMeasure, getDescriptor());
 				
-				} else if (getDescriptor().getParamAsText("version").equals("4.0")) {
-					
-					moveletsDiscovery = new ProgressiveMoveletsDiscovery<MO>(trajsFromClass, data, train, test, candidates, qualityMeasure, getDescriptor());
+//				} else if (getDescriptor().getParamAsText("version").equals("4.0")) {
+//					
+//					moveletsDiscovery = new ProgressiveMoveletsDiscovery<MO>(trajsFromClass, data, train, test, qualityMeasure, getDescriptor());
 				
 				} else {
 					
-					moveletsDiscovery = new MemMoveletsDiscovery<MO>(trajsFromClass, data, train, test, candidates, qualityMeasure, getDescriptor());
+					moveletsDiscovery = new MemMoveletsDiscovery<MO>(trajsFromClass, data, train, test, qualityMeasure, getDescriptor());
 				
 				}
 				

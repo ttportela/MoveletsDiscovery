@@ -47,9 +47,9 @@ public class ProgressiveMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 	 * @param train
 	 * @param test 
 	 */	
-	public ProgressiveMoveletsDiscovery(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test, List<Subtrajectory> candidates, QualityMeasure qualityMeasure, 
+	public ProgressiveMoveletsDiscovery(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test, QualityMeasure qualityMeasure, 
 			Descriptor descriptor) {
-		super(trajsFromClass, data, train, test, candidates, qualityMeasure, descriptor);
+		super(trajsFromClass, data, train, test, qualityMeasure, descriptor);
 	}
 	
 	/*** * * * * * * * * * * * * * * * * * * * ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * >>

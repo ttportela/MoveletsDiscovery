@@ -150,7 +150,7 @@ public class Mov3letsRun {
 				{"-mpt", 				"Movelets Per Traj.", 		params.get("movelets_per_trajectory"), 		"Any positive, Auto: -1"},
 				{"-output", 			"Output", 					params.get("output"), 						""},
 				{"", 					"", 						"", 										""},
-				{"-version", 			"Version Impl.", 			params.get("version"), 						"1.0, 2.0, super, hiper, hpivots"},
+				{"-version", 			"Version Impl.", 			params.get("version"), 						"1.0, 2.0, super, hiper, hiper-pvt"},
 				{"", 					"-- Last Prunning",			params.get("last_prunning"), 				""},
 			};
 		

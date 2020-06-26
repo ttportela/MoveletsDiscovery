@@ -58,9 +58,9 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 	 * @param train
 	 * @param test 
 	 */	
-	public MoveletsDiscovery(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test, List<Subtrajectory> candidates, QualityMeasure qualityMeasure, 
+	public MoveletsDiscovery(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test, QualityMeasure qualityMeasure, 
 			Descriptor descriptor) {
-		super(trajsFromClass, data, train, test, candidates, descriptor);
+		super(trajsFromClass, data, train, test, descriptor);
 		init(qualityMeasure);
 	}
 
@@ -88,7 +88,7 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 	/**
 	 * Looks for candidates in the trajectory, then compares with every other trajectory
 	 */
-	public void discover() {
+	public List<Subtrajectory> discover() {
 		
 //		int n = this.data.size();
 		int maxSize = getDescriptor().getParamAsInt("max_size");
@@ -144,7 +144,7 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 //			candidates = filterMovelets(candidates);		
 			movelets.addAll(filterMovelets(candidates));
 			
-			System.gc();
+//			System.gc();
 		}
 		
 		/** STEP 2.2: Runs the pruning process */
@@ -178,6 +178,8 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 		 * and return otherwise */
 		if (!this.test.isEmpty())
 			super.output("test", this.test, movelets, false);
+		
+		return movelets;
 				
 	}
 

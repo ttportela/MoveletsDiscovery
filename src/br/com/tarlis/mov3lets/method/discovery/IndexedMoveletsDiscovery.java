@@ -22,7 +22,6 @@ import java.util.List;
 import br.com.tarlis.mov3lets.method.qualitymeasure.QualityMeasure;
 import br.com.tarlis.mov3lets.method.structures.descriptor.Descriptor;
 import br.com.tarlis.mov3lets.model.MAT;
-import br.com.tarlis.mov3lets.model.Subtrajectory;
 
 /**
  * @author Tarlis Portela <tarlis@tarlis.com.br>
@@ -34,9 +33,9 @@ public class IndexedMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 	 * @param trajectory
 	 * @param train
 	 */
-	public IndexedMoveletsDiscovery(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test, List<Subtrajectory> candidates,
+	public IndexedMoveletsDiscovery(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test,
 			QualityMeasure qualityMeasure, Descriptor descriptor) {
-		super(trajsFromClass, data, train, test, candidates, qualityMeasure, descriptor);
+		super(trajsFromClass, data, train, test, qualityMeasure, descriptor);
 	}
 
 }

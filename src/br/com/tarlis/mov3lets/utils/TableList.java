@@ -8,19 +8,33 @@ import java.util.regex.Pattern;
 
 public class TableList {
 
-	private static final String[] BLINE = { "-", "\u2501" };
-	private static final String[] CROSSING = { "-+-", "\u2548" };
-	private static final String[] VERTICAL_TSEP = { "|", "\u2502" };
-	private static final String[] VERTICAL_BSEP = { "|", "\u2503" };
-	private static final String TLINE = "\u2500";
-	private static final String CORNER_TL = "\u250c";
-	private static final String CORNER_TR = "\u2510";
-	private static final String CORNER_BL = "\u2517";
-	private static final String CORNER_BR = "\u251b";
-	private static final String CROSSING_L = "\u2522";
-	private static final String CROSSING_R = "\u252a";
-	private static final String CROSSING_T = "\u252c";
-	private static final String CROSSING_B = "\u253b";
+//	private static final String[] BLINE = { "-", "\u2501" };
+//	private static final String[] CROSSING = { "-+-", "\u2548" };
+//	private static final String[] VERTICAL_TSEP = { "|", "\u2502" };
+//	private static final String[] VERTICAL_BSEP = { "|", "\u2503" };
+//	private static final String TLINE = "\u2500";
+//	private static final String CORNER_TL = "\u250c";
+//	private static final String CORNER_TR = "\u2510";
+//	private static final String CORNER_BL = "\u2517";
+//	private static final String CORNER_BR = "\u251b";
+//	private static final String CROSSING_L = "\u2522";
+//	private static final String CROSSING_R = "\u252a";
+//	private static final String CROSSING_T = "\u252c";
+//	private static final String CROSSING_B = "\u253b";
+
+	private static final String[] BLINE = { "-", "-" };
+	private static final String[] CROSSING = { "-+-", "+" };
+	private static final String[] VERTICAL_TSEP = { "|", "|" };
+	private static final String[] VERTICAL_BSEP = { "|", "|" };
+	private static final String TLINE = "-";
+	private static final String CORNER_TL = "+";
+	private static final String CORNER_TR = "+";
+	private static final String CORNER_BL = "+";
+	private static final String CORNER_BR = "+";
+	private static final String CROSSING_L = "+";
+	private static final String CROSSING_R = "+";
+	private static final String CROSSING_T = "+";
+	private static final String CROSSING_B = "+";
 
 	private String[] descriptions;
 	private ArrayList<String[]> table;

@@ -9,9 +9,9 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
-import java.util.Map.Entry;
 
 import org.apache.commons.math3.util.Combinations;
 
@@ -20,7 +20,6 @@ import br.com.tarlis.mov3lets.method.qualitymeasure.QualityMeasure;
 import br.com.tarlis.mov3lets.method.structures.descriptor.Descriptor;
 import br.com.tarlis.mov3lets.model.MAT;
 import br.com.tarlis.mov3lets.model.Subtrajectory;
-import br.com.tarlis.mov3lets.utils.Mov3letsUtils;
 
 /**
  * @author tarlis
@@ -38,14 +37,14 @@ public class HiperMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> {
 	 * @param qualityMeasure
 	 * @param descriptor
 	 */
-	public HiperMoveletsDiscovery(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test, List<Subtrajectory> candidates,
+	public HiperMoveletsDiscovery(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test,
 			QualityMeasure qualityMeasure, Descriptor descriptor) {
-		super(trajsFromClass, data, train, test, candidates, qualityMeasure, descriptor);
+		super(trajsFromClass, data, train, test, qualityMeasure, descriptor);
 		this.queue = new ArrayList<MAT<MO>>();
 		queue.addAll(trajsFromClass);
 	}
 	
-	public void discover() {
+	public List<Subtrajectory> discover() {
 
 		int maxSize = getDescriptor().getParamAsInt("max_size");
 		int minSize = getDescriptor().getParamAsInt("min_size");
@@ -79,7 +78,7 @@ public class HiperMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> {
 //			candidates = filterMovelets(candidates);		
 			movelets.addAll(filterMovelets(candidates));
 			
-			System.gc();
+//			System.gc();
 		}
 		
 		/** STEP 2.2: Runs the pruning process */
@@ -89,7 +88,6 @@ public class HiperMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> {
 		
 		/** STEP 2.3.1: Output Movelets (partial) */
 		super.output("train", this.train, movelets, true);
-		base =  null;
 		
 		// Compute distances and best alignments for the test trajectories:
 		/* If a test trajectory set was provided, it does the same.
@@ -125,6 +123,8 @@ public class HiperMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> {
 		
 		if (!this.test.isEmpty())
 			super.output("test", this.test, movelets, false);
+		
+		return movelets;
 	}
 
 	public List<Subtrajectory> selectBestCandidates(MAT<MO> trajectory, int maxSize, Random random,
@@ -139,20 +139,7 @@ public class HiperMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> {
 		if (bestCandidates.size() > 0) {
 			/** UPDATE QUEUE: */
 			queue.removeAll(covered);
-		} 
-//		else
-//		if (bestCandidates.isEmpty()) { 
-//			/* STEP 2.1.5: SELECT ONLY HALF OF THE CANDIDATES (IF Nothing found)
-//			 * * * * * * * * * * * * * * * * * * * * * * * * */
-//			calculateProportion(candidatesByProp, GAMMA, random); // GAMMA = 0.0;
-//			bestCandidates = candidatesByProp.subList(0, (int) Math.ceil((double) candidatesByProp.size() * TAU));
-//			
-//			/** UPDATE QUEUE: */
-////			queue.removeAll(getCoveredInClass(bestCandidates));
-//
-//			/** STEP 2.2: SELECTING BEST CANDIDATES */	
-//			bestCandidates = filterByQuality(bestCandidates, random);
-//		}
+		}
 
 		progressBar.plus("Class: " + trajectory.getMovingObject() 
 						+ ". Trajectory: " + trajectory.getTid() 
@@ -160,8 +147,8 @@ public class HiperMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> {
 						+ ". Number of Candidates: " + candidatesByProp.size() 
 						+ ". Total of Movelets: " + bestCandidates.size() 
 						+ ". Max Size: " + maxSize
-						+ ". Used Features: " + this.maxNumberOfFeatures 
-						+ ". Memory Use: " + Mov3letsUtils.getUsedMemory());
+						+ ". Used Features: " + this.maxNumberOfFeatures);
+//						+ ". Memory Use: " + Mov3letsUtils.getUsedMemory());
 
 		return bestCandidates;
 	}

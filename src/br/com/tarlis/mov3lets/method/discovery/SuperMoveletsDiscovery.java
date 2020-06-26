@@ -48,15 +48,15 @@ public class SuperMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 	/**
 	 * @param train
 	 */
-	public SuperMoveletsDiscovery(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test, List<Subtrajectory> candidates, QualityMeasure qualityMeasure, 
+	public SuperMoveletsDiscovery(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test, QualityMeasure qualityMeasure, 
 			Descriptor descriptor) {
-		super(trajsFromClass, data, train, test, candidates, qualityMeasure, descriptor);
+		super(trajsFromClass, data, train, test, qualityMeasure, descriptor);
 		
 		TAU 	= getDescriptor().getParamAsDouble("tau");
 //		GAMMA 	= getDescriptor().getParamAsDouble("gamma");
 	}
 	
-	public void discover() {
+	public List<Subtrajectory> discover() {
 
 		int maxSize = getDescriptor().getParamAsInt("max_size");
 		int minSize = getDescriptor().getParamAsInt("min_size");
@@ -80,8 +80,8 @@ public class SuperMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 			/** STEP 2.4: SELECTING BEST CANDIDATES */			
 //			candidates = filterMovelets(candidates);		
 			movelets.addAll(filterMovelets(candidates));
-			
-			System.gc();
+
+//			System.gc();
 		}
 		
 		/** STEP 2.2: Runs the pruning process */
@@ -91,7 +91,6 @@ public class SuperMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 		
 		/** STEP 2.3.1: Output Movelets (partial) */
 		super.output("train", this.train, movelets, true);
-		base =  null;
 		
 		// Compute distances and best alignments for the test trajectories:
 		/* If a test trajectory set was provided, it does the same.
@@ -117,6 +116,8 @@ public class SuperMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 		
 		if (!this.test.isEmpty())
 			super.output("test", this.test, movelets, false);
+		
+		return movelets;
 	}
 	
 	/**
@@ -175,12 +176,14 @@ public class SuperMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 		
 			lastSize = newSize;
 						
-		} // for (int size = 2; size <= max; size++)	
+		} // for (int size = 2; size <= max; size++)
+		
+		List<Subtrajectory> bestCandidates = selectBestCandidates(trajectory, maxSize, random, candidatesByProp);	
 	
-//		base =  null;
+		base =  null;
 		lastSize = null;
 		
-		return selectBestCandidates(trajectory, maxSize, random, candidatesByProp);
+		return bestCandidates;
 	}
 
 	public List<Subtrajectory> selectBestCandidates(MAT<MO> trajectory, int maxSize, Random random,
@@ -190,16 +193,18 @@ public class SuperMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 //		GAMMA = getDescriptor().getParamAsDouble("gamma");
 		bestCandidates = filterByProportion(candidatesByProp, random);
 		bestCandidates = filterByQuality(bestCandidates, random, trajectory);
-//		if (bestCandidates.isEmpty()) { 
-//			/* STEP 2.1.5: SELECT ONLY HALF OF THE CANDIDATES (IF Nothing found)
-//			 * * * * * * * * * * * * * * * * * * * * * * * * */
-//			calculateProportion(candidatesByProp, GAMMA, random); 
-////			bestCandidates = candidatesByProp.subList(0, (int) Math.ceil((double) candidatesByProp.size() * 0.5));
-//			GAMMA = 0.0;
-//			
-//			/** STEP 2.2: SELECTING BEST CANDIDATES */	
-//			bestCandidates = filterByQuality(bestCandidates, random);
-//		}
+
+		/* STEP 2.1.5: Recover Approach (IF Nothing found)
+		 * * * * * * * * * * * * * * * * * * * * * * * * */
+		if (bestCandidates.isEmpty()) { 
+			int n = (int) Math.ceil((double) (candidatesByProp.size()+bucket.size()) * 0.1); // By 10%
+			
+			for (int i = n; i < n*10; i += n) {
+				bestCandidates = filterByQuality(bucket.subList(i-n, (i > bucket.size()? bucket.size() : i)), random, trajectory);
+				
+				if (i > bucket.size() || !bestCandidates.isEmpty()) break;
+			}
+		}
 		
 		progressBar.plus("Class: " + trajectory.getMovingObject() 
 						+ ". Trajectory: " + trajectory.getTid() 
@@ -212,19 +217,26 @@ public class SuperMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 		return bestCandidates;
 	}
 
+	protected List<Subtrajectory> bucket = new ArrayList<Subtrajectory>();
 	public List<Subtrajectory> filterByProportion(List<Subtrajectory> candidatesByProp, Random random) {
 		calculateProportion(candidatesByProp, random);
+		
+		// Relative TAU based on the higher proportion:
+		double rel_tau = (candidatesByProp.size() > 0? candidatesByProp.get(0).getQuality().getData().get("quality") : 0.0) * TAU;
 
 		/* STEP 2.1.2: SELECT ONLY CANDIDATES WITH PROPORTION > 50%
 		 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 		List<Subtrajectory> orderedCandidates = new ArrayList<>();
 		for(Subtrajectory candidate : candidatesByProp)
-			if(candidate.getQuality().getData().get("quality") >= TAU)
+			if(candidate.getQuality().getData().get("quality") >= rel_tau) //TAU)
 				orderedCandidates.add(candidate);
 			else 
-				break;
+//				break;
+				bucket.add(candidate);
 		
-		if (orderedCandidates.isEmpty()) return orderedCandidates;
+		if (orderedCandidates.isEmpty()) 
+			return orderedCandidates;
+//			orderedCandidates = bucket;
 				
 		List<Subtrajectory> bestCandidates = filterEqualCandidates(orderedCandidates);
 		

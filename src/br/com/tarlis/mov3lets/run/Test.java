@@ -17,11 +17,8 @@
  */
 package br.com.tarlis.mov3lets.run;
 
+import java.io.File;
 import java.util.Arrays;
-import java.util.Random;
-
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-import org.apache.commons.math3.stat.descriptive.rank.Percentile;
 
 /**
  * @author Tarlis Portela <tarlis@tarlis.com.br>
@@ -35,21 +32,27 @@ public class Test {
 	public static void main(String[] arg) throws Exception {
 
 //		Random rand = new Random();
-		double[] max = new double[] {1.0};
-		double[][] distancesin = new double[][] {{1.0, 1.0, 1.0, 0.001000591338675085, 0.0, 1.0, 1.0, 1.0, 0.0}};
-		double[][] distancesout = new double[][] {{0.0, 0.0, 1.0, 0.001000591338675085, 0.0, 1.0, 0.0, 0.0, 0.0, 0.5}};
+//		double[] max = new double[] {1.0};
+//		double[][] distancesin = new double[][] {{1.0, 1.0, 1.0, 0.001000591338675085, 0.0, 1.0, 1.0, 1.0, 0.0}};
+//		double[][] distancesout = new double[][] {{0.0, 0.0, 1.0, 0.001000591338675085, 0.0, 1.0, 0.0, 0.0, 0.0, 0.5}};
+//		
+//		double pt  = 0.5; //prop(max, distancesin);
+//		double pnt = 0.0; // prop(max, distancesout);
+//
+//		double info = -(pt * Math.log(pt)) -(pnt * Math.log(pnt));
+////		double info = -(pt * Math.log(pt)) -(pnt * Math.log(pnt)); // Information, based on proportion/probability
+//		double info2 = (pt)-(pnt); // Just proportion/probability
+//
+//		System.out.println(pt);
+//		System.out.println(pnt);
+//		System.out.println(info);
+//		System.out.println(info2);
 		
-		double pt  = 0.5; //prop(max, distancesin);
-		double pnt = 0.0; // prop(max, distancesout);
+		System.out.println(new File(".").getAbsolutePath());
 
-		double info = -(pt * Math.log(pt)) -(pnt * Math.log(pnt));
-//		double info = -(pt * Math.log(pt)) -(pnt * Math.log(pnt)); // Information, based on proportion/probability
-		double info2 = (pt)-(pnt); // Just proportion/probability
-
-		System.out.println(pt);
-		System.out.println(pnt);
-		System.out.println(info);
-		System.out.println(info2);
+		File f = new File(arg[0]);
+		System.out.println(f.getAbsolutePath());
+		System.out.println(f.exists());
 		
 	}
 

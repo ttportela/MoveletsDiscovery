@@ -50,16 +50,16 @@ public class PrecomputeMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 	 * @param train
 	 * @param candidates 
 	 */
-	public PrecomputeMoveletsDiscovery(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test, List<Subtrajectory> candidates, QualityMeasure qualityMeasure, 
+	public PrecomputeMoveletsDiscovery(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test, QualityMeasure qualityMeasure, 
 			Descriptor descriptor) {
-		super(trajsFromClass, data, train, test, candidates, qualityMeasure, descriptor);
+		super(trajsFromClass, data, train, test, qualityMeasure, descriptor);
 	}
 	
 
 	/**
 	 * Looks for candidates in the trajectory, then compares with every other trajectory
 	 */
-	public void discover() {
+	public List<Subtrajectory> discover() {
 		
 //		int n = this.data.size();
 		int maxSize = getDescriptor().getParamAsInt("max_size");
@@ -75,7 +75,7 @@ public class PrecomputeMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 //			candidates = filterMovelets(candidates);		
 			movelets.addAll(filterMovelets(candidates));
 			
-			System.gc();
+//			System.gc();
 		}
 		
 		/** STEP 2.2: Runs the pruning process */
@@ -111,6 +111,7 @@ public class PrecomputeMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 		if (!this.test.isEmpty())
 			super.output("test", this.test, movelets, false);
 				
+		return movelets;
 	}
 	
 	/*** * * * * * * * * * * * * * * * * * * * ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * >>

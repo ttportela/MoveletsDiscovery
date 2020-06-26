@@ -45,7 +45,7 @@ public abstract class DiscoveryAdapter<MO> implements Callable<Integer> {
 	protected List<MAT<MO>> test;
 	protected List<MAT<MO>> data;
 
-	protected List<Subtrajectory> candidates;
+//	protected List<Subtrajectory> candidates;
 	
 	protected List<OutputterAdapter<MO>> outputers = new ArrayList<OutputterAdapter<MO>>();
 	
@@ -55,45 +55,56 @@ public abstract class DiscoveryAdapter<MO> implements Callable<Integer> {
 	 * @param train
 	 * @param candidates 
 	 */
-	public DiscoveryAdapter(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test, List<Subtrajectory> candidates, 
+	public DiscoveryAdapter(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test, 
 			Descriptor descriptor) {
-		init(trajsFromClass, data, train, test, candidates, descriptor);
+		init(trajsFromClass, data, train, test, descriptor);
 	}
 	
-	public DiscoveryAdapter(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test, List<Subtrajectory> candidates, 
+	public DiscoveryAdapter(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test, 
 			Descriptor descriptor, List<OutputterAdapter<MO>> outputers) {
-		init(trajsFromClass, data, train, test, candidates, descriptor);
+		init(trajsFromClass, data, train, test, descriptor);
 		this.outputers = outputers;
 	}
 	
-	private void init(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test, List<Subtrajectory> candidates, 
+	private void init(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test, 
 			Descriptor descriptor) {
 		this.trajsFromClass = trajsFromClass;
 		this.train = train;
 		this.test = test;
-		this.candidates = candidates;
+//		this.candidates = candidates;
 		this.descriptor = descriptor;
 		this.data = data;
 	}
 	
-	public abstract void discover(); 
+	public abstract List<Subtrajectory> discover(); 
 
 	@Override
 	public Integer call() throws Exception {
 		
 		discover();
 		
-		System.gc();
+		free();
 		
 		return 0;
 	}
 	
-	/**
-	 * @return the candidates
-	 */
-	public List<Subtrajectory> getCandidates() {
-		return candidates;
+	protected void free() {
+		this.outputers = null;
+		this.trajsFromClass = null;
+		this.train = null;
+		this.test = null;
+		this.data = null;
+		this.descriptor = null;
+
+		System.gc();
 	}
+
+//	/**
+//	 * @return the candidates
+//	 */
+//	public List<Subtrajectory> getCandidates() {
+//		return candidates;
+//	}
 	
 	/**
 	 * @return the descriptor

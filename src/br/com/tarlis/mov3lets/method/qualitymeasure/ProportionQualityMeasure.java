@@ -242,14 +242,21 @@ public class ProportionQualityMeasure<MO> extends QualityMeasure<MO> {
 			for (int j = 0; j < distances[i].length; j++) {
 //				if (distances[i][j] <= splitPoints[i])
 				if (distances[i][j] != MAX_VALUE)
-					sum += maxDistances[candidate.getPointFeatures()[i]] - distances[i][j];
+//					sum += maxDistances[candidate.getPointFeatures()[i]] - distances[i][j];
+					sum += distances[i][j];
+				else
+					sum += maxDistances[candidate.getPointFeatures()[i]];
 			}
 			
 			double total = (maxDistances[candidate.getPointFeatures()[i]] * (double) distances[i].length);
+			double p;
 			if (total > 0.0)
-				proportion += sum / total;
+				p = sum / total;
 			else
-				proportion += 1.0;
+//				proportion += maxDistances[candidate.getPointFeatures()[i]];
+				p = 1.0;
+			
+			proportion += 1.0 - p; // inverse for similarity
 			
 			splitPoints[i] = 0.0; //maxDistances[candidate.getPointFeatures()[i]] * TAU; //sum / total;
 			

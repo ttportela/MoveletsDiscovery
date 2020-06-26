@@ -20,7 +20,7 @@ import br.com.tarlis.mov3lets.model.Subtrajectory;
  * @param <MO>
  *
  */
-public class HiperenMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO> {
+public class HiperPivotsCEMoveletsDiscovery<MO> extends HiperPivotsMoveletsDiscovery<MO> {
 
 	protected List<MAT<MO>> sampleTrajectories;
 
@@ -31,12 +31,12 @@ public class HiperenMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO> {
 	 * @param qualityMeasure
 	 * @param descriptor
 	 */
-	public HiperenMoveletsDiscovery(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test, List<Subtrajectory> candidates,
+	public HiperPivotsCEMoveletsDiscovery(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test,
 			QualityMeasure qualityMeasure, Descriptor descriptor) {
-		super(trajsFromClass, data, train, test, candidates, qualityMeasure, descriptor);
+		super(trajsFromClass, data, train, test, qualityMeasure, descriptor);
 	}
 	
-	public void discover() {
+	public List<Subtrajectory> discover() {
 
 		int maxSize = getDescriptor().getParamAsInt("max_size");
 		int minSize = getDescriptor().getParamAsInt("min_size");
@@ -81,7 +81,7 @@ public class HiperenMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO> {
 //			candidates = filterMovelets(candidates);		
 			movelets.addAll(filterMovelets(candidates));
 			
-			System.gc();
+//			System.gc();
 		}
 		
 		/** STEP 2.2: Runs the pruning process */
@@ -91,7 +91,6 @@ public class HiperenMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO> {
 		
 		/** STEP 2.3.1: Output Movelets (partial) */
 		super.output("train", this.train, movelets, true);
-		base =  null;
 		
 		// Compute distances and best alignments for the test trajectories:
 		/* If a test trajectory set was provided, it does the same.
@@ -127,6 +126,8 @@ public class HiperenMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO> {
 		
 		if (!this.test.isEmpty())
 			super.output("test", this.test, movelets, false);
+		
+		return movelets;
 	}
 
 }

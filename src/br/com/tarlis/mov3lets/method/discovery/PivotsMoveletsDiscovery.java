@@ -39,9 +39,9 @@ public class PivotsMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 	 * @param train
 	 * @param candidates 
 	 */
-	public PivotsMoveletsDiscovery(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test, List<Subtrajectory> candidates, QualityMeasure qualityMeasure, 
+	public PivotsMoveletsDiscovery(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test, QualityMeasure qualityMeasure, 
 			Descriptor descriptor) {
-		super(trajsFromClass, data, train, test, candidates, qualityMeasure, descriptor);
+		super(trajsFromClass, data, train, test, qualityMeasure, descriptor);
 	}
 
 	public List<Subtrajectory> moveletsDiscovery(MAT<MO> trajectory, List<MAT<MO>> trajectories, int minSize, int maxSize, Random random) {
@@ -94,17 +94,17 @@ public class PivotsMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 						
 		} // for (int size = 2; size <= max; size++)	
 	
-//		base =  null;
-		lastSize = null;
-	
 		progressBar.plus("Class: " + trajectory.getMovingObject() 
 						+ ". Trajectory: " + trajectory.getTid() 
 						+ ". Trajectory Size: " + trajectory.getPoints().size() 
 						+ ". Number of Candidates: " + total_size 
 						+ ". Total of Movelets: " + candidates.size() 
 						+ ". Max Size: " + maxSize
-						+ ". Used Features: " + this.maxNumberOfFeatures 
-						+ ". Memory Use: " + Mov3letsUtils.getUsedMemory());
+						+ ". Used Features: " + this.maxNumberOfFeatures);
+//						+ ". Memory Use: " + Mov3letsUtils.getUsedMemory());
+	
+		base =  null;
+		lastSize = null;
 	
 		return candidates;
 	}

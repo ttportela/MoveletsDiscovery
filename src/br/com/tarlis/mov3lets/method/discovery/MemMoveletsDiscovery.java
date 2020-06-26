@@ -44,15 +44,15 @@ public class MemMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 	 * @param train
 	 * @param test 
 	 */	
-	public MemMoveletsDiscovery(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test, List<Subtrajectory> candidates, QualityMeasure qualityMeasure, 
+	public MemMoveletsDiscovery(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test, QualityMeasure qualityMeasure, 
 			Descriptor descriptor) {
-		super(trajsFromClass, data, train, test, candidates, qualityMeasure, descriptor);
+		super(trajsFromClass, data, train, test, qualityMeasure, descriptor);
 	}
 
 	/**
 	 * Looks for candidates in the trajectory, then compares with every other trajectory
 	 */
-	public void discover() {
+	public List<Subtrajectory> discover() {
 		
 		int maxSize = getDescriptor().getParamAsInt("max_size");
 		int minSize = getDescriptor().getParamAsInt("min_size");
@@ -91,7 +91,7 @@ public class MemMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 //			candidates = filterMovelets(candidates);		
 			movelets.addAll(filterMovelets(candidates));
 			
-			System.gc();
+//			System.gc();
 		}
 		
 		/** STEP 2.2: Runs the pruning process */
@@ -124,6 +124,8 @@ public class MemMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 		
 		if (!this.test.isEmpty())
 			super.output("test", this.test, movelets, false);
+		
+		return movelets;
 	}
 
 	/*** * * * * * * * * * * * * * * * * * * * ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * >>
@@ -187,9 +189,6 @@ public class MemMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 			lastSize = newSize;
 						
 		} // for (int size = 2; size <= max; size++)	
-	
-//		base =  null;
-		lastSize = null;
 		
 		candidates = filterMovelets(candidates);
 		
@@ -200,6 +199,10 @@ public class MemMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 						+ ". Total of Movelets: " + candidates.size() 
 						+ ". Max Size: " + maxSize
 						+ ". Used Features: " + this.maxNumberOfFeatures);
+//						+ ". Memory Use: " + Mov3letsUtils.getUsedMemory());
+	
+		base =  null;
+		lastSize = null;
 
 		return candidates;
 	}

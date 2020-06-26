@@ -12,7 +12,6 @@ import br.com.tarlis.mov3lets.method.qualitymeasure.QualityMeasure;
 import br.com.tarlis.mov3lets.method.structures.descriptor.Descriptor;
 import br.com.tarlis.mov3lets.model.MAT;
 import br.com.tarlis.mov3lets.model.Subtrajectory;
-import br.com.tarlis.mov3lets.utils.Mov3letsUtils;
 
 /**
  * @author tarlis
@@ -28,9 +27,9 @@ public class HiperPivotsMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO>
 	 * @param qualityMeasure
 	 * @param descriptor
 	 */
-	public HiperPivotsMoveletsDiscovery(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test, List<Subtrajectory> candidates,
+	public HiperPivotsMoveletsDiscovery(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test,
 			QualityMeasure qualityMeasure, Descriptor descriptor) {
-		super(trajsFromClass, data, train, test, candidates, qualityMeasure, descriptor);
+		super(trajsFromClass, data, train, test, qualityMeasure, descriptor);
 	}
 	
 	/**
@@ -63,6 +62,8 @@ public class HiperPivotsMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO>
 		List<Subtrajectory> candidatesOfSize = findCandidates(trajectory, trajectories, size, base);
 		
 //		GAMMA = getDescriptor().getParamAsDouble("gamma");
+		calculateProportion(candidatesOfSize, random);
+		orderCandidates(candidatesOfSize);
 		candidatesOfSize = filterByProportion(candidatesOfSize, random);
 
 		if( minSize <= 1 ) {
@@ -81,6 +82,10 @@ public class HiperPivotsMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO>
 			
 			candidatesOfSize = growPivots(candidatesOfSize, trajectory, trajectories, base, newSize, size);
 //			GAMMA = getDescriptor().getParamAsDouble("gamma");
+
+			calculateProportion(candidatesOfSize, random);
+			orderCandidates(candidatesOfSize);
+			candidatesOfSize = filterOvelappingPoints(candidatesOfSize);
 			candidatesOfSize = filterByProportion(candidatesOfSize, random);
 	
 			total_size = total_size + candidatesOfSize.size();
@@ -95,16 +100,27 @@ public class HiperPivotsMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO>
 //			lastSize = newSize;
 						
 		} // for (int size = 2; size <= max; size++)	
-	
-		base =  null;
-		newSize = null;
 		
 		/** STEP 2.2: SELECTING BEST CANDIDATES */	
-//		orderCandidates(candidatesByProp);
-//		List<Subtrajectory> bestCandidates = filterEqualCandidates(candidatesByProp);
-//		bestCandidates = filterByQuality(candidatesByProp, random, trajectory);
+		orderCandidates(candidatesByProp);
+		List<Subtrajectory> bestCandidates = filterEqualCandidates(candidatesByProp);
+		bestCandidates = filterByQuality(candidatesByProp, random, trajectory);
 		
-		List<Subtrajectory> bestCandidates = filterByQuality(candidatesByProp, random, trajectory);
+		/* STEP 2.1.5: Recover Approach (IF Nothing found)
+		 * * * * * * * * * * * * * * * * * * * * * * * * */
+		if (bestCandidates.isEmpty()) { 
+			n = (int) Math.ceil((double) (candidatesByProp.size()+bucket.size()) * 0.1); // By 10%
+			orderCandidates(bucket);
+			bucket = filterEqualCandidates(bucket);
+			
+			for (int i = n; i < n*10; i += n) {
+				bestCandidates = filterByQuality(bucket.subList(i-n, (i > bucket.size()? bucket.size() : i)), random, trajectory);
+				
+				if (i > bucket.size() || !bestCandidates.isEmpty()) break;
+			}
+		}
+		
+//		List<Subtrajectory> bestCandidates = filterByQuality(candidatesByProp, random, trajectory);
 		
 		queue.removeAll(getCoveredInClass(bestCandidates));		
 	
@@ -114,8 +130,11 @@ public class HiperPivotsMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO>
 						+ ". Number of Candidates: " + candidatesByProp.size() 
 						+ ". Total of Movelets: " + bestCandidates.size() 
 						+ ". Max Size: " + maxSize
-						+ ". Used Features: " + this.maxNumberOfFeatures 
-						+ ". Memory Use: " + Mov3letsUtils.getUsedMemory());
+						+ ". Used Features: " + this.maxNumberOfFeatures);
+//						+ ". Memory Use: " + Mov3letsUtils.getUsedMemory());
+	
+		base =  null;
+		newSize = null;
 	
 		return bestCandidates;
 	}
@@ -179,27 +198,61 @@ public class HiperPivotsMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO>
 	}
 
 	public List<Subtrajectory> filterByProportion(List<Subtrajectory> candidatesByProp, Random random) {
-		calculateProportion(candidatesByProp, random);
+//		calculateProportion(candidatesByProp, random);
 
+		// Relative TAU based on the higher proportion:
+		double rel_tau = (candidatesByProp.size() > 0? candidatesByProp.get(0).getQuality().getData().get("quality") : 0.0) * TAU;
+		
 		/* STEP 2.1.2: SELECT ONLY CANDIDATES WITH PROPORTION > 50%
 		 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 		List<Subtrajectory> orderedCandidates = new ArrayList<>();
 		for(Subtrajectory candidate : candidatesByProp)
-			if(candidate.getQuality().getData().get("quality") >= TAU)
+			if(candidate.getQuality().getData().get("quality") >= rel_tau) //TAU)
 				orderedCandidates.add(candidate);
 			else 
-				break;
+//				break;
+				bucket.add(candidate);
 		
 //		if (orderedCandidates.isEmpty()) return orderedCandidates;
 				
 		/* STEP 2.1.4: IDENTIFY EQUAL CANDIDATES -> not for pivots
 		 * * * * * * * * * * * * * * * * * * * * * * * * */
+//		List<Subtrajectory> bestCandidates = filterEqualCandidates(orderedCandidates);
+//		return bestCandidates;
+		
 //		List<Subtrajectory> bestCandidates = orderedCandidates;// new ArrayList<>();
 //		
 //		bestCandidates = bestCandidates.subList(0, (int) Math.ceil((double) bestCandidates.size() * GAMMA));
-//		
-//		return bestCandidates;
+		
 		return orderedCandidates;
+	}
+
+	public List<Subtrajectory> filterOvelappingPoints(List<Subtrajectory> orderedCandidates) {
+		
+		List<Subtrajectory> bestCandidates = new ArrayList<>();		
+		for(Subtrajectory candidate : orderedCandidates) {
+			
+			if(bestCandidates.isEmpty())
+				bestCandidates.add(candidate);
+			else {
+				boolean similar = false;
+				for(Subtrajectory best_candidate : bestCandidates) {
+					
+					if((best_candidate.getEnd() > candidate.getStart()) &&
+					   (best_candidate.getStart() < candidate.getEnd())) {
+						similar = true;
+						break;
+					}
+					
+				}
+				if(!similar) {
+					bestCandidates.add(candidate);
+				} else
+					bucket.add(candidate);
+			}
+		}
+		
+		return bestCandidates;
 	}
 	
 //	public Set<MAT<MO>> getCoveredInClass(List<Subtrajectory> bestCandidates) {

@@ -103,6 +103,7 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO> {
 			}
 
 			writer.close();
+			attributeToTrajectories.clear();
 
 		} catch (IOException e) {
 			e.printStackTrace();
