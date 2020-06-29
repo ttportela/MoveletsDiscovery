@@ -19,6 +19,9 @@ package br.com.tarlis.mov3lets.run;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collections;
+
+import org.apache.commons.lang3.ArrayUtils;
 
 /**
  * @author Tarlis Portela <tarlis@tarlis.com.br>
@@ -30,6 +33,15 @@ public class Test {
 	 * @param args
 	 */
 	public static void main(String[] arg) throws Exception {
+		
+		double[] dist = new double[] {0.0, 0.010387921880720477, 0.010387921880720477, 0.010387921880720477, 0.010387921880720477, 0.010387921880720477, 0.010387921880720477, 0.010387921880720477, 0.010387921880720477, 0.010387921880720477, 0.010387921880720477, 0.010387921880720477, 0.010387921880720477, 0.010387921880720477, 0.010387921880720477, 0.010387921880720477, 0.22387883098676162, 0.22387883098676162, 0.22387883098676162, 0.22387883098676162, 0.22387883098676162, 0.22387883098676162, 0.22387883098676162, 0.22387883098676162, 0.22387883098676162, 0.22387883098676162, 0.005201557459070794, 0.005201557459070794, 0.005201557459070794, 0.005201557459070794, 0.005201557459070794, 0.005201557459070794, 0.005201557459070794, 0.005201557459070794, 0.005201557459070794, 0.005201557459070794, 0.22271296093626908, 0.22271296093626908, 0.22271296093626908, 0.22271296093626908, 0.06499739097071401, 0.16530424113433959, 0.16530424113433959};
+		double max = 0.22387883098676162;
+		double total = max * dist.length;
+		double sum = Arrays.stream(dist).sum();
+		
+		System.out.println(sum / total);
+		
+		System.out.println(Collections.max(Arrays.asList(ArrayUtils.toObject(dist))));
 
 //		Random rand = new Random();
 //		double[] max = new double[] {1.0};
@@ -48,11 +60,11 @@ public class Test {
 //		System.out.println(info);
 //		System.out.println(info2);
 		
-		System.out.println(new File(".").getAbsolutePath());
-
-		File f = new File(arg[0]);
-		System.out.println(f.getAbsolutePath());
-		System.out.println(f.exists());
+//		System.out.println(new File(".").getAbsolutePath());
+//
+//		File f = new File(arg[0]);
+//		System.out.println(f.getAbsolutePath());
+//		System.out.println(f.exists());
 		
 	}
 

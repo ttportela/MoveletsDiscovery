@@ -38,6 +38,7 @@ import br.com.tarlis.mov3lets.model.Subtrajectory;
 public class MemMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 	
 	protected double[][][][] base;
+	protected double[] maxDistances; // Max distances by dimension
 	
 	/**
 	 * @param trajectory
@@ -312,10 +313,11 @@ public class MemMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 		int n = trajectory.getPoints().size();
 		int[][] combinations = makeCombinations(exploreDimensions, numberOfFeatures, maxNumberOfFeatures);
 		
+		maxDistances = new double[getDescriptor().getAttributes().size()];
+		
 		// List of Candidates to extract from P:
 		List<Subtrajectory> candidates = new ArrayList<>();
 		
-
 		// From point 0 to (n - <candidate max. size>) 
 		for (int start = 0; start <= (n - size); start++) {
 //			Point p = trajectory.getPoints().get(start);
@@ -345,7 +347,10 @@ public class MemMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 						double distance = (bestPosition >= 0) ? 
 								distancesForT[subtrajectory.getPointFeatures()[j]][bestPosition] : MAX_VALUE;
 						subtrajectory.getDistances()[j][i] = (distance != MAX_VALUE) ? 
-								Math.sqrt( distance / size ) : MAX_VALUE;					
+								Math.sqrt( distance / size ) : MAX_VALUE;	
+								
+						if (maxDistances[j] < subtrajectory.getDistances()[j][i] && subtrajectory.getDistances()[j][i] != MAX_VALUE)
+							maxDistances[j] = subtrajectory.getDistances()[j][i];
 					}
 				}
 				

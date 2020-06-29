@@ -27,7 +27,6 @@ import org.apache.commons.lang3.ArrayUtils;
 
 import br.com.tarlis.mov3lets.method.qualitymeasure.ProportionQualityMeasure;
 import br.com.tarlis.mov3lets.method.qualitymeasure.QualityMeasure;
-import br.com.tarlis.mov3lets.method.structures.descriptor.AttributeDescriptor;
 import br.com.tarlis.mov3lets.method.structures.descriptor.Descriptor;
 import br.com.tarlis.mov3lets.model.MAT;
 import br.com.tarlis.mov3lets.model.Point;
@@ -197,13 +196,7 @@ public class SuperMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 		/* STEP 2.1.5: Recover Approach (IF Nothing found)
 		 * * * * * * * * * * * * * * * * * * * * * * * * */
 		if (bestCandidates.isEmpty()) { 
-			int n = (int) Math.ceil((double) (candidatesByProp.size()+bucket.size()) * 0.1); // By 10%
-			
-			for (int i = n; i < n*10; i += n) {
-				bestCandidates = filterByQuality(bucket.subList(i-n, (i > bucket.size()? bucket.size() : i)), random, trajectory);
-				
-				if (i > bucket.size() || !bestCandidates.isEmpty()) break;
-			}
+			bestCandidates = recoverCandidates(trajectory, random, candidatesByProp);
 		}
 		
 		progressBar.plus("Class: " + trajectory.getMovingObject() 
@@ -214,6 +207,21 @@ public class SuperMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 						+ ". Max Size: " + maxSize
 						+ ". Used Features: " + this.maxNumberOfFeatures);
 
+		return bestCandidates;
+	}
+
+	public List<Subtrajectory> recoverCandidates(MAT<MO> trajectory, Random random,
+			List<Subtrajectory> candidatesByProp) {
+//		int n = (int) Math.ceil((double) (candidatesByProp.size()+bucket.size()) * 0.1); // By 10%
+		orderCandidates(bucket);
+		List<Subtrajectory> bestCandidates = filterEqualCandidates(bucket);
+		bestCandidates = filterByQuality(bestCandidates, random, trajectory);
+		
+//		for (int i = n; i < n*10; i += n) {
+//			bestCandidates = filterByQuality(bucket.subList(i-n, (i > bucket.size()? bucket.size() : i)), random, trajectory);
+//			
+//			if (i > bucket.size() || !bestCandidates.isEmpty()) break;
+//		}
 		return bestCandidates;
 	}
 
@@ -438,85 +446,84 @@ public class SuperMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 	    return all_match;
 	}
 	
-	protected double[] maxDistances;
-	public double[][][][] computeBaseDistances(MAT<?> trajectory, List<MAT<MO>> trajectories){
-		int n = trajectory.getPoints().size();
-		int size = 1;
-		
-		maxDistances = new double[getDescriptor().getAttributes().size()];
-		
-		double[][][][] base = new double[(n - size)+1][][][];		
-		
-		for (int start = 0; start <= (n - size); start++) {
-			
-			base[start] = new double[trajectories.size()][][];				
-			
-			for (int i = 0; i < trajectories.size(); i++) {
-				
-				MAT<?> T = trajectories.get(i);
-				Point a = trajectory.getPoints().get(start);
-								
-				base[start][i] = new double[getDescriptor().getAttributes().size()][(trajectories.get(i).getPoints().size()-size)+1];
-						
-				for (int j = 0; j <= (T.getPoints().size()-size); j++) {
-					Point b = T.getPoints().get(j);
-					
-
-					for (int k = 0; k < getDescriptor().getAttributes().size(); k++) {
-						AttributeDescriptor attr = getDescriptor().getAttributes().get(k);						
-						base[start][i][k][j] = attr.getDistanceComparator().calculateDistance(
-								a.getAspects().get(k), 
-								b.getAspects().get(k), 
-								attr);
-						
-						if (maxDistances[k] < base[start][i][k][j] && base[start][i][k][j] != MAX_VALUE)
-							maxDistances[k] = base[start][i][k][j];
-					
-//						base[start][i][k][j] = (distance != MAX_VALUE) ? (distance) : MAX_VALUE;	// No sense				
-					
-					} // for (int k = 0; k < distance.length; k++)
-					
-				} // for (int j = 0; j <= (train.size()-size); j++)
-				
-			} //for (int i = 0; i < train.size(); i++)
-			
-		} // for (int start = 0; start <= (n - size); start++)
-
-		return base;
-	}
-	
-	public double[][][][] newSize(MAT<?> trajectory, List<MAT<MO>> trajectories, double[][][][] base, double[][][][] lastSize, int size) {
-		
-		int n = trajectory.getPoints().size();	
-		
-		for (int start = 0; start <= (n - size); start++) {
-						
-			for (int i = 0; i < trajectories.size(); i++) {
-				
-				if (trajectories.get(i).getPoints().size() >= size) {						
-							
-					for (int j = 0; j <= (trajectories.get(i).getPoints().size()-size); j++) {
-												
-						for (int k = 0; k < lastSize[start][i].length; k++) {
-							
-							if (lastSize[start][i][k][j] != MAX_VALUE)
-								lastSize[start][i][k][j] += base[start+size-1][i][k][j+size-1];
-							
-
-							if (maxDistances[k] < lastSize[start][i][k][j] && lastSize[start][i][k][j] != MAX_VALUE)
-								maxDistances[k] = lastSize[start][i][k][j];
-						
-						} // for (int k = 0; k < distance.length; k++) {
-											
-					} // for (int j = 0; j <= (train.size()-size); j++)
-					
-				} // if (train.get(i).getData().size() >= size) 
-				
-			} // for (int i = 0; i < train.size(); i++)
-			
-		} // for (int start = 0; start <= (n - size); start++)
-		
-		return lastSize;
-	}
+//	public double[][][][] computeBaseDistances(MAT<?> trajectory, List<MAT<MO>> trajectories){
+//		int n = trajectory.getPoints().size();
+//		int size = 1;
+//		
+//		maxDistances = new double[getDescriptor().getAttributes().size()];
+//		
+//		double[][][][] base = new double[(n - size)+1][][][];		
+//		
+//		for (int start = 0; start <= (n - size); start++) {
+//			
+//			base[start] = new double[trajectories.size()][][];				
+//			
+//			for (int i = 0; i < trajectories.size(); i++) {
+//				
+//				MAT<?> T = trajectories.get(i);
+//				Point a = trajectory.getPoints().get(start);
+//								
+//				base[start][i] = new double[getDescriptor().getAttributes().size()][(trajectories.get(i).getPoints().size()-size)+1];
+//						
+//				for (int j = 0; j <= (T.getPoints().size()-size); j++) {
+//					Point b = T.getPoints().get(j);
+//					
+//
+//					for (int k = 0; k < getDescriptor().getAttributes().size(); k++) {
+//						AttributeDescriptor attr = getDescriptor().getAttributes().get(k);						
+//						base[start][i][k][j] = attr.getDistanceComparator().calculateDistance(
+//								a.getAspects().get(k), 
+//								b.getAspects().get(k), 
+//								attr);
+//						
+//						if (maxDistances[k] < base[start][i][k][j] && base[start][i][k][j] != MAX_VALUE)
+//							maxDistances[k] = base[start][i][k][j];
+//					
+////						base[start][i][k][j] = (distance != MAX_VALUE) ? (distance) : MAX_VALUE;	// No sense				
+//					
+//					} // for (int k = 0; k < distance.length; k++)
+//					
+//				} // for (int j = 0; j <= (train.size()-size); j++)
+//				
+//			} //for (int i = 0; i < train.size(); i++)
+//			
+//		} // for (int start = 0; start <= (n - size); start++)
+//
+//		return base;
+//	}
+//	
+//	public double[][][][] newSize(MAT<?> trajectory, List<MAT<MO>> trajectories, double[][][][] base, double[][][][] lastSize, int size) {
+//		
+//		int n = trajectory.getPoints().size();	
+//		
+//		for (int start = 0; start <= (n - size); start++) {
+//						
+//			for (int i = 0; i < trajectories.size(); i++) {
+//				
+//				if (trajectories.get(i).getPoints().size() >= size) {						
+//							
+//					for (int j = 0; j <= (trajectories.get(i).getPoints().size()-size); j++) {
+//												
+//						for (int k = 0; k < lastSize[start][i].length; k++) {
+//							
+//							if (lastSize[start][i][k][j] != MAX_VALUE)
+//								lastSize[start][i][k][j] += base[start+size-1][i][k][j+size-1];
+//							
+//
+//							if (maxDistances[k] < lastSize[start][i][k][j] && lastSize[start][i][k][j] != MAX_VALUE)
+//								maxDistances[k] = lastSize[start][i][k][j];
+//						
+//						} // for (int k = 0; k < distance.length; k++) {
+//											
+//					} // for (int j = 0; j <= (train.size()-size); j++)
+//					
+//				} // if (train.get(i).getData().size() >= size) 
+//				
+//			} // for (int i = 0; i < train.size(); i++)
+//			
+//		} // for (int start = 0; start <= (n - size); start++)
+//		
+//		return lastSize;
+//	}
 
 }

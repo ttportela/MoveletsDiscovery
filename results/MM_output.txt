@@ -1,0 +1,35 @@
+Mon Apr 27 10:28:34 BRT 2020
+Starting running Supervised MASTERMovelets 
+Configurations:
+	Datasets directory:	    /Users/tarlis/Documents/data/FoursquareNY/
+	Results directory:    /Users/tarlis/Documents/results/
+	Description file :    /Users/tarlis/Documents/data/FoursquareNY/FoursquareNY_DayPoiWe.json
+	Allowed Threads:      1
+	Min size:             1
+	Max size:             -1
+	Quality Measure:      LSP
+	Explore dimensions:   true
+	Samples:      1
+	Sample Size:   0.5
+	Medium:   none
+	Output:   discrete
+	WITHOUT LAST PRUNNING
+	WITHOUT ATTRIBUTE LIMITATION
+
+
+Starting...
+Class: 6. Discovering movelets in supervised way.
+Movelets generation with Log limit.
+
+Supervised Candidates Discovery  11% ##### /
+Supervised Candidates Discovery  11% ##### /
+Supervised Candidates Discovery  22% ########### -
+Supervised Candidates Discovery  33% ################ \
+Supervised Candidates Discovery  44% ###################### |
+Supervised Candidates Discovery  55% ########################### /
+Supervised Candidates Discovery  66% ################################# -
+Supervised Candidates Discovery  77% ###################################### \
+Supervised Candidates Discovery  88% ############################################ |
+Supervised Candidates Discovery 100% ################################################## /
+
+Movelet Discovery   0%  /

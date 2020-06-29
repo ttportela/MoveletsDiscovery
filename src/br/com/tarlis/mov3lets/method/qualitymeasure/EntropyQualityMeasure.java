@@ -75,7 +75,7 @@ public class EntropyQualityMeasure<MO> extends ProportionQualityMeasure<MO> {
     	
     	ProportionQuality quality = new ProportionQuality();
     	quality.setData(data);	    
-    	quality.setCoveredInClass((List) coveredInClass);
+//    	quality.setCoveredInClass((List) coveredInClass);
     	candidate.setCovered((List) coveredInClass);
 		candidate.setQuality(quality);
 	}
@@ -102,14 +102,14 @@ public class EntropyQualityMeasure<MO> extends ProportionQualityMeasure<MO> {
 			}
 			
 			double total = (maxDistances[candidate.getPointFeatures()[i]] * (double) distances[i].length);
-			double p;
+//			double p;
 			if (total > 0.0)
-				p = sum / total;
+				proportion += sum / total;
 			else
 //				proportion += maxDistances[candidate.getPointFeatures()[i]];
-				p = 1.0;
+				proportion += 1.0;
 			
-			proportion += 1.0 - p; // inverse for similarity
+//			proportion += 1.0 - p; // inverse for similarity
 			
 //			splitPoints[i] = sum / total;
 			splitPoints[i] = 0.0; //maxDistances[candidate.getPointFeatures()[i]] * TAU; //sum / total;

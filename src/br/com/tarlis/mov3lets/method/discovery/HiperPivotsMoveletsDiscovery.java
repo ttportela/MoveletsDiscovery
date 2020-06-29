@@ -63,7 +63,7 @@ public class HiperPivotsMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO>
 		
 //		GAMMA = getDescriptor().getParamAsDouble("gamma");
 		calculateProportion(candidatesOfSize, random);
-		orderCandidates(candidatesOfSize);
+//		orderCandidates(candidatesOfSize);
 		candidatesOfSize = filterByProportion(candidatesOfSize, random);
 
 		if( minSize <= 1 ) {
@@ -84,7 +84,7 @@ public class HiperPivotsMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO>
 //			GAMMA = getDescriptor().getParamAsDouble("gamma");
 
 			calculateProportion(candidatesOfSize, random);
-			orderCandidates(candidatesOfSize);
+//			orderCandidates(candidatesOfSize);
 			candidatesOfSize = filterOvelappingPoints(candidatesOfSize);
 			candidatesOfSize = filterByProportion(candidatesOfSize, random);
 	
@@ -109,15 +109,7 @@ public class HiperPivotsMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO>
 		/* STEP 2.1.5: Recover Approach (IF Nothing found)
 		 * * * * * * * * * * * * * * * * * * * * * * * * */
 		if (bestCandidates.isEmpty()) { 
-			n = (int) Math.ceil((double) (candidatesByProp.size()+bucket.size()) * 0.1); // By 10%
-			orderCandidates(bucket);
-			bucket = filterEqualCandidates(bucket);
-			
-			for (int i = n; i < n*10; i += n) {
-				bestCandidates = filterByQuality(bucket.subList(i-n, (i > bucket.size()? bucket.size() : i)), random, trajectory);
-				
-				if (i > bucket.size() || !bestCandidates.isEmpty()) break;
-			}
+			bestCandidates = recoverCandidates(trajectory, random, candidatesByProp);
 		}
 		
 //		List<Subtrajectory> bestCandidates = filterByQuality(candidatesByProp, random, trajectory);
@@ -164,7 +156,7 @@ public class HiperPivotsMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO>
 		
 		if (start < 0 || end > trajectory.getPoints().size()-1)
 			return null;
-		
+				
 		Subtrajectory subtrajectory = new Subtrajectory(start, end, trajectory, trajectories.size(),
 				candidate.getPointFeatures(), candidate.getK());
 		
@@ -189,7 +181,10 @@ public class HiperPivotsMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO>
 				double distance = (bestPosition >= 0) ? 
 						distancesForT[subtrajectory.getPointFeatures()[j]][bestPosition] : MAX_VALUE;
 				subtrajectory.getDistances()[j][i] = (distance != MAX_VALUE) ? 
-						Math.sqrt( distance / size ) : MAX_VALUE;					
+						Math.sqrt( distance / size ) : MAX_VALUE;	
+						
+				if (maxDistances[j] < subtrajectory.getDistances()[j][i] && subtrajectory.getDistances()[j][i] != MAX_VALUE)
+					maxDistances[j] = subtrajectory.getDistances()[j][i];
 			}
 			
 		}

@@ -1,14 +1,11 @@
 package br.com.tarlis.mov3lets.method.qualitymeasure;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-
-import br.com.tarlis.mov3lets.model.MAT;
 
 public class ProportionQuality extends Quality {
 	
-	private List<MAT<?>> coveredInClass;
+//	private List<MAT<?>> coveredInClass;
 	private Map<String, Double> data;
 	
 	public ProportionQuality() {
@@ -48,10 +45,10 @@ public class ProportionQuality extends Quality {
 			// in ascending order
 			return  diffDimensions;
 		
-		int diffCoverage = Integer.compare(this.getCoveredInClass().size(), ((ProportionQuality)other).getCoveredInClass().size());
-		if (diffCoverage != 0)	
-		// Ordem crescente
-		return diffCoverage;
+//		int diffCoverage = Integer.compare(this.getCoveredInClass().size(), ((ProportionQuality)other).getCoveredInClass().size());
+//		if (diffCoverage != 0)	
+//		// Ordem crescente
+//		return diffCoverage;
 				
 		int diffStart = Double.compare(this.getData().get("start"), other.getData().get("start"));
 		if (diffStart != 0)	
@@ -87,12 +84,12 @@ public class ProportionQuality extends Quality {
 		return data.toString();
 	}
 	
-	public List<MAT<?>> getCoveredInClass() {
-		return coveredInClass;
-	}
-	
-	public void setCoveredInClass(List<MAT<?>> coveredInClass) {
-		this.coveredInClass = coveredInClass;
-	}
+//	public List<MAT<?>> getCoveredInClass() {
+//		return coveredInClass;
+//	}
+//	
+//	public void setCoveredInClass(List<MAT<?>> coveredInClass) {
+//		this.coveredInClass = coveredInClass;
+//	}
 
 }
