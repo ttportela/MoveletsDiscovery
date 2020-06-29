@@ -151,4 +151,4 @@ java -jar HIPERMovelets.jar
 
 ## Extras
 
-To run HIPERMovelts and classification methods with Python automatization ([automatize](./dist/automatize/)) see the exemaples in the jupyter notebook: [Automatize - Sample Code.ipynb](./dist/Automatize\ -\ Sample\ Code.ipynb)
+To run HIPERMovelts and classification methods with Python automatization ([automatize](./dist/automatize/)) see the exemaples in the jupyter notebook: [Automatize - Sample Code.ipynb](./dist/Automatize_Sample_Code.ipynb)
