@@ -8,22 +8,28 @@ Source code of the paper **HIPERMovelets: a greedy approach for efficient movele
 ## Versions
 
 
-This is a project with the HIPERMovelets(Portela-2020) implementation, with three options of optimizations.
+This is a project with the HIPERMovelets (Portela, 2020) implementation, with three options of optimizations.
 
 
 - *HIPERMovelets*: new optimization for MASTERMovelets, with greedy search (`-version hiper`).
-- *HIPERMovelets-Log*: HIPERMovelets, limiting the movelets size to the ln size of the trajectory (`-version hiper -Ms -3`).
-- *HIPERPivots*: HIPERMovelets, limiting the movelets search space to the points that are neighbour of well qualified movelets of size one (`-version hiper-pvt`).
-- *HIPERPivots-Log*: HIPERPivots, limiting the movelets size to the ln size of the trajectory (`-version hiper-pvt -Ms -3`).
+- *HIPERMovelets-Log*: plus, limits the movelets size to the ln size of the trajectory (`-version hiper -Ms -3`).
 
 
-**Includes re-implementations of the following methods:**
+- *HIPERPivots*: limits the movelets search space to the points that are neighbour of well qualified movelets of size one (`-version hiper-pvt`).
+- *HIPERPivots-Log*: plus, limits the movelets size to the ln size of the trajectory (`-version hiper-pvt -Ms -3`).
 
 
-- *MASTERMovelets*: limiting the movelets size to the ln size of the trajectory (`-version 2.0`).
-- *MASTERMovelets-Log*: limiting the movelets size to the ln size of the trajectory (`-version 2.0 -Ms -3`).
+**Includes re-implementations of the following methods (NOT EQUAL!):**
+
+
+- *MASTERMovelets*: limits the movelets size to the ln size of the trajectory (`-version 2.0`).
+- *MASTERMovelets-Log*: limits the movelets size to the ln size of the trajectory (`-version 2.0 -Ms -3`).
+
+
 - *MASTERMovelets-Pivots*: it limit the movelets search space to the points that are neighbour of well qualified movelets of size one (`-version pivots`).
 - *MASTERMovelets-Pivots-Log*: it limit the movelets search space to the points that are neighbour of well qualified movelets of size one (`-version pivots -Ms -3`).
+
+
 - *SUPERMovelets*: a optimized approach that identifies the better regions for finding movelets (`-version super`).
 - *SUPERMovelets-Log*: a optimized approach that identifies the better regions for finding movelets (`-version super -Ms -3`).
 
@@ -31,6 +37,11 @@ This is a project with the HIPERMovelets(Portela-2020) implementation, with thre
 ## Setup
 
 A. In order to run the code you first need to install Java 8 (or superior). Be sure to have enough RAM memory available. 
+
+
+------
+
+(Optional) 
 
 B. If you opt to use the test automatization in Python (under [dist/automatize](./dist/automatize/) folder), you first need to install Python, R, and dependencies. 
 
@@ -43,6 +54,7 @@ pip install -r ./dist/automatize/requirements.txt
 Install R, and the dependent packages. To enter the R environment:
 
 ```Shell
+sudo apt-get install r-base
 R
 ```
 
@@ -71,8 +83,8 @@ Where:
 - `BASIC_PATH`: The path for the input CSV training and test files.
 - `RESULT_PATH`: The destination folder for CSV results files.
 - `DESC_FILE`: Path for the descriptor file. File that describes the dataset attributes and similarity measures.
-- `version`: Method to run (hiper, hiper-pvt, ...)
-- `nt`: Number of threads
+- `-version`: Method to run (hiper, hiper-pvt, ...)
+- `-nt`: Number of threads
 
     
 ### 2. For instance:
@@ -139,4 +151,4 @@ java -jar HIPERMovelets.jar
 
 ## Extras
 
-To run HIPERMovelts and classification methods with Python automatization ([automatize](./dist/automatize/)) see the exemaples in the jupyter notebook: [Automatize - Sample Code.ipynb](./dist/Automatize - Sample Code.ipynb)
+To run HIPERMovelts and classification methods with Python automatization ([automatize](./dist/automatize/)) see the exemaples in the jupyter notebook: [Automatize - Sample Code.ipynb](./dist/Automatize\ -\ Sample\ Code.ipynb)
