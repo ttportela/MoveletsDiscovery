@@ -10,11 +10,21 @@ import br.com.tarlis.mov3lets.method.structures.descriptor.AttributeDescriptor;
 import br.com.tarlis.mov3lets.model.aspect.Aspect;
 
 /**
- * @author tarlis
+ * The Class LocaldateIsworkdayorweekendDistance.
  *
+ * @author tarlis
  */
 public class LocaldateIsworkdayorweekendDistance extends LocaldateEqualdayofweekDistance {
 	
+	/**
+	 * Overridden method. 
+	 * @see br.com.tarlis.mov3lets.method.distancemeasure.LocaldateEqualdayofweekDistance#distance(br.com.tarlis.mov3lets.model.aspect.Aspect, br.com.tarlis.mov3lets.model.aspect.Aspect, br.com.tarlis.mov3lets.method.structures.descriptor.AttributeDescriptor).
+	 * 
+	 * @param asp0
+	 * @param asp1
+	 * @param attr
+	 * @return
+	 */
 	@Override
 	public double distance(Aspect<LocalDate> asp0, Aspect<LocalDate> asp1, AttributeDescriptor attr) {
 		if (isWeekend(asp0.getValue()) && isWeekend(asp1.getValue()))
@@ -26,6 +36,12 @@ public class LocaldateIsworkdayorweekendDistance extends LocaldateEqualdayofweek
 			return 1;
 	}
 	
+	/**
+	 * Checks if is weekend.
+	 *
+	 * @param localDate the local date
+	 * @return true, if is weekend
+	 */
 	public boolean isWeekend(LocalDate localDate){
 		// considera que os dias vao de 1 (Monday) ate 7 (Sunday)
 		// Entao se o dia é maior ou igual a 6 (Satuday) 

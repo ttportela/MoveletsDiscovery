@@ -14,18 +14,22 @@ import br.com.tarlis.mov3lets.model.MAT;
 import br.com.tarlis.mov3lets.model.Subtrajectory;
 
 /**
- * @author tarlis
- * @param <MO>
+ * The Class HiperPivotsMoveletsDiscovery.
  *
+ * @author tarlis
+ * @param <MO> the generic type
  */
 public class HiperPivotsMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO> {
 
 	/**
-	 * @param trajsFromClass
-	 * @param train
-	 * @param candidates
-	 * @param qualityMeasure
-	 * @param descriptor
+	 * Instantiates a new hiper pivots movelets discovery.
+	 *
+	 * @param trajsFromClass the trajs from class
+	 * @param data the data
+	 * @param train the train
+	 * @param test the test
+	 * @param qualityMeasure the quality measure
+	 * @param descriptor the descriptor
 	 */
 	public HiperPivotsMoveletsDiscovery(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test,
 			QualityMeasure qualityMeasure, Descriptor descriptor) {
@@ -33,12 +37,14 @@ public class HiperPivotsMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO>
 	}
 	
 	/**
-	 * @param trajectory2
-	 * @param data2
-	 * @param minSize
-	 * @param maxSize
-	 * @param random 
-	 * @return
+	 * Movelets discovery.
+	 *
+	 * @param trajectory the trajectory
+	 * @param trajectories the trajectories
+	 * @param minSize the min size
+	 * @param maxSize the max size
+	 * @param random the random
+	 * @return the list
 	 */
 	public List<Subtrajectory> moveletsDiscovery(MAT<MO> trajectory, List<MAT<MO>> trajectories, int minSize, int maxSize, Random random) {
 		List<Subtrajectory> candidatesByProp = new ArrayList<Subtrajectory>();
@@ -131,6 +137,17 @@ public class HiperPivotsMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO>
 		return bestCandidates;
 	}
 
+	/**
+	 * Grow pivots.
+	 *
+	 * @param candidatesOfSize the candidates of size
+	 * @param trajectory the trajectory
+	 * @param trajectories the trajectories
+	 * @param base the base
+	 * @param newSize the new size
+	 * @param size the size
+	 * @return the list
+	 */
 	public List<Subtrajectory> growPivots(List<Subtrajectory> candidatesOfSize, MAT<MO> trajectory,
 			List<MAT<MO>> trajectories, double[][][][] base, double[][][][] newSize, int size) {
 		List<Subtrajectory> newCandidates = new ArrayList<Subtrajectory>();
@@ -148,6 +165,17 @@ public class HiperPivotsMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO>
 		return newCandidates;
 	}
 
+	/**
+	 * Builds the new size.
+	 *
+	 * @param candidate the candidate
+	 * @param trajectory the trajectory
+	 * @param trajectories the trajectories
+	 * @param mdist the mdist
+	 * @param size the size
+	 * @param left the left
+	 * @return the subtrajectory
+	 */
 	public Subtrajectory buildNewSize(Subtrajectory candidate, MAT<MO> trajectory, List<MAT<MO>> trajectories,
 			double[][][][] mdist, int size, boolean left) {
 		
@@ -192,6 +220,14 @@ public class HiperPivotsMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO>
 		return subtrajectory;
 	}
 
+	/**
+	 * Overridden method. 
+	 * @see br.com.tarlis.mov3lets.method.discovery.SuperMoveletsDiscovery#filterByProportion(java.util.List, java.util.Random).
+	 * 
+	 * @param candidatesByProp
+	 * @param random
+	 * @return
+	 */
 	public List<Subtrajectory> filterByProportion(List<Subtrajectory> candidatesByProp, Random random) {
 //		calculateProportion(candidatesByProp, random);
 
@@ -222,6 +258,12 @@ public class HiperPivotsMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO>
 		return orderedCandidates;
 	}
 
+	/**
+	 * Filter ovelapping points.
+	 *
+	 * @param orderedCandidates the ordered candidates
+	 * @return the list
+	 */
 	public List<Subtrajectory> filterOvelappingPoints(List<Subtrajectory> orderedCandidates) {
 		
 		List<Subtrajectory> bestCandidates = new ArrayList<>();		

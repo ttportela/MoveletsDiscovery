@@ -34,18 +34,29 @@ import br.com.tarlis.mov3lets.model.Subtrajectory;
 import br.com.tarlis.mov3lets.model.aspect.Aspect;
 
 /**
- * @author Tarlis Portela <tarlis@tarlis.com.br>
+ * The Class SuperMoveletsDiscovery.
  *
+ * @author Tarlis Portela <tarlis@tarlis.com.br>
+ * @param <MO> the generic type
  */
 public class SuperMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 	
+	/** The tau. */
 	protected double TAU 		= 0.5;
 //	protected double GAMMA 		= 1.0;
 
-	ProportionQualityMeasure<MO> proportionMeasure;
+	/** The proportion measure. */
+ProportionQualityMeasure<MO> proportionMeasure;
 	
 	/**
-	 * @param train
+	 * Instantiates a new super movelets discovery.
+	 *
+	 * @param trajsFromClass the trajs from class
+	 * @param data the data
+	 * @param train the train
+	 * @param test the test
+	 * @param qualityMeasure the quality measure
+	 * @param descriptor the descriptor
 	 */
 	public SuperMoveletsDiscovery(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test, QualityMeasure qualityMeasure, 
 			Descriptor descriptor) {
@@ -55,6 +66,12 @@ public class SuperMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 //		GAMMA 	= getDescriptor().getParamAsDouble("gamma");
 	}
 	
+	/**
+	 * Overridden method. 
+	 * @see br.com.tarlis.mov3lets.method.discovery.MemMoveletsDiscovery#discover().
+	 * 
+	 * @return
+	 */
 	public List<Subtrajectory> discover() {
 
 		int maxSize = getDescriptor().getParamAsInt("max_size");
@@ -120,12 +137,14 @@ public class SuperMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 	}
 	
 	/**
-	 * @param trajectory2
-	 * @param data2
-	 * @param minSize
-	 * @param maxSize
-	 * @param random 
-	 * @return
+	 * Movelets discovery.
+	 *
+	 * @param trajectory the trajectory
+	 * @param trajectories the trajectories
+	 * @param minSize the min size
+	 * @param maxSize the max size
+	 * @param random the random
+	 * @return the list
 	 */
 	public List<Subtrajectory> moveletsDiscovery(MAT<MO> trajectory, List<MAT<MO>> trajectories, int minSize, int maxSize, Random random) {
 		List<Subtrajectory> candidatesByProp = new ArrayList<Subtrajectory>();
@@ -185,6 +204,15 @@ public class SuperMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 		return bestCandidates;
 	}
 
+	/**
+	 * Select best candidates.
+	 *
+	 * @param trajectory the trajectory
+	 * @param maxSize the max size
+	 * @param random the random
+	 * @param candidatesByProp the candidates by prop
+	 * @return the list
+	 */
 	public List<Subtrajectory> selectBestCandidates(MAT<MO> trajectory, int maxSize, Random random,
 			List<Subtrajectory> candidatesByProp) {
 		List<Subtrajectory> bestCandidates;
@@ -210,6 +238,14 @@ public class SuperMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 		return bestCandidates;
 	}
 
+	/**
+	 * Recover candidates.
+	 *
+	 * @param trajectory the trajectory
+	 * @param random the random
+	 * @param candidatesByProp the candidates by prop
+	 * @return the list
+	 */
 	public List<Subtrajectory> recoverCandidates(MAT<MO> trajectory, Random random,
 			List<Subtrajectory> candidatesByProp) {
 //		int n = (int) Math.ceil((double) (candidatesByProp.size()+bucket.size()) * 0.1); // By 10%
@@ -225,7 +261,16 @@ public class SuperMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 		return bestCandidates;
 	}
 
+	/** The bucket. */
 	protected List<Subtrajectory> bucket = new ArrayList<Subtrajectory>();
+	
+	/**
+	 * Filter by proportion.
+	 *
+	 * @param candidatesByProp the candidates by prop
+	 * @param random the random
+	 * @return the list
+	 */
 	public List<Subtrajectory> filterByProportion(List<Subtrajectory> candidatesByProp, Random random) {
 		calculateProportion(candidatesByProp, random);
 		
@@ -253,6 +298,12 @@ public class SuperMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 		return bestCandidates;
 	}
 
+	/**
+	 * Filter equal candidates.
+	 *
+	 * @param orderedCandidates the ordered candidates
+	 * @return the list
+	 */
 	public List<Subtrajectory> filterEqualCandidates(List<Subtrajectory> orderedCandidates) {
 		/* STEP 2.1.4: IDENTIFY EQUAL CANDIDATES
 		 * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -286,12 +337,23 @@ public class SuperMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 		return bestCandidates;
 	}
 
+	/**
+	 * Calculate proportion.
+	 *
+	 * @param candidatesByProp the candidates by prop
+	 * @param random the random
+	 */
 	public void calculateProportion(List<Subtrajectory> candidatesByProp, Random random) {
 		candidatesByProp.forEach(x -> proportionMeasure.assesClassQuality(x, maxDistances, random));
 		
 		orderCandidates(candidatesByProp);
 	}
 
+	/**
+	 * Order candidates.
+	 *
+	 * @param candidatesByProp the candidates by prop
+	 */
 	public void orderCandidates(List<Subtrajectory> candidatesByProp) {
 		/* STEP 2.1.3: SORT THE CANDIDATES BY PROPORTION VALUE
 		 * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -306,6 +368,14 @@ public class SuperMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 		});
 	}
 
+	/**
+	 * Filter by quality.
+	 *
+	 * @param bestCandidates the best candidates
+	 * @param random the random
+	 * @param trajectory the trajectory
+	 * @return the list
+	 */
 	public List<Subtrajectory> filterByQuality(List<Subtrajectory> bestCandidates, Random random, MAT<MO> trajectory) {
 		/** STEP 2.3, for this trajectory movelets: 
 		 * It transforms the training and test sets of trajectories using the movelets */
@@ -386,7 +456,13 @@ public class SuperMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 //		
 //	}
 	
-	public List<HashMap<Integer, Aspect<?>>> getDimensions(Subtrajectory candidate) {
+	/**
+ * Gets the dimensions.
+ *
+ * @param candidate the candidate
+ * @return the dimensions
+ */
+public List<HashMap<Integer, Aspect<?>>> getDimensions(Subtrajectory candidate) {
 		
 		List<Integer> features_in_movelet = new ArrayList<>();
 		
@@ -417,6 +493,13 @@ public class SuperMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 		return used_features;
 	}
 	
+	/**
+	 * Are equal.
+	 *
+	 * @param first the first
+	 * @param second the second
+	 * @return true, if successful
+	 */
 	public boolean areEqual(List<HashMap<Integer, Aspect<?>>> first, List<HashMap<Integer, Aspect<?>>> second) {
 		
 		if (first.size() != second.size())

@@ -14,20 +14,47 @@ import org.apache.commons.math3.util.Pair;
 import br.com.tarlis.mov3lets.model.MAT;
 import br.com.tarlis.mov3lets.model.Subtrajectory;
 
+/**
+ * The Class ProportionQualityMeasure.
+ *
+ * @param <MO> the generic type
+ */
 public class ProportionQualityMeasure<MO> extends QualityMeasure<MO> {
 
+	/** The tau. */
 	protected double TAU = 0.5;
 	
+	/**
+	 * Instantiates a new proportion quality measure.
+	 *
+	 * @param trajectories the trajectories
+	 * @param tau the tau
+	 */
 	public ProportionQualityMeasure(List<MAT<MO>> trajectories, double tau) {
 		super(trajectories, 1, 1.0, "");
 		this.TAU = tau;
 	}
 
+	/**
+	 * Instantiates a new proportion quality measure.
+	 *
+	 * @param trajectories the trajectories
+	 * @param samples the samples
+	 * @param sampleSize the sample size
+	 * @param medium the medium
+	 */
 	public ProportionQualityMeasure(List<MAT<MO>> trajectories, int samples, double sampleSize, String medium) {
 		super(trajectories, samples, sampleSize, medium);
 		this.trajectories = trajectories;
 	}
 
+	/**
+	 * Overridden method. 
+	 * @see br.com.tarlis.mov3lets.method.qualitymeasure.QualityMeasure#assesQuality(br.com.tarlis.mov3lets.model.Subtrajectory, java.util.Random).
+	 * 
+	 * @param candidate
+	 * @param random
+	 */
 	@Override
 	public void assesQuality(Subtrajectory candidate, Random random) {
 
@@ -43,6 +70,13 @@ public class ProportionQualityMeasure<MO> extends QualityMeasure<MO> {
 		
 	}
 	
+	/**
+	 * Count covered.
+	 *
+	 * @param targetDistances the target distances
+	 * @param limits the limits
+	 * @return the int
+	 */
 	public int countCovered(double[][] targetDistances, double[] limits){
 		
 		int count = 0;
@@ -59,6 +93,14 @@ public class ProportionQualityMeasure<MO> extends QualityMeasure<MO> {
 		return count;
 	}
 	
+	/**
+	 * Overridden method. 
+	 * @see br.com.tarlis.mov3lets.method.qualitymeasure.QualityMeasure#isCovered(double[], double[]).
+	 * 
+	 * @param point
+	 * @param limits
+	 * @return
+	 */
 	public boolean isCovered(double[] point, double[] limits){
 		
 		for (int i = 0; i < limits.length; i++) {
@@ -69,6 +111,15 @@ public class ProportionQualityMeasure<MO> extends QualityMeasure<MO> {
 		return true;
 	}
 	
+	/**
+	 * Gets the splitpoints.
+	 *
+	 * @param candidate the candidate
+	 * @param distances the distances
+	 * @param target the target
+	 * @param random the random
+	 * @return the splitpoints
+	 */
 	public Map<String,double[]> getSplitpoints(Subtrajectory candidate, double[][] distances, MO target, Random random) {
 		
 		List<Pair<double[],double[]>> results = new ArrayList<>();		
@@ -172,6 +223,14 @@ public class ProportionQualityMeasure<MO> extends QualityMeasure<MO> {
 		return splitpointsData;
 	}
 	
+	/**
+	 * Asses quality.
+	 *
+	 * @param candidate the candidate
+	 * @param random the random
+	 * @param inTotal the in total
+	 * @param outTotal the out total
+	 */
 	protected void assesQuality(Subtrajectory candidate, Random random, int inTotal, int outTotal) {
 		
 		/*
@@ -223,6 +282,13 @@ public class ProportionQualityMeasure<MO> extends QualityMeasure<MO> {
 		candidate.setMaxDistances(maxDistances);
 	}
 	
+	/**
+	 * Asses class quality.
+	 *
+	 * @param candidate the candidate
+	 * @param maxDistances the max distances
+	 * @param random the random
+	 */
 	public void assesClassQuality(Subtrajectory candidate, double[] maxDistances, Random random) {
 		/*
 		 * STEP 1: VERIFY WHICH ARE THE TRAJECTORIES THAT CONTAIN THAT CANDIDATE FOR EACH DIMENSION

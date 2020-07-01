@@ -9,13 +9,20 @@ import br.com.tarlis.mov3lets.method.structures.descriptor.AttributeDescriptor;
 import br.com.tarlis.mov3lets.model.aspect.Aspect;
 
 /**
- * @author tarlis
+ * The Class LocaldateDiffdaysofweekDistance.
  *
+ * @author tarlis
  */
 public class LocaldateDiffdaysofweekDistance extends LocaldateDifferenceDistance {
 	
-	/** 
-	 * Not DIFFERENCE
+	/**
+	 *  
+	 * Not DIFFERENCE.
+	 *
+	 * @param asp0 the asp 0
+	 * @param asp1 the asp 1
+	 * @param attr the attr
+	 * @return the double
 	 */
 	@Override
 	public double distance(Aspect<LocalDate> asp0, Aspect<LocalDate> asp1, AttributeDescriptor attr) {

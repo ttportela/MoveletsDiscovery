@@ -3,25 +3,51 @@ package br.com.tarlis.mov3lets.method.qualitymeasure;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * The Class ProportionQuality.
+ */
 public class ProportionQuality extends Quality {
 	
+/** The data. */
 //	private List<MAT<?>> coveredInClass;
 	private Map<String, Double> data;
 	
+	/**
+	 * Instantiates a new proportion quality.
+	 */
 	public ProportionQuality() {
 		data = new HashMap<>();
 	}
 
+	/**
+	 * Overridden method. 
+	 * @see br.com.tarlis.mov3lets.method.qualitymeasure.Quality#getData().
+	 * 
+	 * @return
+	 */
 	@Override
 	public Map<String, Double> getData() {
 		return data;
 	}
 	
+	/**
+	 * Overridden method. 
+	 * @see br.com.tarlis.mov3lets.method.qualitymeasure.Quality#setData(java.util.Map).
+	 * 
+	 * @param data
+	 */
 	@Override
 	public void setData(Map<String, Double> data) {
 		this.data = data;
 	}
 	
+	/**
+	 * Overridden method. 
+	 * @see br.com.tarlis.mov3lets.method.qualitymeasure.Quality#compareTo(br.com.tarlis.mov3lets.method.qualitymeasure.Quality).
+	 * 
+	 * @param other
+	 * @return
+	 */
 	@Override
 	public int compareTo(Quality other) {
 						
@@ -66,19 +92,41 @@ public class ProportionQuality extends Quality {
 		return 0;
 	}
 
+	/**
+	 * Gets the value.
+	 *
+	 * @return the value
+	 */
 	public double getValue() {
 		return data.get( this.getData().containsKey("proportion")? "proportion" : "quality" );
 	}
 	
+	/**
+	 * Overridden method. 
+	 * @see br.com.tarlis.mov3lets.method.qualitymeasure.Quality#hasZeroQuality().
+	 * 
+	 * @return
+	 */
 	@Override
 	public boolean hasZeroQuality() {		
 		return (getValue() == 0);
 	}
 	
+	/**
+	 * Checks for half quality.
+	 *
+	 * @return true, if successful
+	 */
 	public boolean hasHalfQuality() {		
 		return (getValue() > 0);
 	}
 	
+	/**
+	 * Overridden method. 
+	 * @see br.com.tarlis.mov3lets.method.qualitymeasure.Quality#toString().
+	 * 
+	 * @return
+	 */
 	@Override
 	public String toString() {
 		return data.toString();

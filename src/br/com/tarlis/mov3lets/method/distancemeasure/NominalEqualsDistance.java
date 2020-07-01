@@ -21,11 +21,21 @@ import br.com.tarlis.mov3lets.method.structures.descriptor.AttributeDescriptor;
 import br.com.tarlis.mov3lets.model.aspect.Aspect;
 
 /**
- * @author Tarlis Portela <tarlis@tarlis.com.br>
+ * The Class NominalEqualsDistance.
  *
+ * @author Tarlis Portela <tarlis@tarlis.com.br>
  */
 public class NominalEqualsDistance extends DistanceMeasure<Aspect<String>> {
 
+	/**
+	 * Overridden method. 
+	 * @see br.com.tarlis.mov3lets.method.distancemeasure.DistanceMeasure#distance(br.com.tarlis.mov3lets.model.aspect.Aspect, br.com.tarlis.mov3lets.model.aspect.Aspect, br.com.tarlis.mov3lets.method.structures.descriptor.AttributeDescriptor).
+	 * 
+	 * @param asp0
+	 * @param asp1
+	 * @param attr
+	 * @return
+	 */
 	@Override
 	public double distance(Aspect<String> asp0, Aspect<String> asp1, AttributeDescriptor attr) {
 		return asp0.getValue().equals(asp1.getValue())? 0 : 1;

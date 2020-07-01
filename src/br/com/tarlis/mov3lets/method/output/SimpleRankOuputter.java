@@ -15,20 +15,30 @@ import br.com.tarlis.mov3lets.model.MAT;
 import br.com.tarlis.mov3lets.model.Subtrajectory;
 
 /**
- * @author tarlis
+ * The Class SimpleRankOuputter.
  *
+ * @author tarlis
+ * @param <MO> the generic type
  */
 public class SimpleRankOuputter<MO> extends OutputterAdapter<MO> {
 
 	/**
-	 * @param filePath
-	 * @param descriptor
+	 * Instantiates a new simple rank ouputter.
+	 *
+	 * @param filePath the file path
+	 * @param descriptor the descriptor
 	 */
 	public SimpleRankOuputter(String filePath, Descriptor descriptor) {
 		super(filePath, descriptor, false);
 		writeColumns();
 	}
 
+	/**
+	 * Append CSV.
+	 *
+	 * @param resultDirPath the result dir path
+	 * @param rank the rank
+	 */
 	private void appendCSV(String resultDirPath, List<HashMap<String, String>> rank) {
 		File file= new File (resultDirPath);
 		FileWriter writer;
@@ -59,6 +69,9 @@ public class SimpleRankOuputter<MO> extends OutputterAdapter<MO> {
 		}
 	}
 
+	/**
+	 * Write columns.
+	 */
 	public void writeColumns() {
 		File file= new File (getFilePath() + "rank_t.csv");
 		FileWriter writer;
@@ -72,6 +85,15 @@ public class SimpleRankOuputter<MO> extends OutputterAdapter<MO> {
 		}
 	}
 
+	/**
+	 * Overridden method. 
+	 * @see br.com.tarlis.mov3lets.method.output.OutputterAdapter#write(java.lang.String, java.util.List, java.util.List, boolean).
+	 * 
+	 * @param filename
+	 * @param trajectories
+	 * @param movelets
+	 * @param delayOutput
+	 */
 	@Override
 	public void write(String filename, List<MAT<MO>> trajectories, List<Subtrajectory> movelets, boolean delayOutput) {
 //		System.out.println("\t==> Output Rank of Movelets:");

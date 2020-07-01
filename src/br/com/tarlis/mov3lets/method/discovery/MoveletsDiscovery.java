@@ -41,22 +41,37 @@ import br.com.tarlis.mov3lets.model.Point;
 import br.com.tarlis.mov3lets.model.Subtrajectory;
 
 /**
- * @author Tarlis Portela <tarlis@tarlis.com.br>
+ * The Class MoveletsDiscovery.
  *
+ * @author Tarlis Portela <tarlis@tarlis.com.br>
+ * @param <MO> the generic type
  */
 public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 
+	/** The number of features. */
 	protected int numberOfFeatures = 1;
+	
+	/** The max number of features. */
 	protected int maxNumberOfFeatures = 2;
+	
+	/** The explore dimensions. */
 	protected boolean exploreDimensions;
 	
+	/** The quality measure. */
 	protected QualityMeasure qualityMeasure = null;
+	
+	/** The ranking algorithm. */
 	protected RankingAlgorithm rankingAlgorithm = new NaturalRanking();
 	
 	/**
-	 * @param trajectory
-	 * @param train
-	 * @param test 
+	 * Instantiates a new movelets discovery.
+	 *
+	 * @param trajsFromClass the trajs from class
+	 * @param data the data
+	 * @param train the train
+	 * @param test the test
+	 * @param qualityMeasure the quality measure
+	 * @param descriptor the descriptor
 	 */	
 	public MoveletsDiscovery(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test, QualityMeasure qualityMeasure, 
 			Descriptor descriptor) {
@@ -65,7 +80,9 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 	}
 
 	/**
-	 * @param qualityMeasure
+	 * Inits the.
+	 *
+	 * @param qualityMeasure the quality measure
 	 */
 	private void init(QualityMeasure qualityMeasure) {
 		this.qualityMeasure = qualityMeasure;
@@ -81,9 +98,13 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 		}
 	}
 	
-	/*** * * * * * * * * * * * * * * * * * * * ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * >>
+	/**
+	 * * * * * * * * * * * * * * * * * * * * * ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * >>
 	 * HERE FOLLOWS THE DISCOVERING PROCEDURES: * * * * * * * * * * * * * * * * * * * * * * * * * * * * * >>
-	 *** * * * * * * * * * * * * * * * * * * * **/
+	 * ** * * * * * * * * * * * * * * * * * * * *.
+	 *
+	 * @return the list
+	 */
 
 	/**
 	 * Looks for candidates in the trajectory, then compares with every other trajectory
@@ -184,12 +205,14 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 	}
 
 	/**
-	 * @param trajectory2
-	 * @param data2
-	 * @param minSize
-	 * @param maxSize
-	 * @param random 
-	 * @return
+	 * Movelets discovery.
+	 *
+	 * @param trajectory the trajectory
+	 * @param trajectories the trajectories
+	 * @param minSize the min size
+	 * @param maxSize the max size
+	 * @param random the random
+	 * @return the list
 	 */
 	public List<Subtrajectory> moveletsDiscovery(MAT<MO> trajectory, List<MAT<MO>> trajectories, int minSize, int maxSize, Random random) {
 		List<Subtrajectory> candidates = new ArrayList<Subtrajectory>();
@@ -246,14 +269,12 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 	}
 
 	/**
-	 * 
-	 * [THE GREAT GAP]
-	 * 
-	 * @param trajectory
-	 * @param trajectories
-	 * @param size
-	 * @param mdist
-	 * @return
+	 * [THE GREAT GAP].
+	 *
+	 * @param trajectory the trajectory
+	 * @param trajectories the trajectories
+	 * @param size the size
+	 * @return the list
 	 */
 	public List<Subtrajectory> findCandidates(MAT<MO> trajectory, List<MAT<MO>> trajectories, int size) {
 		
@@ -296,7 +317,17 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 		
 	}
 	
+	/** The combinations. */
 	protected int[][] combinations = null;
+	
+	/**
+	 * Make combinations.
+	 *
+	 * @param exploreDimensions the explore dimensions
+	 * @param numberOfFeatures the number of features
+	 * @param maxNumberOfFeatures the max number of features
+	 * @return the int[][]
+	 */
 	public int[][] makeCombinations(boolean exploreDimensions, int numberOfFeatures, int maxNumberOfFeatures) {
 		
 		if (combinations != null)
@@ -323,6 +354,13 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 		return combinations;
 	}
 	
+	/**
+	 * Best alignment by point features.
+	 *
+	 * @param s the s
+	 * @param t the t
+	 * @return the pair
+	 */
 	public Pair<Subtrajectory, double[]> bestAlignmentByPointFeatures(Subtrajectory s, MAT<MO> t) {
 		double[] maxValues = new double[numberOfFeatures];
 		Arrays.fill(maxValues, MAX_VALUE);
@@ -420,6 +458,13 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 		return new Pair<>(new Subtrajectory(start, end , t), bestAlignment);
 	}
 	
+	/**
+	 * Best alignment by ranking.
+	 *
+	 * @param ranksForT the ranks for T
+	 * @param comb the comb
+	 * @return the int
+	 */
 	public int bestAlignmentByRanking(double[][] ranksForT, int[] comb) {
 		
 		double[] rankMerged = new double[ranksForT[0].length];
@@ -445,7 +490,19 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 		return minRankIndex;
 	}
 
+	/** The k. */
 	protected int K = 0;
+	
+	/**
+	 * Builds the subtrajectory.
+	 *
+	 * @param start the start
+	 * @param end the end
+	 * @param t the t
+	 * @param numberOfTrajectories the number of trajectories
+	 * @param combinations the combinations
+	 * @return the list
+	 */
 	public List<Subtrajectory> buildSubtrajectory(
 			int start, int end, MAT<MO> t, int numberOfTrajectories, int[][] combinations){
 		
@@ -460,9 +517,14 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 	
 
 	
-	/*** * * * * * * * * * * * * * * * * * * ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * >>
+	/**
+	 * * * * * * * * * * * * * * * * * * * * ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * >>
 	 * HERE FOLLOWS THE QUALITY ASSESMENT:    * * * * * * * * * * * * * * * * * * * * * * * * * * * * * >>
-	 *** * * * * * * * * * * * * * * * * * * **/
+	 * ** * * * * * * * * * * * * * * * * * * *.
+	 *
+	 * @param candidate the candidate
+	 * @param random the random
+	 */
 	
 	/**
 	 * @param x
@@ -475,18 +537,24 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 	}
 	
 	/**
-	 * @param x
-	 * @param random
-	 * @return
+	 * Asses quality.
+	 *
+	 * @param candidate the candidate
 	 */
 	public void assesQuality(Subtrajectory candidate) {
 		qualityMeasure.assesQuality(candidate, new Random());
 	}
 	
-	/*** * * * * * * * * * * * * * * * * * * ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * >>
+	/**
+	 * * * * * * * * * * * * * * * * * * * * ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * >>
 	 * HERE FOLLOWS THE OUTPUT TRANSFORMATIONS:     * * * * * * * * * * * * * * * * * * * * * * * * * * >>
-	 *** * * * * * * * * * * * * * * * * * * 
-	 * @return **/
+	 * ** * * * * * * * * * * * * * * * * * * .
+	 *
+	 * @param candidates the candidates
+	 * @param trajectories the trajectories
+	 * @param file the file
+	 * @return *
+	 */
 
 //	public void transformOutput(List<Subtrajectory> candidates) {
 //		for (Subtrajectory movelet : candidates) {
@@ -530,7 +598,13 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 //		super.output(file, trajectories, candidates, false);
 //	}
 	
-	// TODO: esse método é um problema, tem que ver como fazer isso e para que serve.
+	/**
+ * Compute distances.
+ *
+ * @param candidate the candidate
+ * @param trajectories the trajectories
+ */
+// TODO: esse método é um problema, tem que ver como fazer isso e para que serve.
 	public void computeDistances(Subtrajectory candidate, List<MAT<MO>> trajectories) {
 		/* This pairs will store the subtrajectory of the best alignment 
 		 * of the candidate into each trajectory and the distance 
@@ -560,6 +634,14 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 		candidate.setBestAlignments(bestAlignments);
 	}
 	
+	/**
+	 * Gets the distances.
+	 *
+	 * @param a the a
+	 * @param b the b
+	 * @param comb the comb
+	 * @return the distances
+	 */
 	public double[] getDistances(Point a, Point b, int[] comb) {
 
 //		double[] distances = new double[this.descriptor.getAttributes().size()];
@@ -579,6 +661,13 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 		
 	}
 	
+	/**
+	 * First vector greater than the second.
+	 *
+	 * @param first the first
+	 * @param second the second
+	 * @return true, if successful
+	 */
 	public boolean firstVectorGreaterThanTheSecond(double [] first, double [] second){
 		
 		for (int i = 0; i < first.length; i++) {
@@ -589,9 +678,14 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 		return true;
 	}
 	
-	/*** * * * * * * * * * * * * * * * * * * ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * >>
+	/**
+	 * * * * * * * * * * * * * * * * * * * * ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * >>
 	 * HERE FOLLOWS THE FILTERING PROCEDURES: * * * * * * * * * * * * * * * * * * * * * * * * * * * * * >>
-	 *** * * * * * * * * * * * * * * * * * * **/
+	 * ** * * * * * * * * * * * * * * * * * * *.
+	 *
+	 * @param candidates the candidates
+	 * @return the list
+	 */
 	
 	/**
 	 * 
@@ -605,6 +699,12 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 		return bestShapelets(orderedCandidates, 0);
 	}
 	
+	/**
+	 * Rank candidates.
+	 *
+	 * @param candidates the candidates
+	 * @return the list
+	 */
 	public List<Subtrajectory> rankCandidates(List<Subtrajectory> candidates) {
 
 		List<Subtrajectory> orderedCandidates = new ArrayList<>(candidates);
@@ -623,6 +723,13 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 		return orderedCandidates;
 	}
 
+	/**
+	 * Best shapelets.
+	 *
+	 * @param rankedCandidates the ranked candidates
+	 * @param selfSimilarityProp the self similarity prop
+	 * @return the list
+	 */
 	public List<Subtrajectory> bestShapelets(List<Subtrajectory> rankedCandidates, double selfSimilarityProp) {
 
 		// Realiza o loop até que acabem os atributos ou até que atinga o número
@@ -649,6 +756,14 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 		return rankedCandidates;
 	}
 
+	/**
+	 * Search if self similarity.
+	 *
+	 * @param candidate the candidate
+	 * @param list the list
+	 * @param selfSimilarityProp the self similarity prop
+	 * @return true, if successful
+	 */
 	public boolean searchIfSelfSimilarity(Subtrajectory candidate, List<Subtrajectory> list,
 			double selfSimilarityProp) {
 
@@ -660,6 +775,14 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 		return false;
 	}
 	
+	/**
+	 * Are self similar.
+	 *
+	 * @param candidate the candidate
+	 * @param subtrajectory the subtrajectory
+	 * @param selfSimilarityProp the self similarity prop
+	 * @return true, if successful
+	 */
 	public boolean areSelfSimilar(Subtrajectory candidate, Subtrajectory subtrajectory,
 			double selfSimilarityProp) {
 		
@@ -701,9 +824,14 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 	}
 	
 
-	/*** * * * * * * * * * * * * * * * * * * ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * >>
+	/**
+	 * * * * * * * * * * * * * * * * * * * * ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * >>
 	 * HERE FOLLOWS THE PRUNNING PROCEDURES: ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * >>
-	 *** * * * * * * * * * * * * * * * * * * **/
+	 * ** * * * * * * * * * * * * * * * * * * *.
+	 *
+	 * @param movelets the movelets
+	 * @return the list
+	 */
 	
 	/**
 	 * Last Prunning Method
@@ -729,6 +857,13 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 		return noveltyShapelets;
 	}
 	
+	/**
+	 * Find indexes lower split point.
+	 *
+	 * @param distances the distances
+	 * @param splitpoints the splitpoints
+	 * @return the sets the
+	 */
 	public Set<Integer> findIndexesLowerSplitPoint(double[][] distances, double[] splitpoints ){
 		Set<Integer> indexes = new HashSet<>();
 		
@@ -742,6 +877,13 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 		return indexes;		
 	}
 
+	/**
+	 * Checks if is covered.
+	 *
+	 * @param point the point
+	 * @param limits the limits
+	 * @return true, if is covered
+	 */
 	/* Para o caso de empate por conta de movelets discretas
 	 */
 	public boolean isCovered(double[] point, double[] limits){

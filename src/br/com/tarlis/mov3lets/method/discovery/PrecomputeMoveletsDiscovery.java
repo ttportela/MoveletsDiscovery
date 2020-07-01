@@ -38,17 +38,25 @@ import br.com.tarlis.mov3lets.utils.Mov3letsUtils;
 import br.com.tarlis.mov3lets.utils.ProgressBar;
 
 /**
- * @author Tarlis Portela <tarlis@tarlis.com.br>
+ * The Class PrecomputeMoveletsDiscovery.
  *
+ * @author Tarlis Portela <tarlis@tarlis.com.br>
+ * @param <MO> the generic type
  */
 public class PrecomputeMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 	
+	/** The base. */
 	private static double[][][][][] base = null;
 	
 	/**
-	 * @param trajectory
-	 * @param train
-	 * @param candidates 
+	 * Instantiates a new precompute movelets discovery.
+	 *
+	 * @param trajsFromClass the trajs from class
+	 * @param data the data
+	 * @param train the train
+	 * @param test the test
+	 * @param qualityMeasure the quality measure
+	 * @param descriptor the descriptor
 	 */
 	public PrecomputeMoveletsDiscovery(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test, QualityMeasure qualityMeasure, 
 			Descriptor descriptor) {
@@ -57,7 +65,9 @@ public class PrecomputeMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 	
 
 	/**
-	 * Looks for candidates in the trajectory, then compares with every other trajectory
+	 * Looks for candidates in the trajectory, then compares with every other trajectory.
+	 *
+	 * @return the list
 	 */
 	public List<Subtrajectory> discover() {
 		
@@ -114,9 +124,16 @@ public class PrecomputeMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 		return movelets;
 	}
 	
-	/*** * * * * * * * * * * * * * * * * * * * ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * >>
+	/**
+	 * * * * * * * * * * * * * * * * * * * * * ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * >>
 	 * HERE FOLLOWS THE BASE CASE COMPUTATION: * * * * * * * * * * * * * * * * * * * * * * * * * * * * * >>
-	 *** * * * * * * * * * * * * * * * * * * * **/
+	 * ** * * * * * * * * * * * * * * * * * * * *.
+	 *
+	 * @param <MO> the generic type
+	 * @param data the data
+	 * @param N_THREADS the n threads
+	 * @param descriptor the descriptor
+	 */
 	
 	public  static <MO> void initBaseCases(List<MAT<MO>> data, int N_THREADS, Descriptor descriptor) {
 		if (base == null) {
@@ -128,6 +145,13 @@ public class PrecomputeMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 		}
 	}
 
+	/**
+	 * Compute base distances.
+	 *
+	 * @param <MO> the generic type
+	 * @param trajectories the trajectories
+	 * @param descriptor the descriptor
+	 */
 	public static <MO> void computeBaseDistances(List<MAT<MO>> trajectories, Descriptor descriptor){
 //		int index = trajectories.indexOf(trajectory);
 		int size = 1;
@@ -143,6 +167,14 @@ public class PrecomputeMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 		}
 	}
 	
+	/**
+	 * Multithread compute base distances.
+	 *
+	 * @param <MO> the generic type
+	 * @param trajectories the trajectories
+	 * @param N_THREADS the n threads
+	 * @param descriptor the descriptor
+	 */
 	public static <MO> void multithreadComputeBaseDistances(List<MAT<MO>> trajectories, int N_THREADS, Descriptor descriptor) {
 		ProgressBar bar = new ProgressBar("[2.0] >> Computing Base Distances", 
 				Mov3letsUtils.getInstance().totalPoints((List) trajectories));
@@ -171,9 +203,17 @@ public class PrecomputeMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 		executor.shutdown();
 	}
 
-	/*** * * * * * * * * * * * * * * * * * * * ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * >>
+	/**
+	 * * * * * * * * * * * * * * * * * * * * * ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * >>
 	 * HERE FOLLOWS THE DISCOVERING PROCEDURES: * * * * * * * * * * * * * * * * * * * * * * * * * * * * * >>
-	 *** * * * * * * * * * * * * * * * * * * * **/
+	 * ** * * * * * * * * * * * * * * * * * * * *.
+	 *
+	 * @param trajectory the trajectory
+	 * @param trajectories the trajectories
+	 * @param minSize the min size
+	 * @param maxSize the max size
+	 * @return the list
+	 */
 	
 	/**
 	 * @param trajectory2
@@ -247,6 +287,15 @@ public class PrecomputeMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 		return candidates;
 	}
 	
+	/**
+	 * Find candidates.
+	 *
+	 * @param trajectory the trajectory
+	 * @param trajectories the trajectories
+	 * @param size the size
+	 * @param idxt the idxt
+	 * @return the list
+	 */
 	public List<Subtrajectory> findCandidates(MAT<MO> trajectory, List<MAT<MO>> trajectories, int size, int idxt) {
 		
 		// Trajectory P size => n
@@ -292,6 +341,15 @@ public class PrecomputeMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 		
 	}
 	
+	/**
+	 * Best alignment by point features.
+	 *
+	 * @param s the s
+	 * @param t the t
+	 * @param idxTs the idx ts
+	 * @param idxT the idx T
+	 * @return the pair
+	 */
 	public Pair<Subtrajectory, double[]> bestAlignmentByPointFeatures(Subtrajectory s, MAT<MO> t, int idxTs, int idxT) {
 		double[] maxValues = new double[numberOfFeatures];
 		Arrays.fill(maxValues, MAX_VALUE);
@@ -379,6 +437,15 @@ public class PrecomputeMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 		return new Pair<>(new Subtrajectory(start, end , t), bestAlignment);
 	}
 	
+	/**
+	 * Gets the distances.
+	 *
+	 * @param idxTs the idx ts
+	 * @param pa the pa
+	 * @param idxT the idx T
+	 * @param pb the pb
+	 * @return the distances
+	 */
 	public double[] getDistances(int idxTs, int pa, int idxT, int pb) {
 		if (idxTs < idxT)
 			return base[idxTs][pa][idxT - idxTs][pb];
@@ -386,9 +453,16 @@ public class PrecomputeMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 			return base[idxT][pa][idxTs - idxT][pb];
 	}
 	
-	/*** * * * * * * * * * * * * * * * * * * ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * >>
+	/**
+	 * * * * * * * * * * * * * * * * * * * * ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * >>
 	 * HERE FOLLOWS THE OUTPUT TRANSFORMATIONS:     * * * * * * * * * * * * * * * * * * * * * * * * * * >>
-	 *** * * * * * * * * * * * * * * * * * * **/
+	 * ** * * * * * * * * * * * * * * * * * * *.
+	 *
+	 * @param candidates the candidates
+	 * @param trajectories the trajectories
+	 * @param file the file
+	 * @param startIdx the start idx
+	 */
 	
 	public void transformTrajectoryOutput(List<Subtrajectory> candidates, List<MAT<MO>> trajectories, 
 			String file, int startIdx) {
@@ -405,6 +479,13 @@ public class PrecomputeMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 		
 	}
 	
+	/**
+	 * Compute distances.
+	 *
+	 * @param candidate the candidate
+	 * @param trajectories the trajectories
+	 * @param startIdx the start idx
+	 */
 	public void computeDistances(Subtrajectory candidate, List<MAT<MO>> trajectories, int startIdx) {
 		/* This pairs will store the subtrajectory of the best alignment 
 		 * of the candidate into each trajectory and the distance 

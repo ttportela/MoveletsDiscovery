@@ -18,8 +18,9 @@
 package br.com.tarlis.mov3lets.utils;
 
 /**
- * @author Tarlis Portela <tarlis@tarlis.com.br>
+ * The Class ParserUtils.
  *
+ * @author Tarlis Portela <tarlis@tarlis.com.br>
  */
 public class ParserUtils {
 	

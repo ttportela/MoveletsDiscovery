@@ -36,11 +36,17 @@ import br.com.tarlis.mov3lets.utils.Mov3letsUtils;
 import br.com.tarlis.mov3lets.utils.TableList;
 
 /**
- * @author Tarlis Portela <tarlis@tarlis.com.br>
+ * The Class Mov3letsRun.
  *
+ * @author Tarlis Portela <tarlis@tarlis.com.br>
  */
 public class Mov3letsRun {
 	
+	/**
+	 * The main method.
+	 *
+	 * @param args the arguments
+	 */
 	public static void main(String[] args) {
 		// PARAMS:
 		HashMap<String, Object> params = configure(args);
@@ -120,12 +126,25 @@ public class Mov3letsRun {
 		Mov3letsUtils.trace(new Date().toString());
 	}
 	
+	/**
+	 * Show usage.
+	 *
+	 * @param params the params
+	 * @param errorMessage the error message
+	 */
 	public static void showUsage(HashMap<String, Object> params, String errorMessage) {
 		Mov3letsUtils.trace(errorMessage + " [ERROR]");
 		Mov3letsUtils.trace("Usage: java -jar MASTERMov3lets.jar [args...]");
 		Mov3letsUtils.trace(printParams(params, null));
 	}
 
+	/**
+	 * Prints the params.
+	 *
+	 * @param params the params
+	 * @param descriptor the descriptor
+	 * @return the string
+	 */
 	public static String printParams(HashMap<String, Object> params, Descriptor descriptor) {
 		String str = "Configurations:" + System.getProperty("line.separator");
 		
@@ -205,6 +224,11 @@ public class Mov3letsRun {
 		return str;
 	}
 
+	/**
+	 * Default params.
+	 *
+	 * @return the hash map
+	 */
 	public static HashMap<String, Object> defaultParams() {
 		
 		HashMap<String, Object> params = new HashMap<String, Object>();
@@ -241,6 +265,12 @@ public class Mov3letsRun {
 		return params;
 	}
 	
+	/**
+	 * Configure.
+	 *
+	 * @param args the args
+	 * @return the hash map
+	 */
 	public static HashMap<String, Object> configure(String[] args) {
 		
 		HashMap<String, Object> params = defaultParams();
@@ -380,6 +410,12 @@ public class Mov3letsRun {
 	}
 	
 	
+	/**
+	 * Show configuration.
+	 *
+	 * @param descriptor the descriptor
+	 * @return the string
+	 */
 	public static String showConfiguration(Descriptor descriptor) {
 
 		String str = new String();
@@ -408,6 +444,13 @@ public class Mov3letsRun {
 
 	}
 	
+	/**
+	 * Config respath.
+	 *
+	 * @param descFile the desc file
+	 * @param descriptor the descriptor
+	 * @return the string
+	 */
 	public static String configRespath(String descFile, Descriptor descriptor) {
 		
 		String resultDirPath = "MASTERMovelets" + System.getProperty("file.separator");

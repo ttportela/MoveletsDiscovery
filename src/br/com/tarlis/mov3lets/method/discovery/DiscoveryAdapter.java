@@ -1,6 +1,7 @@
 /**
- * Mov3lets - Multiple Aspect Trajectory (MASTER) Classification Version 3. 
- * Copyright (C) 2019  Tarlis Portela <tarlis@tarlis.com.br>
+ *  HIPERMovelets - Multiple Aspect Trajectory (MASTER) HIPER Classification. 
+ *  Copyright (C) 2020 Big Data Lab UFSC, Florianópolis, Brazil
+ *  Contact: Tarlis Portela
  * 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -31,41 +32,79 @@ import br.com.tarlis.mov3lets.model.Subtrajectory;
 import br.com.tarlis.mov3lets.utils.ProgressBar;
 
 /**
- * @author Tarlis Portela <tarlis@tarlis.com.br>
+ * The Class DiscoveryAdapter.
  *
+ * @author Tarlis Portela <tarlis@tarlis.com.br>
+ * @param <MO> the generic type
  */
 public abstract class DiscoveryAdapter<MO> implements Callable<Integer> {
 
+	/** The descriptor. */
 	protected Descriptor descriptor;
-	protected ProgressBar progressBar;
 	
+	/** The progress bar. */
+	protected ProgressBar progressBar;
+
 //	protected MAT<MO> trajectory;
+	/** The trajs from class. */
 	protected List<MAT<MO>> trajsFromClass;
+	
+	/** The train. */
 	protected List<MAT<MO>> train;
+	
+	/** The test. */
 	protected List<MAT<MO>> test;
+	
+	/** The data. */
 	protected List<MAT<MO>> data;
 
 //	protected List<Subtrajectory> candidates;
 	
+	/** The outputers. */
 	protected List<OutputterAdapter<MO>> outputers = new ArrayList<OutputterAdapter<MO>>();
 	
+	/** The max value. */
 	public double MAX_VALUE = DistanceMeasure.DEFAULT_MAX_VALUE;
 	
 	/**
-	 * @param train
-	 * @param candidates 
+	 * Instantiates a new discovery adapter.
+	 *
+	 * @param trajsFromClass the trajs from class
+	 * @param data the data
+	 * @param train the train
+	 * @param test the test
+	 * @param descriptor the descriptor
 	 */
 	public DiscoveryAdapter(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test, 
 			Descriptor descriptor) {
 		init(trajsFromClass, data, train, test, descriptor);
 	}
 	
+	/**
+	 * Instantiates a new discovery adapter.
+	 *
+	 * @param trajsFromClass the trajs from class
+	 * @param data the data
+	 * @param train the train
+	 * @param test the test
+	 * @param descriptor the descriptor
+	 * @param outputers the outputers
+	 */
 	public DiscoveryAdapter(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test, 
 			Descriptor descriptor, List<OutputterAdapter<MO>> outputers) {
 		init(trajsFromClass, data, train, test, descriptor);
 		this.outputers = outputers;
 	}
 	
+	/**
+	 * Inits the.
+	 *
+	 * @param trajsFromClass the trajs from class
+	 * @param data the data
+	 * @param train the train
+	 * @param test the test
+	 * @param descriptor the descriptor
+	 */
 	private void init(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test, 
 			Descriptor descriptor) {
 		this.trajsFromClass = trajsFromClass;
@@ -76,8 +115,20 @@ public abstract class DiscoveryAdapter<MO> implements Callable<Integer> {
 		this.data = data;
 	}
 	
+	/**
+	 * Discover.
+	 *
+	 * @return the list
+	 */
 	public abstract List<Subtrajectory> discover(); 
 
+	/**
+	 * Overridden method. 
+	 * @see java.util.concurrent.Callable#call().
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
 	@Override
 	public Integer call() throws Exception {
 		
@@ -88,6 +139,9 @@ public abstract class DiscoveryAdapter<MO> implements Callable<Integer> {
 		return 0;
 	}
 	
+	/**
+	 * Free.
+	 */
 	protected void free() {
 		this.outputers = null;
 		this.trajsFromClass = null;
@@ -107,12 +161,22 @@ public abstract class DiscoveryAdapter<MO> implements Callable<Integer> {
 //	}
 	
 	/**
-	 * @return the descriptor
-	 */
+ * Gets the descriptor.
+ *
+ * @return the descriptor
+ */
 	public Descriptor getDescriptor() {
 		return descriptor;
 	}
 	
+	/**
+	 * Output.
+	 *
+	 * @param filename the filename
+	 * @param trajectories the trajectories
+	 * @param movelets the movelets
+	 * @param delayOutput the delay output
+	 */
 	public void output(String filename, List<MAT<MO>> trajectories, List<Subtrajectory> movelets, boolean delayOutput) {	
 		// This sets the default outputters, otherwise use the configured ones	
 		// By Default, it writes a JSON and a CSV in a attribute-value format
@@ -127,6 +191,11 @@ public abstract class DiscoveryAdapter<MO> implements Callable<Integer> {
 //		trajectories.forEach(e ->  e.getAttributes().clear());
 	}
 	
+	/**
+	 * Default outputters.
+	 *
+	 * @return true, if successful
+	 */
 	public boolean defaultOutputters() {
 		if (this.outputers == null) {
 			this.outputers = new ArrayList<OutputterAdapter<MO>>();
@@ -138,6 +207,8 @@ public abstract class DiscoveryAdapter<MO> implements Callable<Integer> {
 	}
 	
 	/**
+	 * Sets the outputers.
+	 *
 	 * @param outputers the outputers to set
 	 */
 	public void setOutputers(List<OutputterAdapter<MO>> outputers) {
@@ -145,16 +216,28 @@ public abstract class DiscoveryAdapter<MO> implements Callable<Integer> {
 	}
 	
 	/**
+	 * Gets the outputers.
+	 *
 	 * @return the outputers
 	 */
 	public List<OutputterAdapter<MO>> getOutputers() {
 		return outputers;
 	}
 	
+	/**
+	 * Gets the progress bar.
+	 *
+	 * @return the progress bar
+	 */
 	public ProgressBar getProgressBar() {
 		return progressBar;
 	}
 	
+	/**
+	 * Sets the progress bar.
+	 *
+	 * @param progressBar the new progress bar
+	 */
 	public void setProgressBar(ProgressBar progressBar) {
 		this.progressBar = progressBar;
 	}

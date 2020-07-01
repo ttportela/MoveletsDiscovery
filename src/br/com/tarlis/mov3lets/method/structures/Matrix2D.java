@@ -24,30 +24,35 @@ import br.com.tarlis.mov3lets.model.MAT;
 import br.com.tarlis.mov3lets.model.Point;
 
 /**
- * @author Tarlis Portela <tarlis@tarlis.com.br>
+ * The Class Matrix2D.
  *
+ * @author Tarlis Portela <tarlis@tarlis.com.br>
  */
 public class Matrix2D extends HashMap<Pair, ArrayList<Double>> {
 	
+	/** The default. */
 	private double DEFAULT = Double.POSITIVE_INFINITY;
 	
 	/**
-	 * 
+	 * Instantiates a new matrix 2 D.
 	 */
 	public Matrix2D() {}
 	
 	/**
-	 * 
+	 * Instantiates a new matrix 2 D.
+	 *
+	 * @param defaultValue the default value
 	 */
 	public Matrix2D(double defaultValue) {
 		this.DEFAULT = defaultValue;
 	}
 
 	/**
-	 * @param a
-	 * @param b
-	 * @param text
-	 * @param distance
+	 * Adds the.
+	 *
+	 * @param a the a
+	 * @param b the b
+	 * @param distance the distance
 	 */
 	public void add(Point a, Point b, double distance) {
 		Pair pair = new Pair(a,b);
@@ -64,20 +69,23 @@ public class Matrix2D extends HashMap<Pair, ArrayList<Double>> {
 	}
 
 	/**
-	 * @param a
-	 * @param b
-	 * @return
+	 * Contains.
+	 *
+	 * @param a the a
+	 * @param b the b
+	 * @return true, if successful
 	 */
 	public boolean contains(Point a, Point b) {
 		return containsKey(new Pair(a, b));
 	}
 
 	/**
-	 * 
+	 * Distances for aspect.
+	 *
 	 * @param index Aspect index.
-	 * @param p
-	 * @param T
-	 * @return
+	 * @param p the p
+	 * @param T the t
+	 * @return the double[]
 	 */
 	public double[] distancesForAspect(int index, Point p, MAT<?> T) {
 		double[] distancesForAspect = new double[T.getPoints().size()];
@@ -91,14 +99,22 @@ public class Matrix2D extends HashMap<Pair, ArrayList<Double>> {
 	}
 
 	/**
-	 * @param p
-	 * @param q
-	 * @return 
+	 * Gets the.
+	 *
+	 * @param p the p
+	 * @param q the q
+	 * @return the array list
 	 */
 	public ArrayList<Double> get(Point p, Point q) {
 		return get(new Pair(p, q));
 	}
 	
+	/**
+	 * Overridden method. 
+	 * @see java.util.HashMap#clone().
+	 * 
+	 * @return
+	 */
 	@Override
 	public Object clone() {
 		Matrix2D clone = new Matrix2D();

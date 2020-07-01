@@ -23,29 +23,52 @@ import br.com.tarlis.mov3lets.model.MAT;
 import br.com.tarlis.mov3lets.model.Subtrajectory;
 
 /**
- * @author tarlis
+ * The Class JSONOutputter.
  *
+ * @author tarlis
+ * @param <MO> the generic type
  */
 public class JSONOutputter<MO> extends OutputterAdapter<MO> {
 
 	/**
-	 * @param filePath
+	 * Instantiates a new JSON outputter.
+	 *
+	 * @param filePath the file path
+	 * @param descriptor the descriptor
+	 * @param subfolderClasses the subfolder classes
 	 */
 	public JSONOutputter(String filePath, Descriptor descriptor, boolean subfolderClasses) {
 		super(filePath, descriptor, subfolderClasses);
 	}
 	
 	/**
-	 * @param filePath
+	 * Instantiates a new JSON outputter.
+	 *
+	 * @param descriptor the descriptor
 	 */
 	public JSONOutputter(Descriptor descriptor) {
 		super(descriptor);
 	}
 
+	/**
+	 * Instantiates a new JSON outputter.
+	 *
+	 * @param resultDirPath the result dir path
+	 * @param descriptor the descriptor
+	 */
 	public JSONOutputter(String resultDirPath, Descriptor descriptor) {
 		super(resultDirPath, descriptor, true);
 	}
 
+	/**
+	 * Overridden method. 
+	 * @see br.com.tarlis.mov3lets.method.output.OutputterAdapter#write(java.lang.String, java.util.List, java.util.List, boolean).
+	 * 
+	 * @param filename
+	 * @param trajectories
+	 * @param movelets
+	 * @param delayOutput
+	 */
 	@Override
 	public void write(String filename, List<MAT<MO>> trajectories, List<Subtrajectory> movelets, boolean delayOutput) {
 		

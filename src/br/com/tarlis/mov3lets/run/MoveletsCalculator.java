@@ -1,7 +1,15 @@
 package br.com.tarlis.mov3lets.run;
 
+/**
+ * The Class MoveletsCalculator.
+ */
 public class MoveletsCalculator {
 
+	/**
+	 * The main method.
+	 *
+	 * @param args the arguments
+	 */
 	public static void main(String[] args) {
 		long n = 20;
 		long l = 6;

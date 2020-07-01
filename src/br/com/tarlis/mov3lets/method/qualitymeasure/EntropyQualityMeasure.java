@@ -13,21 +13,55 @@ import org.apache.commons.math3.util.Pair;
 import br.com.tarlis.mov3lets.model.MAT;
 import br.com.tarlis.mov3lets.model.Subtrajectory;
 
+/**
+ * The Class EntropyQualityMeasure.
+ *
+ * @param <MO> the generic type
+ */
 public class EntropyQualityMeasure<MO> extends ProportionQualityMeasure<MO> {
 	
+	/**
+	 * Instantiates a new entropy quality measure.
+	 *
+	 * @param trajectories the trajectories
+	 * @param tau the tau
+	 */
 	public EntropyQualityMeasure(List<MAT<MO>> trajectories, double tau) {
 		super(trajectories, tau);
 	}
 
+	/**
+	 * Instantiates a new entropy quality measure.
+	 *
+	 * @param trajectories the trajectories
+	 * @param samples the samples
+	 * @param sampleSize the sample size
+	 * @param medium the medium
+	 */
 	public EntropyQualityMeasure(List<MAT<MO>> trajectories, int samples, double sampleSize, String medium) {
 		super(trajectories, samples, sampleSize, medium);
 	}
 	
+	/**
+	 * Overridden method. 
+	 * @see br.com.tarlis.mov3lets.method.qualitymeasure.ProportionQualityMeasure#assesQuality(br.com.tarlis.mov3lets.model.Subtrajectory, java.util.Random).
+	 * 
+	 * @param candidate
+	 * @param random
+	 */
 	@Override
 	public void assesQuality(Subtrajectory candidate, Random random) {
 		assesClassQuality(candidate, getMaxDistances(candidate.getDistances()), random);
 	}
 
+	/**
+	 * Overridden method. 
+	 * @see br.com.tarlis.mov3lets.method.qualitymeasure.ProportionQualityMeasure#assesClassQuality(br.com.tarlis.mov3lets.model.Subtrajectory, double[], java.util.Random).
+	 * 
+	 * @param candidate
+	 * @param maxDistances
+	 * @param random
+	 */
 	@Override
 	public void assesClassQuality(Subtrajectory candidate, double[] maxDistances, Random random) {
 		
@@ -80,6 +114,16 @@ public class EntropyQualityMeasure<MO> extends ProportionQualityMeasure<MO> {
 		candidate.setQuality(quality);
 	}
 	
+	/**
+	 * Proportion class.
+	 *
+	 * @param distances the distances
+	 * @param candidate the candidate
+	 * @param covered the covered
+	 * @param maxDistances the max distances
+	 * @param random the random
+	 * @return the pair
+	 */
 	public Pair<Double, List<MAT<MO>>> proportionClass(double[][] distances, Subtrajectory candidate, List<MAT<MO>> covered, double[] maxDistances, Random random) {
 		/*
 		 * STEP 1: VERIFY WHICH ARE THE TRAJECTORIES THAT CONTAIN THAT CANDIDATE FOR EACH DIMENSION

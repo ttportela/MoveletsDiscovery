@@ -21,16 +21,33 @@ import br.com.tarlis.mov3lets.method.structures.descriptor.AttributeDescriptor;
 import br.com.tarlis.mov3lets.model.aspect.Space2DAspect;
 
 /**
- * @author Tarlis Portela <tarlis@tarlis.com.br>
+ * The Class Space2dEuclideanDistance.
  *
+ * @author Tarlis Portela <tarlis@tarlis.com.br>
  */
 public class Space2dEuclideanDistance extends DistanceMeasure<Space2DAspect> {
 
+	/**
+	 * Overridden method. 
+	 * @see br.com.tarlis.mov3lets.method.distancemeasure.DistanceMeasure#distance(br.com.tarlis.mov3lets.model.aspect.Aspect, br.com.tarlis.mov3lets.model.aspect.Aspect, br.com.tarlis.mov3lets.method.structures.descriptor.AttributeDescriptor).
+	 * 
+	 * @param asp0
+	 * @param asp1
+	 * @param attr
+	 * @return
+	 */
 	@Override
 	public double distance(Space2DAspect asp0, Space2DAspect asp1, AttributeDescriptor attr) {
 		return normalizeDistance(euclideanDistance(asp0, asp1), attr.getComparator().getMaxValue());
 	}
 
+	/**
+	 * Euclidean distance.
+	 *
+	 * @param asp0 the asp 0
+	 * @param asp1 the asp 1
+	 * @return the double
+	 */
 	public double euclideanDistance(Space2DAspect asp0, Space2DAspect asp1){
 		
 		double diffLat = Math.abs(asp0.getX() - asp1.getX());

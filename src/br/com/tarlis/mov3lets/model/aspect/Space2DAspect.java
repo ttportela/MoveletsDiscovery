@@ -18,16 +18,22 @@
 package br.com.tarlis.mov3lets.model.aspect;
 
 /**
- * @author Tarlis Portela <tarlis@tarlis.com.br>
+ * The Class Space2DAspect.
  *
+ * @author Tarlis Portela <tarlis@tarlis.com.br>
  */
 public class Space2DAspect extends Aspect<String> {
 
+	/** The x. */
 	private double x;
+	
+	/** The y. */
 	private double y;
 	
 	/**
-	 * @param value
+	 * Instantiates a new space 2 D aspect.
+	 *
+	 * @param value the value
 	 */
 	public Space2DAspect(String value) {
 		super(value);
@@ -38,18 +44,38 @@ public class Space2DAspect extends Aspect<String> {
 		this.y = Double.parseDouble(row[1]);
 	}
 
+	/**
+	 * Gets the x.
+	 *
+	 * @return the x
+	 */
 	public double getX() {
 		return x;
 	}
 
+	/**
+	 * Sets the x.
+	 *
+	 * @param x the new x
+	 */
 	public void setX(double x) {
 		this.x = x;
 	}
 
+	/**
+	 * Gets the y.
+	 *
+	 * @return the y
+	 */
 	public double getY() {
 		return y;
 	}
 
+	/**
+	 * Sets the y.
+	 *
+	 * @param y the new y
+	 */
 	public void setY(double y) {
 		this.y = y;
 	}

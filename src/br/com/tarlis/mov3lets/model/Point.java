@@ -23,16 +23,24 @@ import java.util.List;
 import br.com.tarlis.mov3lets.model.aspect.Aspect;
 
 /**
- * @author Tarlis Portela <tarlis@tarlis.com.br>
+ * The Class Point.
  *
+ * @author Tarlis Portela <tarlis@tarlis.com.br>
  */
 public class Point {
 	
+	/** The id. */
 	private int id;
+	
+	/** The trajectory. */
 	private MAT<?> trajectory;
+	
+	/** The aspects. */
 	private List<Aspect<?>> aspects = new ArrayList<Aspect<?>>();
 	
 	/**
+	 * Gets the id.
+	 *
 	 * @return the id
 	 */
 	public int getId() {
@@ -40,6 +48,8 @@ public class Point {
 	}
 	
 	/**
+	 * Sets the id.
+	 *
 	 * @param id the id to set
 	 */
 	public void setId(int id) {
@@ -47,6 +57,8 @@ public class Point {
 	}
 	
 	/**
+	 * Gets the trajectory.
+	 *
 	 * @return the trajectory
 	 */
 	public MAT<?> getTrajectory() {
@@ -54,6 +66,8 @@ public class Point {
 	}
 	
 	/**
+	 * Sets the trajectory.
+	 *
 	 * @param trajectory the trajectory to set
 	 */
 	public void setTrajectory(MAT<?> trajectory) {
@@ -61,6 +75,8 @@ public class Point {
 	}
 	
 	/**
+	 * Gets the aspects.
+	 *
 	 * @return the aspects
 	 */
 	public List<Aspect<?>> getAspects() {
@@ -68,12 +84,20 @@ public class Point {
 	}
 	
 	/**
+	 * Sets the aspects.
+	 *
 	 * @param aspects the aspects to set
 	 */
 	public void setAspects(List<Aspect<?>> aspects) {
 		this.aspects = aspects;
 	}
 	
+	/**
+	 * Overridden method. 
+	 * @see java.lang.Object#toString().
+	 * 
+	 * @return
+	 */
 	@Override
 	public String toString() {	
 		String string = new String();

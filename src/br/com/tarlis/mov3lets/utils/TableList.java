@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.regex.Pattern;
 
+/**
+ * The Class TableList.
+ */
 public class TableList {
 
 //	private static final String[] BLINE = { "-", "\u2501" };
@@ -22,35 +25,90 @@ public class TableList {
 //	private static final String CROSSING_T = "\u252c";
 //	private static final String CROSSING_B = "\u253b";
 
-	private static final String[] BLINE = { "-", "-" };
+	/** The Constant BLINE. */
+private static final String[] BLINE = { "-", "-" };
+	
+	/** The Constant CROSSING. */
 	private static final String[] CROSSING = { "-+-", "+" };
+	
+	/** The Constant VERTICAL_TSEP. */
 	private static final String[] VERTICAL_TSEP = { "|", "|" };
+	
+	/** The Constant VERTICAL_BSEP. */
 	private static final String[] VERTICAL_BSEP = { "|", "|" };
+	
+	/** The Constant TLINE. */
 	private static final String TLINE = "-";
+	
+	/** The Constant CORNER_TL. */
 	private static final String CORNER_TL = "+";
+	
+	/** The Constant CORNER_TR. */
 	private static final String CORNER_TR = "+";
+	
+	/** The Constant CORNER_BL. */
 	private static final String CORNER_BL = "+";
+	
+	/** The Constant CORNER_BR. */
 	private static final String CORNER_BR = "+";
+	
+	/** The Constant CROSSING_L. */
 	private static final String CROSSING_L = "+";
+	
+	/** The Constant CROSSING_R. */
 	private static final String CROSSING_R = "+";
+	
+	/** The Constant CROSSING_T. */
 	private static final String CROSSING_T = "+";
+	
+	/** The Constant CROSSING_B. */
 	private static final String CROSSING_B = "+";
 
+	/** The descriptions. */
 	private String[] descriptions;
+	
+	/** The table. */
 	private ArrayList<String[]> table;
+	
+	/** The table sizes. */
 	private int[] tableSizes;
+	
+	/** The rows. */
 	private int rows;
+	
+	/** The findex. */
 	private int findex;
+	
+	/** The filter. */
 	private String filter;
+	
+	/** The ucode. */
 	private boolean ucode;
+	
+	/** The comparator. */
 	private Comparator<String[]> comparator;
+	
+	/** The spacing. */
 	private int spacing;
+	
+	/** The aligns. */
 	private EnumAlignment aligns[];
 
+	/**
+	 * Instantiates a new table list.
+	 *
+	 * @param descriptions the descriptions
+	 */
 	public TableList(String... descriptions) {
 		this(descriptions.length, descriptions);
 	}
 	
+	/**
+	 * Instantiates a new table list.
+	 *
+	 * @param columns the columns
+	 * @param descriptions the descriptions
+	 */
 	public TableList(int columns, String... descriptions) {
 		if (descriptions.length != columns) {
 			throw new IllegalArgumentException();
@@ -70,6 +128,11 @@ public class TableList {
 		}
 	}
 
+	/**
+	 * Update sizes.
+	 *
+	 * @param elements the elements
+	 */
 	private void updateSizes(String[] elements) {
 		for (int i = 0; i < tableSizes.length; i++) {
 			if (elements[i] != null) {
@@ -80,20 +143,45 @@ public class TableList {
 		}
 	}
 
+	/**
+	 * Compare with.
+	 *
+	 * @param c the c
+	 * @return the table list
+	 */
 	public TableList compareWith(Comparator<String[]> c) {
 		this.comparator = c;
 		return this;
 	}
 
+	/**
+	 * Sort by.
+	 *
+	 * @param column the column
+	 * @return the table list
+	 */
 	public TableList sortBy(int column) {
 		return this.compareWith((o1, o2) -> o1[column].compareTo(o2[column]));
 	}
 
+	/**
+	 * Align.
+	 *
+	 * @param column the column
+	 * @param align the align
+	 * @return the table list
+	 */
 	public TableList align(int column, EnumAlignment align) {
 		aligns[column] = align;
 		return this;
 	}
 
+	/**
+	 * With spacing.
+	 *
+	 * @param spacing the spacing
+	 * @return the table list
+	 */
 	public TableList withSpacing(int spacing) {
 		this.spacing = spacing;
 		return this;
@@ -101,6 +189,9 @@ public class TableList {
 
 	/**
 	 * Adds a row to the table with the specified elements.
+	 *
+	 * @param elements the elements
+	 * @return the table list
 	 */
 
 	public TableList addRow(Object... elements) {
@@ -116,17 +207,35 @@ public class TableList {
 		return this;
 	}
 
+	/**
+	 * Filter by.
+	 *
+	 * @param par0 the par 0
+	 * @param pattern the pattern
+	 * @return the table list
+	 */
 	public TableList filterBy(int par0, String pattern) {
 		this.findex = par0;
 		this.filter = pattern;
 		return this;
 	}
 
+	/**
+	 * With unicode.
+	 *
+	 * @param ucodeEnabled the ucode enabled
+	 * @return the table list
+	 */
 	public TableList withUnicode(boolean ucodeEnabled) {
 		this.ucode = ucodeEnabled;
 		return this;
 	}
 
+	/**
+	 * Prints the.
+	 *
+	 * @return the string
+	 */
 	public String print() {
 		String out = "";
 		StringBuilder line = null;
@@ -294,6 +403,11 @@ public class TableList {
 		
 	}
 
+	/**
+	 * Prints the separator.
+	 *
+	 * @return the string
+	 */
 	private String printSeparator() {
 		StringBuilder line = null;
 		if (ucode) {
@@ -314,14 +428,32 @@ public class TableList {
 		return "";
 	}
 
+	/**
+	 * Gc.
+	 *
+	 * @param src the src
+	 * @return the string
+	 */
 	private String gc(String[] src) {
 		return src[ucode ? 1 : 0];
 	}
 
+	/**
+	 * The Enum EnumAlignment.
+	 */
 	public static enum EnumAlignment {
-		LEFT, CENTER, RIGHT
+		
+		/** The left. */
+		LEFT, 
+ /** The center. */
+ CENTER, 
+ /** The right. */
+ RIGHT
 	}
 
+	/**
+	 * Adds the rule.
+	 */
 	public void addRule() {
 		table.add(new String[] {TLINE});
 //		updateSizes(new String[] {});

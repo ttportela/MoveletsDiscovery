@@ -23,15 +23,29 @@ import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instances;
 
+/**
+ * The Class LeftSidePureCVLigth.
+ *
+ * @param <MO> the generic type
+ */
 public class LeftSidePureCVLigth<MO> extends QualityMeasure<MO> {
 
 //	private List<MAT> trajectories;
 	
-	private Map<MO,Long> classes;
+	/** The classes. */
+private Map<MO,Long> classes;
 	
 //	private RankingAlgorithm rankingAlgorithm = new NaturalRanking();
 	
-	public LeftSidePureCVLigth(List<MAT<MO>> trajectories, int samples, double sampleSize, String medium) {
+	/**
+ * Instantiates a new left side pure CV ligth.
+ *
+ * @param trajectories the trajectories
+ * @param samples the samples
+ * @param sampleSize the sample size
+ * @param medium the medium
+ */
+public LeftSidePureCVLigth(List<MAT<MO>> trajectories, int samples, double sampleSize, String medium) {
 		super(trajectories, samples, sampleSize, medium);
 //		this.trajectories = trajectories;
 		this.classes = this.labels.stream().collect(Collectors.groupingBy(e -> e, Collectors.counting()));
@@ -65,7 +79,13 @@ public class LeftSidePureCVLigth<MO> extends QualityMeasure<MO> {
 //		return candidates2;
 //	}
 	
-	public double[][] clone2DArray(double [][] source){
+	/**
+ * Clone 2 D array.
+ *
+ * @param source the source
+ * @return the double[][]
+ */
+public double[][] clone2DArray(double [][] source){
 		double[][] dest = new double[source.length][];
 		for (int i = 0; i < dest.length; i++) {
 			dest[i] = new double[source[i].length];
@@ -76,6 +96,15 @@ public class LeftSidePureCVLigth<MO> extends QualityMeasure<MO> {
 		return dest;		
 	}
 	
+	/**
+	 * Gets the best splitpoints.
+	 *
+	 * @param distances the distances
+	 * @param target the target
+	 * @param labels the labels
+	 * @param candidates the candidates
+	 * @return the best splitpoints
+	 */
 	public Pair<Integer,double[]> getBestSplitpoints(double[][] distances, MO target, List<MO> labels, List<double[]> candidates) {
 		
 		List<double[]> targetDistances = new ArrayList<>();
@@ -104,6 +133,14 @@ public class LeftSidePureCVLigth<MO> extends QualityMeasure<MO> {
 		return new Pair<Integer,double[]>(bestCount,bestCandidate);
 	}
 	
+	/**
+	 * Prune points.
+	 *
+	 * @param distances the distances
+	 * @param target the target
+	 * @param labels the labels
+	 * @return the list
+	 */
 	public List<double[]> prunePoints(double[][] distances, MO target, List<MO> labels){
 		
 		List<Pair<MutableBoolean,double[]>> nonTargetDistances = new ArrayList<>();
@@ -215,6 +252,15 @@ public class LeftSidePureCVLigth<MO> extends QualityMeasure<MO> {
 		return candidates;
 	}
 	
+	/**
+	 * Gets the best splitpoints CV.
+	 *
+	 * @param candidate the candidate
+	 * @param distances the distances
+	 * @param target the target
+	 * @param random the random
+	 * @return the best splitpoints CV
+	 */
 	public Map<String,double[]> getBestSplitpointsCV(Subtrajectory candidate, double[][] distances, MO target, Random random) {
 		
 		List<Pair<Integer,double[]>> results = new ArrayList<>();		
@@ -271,6 +317,14 @@ public class LeftSidePureCVLigth<MO> extends QualityMeasure<MO> {
 		return splitpointsData;
 	}
 	
+	/**
+	 * Gets the information gain.
+	 *
+	 * @param distances the distances
+	 * @param labels the labels
+	 * @param splitpointsData the splitpoints data
+	 * @return the information gain
+	 */
 	public double getInformationGain(double[][] distances, List<MO> labels, Map<String, double[]> splitpointsData){
 		
 		/* First we are going to discretize the distances into a 
@@ -317,6 +371,15 @@ public class LeftSidePureCVLigth<MO> extends QualityMeasure<MO> {
 	}
 	
 	
+	/**
+	 * Gets the f measure.
+	 *
+	 * @param distances the distances
+	 * @param labels the labels
+	 * @param splitpointsData the splitpoints data
+	 * @param target the target
+	 * @return the f measure
+	 */
 	public double getFMeasure(double[][] distances, List<MO> labels, Map<String, double[]> splitpointsData, MO target){
 		
 		/* First we are going to discretize the distances into a 
@@ -365,6 +428,14 @@ public class LeftSidePureCVLigth<MO> extends QualityMeasure<MO> {
 		return f1;		
 	}
 
+	/**
+	 * Gets the information gain medium.
+	 *
+	 * @param distances the distances
+	 * @param labels the labels
+	 * @param splitpointsData the splitpoints data
+	 * @return the information gain medium
+	 */
 	public double getInformationGainMedium(double[][] distances, List<MO> labels, Map<String, double[]> splitpointsData){
 		
 		/* First we are going to discretize the distances into a 
@@ -421,6 +492,13 @@ public class LeftSidePureCVLigth<MO> extends QualityMeasure<MO> {
 		return infogain;
 	}
 
+	/**
+	 * Overridden method. 
+	 * @see br.com.tarlis.mov3lets.method.qualitymeasure.QualityMeasure#assesQuality(br.com.tarlis.mov3lets.model.Subtrajectory, java.util.Random).
+	 * 
+	 * @param candidate
+	 * @param random
+	 */
 	public void assesQuality(Subtrajectory candidate, Random random) {
 		
 		double[][] distances = candidate.getDistances();				
@@ -454,6 +532,11 @@ public class LeftSidePureCVLigth<MO> extends QualityMeasure<MO> {
 		candidate.setMaxDistances(maxDistances);
 	}
 
+	/**
+	 * Asses quality.
+	 *
+	 * @param candidate the candidate
+	 */
 	public void assesQuality(Subtrajectory candidate) {
 		// TODO not used
 		assesQuality(candidate, new Random());

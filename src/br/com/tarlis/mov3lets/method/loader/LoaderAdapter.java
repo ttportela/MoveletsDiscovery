@@ -16,10 +16,34 @@ import br.com.tarlis.mov3lets.model.aspect.Aspect;
 import br.com.tarlis.mov3lets.model.aspect.Space2DAspect;
 import br.com.tarlis.mov3lets.utils.Mov3letsUtils;
 
+/**
+ * Class LoaderAdapter.
+ *
+ * @author Tarlis Portela <tarlis [at] tarlis.com.br>
+ * @param <T> the generic type
+ * @created 2020-07-01
+ */
 public interface LoaderAdapter<T extends MAT<?>> {
 	
+	/**
+	 * Mehod loadTrajectories. 
+	 * LoaderAdapter: List<T>.
+	 *
+	 * @param file the file
+	 * @param descriptor the descriptor
+	 * @return the list
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
 	public abstract List<T> loadTrajectories(String file, Descriptor descriptor) throws IOException;
 	
+	/**
+	 * Load.
+	 *
+	 * @param file the file
+	 * @param descriptor the descriptor
+	 * @return the list
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
 	public default List<T> load(String file, Descriptor descriptor) throws IOException {
 		String curpath = descriptor.hasParam("curpath")? descriptor.getParamAsText("curpath") : "./";
 		
@@ -27,7 +51,16 @@ public interface LoaderAdapter<T extends MAT<?>> {
 		return data;
 	}
 	
+	/** The date formatter. */
 	SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	
+	/**
+	 * Instantiate aspect.
+	 *
+	 * @param attr the attr
+	 * @param value the value
+	 * @return the aspect
+	 */
 	public default Aspect<?> instantiateAspect(AttributeDescriptor attr, String value) {
 
 		switch (attr.getType()) {

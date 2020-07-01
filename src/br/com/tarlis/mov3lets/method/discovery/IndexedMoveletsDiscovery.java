@@ -24,14 +24,22 @@ import br.com.tarlis.mov3lets.method.structures.descriptor.Descriptor;
 import br.com.tarlis.mov3lets.model.MAT;
 
 /**
- * @author Tarlis Portela <tarlis@tarlis.com.br>
+ * The Class IndexedMoveletsDiscovery.
  *
+ * @author Tarlis Portela <tarlis@tarlis.com.br>
+ * @param <MO> the generic type
  */
 public class IndexedMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 
 	/**
-	 * @param trajectory
-	 * @param train
+	 * Instantiates a new indexed movelets discovery.
+	 *
+	 * @param trajsFromClass the trajs from class
+	 * @param data the data
+	 * @param train the train
+	 * @param test the test
+	 * @param qualityMeasure the quality measure
+	 * @param descriptor the descriptor
 	 */
 	public IndexedMoveletsDiscovery(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test,
 			QualityMeasure qualityMeasure, Descriptor descriptor) {

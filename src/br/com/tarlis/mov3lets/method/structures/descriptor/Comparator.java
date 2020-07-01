@@ -18,18 +18,31 @@
 package br.com.tarlis.mov3lets.method.structures.descriptor;
 
 /**
- * @author Tarlis Portela <tarlis@tarlis.com.br>
+ * The Class Comparator.
  *
+ * @author Tarlis Portela <tarlis@tarlis.com.br>
  */
 public class Comparator {
 
+	/** The distance. */
 	private String distance;
+    
+    /** The max value. */
     private Double maxValue = -1.0;
     
+    /**
+     * Instantiates a new comparator.
+     */
     public Comparator() {
 
 	}
     
+	/**
+	 * Instantiates a new comparator.
+	 *
+	 * @param distance the distance
+	 * @param maxValue the max value
+	 */
 	public Comparator(String distance, Double maxValue) {
 		this.distance = distance;
 		this.maxValue = maxValue;
@@ -38,30 +51,47 @@ public class Comparator {
 
 
 	/**
+	 * Gets the distance.
+	 *
 	 * @return the distance
 	 */
 	public String getDistance() {
 		return distance;
 	}
+	
 	/**
+	 * Sets the distance.
+	 *
 	 * @param distance the distance to set
 	 */
 	public void setDistance(String distance) {
 		this.distance = distance != null? distance.trim().toLowerCase() : distance;
 	}
+	
 	/**
+	 * Gets the max value.
+	 *
 	 * @return the maxValue
 	 */
 	public Double getMaxValue() {
 		return maxValue;
 	}
+	
 	/**
+	 * Sets the max value.
+	 *
 	 * @param maxValue the maxValue to set
 	 */
 	public void setMaxValue(Double maxValue) {
 		this.maxValue = maxValue;
 	}
 	
+	/**
+	 * Overridden method. 
+	 * @see java.lang.Object#toString().
+	 * 
+	 * @return
+	 */
 	@Override
 	public String toString() {
 		return getDistance() +"/"+ getMaxValue();

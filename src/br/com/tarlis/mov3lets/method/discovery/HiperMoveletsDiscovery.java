@@ -22,20 +22,25 @@ import br.com.tarlis.mov3lets.model.MAT;
 import br.com.tarlis.mov3lets.model.Subtrajectory;
 
 /**
- * @author tarlis
- * @param <MO>
+ * The Class HiperMoveletsDiscovery.
  *
+ * @author tarlis
+ * @param <MO> the generic type
  */
 public class HiperMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> {
 
+	/** The queue. */
 	protected List<MAT<MO>> queue;
 
 	/**
-	 * @param trajsFromClass
-	 * @param train
-	 * @param candidates
-	 * @param qualityMeasure
-	 * @param descriptor
+	 * Instantiates a new hiper movelets discovery.
+	 *
+	 * @param trajsFromClass the trajs from class
+	 * @param data the data
+	 * @param train the train
+	 * @param test the test
+	 * @param qualityMeasure the quality measure
+	 * @param descriptor the descriptor
 	 */
 	public HiperMoveletsDiscovery(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test,
 			QualityMeasure qualityMeasure, Descriptor descriptor) {
@@ -44,6 +49,12 @@ public class HiperMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> {
 		queue.addAll(trajsFromClass);
 	}
 	
+	/**
+	 * Overridden method. 
+	 * @see br.com.tarlis.mov3lets.method.discovery.SuperMoveletsDiscovery#discover().
+	 * 
+	 * @return
+	 */
 	public List<Subtrajectory> discover() {
 
 		int maxSize = getDescriptor().getParamAsInt("max_size");
@@ -127,6 +138,16 @@ public class HiperMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> {
 		return movelets;
 	}
 
+	/**
+	 * Overridden method. 
+	 * @see br.com.tarlis.mov3lets.method.discovery.SuperMoveletsDiscovery#selectBestCandidates(br.com.tarlis.mov3lets.model.MAT, int, java.util.Random, java.util.List).
+	 * 
+	 * @param trajectory
+	 * @param maxSize
+	 * @param random
+	 * @param candidatesByProp
+	 * @return
+	 */
 	public List<Subtrajectory> selectBestCandidates(MAT<MO> trajectory, int maxSize, Random random,
 			List<Subtrajectory> candidatesByProp) {
 		List<Subtrajectory> bestCandidates;
@@ -177,7 +198,13 @@ public class HiperMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> {
 
 
 	
-	public Set<MAT<MO>> getCoveredInClass(List<Subtrajectory> bestCandidates) {
+	/**
+ * Gets the covered in class.
+ *
+ * @param bestCandidates the best candidates
+ * @return the covered in class
+ */
+public Set<MAT<MO>> getCoveredInClass(List<Subtrajectory> bestCandidates) {
 		Set<MAT<MO>> covered = new LinkedHashSet<MAT<MO>>();
 		Map<MAT<?>, Integer> count = new HashMap<MAT<?>, Integer>();
 
@@ -197,6 +224,15 @@ public class HiperMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> {
 		return covered;
 	}
 	
+	/**
+	 * Overridden method. 
+	 * @see br.com.tarlis.mov3lets.method.discovery.MoveletsDiscovery#makeCombinations(boolean, int, int).
+	 * 
+	 * @param exploreDimensions
+	 * @param numberOfFeatures
+	 * @param maxNumberOfFeatures
+	 * @return
+	 */
 	public int[][] makeCombinations(boolean exploreDimensions, int numberOfFeatures, int maxNumberOfFeatures) {
 		
 		if (combinations != null)
@@ -230,6 +266,12 @@ public class HiperMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> {
 		return selected.toArray(new int[selected.size()][]);
 	}
 
+	/**
+	 * Checks for duplicates.
+	 *
+	 * @param comb the comb
+	 * @return true, if successful
+	 */
 	public boolean hasDuplicates(int[] comb) {
 
 		int[] orders = new int[comb.length];

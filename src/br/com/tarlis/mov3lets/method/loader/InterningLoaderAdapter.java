@@ -12,13 +12,24 @@ import br.com.tarlis.mov3lets.model.MAT;
 import br.com.tarlis.mov3lets.model.aspect.Aspect;
 
 /**
- * @author tarlisportela
+ * The Interface InterningLoaderAdapter.
  *
+ * @author tarlisportela
+ * @param <T> the generic type
  */
 public interface InterningLoaderAdapter<T extends MAT<?>> extends LoaderAdapter<T> {
 	
+	/** The mem. */
 	HashMap<Pair<String, String>, Aspect<?>> MEM = new HashMap<Pair<String,String>, Aspect<?>>();
 	
+	/**
+	 * Overridden method. 
+	 * @see br.com.tarlis.mov3lets.method.loader.LoaderAdapter#instantiateAspect(br.com.tarlis.mov3lets.method.structures.descriptor.AttributeDescriptor, java.lang.String).
+	 * 
+	 * @param attr
+	 * @param value
+	 * @return
+	 */
 	public default Aspect<?> instantiateAspect(AttributeDescriptor attr, String value) {
 		
 		Pair<String, String> key = new Pair<String, String>(attr.getText(), value.intern());
@@ -33,6 +44,8 @@ public interface InterningLoaderAdapter<T extends MAT<?>> extends LoaderAdapter<
 	}
 	
 	/**
+	 * Gets the mem.
+	 *
 	 * @return the mEM
 	 */
 	public default HashMap<Pair<String, String>, Aspect<?>> getMEM() {

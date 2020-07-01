@@ -36,19 +36,30 @@ import br.com.tarlis.mov3lets.method.distancemeasure.NominalEqualsDistance;
 import br.com.tarlis.mov3lets.utils.Mov3letsUtils;
 
 /**
- * @author Tarlis Portela <tarlis@tarlis.com.br>
+ * The Class Descriptor.
  *
+ * @author Tarlis Portela <tarlis@tarlis.com.br>
  */	
 public class Descriptor {
 	
+	/** The id feature. */
 	private AttributeDescriptor idFeature = null;
+	
+	/** The label feature. */
 	private AttributeDescriptor labelFeature = null;
+	
+	/** The attributes. */
 	private List<AttributeDescriptor> attributes = null;
+	
+	/** The input. */
 	private LoaderDescriptor input = null;
 	
+	/** The params. */
 	private HashMap<String, Object> params;
 
 	/**
+	 * Gets the id feature.
+	 *
 	 * @return the idFeature
 	 */
 	public AttributeDescriptor getIdFeature() {
@@ -56,6 +67,8 @@ public class Descriptor {
 	}
 	
 	/**
+	 * Sets the id feature.
+	 *
 	 * @param idFeature the idFeature to set
 	 */
 	public void setIdFeature(AttributeDescriptor idFeature) {
@@ -63,6 +76,8 @@ public class Descriptor {
 	}
 	
 	/**
+	 * Gets the label feature.
+	 *
 	 * @return the labelFeature
 	 */
 	public AttributeDescriptor getLabelFeature() {
@@ -70,6 +85,8 @@ public class Descriptor {
 	}
 	
 	/**
+	 * Sets the label feature.
+	 *
 	 * @param labelFeature the labelFeature to set
 	 */
 	public void setLabelFeature(AttributeDescriptor labelFeature) {
@@ -77,6 +94,8 @@ public class Descriptor {
 	}
 	
 	/**
+	 * Gets the attributes.
+	 *
 	 * @return the attributes
 	 */
 	public List<AttributeDescriptor> getAttributes() {
@@ -84,22 +103,34 @@ public class Descriptor {
 	}
 
 	/**
+	 * Sets the attributes.
+	 *
 	 * @param attributes the attributes to set
 	 */
 	public void setAttributes(List<AttributeDescriptor> attributes) {
 		this.attributes = attributes;
 	}
 	
+	/**
+	 * Gets the input.
+	 *
+	 * @return the input
+	 */
 	public LoaderDescriptor getInput() {
 		return input;
 	}
 	
+	/**
+	 * Sets the input.
+	 *
+	 * @param input the new input
+	 */
 	public void setInput(LoaderDescriptor input) {
 		this.input = input;
 	}
 
 	/**
-	 * 
+	 * Configure.
 	 */
 	public void configure() {
 		attributes.removeAll(Collections.singletonList(null));
@@ -143,6 +174,11 @@ public class Descriptor {
 		}
 	}
 	
+	/**
+	 * LDM attributes.
+	 *
+	 * @return the list
+	 */
 	public List<AttributeDescriptor> LDMAttributes() {
 		List<AttributeDescriptor> newAttributes = new ArrayList<AttributeDescriptor>();
 		
@@ -193,7 +229,9 @@ public class Descriptor {
 	}
 
 	/**
-	 * @param attr
+	 * Instantiate distance measure.
+	 *
+	 * @param attr the attr
 	 */
 	private void instantiateDistanceMeasure(AttributeDescriptor attr) {
 		String className = attr.getType().replace("composite_", "");
@@ -218,6 +256,15 @@ public class Descriptor {
 		}
 	}
 	
+	/**
+	 * Load.
+	 *
+	 * @param fileName the file name
+	 * @param params the params
+	 * @return the descriptor
+	 * @throws UnsupportedEncodingException the unsupported encoding exception
+	 * @throws FileNotFoundException the file not found exception
+	 */
 	public static Descriptor load(String fileName, HashMap<String, Object> params) throws UnsupportedEncodingException, FileNotFoundException {
 		Reader reader = new InputStreamReader(
 				new FileInputStream(fileName), "UTF-8");
@@ -231,6 +278,12 @@ public class Descriptor {
 		return descriptor;
 	}
 
+	/**
+	 * Overridden method. 
+	 * @see java.lang.Object#toString().
+	 * 
+	 * @return
+	 */
 	@Override
 	public String toString() {
 		String s = "";
@@ -241,21 +294,30 @@ public class Descriptor {
 	}
 	
 	/**
-	 * 
+	 * Sets the param.
+	 *
+	 * @param key the key
+	 * @param value the value
 	 */
 	public void setParam(String key, Object value) {
 		params.put(key, value);
 	}
 	
 	/**
-	 * 
+	 * Sets the flag.
+	 *
+	 * @param key the key
+	 * @param value the value
 	 */
 	public void setFlag(String key, boolean value) {
 		params.put(key, value);
 	}
 	
 	/**
-	 * 
+	 * Gets the param.
+	 *
+	 * @param key the key
+	 * @return the param
 	 */
 	public Object getParam(String key) {
 		if (params.containsKey(key))
@@ -264,6 +326,12 @@ public class Descriptor {
 			return null;
 	}
 	
+	/**
+	 * Gets the flag.
+	 *
+	 * @param key the key
+	 * @return the flag
+	 */
 	public boolean getFlag(String key) {
 		if (params.containsKey(key))
 			return (boolean) params.get(key);
@@ -272,8 +340,10 @@ public class Descriptor {
 	}
 
 	/**
-	 * @param string
-	 * @return
+	 * Gets the param as int.
+	 *
+	 * @param key the key
+	 * @return the param as int
 	 */
 	public int getParamAsInt(String key) {
 		if (params.containsKey(key))
@@ -283,8 +353,10 @@ public class Descriptor {
 	}
 
 	/**
-	 * @param string
-	 * @return
+	 * Gets the param as double.
+	 *
+	 * @param key the key
+	 * @return the param as double
 	 */
 	public double getParamAsDouble(String key) {
 		if (params.containsKey(key))
@@ -294,23 +366,29 @@ public class Descriptor {
 	}
 
 	/**
-	 * @param params2
+	 * Adds the params.
+	 *
+	 * @param params the params
 	 */
 	public void addParams(HashMap<String, Object> params) {
 		this.params.putAll(params);
 	}
 
 	/**
-	 * @param string
-	 * @return
+	 * Checks for param.
+	 *
+	 * @param key the key
+	 * @return true, if successful
 	 */
 	public boolean hasParam(String key) {
 		return params.containsKey(key);
 	}
 
 	/**
-	 * @param string
-	 * @return
+	 * Gets the param as text.
+	 *
+	 * @param key the key
+	 * @return the param as text
 	 */
 	public String getParamAsText(String key) {
 		if (params.containsKey(key))
@@ -320,18 +398,27 @@ public class Descriptor {
 	}
 	
 	/**
+	 * Gets the params.
+	 *
 	 * @return the params
 	 */
 	public HashMap<String, Object> getParams() {
 		return params;
 	}
 	
+	/**
+	 * Sets the params.
+	 *
+	 * @param params the params
+	 */
 	public void setParams(HashMap<String, Object> params) {
 		this.params = params;
 	}
 
 	/**
-	 * @return
+	 * Number of features.
+	 *
+	 * @return the int
 	 */
 	public int numberOfFeatures() {
 		return getAttributes().size();

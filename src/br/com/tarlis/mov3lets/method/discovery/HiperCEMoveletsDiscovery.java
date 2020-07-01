@@ -16,26 +16,37 @@ import br.com.tarlis.mov3lets.model.MAT;
 import br.com.tarlis.mov3lets.model.Subtrajectory;
 
 /**
- * @author tarlis
- * @param <MO>
+ * The Class HiperCEMoveletsDiscovery.
  *
+ * @author tarlis
+ * @param <MO> the generic type
  */
 public class HiperCEMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO> {
 
+	/** The sample trajectories. */
 	protected List<MAT<MO>> sampleTrajectories;
 
 	/**
-	 * @param trajsFromClass
-	 * @param train
-	 * @param candidates
-	 * @param qualityMeasure
-	 * @param descriptor
+	 * Instantiates a new hiper CE movelets discovery.
+	 *
+	 * @param trajsFromClass the trajs from class
+	 * @param data the data
+	 * @param train the train
+	 * @param test the test
+	 * @param qualityMeasure the quality measure
+	 * @param descriptor the descriptor
 	 */
 	public HiperCEMoveletsDiscovery(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test,
 			QualityMeasure qualityMeasure, Descriptor descriptor) {
 		super(trajsFromClass, data, train, test, qualityMeasure, descriptor);
 	}
 	
+	/**
+	 * Overridden method. 
+	 * @see br.com.tarlis.mov3lets.method.discovery.HiperMoveletsDiscovery#discover().
+	 * 
+	 * @return
+	 */
 	public List<Subtrajectory> discover() {
 
 		int maxSize = getDescriptor().getParamAsInt("max_size");

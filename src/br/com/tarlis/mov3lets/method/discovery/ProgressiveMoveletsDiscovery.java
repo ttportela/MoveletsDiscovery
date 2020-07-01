@@ -30,31 +30,55 @@ import br.com.tarlis.mov3lets.model.MAT;
 import br.com.tarlis.mov3lets.model.Subtrajectory;
 
 /**
- * @author Tarlis Portela <tarlis@tarlis.com.br>
+ * The Class ProgressiveMoveletsDiscovery.
  *
+ * @author Tarlis Portela <tarlis@tarlis.com.br>
+ * @param <MO> the generic type
  */
 public class ProgressiveMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 
+	/** The number of features. */
 	protected int numberOfFeatures = 1;
+	
+	/** The max number of features. */
 	protected int maxNumberOfFeatures = 2;
+	
+	/** The explore dimensions. */
 	protected boolean exploreDimensions;
 	
+	/** The quality measure. */
 	protected QualityMeasure qualityMeasure = null;
+	
+	/** The ranking algorithm. */
 	protected RankingAlgorithm rankingAlgorithm = new NaturalRanking();
 	
 	/**
-	 * @param trajectory
-	 * @param train
-	 * @param test 
+	 * Instantiates a new progressive movelets discovery.
+	 *
+	 * @param trajsFromClass the trajs from class
+	 * @param data the data
+	 * @param train the train
+	 * @param test the test
+	 * @param qualityMeasure the quality measure
+	 * @param descriptor the descriptor
 	 */	
 	public ProgressiveMoveletsDiscovery(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test, QualityMeasure qualityMeasure, 
 			Descriptor descriptor) {
 		super(trajsFromClass, data, train, test, qualityMeasure, descriptor);
 	}
 	
-	/*** * * * * * * * * * * * * * * * * * * * ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * >>
+	/**
+	 * * * * * * * * * * * * * * * * * * * * * ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * >>
 	 * HERE FOLLOWS THE DISCOVERING PROCEDURES: * * * * * * * * * * * * * * * * * * * * * * * * * * * * * >>
-	 *** * * * * * * * * * * * * * * * * * * * **/
+	 * ** * * * * * * * * * * * * * * * * * * * *.
+	 *
+	 * @param trajectory the trajectory
+	 * @param trajectories the trajectories
+	 * @param minSize the min size
+	 * @param maxSize the max size
+	 * @param random the random
+	 * @return the list
+	 */
 
 	/**
 	 * @param trajectory2
@@ -122,17 +146,20 @@ public class ProgressiveMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 		return candidates;
 	}
 
+	/** The max size used. */
 	private int maxSizeUsed = 0;
+	
 	/**
-	 * 
-	 * [THE GREAT GAP]
-	 * 
-	 * @param trajectory
-	 * @param trajectories
-	 * @param size
-	 * @param random 
-	 * @param mdist
-	 * @return
+	 * [THE GREAT GAP].
+	 *
+	 * @param previousCandidate the previous candidate
+	 * @param trajectory the trajectory
+	 * @param trajectories the trajectories
+	 * @param size the size
+	 * @param minSize the min size
+	 * @param maxSize the max size
+	 * @param random the random
+	 * @return the subtrajectory
 	 */
 	public Subtrajectory findCandidate(Subtrajectory previousCandidate, MAT<MO> trajectory, List<MAT<MO>> trajectories, int size, int minSize, int maxSize, Random random) {
 				
@@ -176,6 +203,15 @@ public class ProgressiveMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 		
 	}
 
+	/**
+	 * Builds the candidate.
+	 *
+	 * @param previousCandidate the previous candidate
+	 * @param trajectory the trajectory
+	 * @param trajectories the trajectories
+	 * @param random the random
+	 * @return the subtrajectory
+	 */
 	private Subtrajectory buildCandidate(Subtrajectory previousCandidate, MAT<MO> trajectory, List<MAT<MO>> trajectories,
 			Random random) {
 		Subtrajectory candidate = nextSize(previousCandidate, trajectory, trajectories.size());
@@ -194,6 +230,14 @@ public class ProgressiveMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 		return candidate;
 	}
 
+	/**
+	 * Next size.
+	 *
+	 * @param s the s
+	 * @param T the t
+	 * @param numberOfTrajectories the number of trajectories
+	 * @return the subtrajectory
+	 */
 	private Subtrajectory nextSize(Subtrajectory s, MAT<MO> T, int numberOfTrajectories) {
 		return new Subtrajectory(s.getStart(), s.getEnd()+1, T, s.getPointFeatures(), numberOfTrajectories);
 	}

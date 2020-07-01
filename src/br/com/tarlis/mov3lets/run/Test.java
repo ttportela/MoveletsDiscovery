@@ -24,13 +24,17 @@ import java.util.Collections;
 import org.apache.commons.lang3.ArrayUtils;
 
 /**
- * @author Tarlis Portela <tarlis@tarlis.com.br>
+ * The Class Test.
  *
+ * @author Tarlis Portela <tarlis@tarlis.com.br>
  */
 public class Test {
 
 	/**
-	 * @param args
+	 * The main method.
+	 *
+	 * @param arg the arguments
+	 * @throws Exception the exception
 	 */
 	public static void main(String[] arg) throws Exception {
 		
@@ -68,6 +72,13 @@ public class Test {
 		
 	}
 
+	/**
+	 * Prop.
+	 *
+	 * @param max the max
+	 * @param distances the distances
+	 * @return the double
+	 */
 	private static double prop(double[] max, double[][] distances) {
 		double proportion = 0.0;
 		for (int i = 0; i < distances.length; i++) {
@@ -98,6 +109,14 @@ public class Test {
 		return proportion;
 	}
 	
+	/**
+	 * Median.
+	 *
+	 * @param a the a
+	 * @param l the l
+	 * @param r the r
+	 * @return the int
+	 */
 	private static int median(double a[],  
 			int l, int r) 
 	{ 
@@ -106,6 +125,13 @@ public class Test {
 		return n + l; 
 	}
 	
+	/**
+	 * Iqr.
+	 *
+	 * @param a the a
+	 * @param n the n
+	 * @return the double
+	 */
 	private static double IQR(double [] a, int n) 
 	{ 
 	    Arrays.sort(a); 
@@ -126,7 +152,16 @@ public class Test {
 	    return Q1; //(Q3 - Q1); 
 	} 
 
+	/** The index not found. */
 	static int INDEX_NOT_FOUND = -1;
+	
+	/**
+	 * Difference.
+	 *
+	 * @param str1 the str 1
+	 * @param str2 the str 2
+	 * @return the string
+	 */
 	public static String difference(String str1, String str2) {
 	    if (str1 == null) {
 	        return str2;
@@ -141,6 +176,13 @@ public class Test {
 	    return str2.substring(at);
 	}
 
+	/**
+	 * Index of difference.
+	 *
+	 * @param cs1 the cs 1
+	 * @param cs2 the cs 2
+	 * @return the int
+	 */
 	public static int indexOfDifference(CharSequence cs1, CharSequence cs2) {
 	    if (cs1 == cs2) {
 	        return INDEX_NOT_FOUND;

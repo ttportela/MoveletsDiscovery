@@ -24,23 +24,32 @@ import java.util.concurrent.ConcurrentHashMap;
 
 
 /**
- * 
  * Moving object can be anything, including an instance of MovingObject.
- * 
- * @author Tarlis Portela <tarlis@tarlis.com.br>
  *
+ * @author Tarlis Portela <tarlis@tarlis.com.br>
+ * @param <MO> the generic type
  */
 public class MAT<MO> {
 
+	/** The tid. */
 	private int tid = -1;
+	
+	/** The moving object. */
 	private MO movingObject;
+	
+	/** The aspects. */
 	private List<?> aspects = null;
+	
+	/** The points. */
 	private List<Point> points = new ArrayList<Point>();
 	
+	/** The attributes. */
 	// Attributtes resulting of method discovery.
 	private Map<String,Double> attributes = new ConcurrentHashMap<>();
 	
 	/**
+	 * Gets the tid.
+	 *
 	 * @return the tid
 	 */
 	public int getTid() {
@@ -48,6 +57,8 @@ public class MAT<MO> {
 	}
 	
 	/**
+	 * Sets the tid.
+	 *
 	 * @param tid the tid to set
 	 */
 	public void setTid(int tid) {
@@ -55,12 +66,17 @@ public class MAT<MO> {
 	}
 	
 	/**
+	 * Gets the moving object.
+	 *
 	 * @return the movingObject
 	 */
 	public MO getMovingObject() {
 		return movingObject;
 	}
+	
 	/**
+	 * Sets the moving object.
+	 *
 	 * @param movingObject the movingObject to set
 	 */
 	public void setMovingObject(MO movingObject) {
@@ -68,6 +84,8 @@ public class MAT<MO> {
 	}
 	
 	/**
+	 * Gets the aspects.
+	 *
 	 * @return the aspects
 	 */
 	public List<?> getAspects() {
@@ -75,6 +93,8 @@ public class MAT<MO> {
 	}
 	
 	/**
+	 * Sets the aspects.
+	 *
 	 * @param aspects the aspects to set
 	 */
 	public void setAspects(List<?> aspects) {
@@ -82,6 +102,8 @@ public class MAT<MO> {
 	}
 	
 	/**
+	 * Gets the points.
+	 *
 	 * @return the points
 	 */
 	public List<Point> getPoints() {
@@ -89,6 +111,8 @@ public class MAT<MO> {
 	}
 	
 	/**
+	 * Sets the points.
+	 *
 	 * @param points the points to set
 	 */
 	public void setPoints(List<Point> points) {
@@ -96,6 +120,8 @@ public class MAT<MO> {
 	}
 	
 	/**
+	 * Gets the attributes.
+	 *
 	 * @return the attributes
 	 */
 	public Map<String, Double> getAttributes() {
@@ -103,12 +129,20 @@ public class MAT<MO> {
 	}
 	
 	/**
+	 * Sets the attributes.
+	 *
 	 * @param attributes the attributes to set
 	 */
 	public void setAttributes(Map<String, Double> attributes) {
 		this.attributes = attributes;
 	}
 
+	/**
+	 * Overridden method. 
+	 * @see java.lang.Object#toString().
+	 * 
+	 * @return
+	 */
 	@Override
 	public String toString() {
 		String string = new String();

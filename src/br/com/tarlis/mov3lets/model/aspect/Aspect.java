@@ -18,21 +18,28 @@
 package br.com.tarlis.mov3lets.model.aspect;
 
 /**
- * @author Tarlis Portela <tarlis@tarlis.com.br>
+ * The Class Aspect.
  *
+ * @author Tarlis Portela <tarlis@tarlis.com.br>
+ * @param <T> the generic type
  */
 public class Aspect<T> {
 
+	/** The value. */
 	private T value;
 	
 	/**
-	 * 
+	 * Instantiates a new aspect.
+	 *
+	 * @param value the value
 	 */
 	public Aspect(T value) {
 		this.value = value;
 	}
 	
 	/**
+	 * Gets the value.
+	 *
 	 * @return the value
 	 */
 	public T getValue() {
@@ -40,12 +47,20 @@ public class Aspect<T> {
 	}
 	
 	/**
+	 * Sets the value.
+	 *
 	 * @param value the value to set
 	 */
 	public void setValue(T value) {
 		this.value = value;
 	}
 	
+	/**
+	 * Overridden method. 
+	 * @see java.lang.Object#toString().
+	 * 
+	 * @return
+	 */
 	@Override
 	public String toString() {
 		return getValue().toString();

@@ -31,22 +31,39 @@ import br.com.tarlis.mov3lets.model.MAT;
 import br.com.tarlis.mov3lets.model.Subtrajectory;
 
 /**
- * @author Tarlis Portela <tarlis@tarlis.com.br>
+ * The Class QualityMeasure.
  *
+ * @author Tarlis Portela <tarlis@tarlis.com.br>
+ * @param <MO> the generic type
  */
 public abstract class QualityMeasure<MO> {
 	
+	/** The max value. */
 	public double MAX_VALUE = DistanceMeasure.DEFAULT_MAX_VALUE;
 	
+	/** The labels. */
 	protected List<MO> labels;
+	
+	/** The trajectories. */
 	protected List<MAT<MO>> trajectories;
 	
+	/** The samples. */
 	protected int samples = 1;
 	
+	/** The sample size. */
 	protected double sampleSize = 1;
 	
+	/** The medium. */
 	protected String medium = "none";	
 	
+	/**
+	 * Instantiates a new quality measure.
+	 *
+	 * @param trajectories the trajectories
+	 * @param samples the samples
+	 * @param sampleSize the sample size
+	 * @param medium the medium
+	 */
 	public QualityMeasure(List<MAT<MO>> trajectories, int samples, double sampleSize, String medium) {
 		this.labels = new ArrayList<>();
 	
@@ -59,8 +76,20 @@ public abstract class QualityMeasure<MO> {
 		this.medium = medium;
 	}
 	
+	/**
+	 * Asses quality.
+	 *
+	 * @param candidate the candidate
+	 * @param random the random
+	 */
 	public abstract void assesQuality(Subtrajectory candidate, Random random);
 
+	/**
+	 * Gets the max distances.
+	 *
+	 * @param distances the distances
+	 * @return the max distances
+	 */
 	public double[] getMaxDistances(double[][] distances) {
 		
 		double[] maxDistances = new double[distances.length];
@@ -72,6 +101,15 @@ public abstract class QualityMeasure<MO> {
 		return maxDistances;
 	}
 	
+	/**
+	 * Choose points stratified.
+	 *
+	 * @param distances the distances
+	 * @param labels the labels
+	 * @param target the target
+	 * @param random the random
+	 * @return the pair
+	 */
 	public Pair<double[][],List<MO>> choosePointsStratified(double[][] distances, List<MO> labels, MO target, Random random){
 		
 //		if (this.sampleSize == 1){
@@ -108,6 +146,13 @@ public abstract class QualityMeasure<MO> {
 		return new Pair<>(newDistances,newLabels);
 	}
 	
+	/**
+	 * First vector greater than the second.
+	 *
+	 * @param first the first
+	 * @param second the second
+	 * @return true, if successful
+	 */
 	public boolean firstVectorGreaterThanTheSecond(double [] first, double [] second){
 		
 		for (int i = 0; i < first.length; i++) {
@@ -118,6 +163,13 @@ public abstract class QualityMeasure<MO> {
 		return true;
 	}
 	
+	/**
+	 * Fill split points limits.
+	 *
+	 * @param splitpointsData the splitpoints data
+	 * @param medium the medium
+	 * @return the pair
+	 */
 	public Pair<double[],double[]> fillSplitPointsLimits(Map<String, double[]> splitpointsData, String medium){
 		int n = splitpointsData.get("mean").length;
 		double[] splitpointsLI = new double[n];
@@ -153,6 +205,13 @@ public abstract class QualityMeasure<MO> {
 		return new Pair<double[],double[]>(splitpointsLI,splitpointsLS);
 	}
 	
+	/**
+	 * Count covered.
+	 *
+	 * @param targetDistances the target distances
+	 * @param candidate the candidate
+	 * @return the int
+	 */
 	public int countCovered(List<double[]> targetDistances, double[] candidate){
 		
 		int count = 0;
@@ -167,6 +226,13 @@ public abstract class QualityMeasure<MO> {
 		return count;
 	}
 	
+	/**
+	 * Checks if is covered.
+	 *
+	 * @param point the point
+	 * @param limits the limits
+	 * @return true, if is covered
+	 */
 	public boolean isCovered(double[] point, double[] limits){
 		
 		int dimensions = limits.length;

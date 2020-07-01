@@ -21,13 +21,17 @@ import br.com.tarlis.mov3lets.method.structures.descriptor.AttributeDescriptor;
 import br.com.tarlis.mov3lets.model.aspect.Aspect;
 
 /**
- * @author Tarlis Portela <tarlis@tarlis.com.br>
+ * The Class DistanceMeasure.
  *
+ * @author Tarlis Portela <tarlis@tarlis.com.br>
+ * @param <A> the generic type
  */
 public abstract class DistanceMeasure<A extends Aspect<?>> {
 	
+	/** The default max value. */
 	public static double DEFAULT_MAX_VALUE = Double.MAX_VALUE;
 
+	/** The max value. */
 	public double MAX_VALUE = DistanceMeasure.DEFAULT_MAX_VALUE;
 	
 	/**
@@ -68,11 +72,22 @@ public abstract class DistanceMeasure<A extends Aspect<?>> {
 	 * - equaldayofweek
 	 * - isworkday
 	 * - isweekend
-	 * - isworkdayorweekend
+	 * - isworkdayorweekend.
+	 *
+	 * @param asp0 the asp 0
+	 * @param asp1 the asp 1
+	 * @param attr the attr
+	 * @return the double
 	 */
 	public abstract double distance(A asp0, A asp1, AttributeDescriptor attr);
 	
-	/** SAME as Original Movelets */
+	/**
+	 *  SAME as Original Movelets.
+	 *
+	 * @param distance the distance
+	 * @param maxValue the max value
+	 * @return the double
+	 */
 	public double normalizeDistance(double distance, double maxValue){
 		/* If maxValue was not defined */
 		if (maxValue == -1)
@@ -84,12 +99,26 @@ public abstract class DistanceMeasure<A extends Aspect<?>> {
 		return distance / maxValue;
 	}
 	
+	/**
+	 * Enhance.
+	 *
+	 * @param distance the distance
+	 * @return the double
+	 */
 	public double enhance(double distance) {
 		return (distance != MAX_VALUE) ? (distance * distance) : MAX_VALUE;
 		// TRUE for: MAX_VALUE == (MAX_VALUE * MAX_VALUE)
 		// TRUE for: Double.POSITIVE_INFINITY == (Double.POSITIVE_INFINITY * Double.POSITIVE_INFINITY)
 	}
 	
+	/**
+	 * Calculate distance.
+	 *
+	 * @param asp0 the asp 0
+	 * @param asp1 the asp 1
+	 * @param attr the attr
+	 * @return the double
+	 */
 	public double calculateDistance(Aspect<?> asp0, Aspect<?> asp1, AttributeDescriptor attr) {
 		return enhance(distance((A) asp0, (A) asp1, attr));
 	}

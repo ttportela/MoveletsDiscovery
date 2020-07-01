@@ -18,13 +18,18 @@
 package br.com.tarlis.mov3lets.method.structures;
 
 /**
- * @author Tarlis Portela <tarlis@tarlis.com.br>
+ * The Class Pair.
  *
+ * @author Tarlis Portela <tarlis@tarlis.com.br>
+ * @param <M> the generic type
+ * @param <N> the number type
  */
 public class Pair<M, N> extends org.apache.commons.math3.util.Pair<M, N> {
 
 	/**
-	 * @param entry
+	 * Instantiates a new pair.
+	 *
+	 * @param entry the entry
 	 */
 	public Pair(org.apache.commons.math3.util.Pair<? extends M, ? extends N> entry) {
 		super(entry);
@@ -33,9 +38,11 @@ public class Pair<M, N> extends org.apache.commons.math3.util.Pair<M, N> {
 
 
     /**
-	 * @param x
-	 * @param y
-	 */
+     * Instantiates a new pair.
+     *
+     * @param x the x
+     * @param y the y
+     */
 	public Pair(M x, N y) {
 		super(x, y);
 	}

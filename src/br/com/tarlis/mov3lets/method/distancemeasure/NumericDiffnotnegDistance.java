@@ -21,11 +21,21 @@ import br.com.tarlis.mov3lets.method.structures.descriptor.AttributeDescriptor;
 import br.com.tarlis.mov3lets.model.aspect.Aspect;
 
 /**
- * @author Tarlis Portela <tarlis@tarlis.com.br>
+ * The Class NumericDiffnotnegDistance.
  *
+ * @author Tarlis Portela <tarlis@tarlis.com.br>
  */
 public class NumericDiffnotnegDistance extends NumericDifferenceDistance {
 	
+	/**
+	 * Overridden method. 
+	 * @see br.com.tarlis.mov3lets.method.distancemeasure.NumericDifferenceDistance#distance(br.com.tarlis.mov3lets.model.aspect.Aspect, br.com.tarlis.mov3lets.model.aspect.Aspect, br.com.tarlis.mov3lets.method.structures.descriptor.AttributeDescriptor).
+	 * 
+	 * @param asp0
+	 * @param asp1
+	 * @param attr
+	 * @return
+	 */
 	@Override
 	public double distance(Aspect<Double> asp0, Aspect<Double> asp1, AttributeDescriptor attr) {
 		if (asp0.getValue() >= 0 && asp1.getValue() >= 0)

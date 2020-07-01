@@ -22,8 +22,22 @@ import br.com.tarlis.mov3lets.method.structures.descriptor.Descriptor;
 import br.com.tarlis.mov3lets.model.MAT;
 import br.com.tarlis.mov3lets.model.Point;
 
+/**
+ * The Class ZippedLoader.
+ *
+ * @param <T> the generic type
+ */
 public class ZippedLoader<T extends MAT<?>> extends CSVLoader<T> {
 
+	/**
+	 * Overridden method. 
+	 * @see br.com.tarlis.mov3lets.method.loader.LoaderAdapter#load(java.lang.String, br.com.tarlis.mov3lets.method.structures.descriptor.Descriptor).
+	 * 
+	 * @param file
+	 * @param descriptor
+	 * @return
+	 * @throws IOException
+	 */
 	@Override
 	public List<T> load(String file, Descriptor descriptor) throws IOException {
 
@@ -65,6 +79,14 @@ public class ZippedLoader<T extends MAT<?>> extends CSVLoader<T> {
 		return list;
 	}
 	
+	/**
+	 * Load trajectory.
+	 *
+	 * @param file the file
+	 * @param descriptor the descriptor
+	 * @return the t
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
 	public T loadTrajectory(String file, Descriptor descriptor) throws IOException {
 		
 		List<MAT<String>> trajectories = new ArrayList<MAT<String>>();
@@ -112,11 +134,16 @@ public class ZippedLoader<T extends MAT<?>> extends CSVLoader<T> {
 		return (T) mat;
 	}
 	
-	/************************************************************************
+	/**
+	 * **********************************************************************
 	 * This utility extracts files and directories of a standard zip file to
 	 * a destination directory.
+	 *
 	 * @author www.codejava.net
-	 ************************************************************************
+	 * ***********************************************************************
+	 * @param zipFilePath the zip file path
+	 * @param destDirectory the dest directory
+	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
 	
 	/**
@@ -153,10 +180,11 @@ public class ZippedLoader<T extends MAT<?>> extends CSVLoader<T> {
     }
 
     /**
-     * Extracts a zip entry (file entry)
-     * @param zipIn
-     * @param filePath
-     * @throws IOException
+     * Extracts a zip entry (file entry).
+     *
+     * @param zipIn the zip in
+     * @param filePath the file path
+     * @throws IOException Signals that an I/O exception has occurred.
      */
 	protected void extractFile(ZipInputStream zipIn, String filePath) throws IOException {
 		int BUFFER_SIZE = 4096;

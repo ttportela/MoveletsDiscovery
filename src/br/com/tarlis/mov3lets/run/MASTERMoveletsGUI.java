@@ -16,13 +16,14 @@ import br.com.tarlis.mov3lets.utils.ProgressBar;
  */
 
 /**
+ * The Class MASTERMoveletsGUI.
  *
  * @author tarlis
  */
 public class MASTERMoveletsGUI extends javax.swing.JFrame {
 
     /**
-     * Creates new form MASTERMoveletsGUI
+     * Creates new form MASTERMoveletsGUI.
      */
     public MASTERMoveletsGUI() {
         initComponents();
@@ -459,6 +460,11 @@ public class MASTERMoveletsGUI extends javax.swing.JFrame {
         pack();
     }// </editor-fold>                        
 
+    /**
+     * Btn file ds action performed.
+     *
+     * @param evt the evt
+     */
     private void btnFileDsActionPerformed(java.awt.event.ActionEvent evt) {                                          
         JFileChooser j = new JFileChooser(); 
         j.setCurrentDirectory(new java.io.File("."));
@@ -469,6 +475,11 @@ public class MASTERMoveletsGUI extends javax.swing.JFrame {
         }
     }                                         
 
+    /**
+     * Btn file res action performed.
+     *
+     * @param evt the evt
+     */
     private void btnFileResActionPerformed(java.awt.event.ActionEvent evt) {                                           
         JFileChooser j = new JFileChooser(); 
         j.setCurrentDirectory(new java.io.File("."));
@@ -479,6 +490,11 @@ public class MASTERMoveletsGUI extends javax.swing.JFrame {
         }
     }                                          
 
+    /**
+     * Btn file descriptor action performed.
+     *
+     * @param evt the evt
+     */
     private void btnFileDescriptorActionPerformed(java.awt.event.ActionEvent evt) {                                                  
         JFileChooser j = new JFileChooser(); 
         j.setCurrentDirectory(new java.io.File(
@@ -491,6 +507,11 @@ public class MASTERMoveletsGUI extends javax.swing.JFrame {
         }
     }                                                 
 
+    /**
+     * Ck log action performed.
+     *
+     * @param evt the evt
+     */
     private void ckLogActionPerformed(java.awt.event.ActionEvent evt) {                                      
         if (ckLog.isSelected()) {
             lbMs.setEnabled(false);
@@ -501,6 +522,11 @@ public class MASTERMoveletsGUI extends javax.swing.JFrame {
         }
     }                                     
 
+    /**
+     * Btn run action performed.
+     *
+     * @param evt the evt
+     */
     private void btnRunActionPerformed(java.awt.event.ActionEvent evt) {                                       
         if (queue.isEmpty()) {
         	queue.add(prepareRun());
@@ -518,11 +544,23 @@ public class MASTERMoveletsGUI extends javax.swing.JFrame {
         queue.clear();
     }                                      
 
+    /** The queue. */
     private List<List<String>> queue = new ArrayList<List<String>>();
+    
+    /**
+     * Btn queue action performed.
+     *
+     * @param evt the evt
+     */
     private void btnQueueActionPerformed(java.awt.event.ActionEvent evt) {                                         
         queue.add(prepareRun());
     }      
     
+    /**
+     * Prepare run.
+     *
+     * @return the list
+     */
     private List<String> prepareRun() {
     	List<String> params = new ArrayList<String>();
 
@@ -557,18 +595,30 @@ public class MASTERMoveletsGUI extends javax.swing.JFrame {
 		return params;
     }
 
+    /**
+     * Prints the command.
+     *
+     * @param args the args
+     */
     private void printCommand(List<String> args) {
 		println("java -jar MASTERMovelets.jar " + String.join(" ", args));
 		println("-------------------------------------------------------------------------------------------------------------------------------");
 	}
 
+	/**
+	 * Println.
+	 *
+	 * @param s the s
+	 */
 	private void println(String s) {
 		txOutput.append(s + "\n");
 	}
 
 	/**
-     * @param args the command line arguments
-     */
+	 * The main method.
+	 *
+	 * @param args the command line arguments
+	 */
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -601,51 +651,140 @@ public class MASTERMoveletsGUI extends javax.swing.JFrame {
         });
     }
 
+    /** The bar. */
     // Variables declaration - do not modify                     
     private javax.swing.JProgressBar bar;
+    
+    /** The btn file descriptor. */
     private javax.swing.JButton btnFileDescriptor;
+    
+    /** The btn file ds. */
     private javax.swing.JButton btnFileDs;
+    
+    /** The btn file res. */
     private javax.swing.JButton btnFileRes;
+    
+    /** The btn queue. */
     private javax.swing.JButton btnQueue;
+    
+    /** The btn run. */
     private javax.swing.JButton btnRun;
+    
+    /** The button group 1. */
     private javax.swing.ButtonGroup buttonGroup1;
+    
+    /** The ck index. */
     private javax.swing.JCheckBox ckIndex;
+    
+    /** The ck interning. */
     private javax.swing.JCheckBox ckInterning;
+    
+    /** The ck log. */
     private javax.swing.JCheckBox ckLog;
+    
+    /** The j label 1. */
     private javax.swing.JLabel jLabel1;
+    
+    /** The j label 10. */
     private javax.swing.JLabel jLabel10;
+    
+    /** The j label 11. */
     private javax.swing.JLabel jLabel11;
+    
+    /** The j label 12. */
     private javax.swing.JLabel jLabel12;
+    
+    /** The j label 13. */
     private javax.swing.JLabel jLabel13;
+    
+    /** The j label 2. */
     private javax.swing.JLabel jLabel2;
+    
+    /** The j label 3. */
     private javax.swing.JLabel jLabel3;
+    
+    /** The j label 5. */
     private javax.swing.JLabel jLabel5;
+    
+    /** The j label 6. */
     private javax.swing.JLabel jLabel6;
+    
+    /** The j label 7. */
     private javax.swing.JLabel jLabel7;
+    
+    /** The j label 8. */
     private javax.swing.JLabel jLabel8;
+    
+    /** The j label 9. */
     private javax.swing.JLabel jLabel9;
+    
+    /** The j panel 1. */
     private javax.swing.JPanel jPanel1;
+    
+    /** The j panel 2. */
     private javax.swing.JPanel jPanel2;
+    
+    /** The j panel 3. */
     private javax.swing.JPanel jPanel3;
+    
+    /** The j panel 4. */
     private javax.swing.JPanel jPanel4;
+    
+    /** The j scroll pane 1. */
     private javax.swing.JScrollPane jScrollPane1;
+    
+    /** The lb ms. */
     private javax.swing.JLabel lbMs;
+    
+    /** The rb hiper. */
     private javax.swing.JRadioButton rbHiper;
+    
+    /** The rb super. */
     private javax.swing.JRadioButton rbSuper;
+    
+    /** The rb V 1. */
     private javax.swing.JRadioButton rbV1;
+    
+    /** The rb V 2. */
     private javax.swing.JRadioButton rbV2;
+    
+    /** The tx descriptor. */
     private javax.swing.JTextField txDescriptor;
+    
+    /** The tx ed. */
     private javax.swing.JTextField txEd;
+    
+    /** The tx file res. */
     private javax.swing.JTextField txFileRes;
+    
+    /** The tx fileds. */
     private javax.swing.JTextField txFileds;
+    
+    /** The tx medium. */
     private javax.swing.JComboBox<String> txMedium;
+    
+    /** The tx ms. */
     private javax.swing.JTextField txMs;
+    
+    /** The tx out. */
     private javax.swing.JComboBox<String> txOut;
+    
+    /** The tx output. */
     private javax.swing.JTextArea txOutput;
+    
+    /** The tx Q. */
     private javax.swing.JComboBox<String> txQ;
+    
+    /** The tx sample size. */
     private javax.swing.JTextField txSampleSize;
+    
+    /** The tx samples. */
     private javax.swing.JTextField txSamples;
+    
+    /** The tx threads. */
     private javax.swing.JTextField txThreads;
+    
+    /** The txms. */
     private javax.swing.JTextField txms;
     // End of variables declaration                   
 }

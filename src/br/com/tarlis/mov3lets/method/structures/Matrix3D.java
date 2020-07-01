@@ -12,18 +12,32 @@ import org.apache.commons.math3.util.Combinations;
 import br.com.tarlis.mov3lets.model.Point;
 
 /**
- * @author tarlis
+ * The Class Matrix3D.
  *
+ * @author tarlis
  */
 public class Matrix3D extends ConcurrentHashMap<Integer, double[]> {
 
+/** The combinations. */
 //	private double DEFAULT = Double.POSITIVE_INFINITY;
 	private List<List<Integer>> combinations = new ArrayList<List<Integer>>();
 		
+	/**
+	 * Instantiates a new matrix 3 D.
+	 *
+	 * @param combinations the combinations
+	 */
 	public Matrix3D(List<List<Integer>> combinations) {
 		this.combinations = combinations;
 	}
 		
+	/**
+	 * Instantiates a new matrix 3 D.
+	 *
+	 * @param exploreDimensions the explore dimensions
+	 * @param numberOfFeatures the number of features
+	 * @param maxNumberOfFeatures the max number of features
+	 */
 	public Matrix3D(boolean exploreDimensions, int numberOfFeatures, int maxNumberOfFeatures) {
 		
 		switch (maxNumberOfFeatures) {
@@ -36,7 +50,11 @@ public class Matrix3D extends ConcurrentHashMap<Integer, double[]> {
 	}
 	
 	/**
-	 * 
+	 * Make combinations.
+	 *
+	 * @param exploreDimensions the explore dimensions
+	 * @param numberOfFeatures the number of features
+	 * @param maxNumberOfFeatures the max number of features
 	 */
 	public void makeCombinations(boolean exploreDimensions, int numberOfFeatures, int maxNumberOfFeatures) {
 		
@@ -58,6 +76,13 @@ public class Matrix3D extends ConcurrentHashMap<Integer, double[]> {
 
 	}
 	
+    /**
+     * Hash code.
+     *
+     * @param a the a
+     * @param b the b
+     * @return the int
+     */
     public int hashCode(Point a, Point b) {
         int result = a == null ? 0 : a.hashCode();
 
@@ -72,6 +97,8 @@ public class Matrix3D extends ConcurrentHashMap<Integer, double[]> {
     }
 	
 	/**
+	 * Gets the combinations.
+	 *
 	 * @return the combinations
 	 */
 	public List<List<Integer>> getCombinations() {
@@ -79,6 +106,8 @@ public class Matrix3D extends ConcurrentHashMap<Integer, double[]> {
 	}
 	
 	/**
+	 * Sets the combinations.
+	 *
 	 * @param combinations the combinations to set
 	 */
 	public void setCombinations(List<List<Integer>> combinations) {
@@ -86,10 +115,11 @@ public class Matrix3D extends ConcurrentHashMap<Integer, double[]> {
 	}
 
 	/**
-	 * @param a
-	 * @param b
-	 * @param index
-	 * @param value
+	 * Adds the.
+	 *
+	 * @param a the a
+	 * @param b the b
+	 * @param value the value
 	 */
 //	public void add(Point a, Point b, int index, List<Double> value) {
 //		super.put(hashCode(a, b), value);
@@ -100,10 +130,11 @@ public class Matrix3D extends ConcurrentHashMap<Integer, double[]> {
 	}
 
 	/**
-	 * @param a
-	 * @param b
-	 * @param index
-	 * @param value
+	 * Adds the distances.
+	 *
+	 * @param a the a
+	 * @param b the b
+	 * @param distances the distances
 	 */
 //	public void add(Point a, Point b, int index, Double value) {
 //		super.put(new Tuple<Point, Point, Integer>(a, b, index), Arrays.asList(value));
@@ -139,8 +170,10 @@ public class Matrix3D extends ConcurrentHashMap<Integer, double[]> {
 	}
 
 	/**
-	 * @param k
-	 * @return
+	 * Gets the combination.
+	 *
+	 * @param k the k
+	 * @return the combination
 	 */
 	public int[] getCombination(int k) {
 		return getCombinations().get(k).stream()
@@ -149,10 +182,11 @@ public class Matrix3D extends ConcurrentHashMap<Integer, double[]> {
 	}
 
 	/**
-	 * @param point
-	 * @param point2
-	 * @param k
-	 * @return 
+	 * Gets the.
+	 *
+	 * @param a the a
+	 * @param b the b
+	 * @return the double[]
 	 */
 //	public List<Double> get(Point a, Point b, int index) {
 //		return super.get(hashCode(a, b));
@@ -163,16 +197,23 @@ public class Matrix3D extends ConcurrentHashMap<Integer, double[]> {
 	}
 
 	/**
-	 * @param point
-	 * @param point2
-	 * @param comb
-	 * @return
+	 * Gets the base distances.
+	 *
+	 * @param a the a
+	 * @param b the b
+	 * @return the base distances
 	 */
 	public double[] getBaseDistances(Point a, Point b) {
 		return super.get(hashCode(a, b));
 //				.stream().mapToDouble(Double::doubleValue).toArray();
 	}
 	
+	/**
+	 * Overridden method. 
+	 * @see java.util.AbstractMap#clone().
+	 * 
+	 * @return
+	 */
 	@Override
 	public Matrix3D clone() {
 		Matrix3D clone = new Matrix3D(this.combinations);

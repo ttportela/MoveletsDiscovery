@@ -19,22 +19,27 @@ package br.com.tarlis.mov3lets.model;
 
 /**
  * Moving object label can be anything.
- * 
- * @author Tarlis Portela <tarlis@tarlis.com.br>
  *
+ * @author Tarlis Portela <tarlis@tarlis.com.br>
+ * @param <L> the generic type
  */
 public class MovingObject<L> {
 	
+	/** The label. */
 	private L label;
 	
 	/**
-	 * @param label2
+	 * Instantiates a new moving object.
+	 *
+	 * @param label the label
 	 */
 	public MovingObject(L label) {
 		this.label = label;
 	}
 
 	/**
+	 * Gets the label.
+	 *
 	 * @return the label
 	 */
 	public L getLabel() {
@@ -42,17 +47,32 @@ public class MovingObject<L> {
 	}
 	
 	/**
+	 * Sets the label.
+	 *
 	 * @param label the label to set
 	 */
 	public void setLabel(L label) {
 		this.label = label;
 	}
 	
+	/**
+	 * Overridden method. 
+	 * @see java.lang.Object#toString().
+	 * 
+	 * @return
+	 */
 	@Override
 	public String toString() {
 		return getLabel().toString();
 	}
 	
+	/**
+	 * Overridden method. 
+	 * @see java.lang.Object#equals(java.lang.Object).
+	 * 
+	 * @param obj
+	 * @return
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		return super.equals(obj) || this.label.equals(obj);

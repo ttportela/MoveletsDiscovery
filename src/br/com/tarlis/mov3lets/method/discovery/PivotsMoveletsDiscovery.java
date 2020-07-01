@@ -29,21 +29,39 @@ import br.com.tarlis.mov3lets.model.Subtrajectory;
 import br.com.tarlis.mov3lets.utils.Mov3letsUtils;
 
 /**
- * @author Tarlis Portela <tarlis@tarlis.com.br>
+ * The Class PivotsMoveletsDiscovery.
  *
+ * @author Tarlis Portela <tarlis@tarlis.com.br>
+ * @param <MO> the generic type
  */
 public class PivotsMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 
 	/**
-	 * @param trajectory
-	 * @param train
-	 * @param candidates 
+	 * Instantiates a new pivots movelets discovery.
+	 *
+	 * @param trajsFromClass the trajs from class
+	 * @param data the data
+	 * @param train the train
+	 * @param test the test
+	 * @param qualityMeasure the quality measure
+	 * @param descriptor the descriptor
 	 */
 	public PivotsMoveletsDiscovery(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test, QualityMeasure qualityMeasure, 
 			Descriptor descriptor) {
 		super(trajsFromClass, data, train, test, qualityMeasure, descriptor);
 	}
 
+	/**
+	 * Overridden method. 
+	 * @see br.com.tarlis.mov3lets.method.discovery.MemMoveletsDiscovery#moveletsDiscovery(br.com.tarlis.mov3lets.model.MAT, java.util.List, int, int, java.util.Random).
+	 * 
+	 * @param trajectory
+	 * @param trajectories
+	 * @param minSize
+	 * @param maxSize
+	 * @param random
+	 * @return
+	 */
 	public List<Subtrajectory> moveletsDiscovery(MAT<MO> trajectory, List<MAT<MO>> trajectories, int minSize, int maxSize, Random random) {
 		List<Subtrajectory> candidates = new ArrayList<Subtrajectory>();
 
@@ -109,6 +127,17 @@ public class PivotsMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 		return candidates;
 	}
 
+	/**
+	 * Grow pivots.
+	 *
+	 * @param candidatesOfSize the candidates of size
+	 * @param trajectory the trajectory
+	 * @param trajectories the trajectories
+	 * @param base the base
+	 * @param newSize the new size
+	 * @param size the size
+	 * @return the list
+	 */
 	private List<Subtrajectory> growPivots(List<Subtrajectory> candidatesOfSize, MAT<MO> trajectory,
 			List<MAT<MO>> trajectories, double[][][][] base, double[][][][] newSize, int size) {
 		List<Subtrajectory> newCandidates = new ArrayList<Subtrajectory>();
@@ -126,6 +155,17 @@ public class PivotsMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 		return newCandidates;
 	}
 
+	/**
+	 * Builds the new size.
+	 *
+	 * @param candidate the candidate
+	 * @param trajectory the trajectory
+	 * @param trajectories the trajectories
+	 * @param mdist the mdist
+	 * @param size the size
+	 * @param left the left
+	 * @return the subtrajectory
+	 */
 	private Subtrajectory buildNewSize(Subtrajectory candidate, MAT<MO> trajectory, List<MAT<MO>> trajectories,
 			double[][][][] mdist, int size, boolean left) {
 		
@@ -143,6 +183,15 @@ public class PivotsMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 		return subtrajectory;
 	}
 
+	/**
+	 * Compute candidate distances.
+	 *
+	 * @param subtrajectory the subtrajectory
+	 * @param trajectories the trajectories
+	 * @param mdist the mdist
+	 * @param size the size
+	 * @param start the start
+	 */
 	private void computeCandidateDistances(Subtrajectory subtrajectory, List<MAT<MO>> trajectories, double[][][][] mdist, int size, int start) {
 		double[][][] distancesForAllT = mdist[start];
 		
@@ -171,6 +220,14 @@ public class PivotsMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 		}
 	}
 
+	/**
+	 * Filter by quality.
+	 *
+	 * @param bestCandidates the best candidates
+	 * @param trajectories the trajectories
+	 * @param random the random
+	 * @return the list
+	 */
 	public List<Subtrajectory> filterByQuality(List<Subtrajectory> bestCandidates, List<MAT<MO>> trajectories, Random random) {
 		/** STEP 2.3, for this trajectory movelets: 
 		 * It transforms the training and test sets of trajectories using the movelets */

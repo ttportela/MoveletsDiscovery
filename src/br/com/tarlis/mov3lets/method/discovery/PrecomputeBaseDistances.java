@@ -9,14 +9,37 @@ import br.com.tarlis.mov3lets.model.MAT;
 import br.com.tarlis.mov3lets.model.Point;
 import br.com.tarlis.mov3lets.utils.ProgressBar;
 
+/**
+ * The Class PrecomputeBaseDistances.
+ *
+ * @param <MO> the generic type
+ */
 public class PrecomputeBaseDistances<MO> implements Callable<Integer> {
 	
+	/** The from index. */
 	private int fromIndex;
+	
+	/** The trajectories. */
 	private List<MAT<MO>> trajectories;
+	
+	/** The base. */
 	private double[][][][][] base;
+	
+	/** The descriptor. */
 	private Descriptor descriptor;
+	
+	/** The bar. */
 	private ProgressBar bar;
 	
+	/**
+	 * Instantiates a new precompute base distances.
+	 *
+	 * @param fromIndex the from index
+	 * @param trajectories the trajectories
+	 * @param base the base
+	 * @param descriptor the descriptor
+	 * @param bar the bar
+	 */
 	public PrecomputeBaseDistances(int fromIndex, List<MAT<MO>> trajectories, double[][][][][] base, Descriptor descriptor, ProgressBar bar) {
 		this.fromIndex = fromIndex;
 		this.trajectories = trajectories;
@@ -26,12 +49,25 @@ public class PrecomputeBaseDistances<MO> implements Callable<Integer> {
 		this.base = base;
 	}
 
+	/**
+	 * Overridden method. 
+	 * @see java.util.concurrent.Callable#call().
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
 	@Override
 	public Integer call() throws Exception {
 		computeBaseDistances(fromIndex, this.trajectories);
 		return 0;
 	}
 	
+	/**
+	 * Compute base distances.
+	 *
+	 * @param idxFrom the idx from
+	 * @param trajectories the trajectories
+	 */
 	public void computeBaseDistances(int idxFrom, List<MAT<MO>> trajectories){
 		MAT<MO> trajectory = trajectories.get(idxFrom);
 		int n = trajectory.getPoints().size();

@@ -15,8 +15,22 @@ import br.com.tarlis.mov3lets.method.structures.descriptor.Descriptor;
 import br.com.tarlis.mov3lets.model.MAT;
 import br.com.tarlis.mov3lets.model.Point;
 
+/**
+ * The Class CSVLoader.
+ *
+ * @param <T> the generic type
+ */
 public class CSVLoader<T extends MAT<?>> implements LoaderAdapter<T> {
 
+	/**
+	 * Overridden method. 
+	 * @see br.com.tarlis.mov3lets.method.loader.LoaderAdapter#loadTrajectories(java.lang.String, br.com.tarlis.mov3lets.method.structures.descriptor.Descriptor).
+	 * 
+	 * @param file
+	 * @param descriptor
+	 * @return
+	 * @throws IOException
+	 */
 	@Override
 	public List<T> loadTrajectories(String file, Descriptor descriptor) throws IOException {
 		

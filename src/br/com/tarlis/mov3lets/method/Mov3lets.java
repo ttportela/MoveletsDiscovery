@@ -58,37 +58,47 @@ import br.com.tarlis.mov3lets.model.MAT;
 import br.com.tarlis.mov3lets.utils.ProgressBar;
 
 /**
- * @author Tarlis Portela <tarlis@tarlis.com.br>
+ * The Class Mov3lets.
  *
+ * @author Tarlis Portela <tarlis@tarlis.com.br>
+ * @param <MO> the generic type
  */
 public class Mov3lets<MO> {
 	
+	/** The descriptor. */
 	// CONFIG:
 	private Descriptor descriptor = null;
+	
+	/** The result dir path. */
 	private String resultDirPath = "MasterMovelets";
 	
+	/** The data. */
 	// TRAJS:
 	private List<MAT<MO>> data = null;
+	
+	/** The train. */
 	private List<MAT<MO>> train = null;
+	
+	/** The test. */
 	private List<MAT<MO>> test = null;
 	
+	/** The progress bar. */
 	public static ProgressBar progressBar = new ProgressBar();
 
 	/**
-	 * @param params 
-	 * @param descFile
-	 * @throws FileNotFoundException 
-	 * @throws UnsupportedEncodingException 
+	 * Instantiates a new mov 3 lets.
+	 *
+	 * @param descriptorFile the descriptor file
+	 * @param params the params
+	 * @throws UnsupportedEncodingException the unsupported encoding exception
+	 * @throws FileNotFoundException the file not found exception
 	 */
 	public Mov3lets(String descriptorFile, HashMap<String, Object> params) throws UnsupportedEncodingException, FileNotFoundException {
 		this.descriptor = Descriptor.load(descriptorFile, params);
 	}
 
 	/**
-	 * @param args
-	 * @throws IOException 
-	 * @throws FileNotFoundException 
-	 * @throws UnsupportedEncodingException 
+	 * Mov 3 lets.
 	 */
 	public void mov3lets() {
 		int N_THREADS = getDescriptor().getParamAsInt("nthreads");
@@ -165,6 +175,14 @@ public class Mov3lets<MO> {
 		
 	}
 
+	/**
+	 * Instantiate.
+	 *
+	 * @param classes the classes
+	 * @param qualityMeasure the quality measure
+	 * @param progressBar the progress bar
+	 * @return the list
+	 */
 	private List<DiscoveryAdapter<MO>> instantiate(List<MO> classes, QualityMeasure qualityMeasure, ProgressBar progressBar) {
 		List<DiscoveryAdapter<MO>> lsMDs = new ArrayList<DiscoveryAdapter<MO>>();
 		
@@ -235,6 +253,11 @@ public class Mov3lets<MO> {
 		return lsMDs;
 	}
 
+	/**
+	 * Config output.
+	 *
+	 * @return the list
+	 */
 	public List<OutputterAdapter<MO>> configOutput() {
 		List<OutputterAdapter<MO>> outs = new ArrayList<OutputterAdapter<MO>>();
 		outs.add(new JSONOutputter<MO>(resultDirPath, getDescriptor()));
@@ -243,6 +266,11 @@ public class Mov3lets<MO> {
 		return outs;
 	}
 
+	/**
+	 * Load train.
+	 *
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
 	public void loadTrain() throws IOException {
 		LoaderAdapter loader = instantiateLoader();
 		
@@ -256,6 +284,11 @@ public class Mov3lets<MO> {
 		}
 	}
 
+	/**
+	 * Load test.
+	 *
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
 	public void loadTest() throws IOException {
 		LoaderAdapter loader = instantiateLoader();
 		
@@ -270,9 +303,9 @@ public class Mov3lets<MO> {
 	}
 
 	/**
-	 * STEP 1
-	 * @return
-	 * @throws IOException
+	 * STEP 1.
+	 *
+	 * @return the loader adapter
 	 */
 	public LoaderAdapter instantiateLoader() {
 		LoaderAdapter loader;
@@ -299,10 +332,9 @@ public class Mov3lets<MO> {
 	}
 	
 	/**
-	 * STEP 2
-	 * @param train 
-	 * @param test 
-	 * @param qualityMeasure 
+	 * STEP 2.
+	 *
+	 * @return the descriptor
 	 */
 //	private List<Subtrajectory> selectCandidates(List<MAT<MO>> train, List<MAT<MO>> test, QualityMeasure qualityMeasure) {
 //		List<MO> classes = train.stream().map(e -> (MO) e.getMovingObject()).distinct().collect(Collectors.toList());
@@ -382,23 +414,45 @@ public class Mov3lets<MO> {
 		return descriptor;
 	}
 	
+	/**
+	 * Gets the train.
+	 *
+	 * @return the train
+	 */
 	public List<MAT<MO>> getTrain() {
 		return train;
 	}
 	
+	/**
+	 * Sets the train.
+	 *
+	 * @param train the new train
+	 */
 	public void setTrain(List<MAT<MO>> train) {
 		this.train = train;
 	}
 	
+	/**
+	 * Gets the test.
+	 *
+	 * @return the test
+	 */
 	public List<MAT<MO>> getTest() {
 		return test;
 	}
 	
+	/**
+	 * Sets the test.
+	 *
+	 * @param test the new test
+	 */
 	public void setTest(List<MAT<MO>> test) {
 		this.test = test;
 	}
 	
 	/**
+	 * Sets the result dir path.
+	 *
 	 * @param resultDirPath the resultDirPath to set
 	 */
 	public void setResultDirPath(String resultDirPath) {

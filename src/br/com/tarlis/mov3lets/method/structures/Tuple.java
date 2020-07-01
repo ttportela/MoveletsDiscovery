@@ -20,19 +20,28 @@ package br.com.tarlis.mov3lets.method.structures;
 import java.util.Objects;
 
 /**
- * @author Tarlis Portela <tarlis@tarlis.com.br>
+ * The Class Tuple.
  *
+ * @author Tarlis Portela <tarlis@tarlis.com.br>
+ * @param <M> the generic type
+ * @param <N> the number type
+ * @param <I> the generic type
  */
 public class Tuple<M, N, I> extends Pair<M, N> {
 	
+	/** The index. */
 	private I index;
 	
+	/** The hash. */
 	private int hash;
 	
     /**
-	 * @param x
-	 * @param y
-	 */
+     * Instantiates a new tuple.
+     *
+     * @param x the x
+     * @param y the y
+     * @param index the index
+     */
 	public Tuple(M x, N y, I index) {
 		super(x, y);
 		this.index = index;
@@ -40,6 +49,8 @@ public class Tuple<M, N, I> extends Pair<M, N> {
 	}
 
 	/**
+	 * Gets the index.
+	 *
 	 * @return the p
 	 */
 	public I getIndex() {
@@ -47,6 +58,8 @@ public class Tuple<M, N, I> extends Pair<M, N> {
 	}
 	
 	/**
+	 * Sets the index.
+	 *
 	 * @param p the p to set
 	 */
 	public void setIndex(I p) {

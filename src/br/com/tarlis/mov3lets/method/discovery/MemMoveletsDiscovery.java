@@ -32,18 +32,28 @@ import br.com.tarlis.mov3lets.model.Point;
 import br.com.tarlis.mov3lets.model.Subtrajectory;
 
 /**
- * @author Tarlis Portela <tarlis@tarlis.com.br>
+ * The Class MemMoveletsDiscovery.
  *
+ * @author Tarlis Portela <tarlis@tarlis.com.br>
+ * @param <MO> the generic type
  */
 public class MemMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 	
+	/** The base. */
 	protected double[][][][] base;
+	
+	/** The max distances. */
 	protected double[] maxDistances; // Max distances by dimension
 	
 	/**
-	 * @param trajectory
-	 * @param train
-	 * @param test 
+	 * Instantiates a new mem movelets discovery.
+	 *
+	 * @param trajsFromClass the trajs from class
+	 * @param data the data
+	 * @param train the train
+	 * @param test the test
+	 * @param qualityMeasure the quality measure
+	 * @param descriptor the descriptor
 	 */	
 	public MemMoveletsDiscovery(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test, QualityMeasure qualityMeasure, 
 			Descriptor descriptor) {
@@ -51,7 +61,9 @@ public class MemMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 	}
 
 	/**
-	 * Looks for candidates in the trajectory, then compares with every other trajectory
+	 * Looks for candidates in the trajectory, then compares with every other trajectory.
+	 *
+	 * @return the list
 	 */
 	public List<Subtrajectory> discover() {
 		
@@ -129,9 +141,18 @@ public class MemMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 		return movelets;
 	}
 
-	/*** * * * * * * * * * * * * * * * * * * * ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * >>
+	/**
+	 * * * * * * * * * * * * * * * * * * * * * ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * >>
 	 * HERE FOLLOWS THE DISCOVERING PROCEDURES: * * * * * * * * * * * * * * * * * * * * * * * * * * * * * >>
-	 *** * * * * * * * * * * * * * * * * * * * **/
+	 * ** * * * * * * * * * * * * * * * * * * * *.
+	 *
+	 * @param trajectory the trajectory
+	 * @param trajectories the trajectories
+	 * @param minSize the min size
+	 * @param maxSize the max size
+	 * @param random the random
+	 * @return the list
+	 */
 	
 	/**
 	 * @param trajectory2
@@ -208,6 +229,13 @@ public class MemMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 		return candidates;
 	}
 	
+	/**
+	 * Compute base distances.
+	 *
+	 * @param trajectory the trajectory
+	 * @param trajectories the trajectories
+	 * @return the double[][][][]
+	 */
 	public double[][][][] computeBaseDistances(MAT<?> trajectory, List<MAT<MO>> trajectories){
 		int n = trajectory.getPoints().size();
 		int size = 1;
@@ -249,6 +277,12 @@ public class MemMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 		return base;
 	}
 	
+	/**
+	 * Clone 4 D array.
+	 *
+	 * @param source the source
+	 * @return the double[][][][]
+	 */
 	public double[][][][] clone4DArray(double [][][][] source){
 		double[][][][] dest = new double[source.length][][][];
 		for (int i = 0; i < dest.length; i++) {
@@ -266,6 +300,16 @@ public class MemMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 		return dest;		
 	}
 
+	/**
+	 * New size.
+	 *
+	 * @param trajectory the trajectory
+	 * @param trajectories the trajectories
+	 * @param base the base
+	 * @param lastSize the last size
+	 * @param size the size
+	 * @return the double[][][][]
+	 */
 	public double[][][][] newSize(MAT<?> trajectory, List<MAT<MO>> trajectories, double[][][][] base, double[][][][] lastSize, int size) {
 		
 		int n = trajectory.getPoints().size();	
@@ -298,14 +342,13 @@ public class MemMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 	}
 
 	/**
-	 * 
-	 * [THE GREAT GAP]
-	 * 
-	 * @param trajectory
-	 * @param trajectories
-	 * @param size
-	 * @param mdist
-	 * @return
+	 * [THE GREAT GAP].
+	 *
+	 * @param trajectory the trajectory
+	 * @param trajectories the trajectories
+	 * @param size the size
+	 * @param mdist the mdist
+	 * @return the list
 	 */
 	public List<Subtrajectory> findCandidates(MAT<MO> trajectory, List<MAT<MO>> trajectories, int size, double[][][][] mdist) {
 		
@@ -364,6 +407,14 @@ public class MemMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 		
 	}
 	
+	/**
+	 * Best alignment by ranking.
+	 *
+	 * @param ranksForT the ranks for T
+	 * @param comb the comb
+	 * @param reindex the reindex
+	 * @return the int
+	 */
 	public int bestAlignmentByRanking(double[][] ranksForT, int[] comb, boolean reindex) {
 		
 		if (reindex)
@@ -387,6 +438,15 @@ public class MemMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 		return minRankIndex;
 	}
 	
+	/**
+	 * Best alignment by point features.
+	 *
+	 * @param s the s
+	 * @param t the t
+	 * @param mdist the mdist
+	 * @param idxt the idxt
+	 * @return the pair
+	 */
 	public Pair<Subtrajectory, double[]> bestAlignmentByPointFeatures(Subtrajectory s, MAT<MO> t, double[][][][] mdist, int idxt) {
 		double[] maxValues = new double[numberOfFeatures];
 		Arrays.fill(maxValues, MAX_VALUE);
@@ -471,10 +531,16 @@ public class MemMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 		return new Pair<>(new Subtrajectory(start, end , t), bestAlignment);
 	}
 	
-	/*** * * * * * * * * * * * * * * * * * * ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * >>
+	/**
+	 * * * * * * * * * * * * * * * * * * * * ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * >>
 	 * HERE FOLLOWS THE OUTPUT TRANSFORMATIONS:     * * * * * * * * * * * * * * * * * * * * * * * * * * >>
-	 *** * * * * * * * * * * * * * * * * * * 
-	 * @param mdist **/
+	 * ** * * * * * * * * * * * * * * * * * * .
+	 *
+	 * @param candidates the candidates
+	 * @param trajectories the trajectories
+	 * @param file the file
+	 * @param mdist *
+	 */
 	
 	public void transformTrajectoryOutput(List<Subtrajectory> candidates, List<MAT<MO>> trajectories, 
 			String file, double[][][][] mdist) {
@@ -492,6 +558,13 @@ public class MemMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 		
 	}
 	
+	/**
+	 * Compute distances.
+	 *
+	 * @param candidate the candidate
+	 * @param trajectories the trajectories
+	 * @param mdist the mdist
+	 */
 	public void computeDistances(Subtrajectory candidate, List<MAT<MO>> trajectories, double[][][][] mdist) {
 		/* This pairs will store the subtrajectory of the best alignment 
 		 * of the candidate into each trajectory and the distance 

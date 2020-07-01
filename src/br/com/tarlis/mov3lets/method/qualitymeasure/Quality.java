@@ -20,19 +20,48 @@ package br.com.tarlis.mov3lets.method.qualitymeasure;
 import java.util.Map;
 
 /**
- * @author Tarlis Portela <tarlis@tarlis.com.br>
+ * The Class Quality.
  *
+ * @author Tarlis Portela <tarlis@tarlis.com.br>
  */
 public abstract class Quality {
 	
+	/**
+	 * Sets the data.
+	 *
+	 * @param data the data
+	 */
 	public abstract void setData(Map<String,Double> data);
 	
+	/**
+	 * Gets the data.
+	 *
+	 * @return the data
+	 */
 	public abstract Map<String,Double> getData();
 	
+	/**
+	 * Checks for zero quality.
+	 *
+	 * @return true, if successful
+	 */
 	public abstract boolean hasZeroQuality();
 	
+	/**
+	 * Compare to.
+	 *
+	 * @param <Q> the generic type
+	 * @param other the other
+	 * @return the int
+	 */
 	public abstract <Q extends Quality> int compareTo(Q other);
 
+	/**
+	 * Overridden method. 
+	 * @see java.lang.Object#toString().
+	 * 
+	 * @return
+	 */
 	@Override
 	public String toString() {
 		return getData().toString();
