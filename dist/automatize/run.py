@@ -12,13 +12,13 @@ from datetime import datetime
 from IPython.utils import io
 # --------------------------------------------------------------------------------
 
-def k_run(k, data_folder, res_path, prefix, folder, descriptor, version = 'hiper', ms = False, Ms = False, extra=False, 
+def k_run(k, data_folder, res_path, prefix, folder, descriptor, ms = False, Ms = False, AL = False, PVT=False, extra=False, 
         java_opts='', jar_name='MASTERMov3lets', n_threads=1, prg_path='./', print_only=False, keep_folder=True):
     
     for x in range(k):
         subpath_data = os.path.join(data_folder, 'run'+str(x+1))
         subpath_rslt = os.path.join(res_path,    'run'+str(x+1))
-        run(subpath_data, subpath_rslt, prefix, folder, descriptor, version, ms, Ms, extra, 
+        run(subpath_data, subpath_rslt, prefix, folder, descriptor, ms, Ms, AL, PVT, extra, 
         java_opts, jar_name, n_threads, prg_path, print_only, keep_folder)
 
 # def runkFold(k, data_folder, res_path, prefix, folder, descriptor, ms = False, Ms = False, AL = False, PVT=False, extra=False, 
@@ -28,7 +28,7 @@ def k_run(k, data_folder, res_path, prefix, folder, descriptor, version = 'hiper
 #         run(data_folder, subpath, prefix, str(k)+'_'+str(x+1)+'_fold-'+folder, ms, Ms, AL, PVT, extra, java_opts, jar_name, n_threads, prg_path, print_only)
 
 # --------------------------------------------------------------------------------
-def run(data_folder, res_path, prefix, folder, descriptor, version = 'hiper', ms = False, Ms = False, extra=False, 
+def run(data_folder, res_path, prefix, folder, descriptor, ms = False, Ms = False, AL = False, PVT=False, extra=False, 
         java_opts='', jar_name='MASTERMov3lets', n_threads=1, prg_path='./', print_only=False, keep_folder=True):
     print('# --------------------------------------------------------------------------------------')
     print('# ' + prefix + ' - ' +folder)
@@ -46,16 +46,13 @@ def run(data_folder, res_path, prefix, folder, descriptor, version = 'hiper', ms
     if os.path.sep not in descriptor:
         descriptor = os.path.join(data_folder, descriptor)
         
-#     if jar_name != 'Movelets':
-#         CMD = CMD + ' -ed true -samples 1 -sampleSize 0.5 -medium "none" -output "discrete" -lowm "false" -ms 1'
+    if jar_name != 'Movelets':
+        CMD = CMD + ' -ed true -samples 1 -sampleSize 0.5 -medium "none" -output "discrete" -lowm "false" -ms 1'
 
     CMD = 'java '+java_opts+' -jar '+program+' -curpath "'+data_folder+'" -respath "'+res_folder+'" -descfile "'+ descriptor + '.json" ' + CMD
     
     if ms != False:
         CMD = CMD + ' -ms '+str(ms)
-#     else
-#         CMD = CMD + ' -ms -1'
-        
     if Ms != False:
         CMD = CMD + ' -Ms '+str(Ms)
     if AL == True:
@@ -63,8 +60,8 @@ def run(data_folder, res_path, prefix, folder, descriptor, version = 'hiper', ms
     if extra != False:
         CMD = CMD + ' ' + extra
         
-#     if PVT:
-#         CMD = CMD + ' -pvt true -lp false -pp 10 -op false'
+    if PVT:
+        CMD = CMD + ' -pvt true -lp false -pp 10 -op false'
         
     if os.name == 'nt':
         CMD = CMD +  ' > "'+outfile +  '" && type "'+outfile+'"'
@@ -76,17 +73,17 @@ def run(data_folder, res_path, prefix, folder, descriptor, version = 'hiper', ms
     
     dir_path = "MASTERMovelets"
     
-#     if jar_name in ['Hiper-MASTERMovelets', 'Hiper2-MASTERMovelets']:
-#         dir_path = dir_path + "GAS"
+    if jar_name in ['Hiper-MASTERMovelets', 'Hiper2-MASTERMovelets']:
+        dir_path = dir_path + "GAS"
         
-#     elif jar_name in ['Super-MASTERMovelets', 'Super2-MASTERMovelets']:
-#         dir_path = dir_path + "Supervised"
+    elif jar_name in ['Super-MASTERMovelets', 'Super2-MASTERMovelets']:
+        dir_path = dir_path + "Supervised"
         
     if jar_name == 'MASTERMovelets' and Ms == -3:
         dir_path = dir_path + "_LOG"
         
-#     if jar_name == 'MASTERMovelets' and PVT:
-#         dir_path = dir_path + "Pivots"
+    if jar_name == 'MASTERMovelets' and PVT:
+        dir_path = dir_path + "Pivots"
         
     mergeAndMove(res_folder, dir_path, prg_path, print_only)
     

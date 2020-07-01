@@ -58,7 +58,8 @@ public class HiperENMoveletsDiscovery<MO> extends HiperCEMoveletsDiscovery<MO> {
 			if(entrophy(candidate) >= TAU)
 				orderedCandidates.add(candidate);
 			else 
-				break;
+//				break;
+				bucket.add(candidate);
 		
 		if (orderedCandidates.isEmpty()) return orderedCandidates;
 				
