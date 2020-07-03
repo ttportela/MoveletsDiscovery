@@ -2,7 +2,7 @@
 	"readsDesc": [
 		{
 			"order": 1,
-			"type": "numeric",
+			"type": "space2d",
 			"text": "space"
 		},
 		{
