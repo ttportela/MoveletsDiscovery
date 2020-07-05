@@ -151,38 +151,60 @@ def trainAndTestSplit(data_path, df, train_size=0.7, random_num=1, class_col='la
     return train, test
 
 #-------------------------------------------------------------------------->>
-def kfold_trainAndTestSplit(data_path, df, k, random_num=1, class_col='label'):
-    train = []
-    test = []
-    for x in range(k):
-        train.append( pd.DataFrame() )
-        test.append( pd.DataFrame() )
-        
-    for label in df[class_col].unique(): 
-        tids = df.loc[df[class_col] == label].tid.unique()
-        print(label)
-        print(tids)
-        
-        kfold = KFold(k, True, random_num)
-        x = 0
-        for train_idx, test_idx in kfold.split(tids):
-            train[x] = pd.concat([train[x], df.loc[df['tid'].isin(tids[train_idx])]])
-            test[x]  = pd.concat([test[x],  df.loc[df['tid'].isin(tids[test_idx])]])
-            x += 1
+def kfold_trainAndTestSplit(data_path, k, df, random_num=1, class_col='label', fileprefix='', 
+                            columns_order=None, ktrain=None, ktest=None):
+    print(str(k)+"-fold train and test split in... " + data_path)
     
+    if not ktrain:
+        ktrain = []
+        ktest = []
+        for x in range(k):
+            ktrain.append( pd.DataFrame() )
+            ktest.append( pd.DataFrame() )
+
+
+        print("Reading files...")
+        for label in df[class_col].unique(): 
+            tids = df.loc[df[class_col] == label].tid.unique()
+    #         print("Trajectory IDs for label: " + label)
+    #         print(tids)
+
+            kfold = KFold(k, True, random_num)
+            x = 0
+            for train_idx, test_idx in kfold.split(tids):
+                ktrain[x] = pd.concat([ktrain[x], df.loc[df['tid'].isin(tids[train_idx])]])
+                ktest[x]  = pd.concat([ktest[x],  df.loc[df['tid'].isin(tids[test_idx])]])
+                x += 1
+        print("Done.")
+    else:
+        print("Train and test files provided.")
+    
+    print("Writing files...")
     for x in range(k):
-        path = str(k) + '-fold_'+str(x+1)
+        path = 'run'+str(x+1)
         
         if not os.path.exists(os.path.join(data_path, path)):
             os.makedirs(os.path.join(data_path, path))
+            
+        if columns_order is not None:
+            train_aux = ktrain[x][columns_order]
+            test_aux  = ktest[x][columns_order]
+        else:
+            train_aux = ktrain[x]
+            test_aux  = ktest[x]
+            
         
-        # WRITE Train / Test Files >> FOR MASTERMovelets:
-        createZIP(data_path, train[x], os.path.join(path,'train'), class_col)
-        createZIP(data_path, test[x], os.path.join(path,'test'), class_col)
+        # WRITE ZIP Train / Test Files >> FOR MASTERMovelets:
+        createZIP(data_path, ktrain[x], os.path.join(path, fileprefix+'train'), class_col, select_cols=columns_order)
+        createZIP(data_path, ktest[x], os.path.join(path,  fileprefix+'test'), class_col, select_cols=columns_order)
 
-        # WRITE Train / Test Files >> FOR V3:
-        train[x].to_csv(os.path.join(data_path, path, "train.csv"), index = False)
-        test[x].to_csv(os.path.join(data_path, path, "test.csv"), index = False)
+        # WRITE CSV Train / Test Files >> FOR HIPERMovelets:
+        train_aux.to_csv(os.path.join(data_path, path, fileprefix+"train.csv"), index = False)
+        test_aux.to_csv(os.path.join(data_path, path,  fileprefix+"test.csv"), index = False)
+    print("Done.")
+    print(" --------------------------------------------------------------------------------")
+    
+    return ktrain, ktest
         
 #-------------------------------------------------------------------------->>
 def splitframe(data, name='tid'):
@@ -205,7 +227,7 @@ def splitframe(data, name='tid'):
     return datalist
     
 #-------------------------------------------------------------------------->>
-def createZIP(data_path, df, file, class_col='label', tid_col='tid'):
+def createZIP(data_path, df, file, class_col='label', tid_col='tid', select_cols=None):
     EXT = '.r2'
     if not os.path.exists(data_path):
         os.makedirs(data_path)
@@ -215,7 +237,10 @@ def createZIP(data_path, df, file, class_col='label', tid_col='tid'):
     tids = df[tid_col].unique()
     for x in tids:
         filename = str(x).rjust(n, '0') + ' s' + str(x) + ' c' + str(df.loc[df[tid_col] == x][class_col].iloc[0]) + EXT
-        df[df.tid == x].to_csv(filename, index=False, header=False)
+        data = df[df.tid == x]
+        if select_cols is not None:
+            data = data[select_cols]
+        data.to_csv(filename, index=False, header=False)
         zipf.write(filename)
         os.remove(filename)
     
@@ -225,15 +250,21 @@ def createZIP(data_path, df, file, class_col='label', tid_col='tid'):
 #-------------------------------------------------------------------------->>
 def zip2csv(folder, file, cols, class_col = 'label'):
     data = pd.DataFrame()
+    print("Converting "+file+" data from... " + folder)
     with ZipFile(os.path.join(folder, file+'.zip')) as z:
         for filename in z.namelist():
 #             data = filename.readlines()
             df = pd.read_csv(z.open(filename), names=cols)
-            print(filename)
+#             print(filename)
             df['tid']   = filename.split(" ")[1][1:]
             df[class_col] = filename.split(" ")[2][1:-3]
             data = pd.concat([data,df])
+    print("Done.")
+    
+    print("Saving dataset as: " + os.path.join(folder, file+'.csv'))
     data.to_csv(os.path.join(folder, file+'.csv'), index = False)
+    print("Done.")
+    print(" --------------------------------------------------------------------------------")
     return data
 
 def convertToCSV(path): 
@@ -249,3 +280,34 @@ def convertToCSV(path):
             df.to_csv(os.path.join(folder, file), index=False, header=None)
         except:
             pass
+        
+def joinTrainAndTest(dir_path, cols, train_file="train.csv", test_file="test.csv", class_col = 'label'):
+    print("Joining train and test data from... " + dir_path)
+    
+    # Read datasets
+    if '.csv' in train_file:
+        print("Reading train file...")
+        dataset_train = pd.read_csv(os.path.join(dir_path, train_file))
+    else:
+        print("Converting train file...")
+        dataset_train = zip2csv(dir_path, train_file, cols, class_col)
+    print("Done.")
+        
+    if '.csv' in test_file:
+        print("Reading test file...")
+        dataset_test  = pd.read_csv(os.path.join(dir_path, test_file))
+    else:
+        print("Converting test file...")
+        dataset_test = zip2csv(dir_path, test_file, cols, class_col)
+    print("Done.")
+        
+    print("Saving joined dataset as: " + os.path.join(dir_path, 'joined.csv'))
+    dataset = pd.concat([dataset_train, dataset_test])
+
+    dataset.sort_values([class_col, 'tid'])
+    
+    dataset.to_csv(os.path.join(dir_path, 'joined.csv'), index=False)
+    print("Done.")
+    print(" --------------------------------------------------------------------------------")
+    
+    return dataset

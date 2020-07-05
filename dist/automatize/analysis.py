@@ -29,7 +29,11 @@ from .Methods import Approach1, Approach2, ApproachRF, ApproachRFHP , ApproachML
 
 def def_random_seed(random_num=1, seed_num=1):
     seed(seed_num)
-    tensorflow.compat.v1.set_random_seed(random_num)
+#     if tensorflow.compat:
+#         tensorflow.compat.v1.set_random_seed(random_num)
+#     else:
+#         tensorflow.set_random_seed(random_num)
+    tensorflow.random.set_seed(random_num)
     
 # --------------------------------------------------------------------------------------
 
@@ -64,13 +68,17 @@ def results2df(res_path, prefix, modelfolder='model'):
         method = os.path.basename(ijk)[:-4]
         cols.append(method)
         
-        rf_acc  = getACC_RF(res_path, prefix,  method, modelfolder) * 100
-        mlp_acc = getACC_MLP(res_path, prefix, method, modelfolder) * 100
-        svm_acc = getACC_SVM(res_path, prefix, method, modelfolder) * 100
+        path = os.path.dirname(ijk)
+#         print(path)
+#         path = os.path.join(path, modelfolder)
+                
+        mlp_acc = getACC_MLP(path, method, modelfolder) * 100
+        rf_acc  = getACC_RF(path, modelfolder) * 100
+        svm_acc = getACC_SVM(path, modelfolder) * 100
         
-        rf_t  = getACC_time(res_path, prefix, method, modelfolder, 'RF')
-        mlp_t = getACC_time(res_path, prefix, method, modelfolder, 'MLP')
-        svm_t = getACC_time(res_path, prefix, method, modelfolder, 'SVM')
+        mlp_t = getACC_time(path, 'MLP', modelfolder)
+        rf_t  = getACC_time(path, 'RF', modelfolder)
+        svm_t = getACC_time(path, 'SVM', modelfolder)
         
         rf_t  = '%d:%d:%d' % printHour(rf_t)  if rf_t  > 0 else "-"
         svm_t = '%d:%d:%d' % printHour(svm_t) if svm_t > 0 else "-"
@@ -90,23 +98,117 @@ def results2df(res_path, prefix, modelfolder='model'):
     cols.sort()
     cols = ['Dataset',' '] + cols
     return df[cols]
+# ----------------------------------------------------------------------------------
+def getACC_time(path, label, modelfolder='model'):
+    acc = 0.0
+    data = getACC_data(path, 'classification_times.csv', modelfolder)
+    if data is not None:
+        acc = data[label][0]
+    return acc
+
+def getACC_RF(path, modelfolder='model'):
+    acc = 0
+    data = getACC_data(path, 'model_approachRF300_history.csv', modelfolder)
+    if data is not None:
+        acc = data['1'].iloc[-1]
+    return acc
+
+def getACC_SVM(path, modelfolder='model'):
+    acc = 0
+    data = getACC_data(path, 'model_approachSVC_history.csv', modelfolder)
+    if data is not None:
+        acc = data.loc[0].iloc[-1]
+    return acc
+
+def getACC_MLP(path, method, modelfolder='model'):
+    acc = 0
+    
+    if "MARC" in method:
+        res_file = os.path.join(path, method + '_results.csv')
+        if os.path.isfile(res_file):
+            data = pd.read_csv(res_file)
+            acc = data['test_acc'].iloc[-1]
+    else:
+        data = getACC_data(path, 'model_approach2_history_Step5.csv', modelfolder)
+        if data is not None:
+            acc = data['val_accuracy'].iloc[-1]
+    return acc
+
+def getACC_data(path, approach_file, modelfolder='model'):
+    res_file = os.path.join(path, modelfolder, approach_file)
+    if os.path.isfile(res_file):
+        data = pd.read_csv(res_file)
+        return data
+    else:
+        return None
+
+def printHour(millis):
+    millis = int(millis)
+    seconds=(millis/1000)%60
+    seconds = int(seconds)
+    minutes=(millis/(1000*60))%60
+    minutes = int(minutes)
+    hours=(millis//(1000*60*60))
+
+#     print ("%dh%dm%ds" % (hours, minutes, seconds))
+    return (hours, minutes, seconds)
+
+# def printProcess(prefix, dir_path):
+#     file = os.path.join(prefix, dir_path)
+#     res_file = os.path.join(RES_PATH, file + '.txt')
+    
+#     data = read_csv(res_file)
+#     total_can = get_total_number_of_candidates_file_by_dataframe("Number of Candidates: ", data)
+#     total_mov = get_total_number_of_candidates_file_by_dataframe("Total of Movelets: ", data)
+#     trajs_looked = get_total_number_of_candidates_file_by_dataframe("Trajs. Looked: ", data)
+#     trajs_ignored = get_total_number_of_candidates_file_by_dataframe("Trajs. Ignored: ", data)
+#     time = get_total_number_of_ms("Processing time: ", data)
+    
+#     print('# <=====================================================>')
+#     print('# '+file)
+#     print("# Number of Candidates: " + str(total_can))
+#     print("# Total of Movelets:    " + str(total_mov))
+#     print("# Processing time:      " + str(time) + ' ms -- %d:%d:%d' % printHour(time))
+#     print('# --')
+    
+#     acc  = getACC_SVM(prefix, method) * 100
+#     if acc is not 0:
+#         print("# SVM ACC:    " + acc)
+    
+#     acc  = getACC_RF(prefix, method) * 100
+#     if acc is not 0:
+#         print("# Random Forest ACC:    " + acc)
+        
+#     acc  = getACC_MLP(prefix, method) * 100
+#     if acc is not 0:
+#         print("# Neural Network ACC:   " + acc)
+        
+    
+#     print('# --')
+#     print("# Total of Trajs. Looked: " + str(trajs_looked))
+#     print("# Total of Trajs. Ignored:   " + str(trajs_ignored))
+#     print("# Total of Trajs.:    " + str(trajs_looked+trajs_ignored))
+# --------------------------------------------------------------------------------->
+# --------------------------------------------------------------------------------->
 
 def ACC4All(res_path, prefix, save_results = True, modelfolder='model'):
     filelist = []
     filesList = []
 
     # 1: Build up list of files:
-    for files in glob.glob(os.path.join(res_path, prefix, "*")):
-        fileName, fileExtension = os.path.splitext(files)
-        filelist.append(fileName) #filename without extension
-        filesList.append(files) #filename with extension
+#     for files in glob.glob(os.path.join(res_path, prefix, "*.txt")):
+#         fileName, fileExtension = os.path.splitext(files)
+#         filelist.append(fileName) #filename without extension
+#         filesList.append(files) #filename with extension
     
-    for ijk in filesList:
-        method = ijk[len(res_path)+len(prefix)+2:]
-        todo = not os.path.exists( os.path.join(res_path, prefix, method, modelfolder) )
-        empty = not os.path.exists( os.path.join(res_path, prefix, method, "train.csv") )
+    for files in glob.glob(os.path.join(res_path, prefix, "**", "*.txt")):
+        fileName, fileExtension = os.path.splitext(files)
+        method = os.path.basename(fileName)#[:-4]
+        path = os.path.dirname(fileName)#[:-len(method)]
+        todo = not os.path.exists( os.path.join(path, 'model') )
+        empty = not os.path.exists( os.path.join(path, "train.csv") )
         if todo and not empty:
-            ALL3(res_path, prefix, method, save_results, modelfolder)
+            ALL3(path, '', '', save_results, modelfolder)
         else:
             print(method + (" Done." if not empty else " Empty."))
             
@@ -228,97 +330,6 @@ def Classifier_SVM(dir_path, save_results = True, modelfolder='model', X_train =
 #             print(method + (" Done." if not empty else " Empty."))
 
 # ----------------------------------------------------------------------------------
-# ----------------------------------------------------------------------------------
-def getACC_time(res_path, prefix, method, label, modelfolder='model'):
-    acc = 0.0
-    data = getACC_data(os.path.join(res_path, prefix, method, modelfolder), 'classification_times.csv')
-    if data is not None:
-        acc = data[label][0]
-    return acc
-
-def getACC_RF(res_path, prefix, method, modelfolder='model'):
-    acc = 0
-    data = getACC_data(os.path.join(res_path, prefix, method, modelfolder), 'model_approachRF300_history.csv')
-    if data is not None:
-        acc = data['1'].iloc[-1]
-    return acc
-
-def getACC_SVM(res_path, prefix, method, modelfolder='model'):
-    acc = 0
-    data = getACC_data(os.path.join(res_path, prefix, method, modelfolder), 'model_approachSVC_history.csv')
-    if data is not None:
-        acc = data.loc[0].iloc[-1]
-    return acc
-
-def getACC_MLP(res_path, prefix, method, modelfolder='model'):
-    acc = 0
-    
-    if "MARC" in method:
-        res_file = os.path.join(res_path, prefix, method + '_results.csv')
-        if os.path.isfile(res_file):
-            data = pd.read_csv(res_file)
-            acc = data['test_acc'].iloc[-1]
-    else:
-        data = getACC_data(os.path.join(res_path, prefix, method, modelfolder), 'model_approach2_history_Step5.csv')
-        if data is not None:
-            acc = data['val_accuracy'].iloc[-1]
-    return acc
-
-def getACC_data(path, approach_file):
-    res_file = os.path.join(path, approach_file)
-    if os.path.isfile(res_file):
-        data = pd.read_csv(res_file)
-        return data
-    else:
-        return None
-
-# --------------------------------------------------------------------------------->
-def printHour(millis):
-    millis = int(millis)
-    seconds=(millis/1000)%60
-    seconds = int(seconds)
-    minutes=(millis/(1000*60))%60
-    minutes = int(minutes)
-    hours=(millis//(1000*60*60))
-
-#     print ("%dh%dm%ds" % (hours, minutes, seconds))
-    return (hours, minutes, seconds)
-
-# def printProcess(prefix, dir_path):
-#     file = os.path.join(prefix, dir_path)
-#     res_file = os.path.join(RES_PATH, file + '.txt')
-    
-#     data = read_csv(res_file)
-#     total_can = get_total_number_of_candidates_file_by_dataframe("Number of Candidates: ", data)
-#     total_mov = get_total_number_of_candidates_file_by_dataframe("Total of Movelets: ", data)
-#     trajs_looked = get_total_number_of_candidates_file_by_dataframe("Trajs. Looked: ", data)
-#     trajs_ignored = get_total_number_of_candidates_file_by_dataframe("Trajs. Ignored: ", data)
-#     time = get_total_number_of_ms("Processing time: ", data)
-    
-#     print('# <=====================================================>')
-#     print('# '+file)
-#     print("# Number of Candidates: " + str(total_can))
-#     print("# Total of Movelets:    " + str(total_mov))
-#     print("# Processing time:      " + str(time) + ' ms -- %d:%d:%d' % printHour(time))
-#     print('# --')
-    
-#     acc  = getACC_SVM(prefix, method) * 100
-#     if acc is not 0:
-#         print("# SVM ACC:    " + acc)
-    
-#     acc  = getACC_RF(prefix, method) * 100
-#     if acc is not 0:
-#         print("# Random Forest ACC:    " + acc)
-        
-#     acc  = getACC_MLP(prefix, method) * 100
-#     if acc is not 0:
-#         print("# Neural Network ACC:   " + acc)
-        
-    
-#     print('# --')
-#     print("# Total of Trajs. Looked: " + str(trajs_looked))
-#     print("# Total of Trajs. Ignored:   " + str(trajs_ignored))
-#     print("# Total of Trajs.:    " + str(trajs_looked+trajs_ignored))
 
 # --------------------------------------------------------------------------------->   
 def read_csv(file_name):
