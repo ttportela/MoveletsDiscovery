@@ -29,11 +29,16 @@ from .Methods import Approach1, Approach2, ApproachRF, ApproachRFHP , ApproachML
 
 def def_random_seed(random_num=1, seed_num=1):
     seed(seed_num)
+<<<<<<< HEAD
 #     if tensorflow.compat:
 #         tensorflow.compat.v1.set_random_seed(random_num)
 #     else:
 #         tensorflow.set_random_seed(random_num)
     tensorflow.random.set_seed(random_num)
+=======
+#     tensorflow.compat.v1.set_random_seed(random_num)
+    tensorflow.set_random_seed(random_num)
+>>>>>>> branch 'master' of https://github.com/ttportela/HIPERMovelets
     
 # --------------------------------------------------------------------------------------
 
