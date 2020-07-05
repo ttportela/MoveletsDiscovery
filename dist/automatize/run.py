@@ -12,13 +12,13 @@ from datetime import datetime
 from IPython.utils import io
 # --------------------------------------------------------------------------------
 
-def k_run(k, data_folder, res_path, prefix, folder, descriptor, ms = False, Ms = False, AL = False, PVT=False, extra=False, 
-        java_opts='', jar_name='MASTERMov3lets', n_threads=1, prg_path='./', print_only=False, keep_folder=True):
+def k_run(k, data_folder, res_path, prefix, folder, descriptor, version = 'hiper', ms = False, Ms = False, extra=False, 
+        java_opts='', jar_name='HIPERMovelets', n_threads=1, prg_path='./', print_only=False, keep_folder=True):
     
     for x in range(k):
         subpath_data = os.path.join(data_folder, 'run'+str(x+1))
         subpath_rslt = os.path.join(res_path,    'run'+str(x+1))
-        run(subpath_data, subpath_rslt, prefix, folder, descriptor, ms, Ms, AL, PVT, extra, 
+        run(subpath_data, subpath_rslt, prefix, folder, descriptor, version, ms, Ms, extra, 
         java_opts, jar_name, n_threads, prg_path, print_only, keep_folder)
 
 # def runkFold(k, data_folder, res_path, prefix, folder, descriptor, ms = False, Ms = False, AL = False, PVT=False, extra=False, 
@@ -28,8 +28,8 @@ def k_run(k, data_folder, res_path, prefix, folder, descriptor, ms = False, Ms =
 #         run(data_folder, subpath, prefix, str(k)+'_'+str(x+1)+'_fold-'+folder, ms, Ms, AL, PVT, extra, java_opts, jar_name, n_threads, prg_path, print_only)
 
 # --------------------------------------------------------------------------------
-def run(data_folder, res_path, prefix, folder, descriptor, ms = False, Ms = False, AL = False, PVT=False, extra=False, 
-        java_opts='', jar_name='MASTERMov3lets', n_threads=1, prg_path='./', print_only=False, keep_folder=True):
+def run(data_folder, res_path, prefix, folder, descriptor, version = 'hiper', ms = False, Ms = False, extra=False, 
+        java_opts='', jar_name='HIPERMovelets', n_threads=1, prg_path='./', print_only=False, keep_folder=True):
     print('# --------------------------------------------------------------------------------------')
     print('# ' + prefix + ' - ' +folder)
     print('# --------------------------------------------------------------------------------------')
@@ -46,22 +46,25 @@ def run(data_folder, res_path, prefix, folder, descriptor, ms = False, Ms = Fals
     if os.path.sep not in descriptor:
         descriptor = os.path.join(data_folder, descriptor)
         
-    if jar_name != 'Movelets':
-        CMD = CMD + ' -ed true -samples 1 -sampleSize 0.5 -medium "none" -output "discrete" -lowm "false" -ms 1'
+#     if jar_name != 'Movelets':
+#         CMD = CMD + ' -ed true -samples 1 -sampleSize 0.5 -medium "none" -output "discrete" -lowm "false" -ms 1'
 
-    CMD = 'java '+java_opts+' -jar '+program+' -curpath "'+data_folder+'" -respath "'+res_folder+'" -descfile "'+ descriptor + '.json" ' + CMD
+    CMD = 'java '+java_opts+' -jar "'+program+'" -curpath "'+data_folder+'" -respath "'+res_folder+'" -descfile "'+ descriptor + '.json" ' + CMD
     
     if ms != False:
         CMD = CMD + ' -ms '+str(ms)
+#     else
+#         CMD = CMD + ' -ms -1'
+        
     if Ms != False:
         CMD = CMD + ' -Ms '+str(Ms)
-    if AL == True:
-        CMD = CMD + ' -Al true'
+#     if AL == True:
+#         CMD = CMD + ' -Al true'
     if extra != False:
         CMD = CMD + ' ' + extra
         
-    if PVT:
-        CMD = CMD + ' -pvt true -lp false -pp 10 -op false'
+#     if PVT:
+#         CMD = CMD + ' -pvt true -lp false -pp 10 -op false'
         
     if os.name == 'nt':
         CMD = CMD +  ' > "'+outfile +  '" && type "'+outfile+'"'
@@ -73,17 +76,17 @@ def run(data_folder, res_path, prefix, folder, descriptor, ms = False, Ms = Fals
     
     dir_path = "MASTERMovelets"
     
-    if jar_name in ['Hiper-MASTERMovelets', 'Hiper2-MASTERMovelets']:
-        dir_path = dir_path + "GAS"
+#     if jar_name in ['Hiper-MASTERMovelets', 'Hiper2-MASTERMovelets']:
+#         dir_path = dir_path + "GAS"
         
-    elif jar_name in ['Super-MASTERMovelets', 'Super2-MASTERMovelets']:
+    if jar_name in ['Super-MASTERMovelets', 'SUPERMovelets']:
         dir_path = dir_path + "Supervised"
         
     if jar_name == 'MASTERMovelets' and Ms == -3:
         dir_path = dir_path + "_LOG"
         
-    if jar_name == 'MASTERMovelets' and PVT:
-        dir_path = dir_path + "Pivots"
+#     if jar_name == 'MASTERMovelets' and PVT:
+#         dir_path = dir_path + "Pivots"
         
     mergeAndMove(res_folder, dir_path, prg_path, print_only)
     
@@ -179,7 +182,7 @@ def mergeClasses(res_folder, prg_path='./', print_only=False):
     if dir_from is None:
         return False
     
-    prg = os.path.join(prg_path, 'MergeDatasets.R')
+    prg = os.path.join(prg_path, 'automatize', 'MergeDatasets.R')
     print("# Merging here: " + str(dir_from) + " (" + res_folder + ")")
     execute('Rscript "'+prg+'" "'+dir_from+'"', print_only)
 #     ! Rscript MergeDatasets.R "$dir_from"
@@ -220,6 +223,17 @@ def countMovelets(dir_path):
 
 # --------------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------------
+def k_MARC(k, data_folder, res_path, prefix, folder, train="train.csv", test="test.csv",
+            EMBEDDING_SIZE=100, MERGE_TYPE="concatenate", RNN_CELL="lstm",
+            prg_path='./', print_only=False):
+    
+    for x in range(k):
+        subpath_data = os.path.join(data_folder, 'run'+str(x+1))
+        subpath_rslt = os.path.join(res_path,    'run'+str(x+1))
+        MARC(subpath_data, subpath_rslt, prefix, folder, train, test,
+            EMBEDDING_SIZE, MERGE_TYPE, RNN_CELL,
+            prg_path, print_only)
+    
 def MARC(data_folder, res_path, prefix, folder, train="train.csv", test="test.csv",
             EMBEDDING_SIZE=100, MERGE_TYPE="concatenate", RNN_CELL="lstm",
             prg_path='./', print_only=False):
@@ -229,16 +243,19 @@ def MARC(data_folder, res_path, prefix, folder, train="train.csv", test="test.cs
     print("# ---------------------------------------------------------------------------------")
     print()
     
+    res_folder = os.path.join(res_path, prefix, folder)
+    mkdir(res_folder, print_only)
+    
     TRAIN_FILE   = os.path.join(data_folder, train)
     TEST_FILE    = os.path.join(data_folder, test)
     DATASET_NAME = folder
-    RESULTS_FILE = os.path.join(res_path, prefix, folder + "_results.csv")
-    OUTPUT_FILE = os.path.join(res_path,  prefix, folder+'.txt')
-        
-    mkdir(os.path.join(res_path, prefix), print_only)
+    RESULTS_FILE = os.path.join(res_folder, folder + "_results.csv")
+    OUTPUT_FILE  = '"' + os.path.join(res_folder, folder+'.txt') + '"'
+    
+#     mkdir(os.path.join(res_path, prefix), print_only)
         
     PROGRAM = os.path.join(prg_path, 'multi_feature_classifier.py')
-    CMD = ''+PROGRAM+' "' + TRAIN_FILE + '" "' + TEST_FILE + '" "' + RESULTS_FILE + '" "' + DATASET_NAME + '" ' + str(EMBEDDING_SIZE) + ' ' + MERGE_TYPE + ' ' + RNN_CELL
+    CMD = 'python3 "'+PROGRAM+'" "' + TRAIN_FILE + '" "' + TEST_FILE + '" "' + RESULTS_FILE + '" "' + DATASET_NAME + '" ' + str(EMBEDDING_SIZE) + ' ' + MERGE_TYPE + ' ' + RNN_CELL
     
     if os.name == 'nt':
         tee = ' >> '+OUTPUT_FILE +  ' && type '+OUTPUT_FILE

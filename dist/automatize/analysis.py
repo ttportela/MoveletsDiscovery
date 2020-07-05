@@ -29,7 +29,8 @@ from .Methods import Approach1, Approach2, ApproachRF, ApproachRFHP , ApproachML
 
 def def_random_seed(random_num=1, seed_num=1):
     seed(seed_num)
-    tensorflow.compat.v1.set_random_seed(random_num)
+#     tensorflow.compat.v1.set_random_seed(random_num)
+    tensorflow.set_random_seed(random_num)
     
 # --------------------------------------------------------------------------------------
 
@@ -96,17 +97,19 @@ def ACC4All(res_path, prefix, save_results = True, modelfolder='model'):
     filesList = []
 
     # 1: Build up list of files:
-    for files in glob.glob(os.path.join(res_path, prefix, "*")):
-        fileName, fileExtension = os.path.splitext(files)
-        filelist.append(fileName) #filename without extension
-        filesList.append(files) #filename with extension
+#     for files in glob.glob(os.path.join(res_path, prefix, "*.txt")):
+#         fileName, fileExtension = os.path.splitext(files)
+#         filelist.append(fileName) #filename without extension
+#         filesList.append(files) #filename with extension
     
-    for ijk in filesList:
-        method = ijk[len(res_path)+len(prefix)+2:]
-        todo = not os.path.exists( os.path.join(res_path, prefix, method, modelfolder) )
-        empty = not os.path.exists( os.path.join(res_path, prefix, method, "train.csv") )
+    for files in glob.glob(os.path.join(res_path, prefix, "**", "*.txt")):
+        fileName, fileExtension = os.path.splitext(files)
+        method = os.path.basename(fileName)#[:-4]
+        path = os.path.dirname(fileName)#[:-len(method)]
+        todo = not os.path.exists( os.path.join(path, 'model') )
+        empty = not os.path.exists( os.path.join(path, "train.csv") )
         if todo and not empty:
-            ALL3(res_path, prefix, method, save_results, modelfolder)
+            ALL3(path, '', '', save_results, modelfolder)
         else:
             print(method + (" Done." if not empty else " Empty."))
             
