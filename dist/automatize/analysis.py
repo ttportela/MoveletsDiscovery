@@ -49,7 +49,7 @@ def results2df(res_path, prefix, modelfolder='model'):
         filesList.append(files) #filename with extension
     
     # 2: Create and concatenate in a DF:
-    ct = 1
+#     ct = 1
     df = pd.DataFrame()
 
     cols = []
@@ -59,49 +59,137 @@ def results2df(res_path, prefix, modelfolder='model'):
     df['Dataset'][0] = prefix
 #     df = df[['Dataset',' ']]
     for ijk in filesList:
-        
         method = os.path.basename(ijk)[:-4]
         cols.append(method)
         
         path = os.path.dirname(ijk)
-#         print(path)
-#         path = os.path.join(path, modelfolder)
-
-        print("Loading " + method + " results from: " + path)
-        data = read_csv(ijk)
-        total_can = get_total_number_of_candidates_file_by_dataframe("Number of Candidates: ", data)
-        total_mov = get_total_number_of_candidates_file_by_dataframe("Total of Movelets: ", data)
-        trajs_looked = get_total_number_of_candidates_file_by_dataframe("Trajs. Looked: ", data)
-        trajs_ignored = get_total_number_of_candidates_file_by_dataframe("Trajs. Ignored: ", data)
-        time = get_total_number_of_ms("Processing time: ", data)
-                
-        mlp_acc = getACC_MLP(path, method, modelfolder) * 100
-        rf_acc  = getACC_RF(path, modelfolder) * 100
-        svm_acc = getACC_SVM(path, modelfolder) * 100
-        
-        mlp_t = getACC_time(path, 'MLP', modelfolder)
-        rf_t  = getACC_time(path, 'RF', modelfolder)
-        svm_t = getACC_time(path, 'SVM', modelfolder)
-        
-        rf_t  = '%d:%d:%d' % printHour(rf_t)  if rf_t  > 0 else "-"
-        svm_t = '%d:%d:%d' % printHour(svm_t) if svm_t > 0 else "-"
-        mlp_t = '%d:%d:%d' % printHour(mlp_t) if mlp_t > 0 else "-"
-        
-        rf  = "{:.3f}".format(rf_acc)  if rf_acc  > 0 else "-"
-        svm = "{:.3f}".format(svm_acc) if svm_acc > 0 else "-"
-        mlp = "{:.3f}".format(mlp_acc) if mlp_acc > 0 else "-"
-        
-        trajs_looked  = '{:,}'.format(trajs_looked)  if trajs_looked  > 0 else "-"
-        trajs_ignored = '{:,}'.format(trajs_ignored) if trajs_ignored > 0 else "-"
-        
-        df[method] = ('{:,}'.format(total_can), '{:,}'.format(total_mov), mlp, rf, svm, 
-                      '%d:%d:%d' % printHour(time), mlp_t, rf_t, svm_t, 
-                      trajs_looked, trajs_ignored)
+        df[method] = addResults(df, ijk, path, method, modelfolder)
       
     print("Done.")
     cols.sort()
     cols = ['Dataset',' '] + cols
     return df[cols]
+
+def kFoldResults(res_path, prefix, method, modelfolder='model'):
+    filelist = []
+    filesList = []
+
+    # 1: Build up list of files:
+    print("Looking for result files in " + os.path.join(res_path, 'run*', prefix, method, method+'.txt' ))
+    for files in glob.glob(os.path.join(res_path, 'run*', prefix, method, method+'.txt' )):
+        fileName, fileExtension = os.path.splitext(files)
+        filelist.append(fileName) #filename without extension
+        filesList.append(files) #filename with extension
+    
+    # 2: Create and concatenate in a DF:
+#     ct = 1
+    df = pd.DataFrame()
+
+    cols = []
+
+    df[' '] = ['Candidates', 'Movelets', 'MLP', 'RF', 'SVM' , 'Time', 'T. MLP', 'T. RF', 'T. SVM', 'Trajs. Looked', 'Trajs. Ignored']
+    df['Dataset'] = ""
+    df['Dataset'][0] = prefix
+#     df = df[['Dataset',' ']]
+    for ijk in filesList:
+        path = os.path.dirname(ijk)
+        run = os.path.basename(os.path.abspath(os.path.join(path ,"../..")))
+        
+        cols.append(run)
+        df[run] = addResults(df, ijk, path, method, False, modelfolder)
+        
+    
+    df[method] = df[cols].mean(axis=1)
+    
+    for column in cols:
+        df[column] = format_col(df, column)
+    
+    df[method] = format_col(df, method)
+        
+    cols = ['Dataset',' '] + cols + [method]
+    return df[cols]
+
+def addResults(df, resfile, path, method, isformat=True, modelfolder='model'):
+    print("Loading " + method + " results from: " + path)
+    data = read_csv(resfile)
+    total_can = get_total_number_of_candidates_file_by_dataframe("Number of Candidates: ", data)
+    total_mov = get_total_number_of_candidates_file_by_dataframe("Total of Movelets: ", data)
+    trajs_looked = get_total_number_of_candidates_file_by_dataframe("Trajs. Looked: ", data)
+    trajs_ignored = get_total_number_of_candidates_file_by_dataframe("Trajs. Ignored: ", data)
+    time = get_total_number_of_ms("Processing time: ", data)
+
+    mlp_acc = getACC_MLP(path, method, modelfolder) * 100
+    rf_acc  = getACC_RF(path, modelfolder) * 100
+    svm_acc = getACC_SVM(path, modelfolder) * 100
+
+    mlp_t = getACC_time(path, 'MLP', modelfolder)
+    rf_t  = getACC_time(path, 'RF', modelfolder)
+    svm_t = getACC_time(path, 'SVM', modelfolder)
+
+    if isformat:
+        total_can = '{:,}'.format(total_can) if total_can > 0 else "-"
+        total_mov = '{:,}'.format(total_mov) if total_mov > 0 else "-"
+        
+        mlp_acc = "{:.3f}".format(mlp_acc) if mlp_acc > 0 else "-"
+        rf_acc  = "{:.3f}".format(rf_acc)  if rf_acc  > 0 else "-"
+        svm_acc = "{:.3f}".format(svm_acc) if svm_acc > 0 else "-"
+        
+        time  = '%d:%d:%d' % printHour(time)  if time  > 0 else "-"
+        mlp_t = '%d:%d:%d' % printHour(mlp_t) if mlp_t > 0 else "-"
+        rf_t  = '%d:%d:%d' % printHour(rf_t)  if rf_t  > 0 else "-"
+        svm_t = '%d:%d:%d' % printHour(svm_t) if svm_t > 0 else "-"
+
+        trajs_looked  = '{:,}'.format(trajs_looked)  if trajs_looked  > 0 else "-"
+        trajs_ignored = '{:,}'.format(trajs_ignored) if trajs_ignored > 0 else "-"
+        
+        
+    return (total_can, total_mov, mlp_acc, rf_acc, svm_acc, 
+                  time, mlp_t, rf_t, svm_t, 
+                  trajs_looked, trajs_ignored)
+
+def format_col(df, method):
+    return (format_cel(df, method, 0, '{val:,}'),
+            format_cel(df, method, 1, '{val:,}'), 
+            format_celf(df, method, 2, '{val:.3f}'),
+            format_celf(df, method, 3, '{val:.3f}'),
+            format_celf(df, method, 4, '{val:.3f}'),
+            format_celh(df, method, 5, '%dh%02dm%02ds'),
+            format_celh(df, method, 6, '%dh%02dm%02ds'),
+            format_celh(df, method, 7, '%dh%02dm%02ds'),
+            format_celh(df, method, 8, '%dh%02dm%02ds'),
+            format_cel(df, method, 9, '{val:,}'),
+            format_cel(df, method, 10, '{val:,}') )
+    
+def format_cel(df, method, row, pattern):
+    if df.at[row,method] > 0:
+        value = int(df.at[row,method])
+        value = pattern.format(val=value) #pattern.format(df.at[row,method]) 
+        return value
+    else: 
+        return "-"
+    
+def format_celf(df, method, row, pattern):
+    if df.at[row,method] > 0:
+        value = float(df.at[row,method])
+        value = pattern.format(val=value) #pattern.format(df.at[row,method]) 
+        return value
+    else: 
+        return "-"
+    
+def format_celh(df, method, row, pattern):
+    if df.at[row,method] > 0:
+        hours, minutes, seconds = printHour(df.at[row,method]) 
+        value = ''
+        if hours > 0:
+            value = value + ('%dh' % hours)
+        if minutes > 0:
+            value = value + ('%02dm' % minutes)
+        if seconds > 0:
+            value = value + ('%02ds' % seconds)
+#         value = pattern % printHour(df.at[row,method]) 
+        return value
+    else: 
+        return "-"
 # ----------------------------------------------------------------------------------
 def getACC_time(path, label, modelfolder='model'):
     acc = 0.0
@@ -444,23 +532,24 @@ def printLatex(df, ajust=12):
     print('\\hline')
     print('\\hline')
     print((' & '.join(df.columns)) + ' \\\\')
-    print('\\hline')
-    print('\\multirow{'+str(n_rows)+'}{2cm}{'+df['Dataset'][0]+'}')
     
-    print(printLatex_line(df, 0, ajust))
-    print(printLatex_line(df, 1, ajust))
-    print('\\cline{2-'+str(n_cols+2)+'}')
-    print(printLatex_line(df, 2, ajust))
-    print(printLatex_line(df, 3, ajust))
-    print(printLatex_line(df, 4, ajust))
-    print('\\cline{2-'+str(n_cols+2)+'}')
-    print(printLatex_line(df, 5, ajust))
-    print(printLatex_line(df, 6, ajust))
-    print(printLatex_line(df, 7, ajust))
-    print(printLatex_line(df, 8, ajust))
-    print('\\cline{2-'+str(n_cols+2)+'}')
-    print(printLatex_line(df, 9, ajust))
-    print(printLatex_line(df, 10,ajust))
+    for k in range(0, int(n_rows), 11):
+        print('\n\\hline')
+        print('\\multirow{'+str(11)+'}{2cm}{'+df.at[k,'Dataset']+'}')
+        print(printLatex_line(df, k+0, ajust))
+        print(printLatex_line(df, k+1, ajust))
+        print('\\cline{2-'+str(n_cols+2)+'}')
+        print(printLatex_line(df, k+2, ajust))
+        print(printLatex_line(df, k+3, ajust))
+        print(printLatex_line(df, k+4, ajust))
+        print('\\cline{2-'+str(n_cols+2)+'}')
+        print(printLatex_line(df, k+5, ajust))
+        print(printLatex_line(df, k+6, ajust))
+        print(printLatex_line(df, k+7, ajust))
+        print(printLatex_line(df, k+8, ajust))
+        print('\\cline{2-'+str(n_cols+2)+'}')
+        print(printLatex_line(df, k+9, ajust))
+        print(printLatex_line(df, k+10,ajust))
     
     print('\\hline')
     print('\\hline')
@@ -470,7 +559,7 @@ def printLatex(df, ajust=12):
     print('\\end{table*}')
     
 def printLatex_line(df, l, ajust=12):
-    line = str(df.at[l,df.columns[1]]).rjust(15, ' ') + ' '
+    line = '&'+ str(df.at[l,df.columns[1]]).rjust(15, ' ') + ' '
     for i in range(2, len(df.columns)):
         line = line + '& '+ str(df.at[l,df.columns[i]]).rjust(ajust, ' ') + ' '
     line = line + '\\\\'
