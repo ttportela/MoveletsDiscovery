@@ -27,12 +27,12 @@ import tensorflow # import set_random_seed
 from .Methods import Approach1, Approach2, ApproachRF, ApproachRFHP , ApproachMLP, ApproachDT, ApproachSVC
 # --------------------------------------------------------------------------------
 
+def def_random_seed_compat(random_num=1, seed_num=1):
+    seed(seed_num)
+    tensorflow.compat.v1.set_random_seed(random_num)
+    
 def def_random_seed(random_num=1, seed_num=1):
     seed(seed_num)
-#     if tensorflow.compat:
-#         tensorflow.compat.v1.set_random_seed(random_num)
-#     else:
-#         tensorflow.set_random_seed(random_num)
     tensorflow.random.set_seed(random_num)
     
 # --------------------------------------------------------------------------------------
@@ -42,6 +42,7 @@ def results2df(res_path, prefix, modelfolder='model'):
     filesList = []
 
     # 1: Build up list of files:
+    print("Looking for result files in " + os.path.join(res_path, prefix, '*', '*.txt' ))
     for files in glob.glob(os.path.join(res_path, prefix, '*', '*.txt' )):
         fileName, fileExtension = os.path.splitext(files)
         filelist.append(fileName) #filename without extension
@@ -58,12 +59,6 @@ def results2df(res_path, prefix, modelfolder='model'):
     df['Dataset'][0] = prefix
 #     df = df[['Dataset',' ']]
     for ijk in filesList:
-        data = read_csv(ijk)
-        total_can = get_total_number_of_candidates_file_by_dataframe("Number of Candidates: ", data)
-        total_mov = get_total_number_of_candidates_file_by_dataframe("Total of Movelets: ", data)
-        trajs_looked = get_total_number_of_candidates_file_by_dataframe("Trajs. Looked: ", data)
-        trajs_ignored = get_total_number_of_candidates_file_by_dataframe("Trajs. Ignored: ", data)
-        time = get_total_number_of_ms("Processing time: ", data)
         
         method = os.path.basename(ijk)[:-4]
         cols.append(method)
@@ -71,6 +66,14 @@ def results2df(res_path, prefix, modelfolder='model'):
         path = os.path.dirname(ijk)
 #         print(path)
 #         path = os.path.join(path, modelfolder)
+
+        print("Loading " + method + " results from: " + path)
+        data = read_csv(ijk)
+        total_can = get_total_number_of_candidates_file_by_dataframe("Number of Candidates: ", data)
+        total_mov = get_total_number_of_candidates_file_by_dataframe("Total of Movelets: ", data)
+        trajs_looked = get_total_number_of_candidates_file_by_dataframe("Trajs. Looked: ", data)
+        trajs_ignored = get_total_number_of_candidates_file_by_dataframe("Trajs. Ignored: ", data)
+        time = get_total_number_of_ms("Processing time: ", data)
                 
         mlp_acc = getACC_MLP(path, method, modelfolder) * 100
         rf_acc  = getACC_RF(path, modelfolder) * 100
@@ -95,6 +98,7 @@ def results2df(res_path, prefix, modelfolder='model'):
                       '%d:%d:%d' % printHour(time), mlp_t, rf_t, svm_t, 
                       trajs_looked, trajs_ignored)
       
+    print("Done.")
     cols.sort()
     cols = ['Dataset',' '] + cols
     return df[cols]
