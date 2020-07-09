@@ -1,8 +1,8 @@
 {
    "input": {
-          "train": ["geo_only_train"],
-          "test": ["geo_only_test"],
-          "format": "CSV",
+          "train": ["train"],
+          "test": ["test"],
+          "format": "CZIP",
           "loader": "interning"
    },
    "idFeature": {
