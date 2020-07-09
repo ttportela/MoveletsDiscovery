@@ -1,0 +1,37 @@
+Tue Jul 07 13:28:13 BRT 2020
+Starting MASTERMovelets +Log extractor 
+Configurations:
+   -curpath		Datasets directory:	/home/tarlis/Research/tarlis/data/5fold/foursquare_nyc/run1
+   -respath		Results directory: 	/home/tarlis/Research/tarlis/results/3 - Testes Hiper 5fold_3T_60G/run1/Foursquare NYC/HL-specific/MASTERMovelets/Hiper_Log_FoursquareNYC_specific_hp_LSP_ED
+   -descfile 		Description file : 	/home/tarlis/Research/tarlis/data/5fold/descriptors/FoursquareNYC_specific_hp.json
++-------------+--------------------------+---------+-----------------------------------------+
+| Option      | Description              | Value   | Help                                    |
++-------------+--------------------------+---------+-----------------------------------------+
+| -nt         | Allowed Threads          | 3       |                                         |
+| -ms         | Min size                 | 1       |                                         |
+| -Ms         | Max size                 | -3      | Any positive, All sizes: -1, Log: -3    |
+| -mnf        | Max Number of Dimensions | -1      | Any positive, Explore dim.: -1, Log: -3 |
+| -samples    | Samples                  | 1       |                                         |
+| -sampleSize | Sample Size              | 0.5     |                                         |
+| -q          | Quality Measure          | LSP     |                                         |
+| -medium     | Medium                   | none    |                                         |
+| -mpt        | Movelets Per Traj.       | -1      | Any positive, Auto: -1                  |
+| -output     | Output                   | numeric |                                         |
+|             |                          |         |                                         |
+| -version    | Version Impl.            | hiper   | 1.0, 2.0, super, hiper, hiper-pvt       |
+|             | -- Last Prunning         | false   |                                         |
++-------------+--------------------------+---------+-----------------------------------------+
+| Attributes: |                          | Type:   | Comparrator:                            |
+| 1           | 1 - lat_lon              | space2d | euclidean/-1.0                          |
+| 2           | 2 - day                  | nominal | equals/-1.0                             |
+| 3           | 3 - hour                 | numeric | difference/-1.0                         |
+| 4           | 4 - poi                  | nominal | equals/-1.0                             |
+| 5           | 5 - category             | nominal | equals/-1.0                             |
+| 6           | 6 - price                | numeric | difference/-1.0                         |
+| 7           | 7 - rating               | numeric | difference/-1.0                         |
+| 8           | 8 - weather              | nominal | equals/-1.0                             |
++-------------+--------------------------+---------+-----------------------------------------+
+
+[1] >> Load Input: 467 milliseconds
+Memory Usage (MiB), Memory Total: 136.0. Memory Free: 112.49064636230469. Memory Used: 23.509353637695312.
+[2] >> Movelet Discovery: / [                                                  ]   0% >> Hiper Movelets Discovery for Class: 6.                                                                                                                                                                                                                 [2] >> Movelet Discovery: / [                                                  ]   0% >> Hiper Movelets Discovery for Class: 12.                                                                                                                                                                                                                [2] >> Movelet Discovery: / [                                                  ]   0% >> Hiper Movelets Discovery for Class: 7.                                                                                                                                                                                                                 
