@@ -110,7 +110,7 @@ public class HiperPivotsMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO>
 		/** STEP 2.2: SELECTING BEST CANDIDATES */	
 		orderCandidates(candidatesByProp);
 		List<Subtrajectory> bestCandidates = filterEqualCandidates(candidatesByProp);
-		bestCandidates = filterByQuality(candidatesByProp, random, trajectory);
+		bestCandidates = filterByQuality(bestCandidates, random, trajectory);
 		
 		/* STEP 2.1.5: Recover Approach (IF Nothing found)
 		 * * * * * * * * * * * * * * * * * * * * * * * * */

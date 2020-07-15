@@ -248,16 +248,18 @@ ProportionQualityMeasure<MO> proportionMeasure;
 	 */
 	public List<Subtrajectory> recoverCandidates(MAT<MO> trajectory, Random random,
 			List<Subtrajectory> candidatesByProp) {
-//		int n = (int) Math.ceil((double) (candidatesByProp.size()+bucket.size()) * 0.1); // By 10%
+		int n = (int) Math.ceil((double) (candidatesByProp.size()+bucket.size()) * 0.1); // By 10%
+		
 		orderCandidates(bucket);
 		List<Subtrajectory> bestCandidates = filterEqualCandidates(bucket);
-		bestCandidates = filterByQuality(bestCandidates, random, trajectory);
 		
-//		for (int i = n; i < n*10; i += n) {
-//			bestCandidates = filterByQuality(bucket.subList(i-n, (i > bucket.size()? bucket.size() : i)), random, trajectory);
-//			
-//			if (i > bucket.size() || !bestCandidates.isEmpty()) break;
-//		}
+//		bestCandidates = filterByQuality(bestCandidates, random, trajectory);
+		
+		for (int i = n; i < n*10; i += n) {
+			bestCandidates = filterByQuality(bucket.subList(i-n, (i > bucket.size()? bucket.size() : i)), random, trajectory);
+			
+			if (i > bucket.size() || !bestCandidates.isEmpty()) break;
+		}
 		return bestCandidates;
 	}
 

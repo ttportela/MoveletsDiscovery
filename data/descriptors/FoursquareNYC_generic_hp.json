@@ -1,8 +1,8 @@
 {
    "input": {
-          "train": ["generic_train"],
-          "test": ["generic_test"],
-          "format": "CSV",
+          "train": ["train"],
+          "test": ["test"],
+          "format": "CZIP",
           "loader": "interning"
    },
    "idFeature": {
