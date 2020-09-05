@@ -120,6 +120,7 @@ public abstract class DistanceMeasure<A extends Aspect<?>> {
 	 * @return the double
 	 */
 	public double calculateDistance(Aspect<?> asp0, Aspect<?> asp1, AttributeDescriptor attr) {
+		// TODO: if (asp0.getValue() == null)
 		return enhance(distance((A) asp0, (A) asp1, attr));
 	}
 	

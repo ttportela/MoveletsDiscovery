@@ -42,6 +42,7 @@ import br.com.tarlis.mov3lets.method.discovery.MoveletsDiscovery;
 import br.com.tarlis.mov3lets.method.discovery.PivotsMoveletsDiscovery;
 import br.com.tarlis.mov3lets.method.discovery.PrecomputeMoveletsDiscovery;
 import br.com.tarlis.mov3lets.method.discovery.SuperMoveletsDiscovery;
+import br.com.tarlis.mov3lets.method.discovery.UltraMoveletsDiscovery;
 import br.com.tarlis.mov3lets.method.loader.CSVInternLoader;
 import br.com.tarlis.mov3lets.method.loader.CSVLoader;
 import br.com.tarlis.mov3lets.method.loader.LoaderAdapter;
@@ -217,6 +218,10 @@ public class Mov3lets<MO> {
 				} else if (getDescriptor().getParamAsText("version").equals("hiper-en")) {
 					
 					moveletsDiscovery = new HiperENMoveletsDiscovery<MO>(trajsFromClass, data, train, test, qualityMeasure, getDescriptor());
+				
+				} else if (getDescriptor().getParamAsText("version").equals("ultra")) {
+					
+					moveletsDiscovery = new UltraMoveletsDiscovery<MO>(trajsFromClass, data, train, test, qualityMeasure, getDescriptor());
 				
 				} else if (getDescriptor().getFlag("pivots") || getDescriptor().getParamAsText("version").equals("pivots")) {
 					

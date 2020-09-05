@@ -110,7 +110,7 @@ public class HiperPivotsMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO>
 		/** STEP 2.2: SELECTING BEST CANDIDATES */	
 		orderCandidates(candidatesByProp);
 		List<Subtrajectory> bestCandidates = filterEqualCandidates(candidatesByProp);
-		bestCandidates = filterByQuality(bestCandidates, random, trajectory);
+		bestCandidates = filterByQuality(bestCandidates, random, trajectory);	
 		
 		/* STEP 2.1.5: Recover Approach (IF Nothing found)
 		 * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -118,9 +118,7 @@ public class HiperPivotsMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO>
 			bestCandidates = recoverCandidates(trajectory, random, candidatesByProp);
 		}
 		
-//		List<Subtrajectory> bestCandidates = filterByQuality(candidatesByProp, random, trajectory);
-		
-		queue.removeAll(getCoveredInClass(bestCandidates));		
+		queue.removeAll(getCoveredInClass(bestCandidates));	
 	
 		progressBar.plus("Class: " + trajectory.getMovingObject() 
 						+ ". Trajectory: " + trajectory.getTid() 
@@ -220,43 +218,34 @@ public class HiperPivotsMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO>
 		return subtrajectory;
 	}
 
-	/**
-	 * Overridden method. 
-	 * @see br.com.tarlis.mov3lets.method.discovery.SuperMoveletsDiscovery#filterByProportion(java.util.List, java.util.Random).
-	 * 
-	 * @param candidatesByProp
-	 * @param random
-	 * @return
-	 */
-	public List<Subtrajectory> filterByProportion(List<Subtrajectory> candidatesByProp, Random random) {
-//		calculateProportion(candidatesByProp, random);
-
-		// Relative TAU based on the higher proportion:
-		double rel_tau = (candidatesByProp.size() > 0? candidatesByProp.get(0).getQuality().getData().get("quality") : 0.0) * TAU;
-		
-		/* STEP 2.1.2: SELECT ONLY CANDIDATES WITH PROPORTION > 50%
-		 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-		List<Subtrajectory> orderedCandidates = new ArrayList<>();
-		for(Subtrajectory candidate : candidatesByProp)
-			if(candidate.getQuality().getData().get("quality") >= rel_tau) //TAU)
-				orderedCandidates.add(candidate);
-			else 
-//				break;
-				bucket.add(candidate);
-		
-//		if (orderedCandidates.isEmpty()) return orderedCandidates;
-				
-		/* STEP 2.1.4: IDENTIFY EQUAL CANDIDATES -> not for pivots
-		 * * * * * * * * * * * * * * * * * * * * * * * * */
-//		List<Subtrajectory> bestCandidates = filterEqualCandidates(orderedCandidates);
-//		return bestCandidates;
-		
-//		List<Subtrajectory> bestCandidates = orderedCandidates;// new ArrayList<>();
+//	/**
+//	 * Overridden method. 
+//	 * @see br.com.tarlis.mov3lets.method.discovery.SuperMoveletsDiscovery#filterByProportion(java.util.List, java.util.Random).
+//	 * 
+//	 * @param candidatesByProp
+//	 * @param random
+//	 * @return
+//	 */
+//	public List<Subtrajectory> filterByProportion(List<Subtrajectory> candidatesByProp, Random random) {
+////		calculateProportion(candidatesByProp, random);
+//
+//		// Relative TAU based on the higher proportion:
+//		double rel_tau = (candidatesByProp.size() > 0? candidatesByProp.get(0).getQuality().getData().get("quality") : 0.0) * TAU;
+//
+//		int n = bucketSize(candidatesByProp.size());
 //		
-//		bestCandidates = bestCandidates.subList(0, (int) Math.ceil((double) bestCandidates.size() * GAMMA));
-		
-		return orderedCandidates;
-	}
+//		/* STEP 2.1.2: SELECT ONLY CANDIDATES WITH PROPORTION > 50%
+//		 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+//		List<Subtrajectory> orderedCandidates = new ArrayList<>();
+//		for(Subtrajectory candidate : candidatesByProp)
+//			if(orderedCandidates.size() <= n &&
+//			   candidate.getQuality().getData().get("quality") >= rel_tau) //TAU)
+//				orderedCandidates.add(candidate);
+//			else
+//				bucket.add(candidate);
+//		
+//		return orderedCandidates;
+//	}
 
 	/**
 	 * Filter ovelapping points.
@@ -291,34 +280,5 @@ public class HiperPivotsMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO>
 		
 		return bestCandidates;
 	}
-	
-//	public Set<MAT<MO>> getCoveredInClass(List<Subtrajectory> bestCandidates) {
-//		Set<MAT<MO>> covered = new LinkedHashSet<MAT<MO>>();
-//		Map<MAT<?>, Integer> count = new HashMap<MAT<?>, Integer>();
-//
-//		for (int i = 0; i < bestCandidates.size(); i++) {
-//			for (MAT<?> T : bestCandidates.get(i).getCovered()) {
-//				int x = count.getOrDefault(T, 0); 
-//				x++;
-//				count.put(T, x);
-//			}
-////			if (covered.isEmpty())
-////				covered.addAll((List) bestCandidates.get(i).getCovered());
-////			else
-////				covered.retainAll((List) bestCandidates.get(i).getCovered());
-//		}
-//		
-//		for (Entry<MAT<?>, Integer> e : count.entrySet()) {
-//			if (e.getValue() >= (this.trajsFromClass.size() / 2))
-//				covered.add((MAT<MO>) e.getKey());
-//		}
-//		
-////		for (int j = 0; j < count.length; j++) {
-////			if (count[j] >= this.trajsFromClass.size() * TAU)
-////				covered.add(this.trajsFromClass.get(j));
-////		}
-//		
-//		return covered;
-//	}
 
 }

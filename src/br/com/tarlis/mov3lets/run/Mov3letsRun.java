@@ -258,8 +258,9 @@ public class Mov3letsRun {
 		params.put("interning",  				 true);
 		params.put("verbose",				 	 true);
 		params.put("version",				 	 "2.0");
-		params.put("tau",					 	 0.5);
-//		params.put("gamma",					 	 1.0);
+		params.put("tau",					 	 0.9);
+		params.put("bucket_slice",				 0.1);
+		params.put("filter_strategy",		 	 "none"); // Use Buckets
 		params.put("LDM",					 	 false);
 		
 		return params;
@@ -389,10 +390,14 @@ public class Mov3letsRun {
 			case "-T":
 				params.put("tau", Double.valueOf(value));			
 				break;	
-//			case "-gamma":	
-//			case "-G":
-//				params.put("gamma", Double.valueOf(value));			
-//				break;	
+			case "-bucket_slice":	
+			case "-BU":
+				params.put("bucket_slice", Double.valueOf(value));			
+				break;	
+			case "-filter":
+			case "-filter_strategy":
+				params.put("filter_strategy", value);
+				break;
 			case "-LDM":	
 			case "-ldm":
 				params.put("LDM", Boolean.valueOf(value));			

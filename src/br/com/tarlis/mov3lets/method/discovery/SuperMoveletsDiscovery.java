@@ -42,8 +42,10 @@ import br.com.tarlis.mov3lets.model.aspect.Aspect;
 public class SuperMoveletsDiscovery<MO> extends MemMoveletsDiscovery<MO> {
 	
 	/** The tau. */
-	protected double TAU 		= 0.5;
+	protected double TAU 		= 0.9;
 //	protected double GAMMA 		= 1.0;
+
+	protected double BU 		= 0.1;
 
 	/** The proportion measure. */
 ProportionQualityMeasure<MO> proportionMeasure;
@@ -64,6 +66,7 @@ ProportionQualityMeasure<MO> proportionMeasure;
 		
 		TAU 	= getDescriptor().getParamAsDouble("tau");
 //		GAMMA 	= getDescriptor().getParamAsDouble("gamma");
+		BU 		= getDescriptor().getParamAsDouble("bucket_slice");
 	}
 	
 	/**
@@ -248,14 +251,16 @@ ProportionQualityMeasure<MO> proportionMeasure;
 	 */
 	public List<Subtrajectory> recoverCandidates(MAT<MO> trajectory, Random random,
 			List<Subtrajectory> candidatesByProp) {
-		int n = (int) Math.ceil((double) (candidatesByProp.size()+bucket.size()) * 0.1); // By 10%
+		
+		int n = bucketSize(candidatesByProp.size());;
 		
 		orderCandidates(bucket);
-		List<Subtrajectory> bestCandidates = filterEqualCandidates(bucket);
+//		bucket = filterEqualCandidates(bucket);
+		List<Subtrajectory> bestCandidates = new ArrayList<Subtrajectory>();
 		
 //		bestCandidates = filterByQuality(bestCandidates, random, trajectory);
 		
-		for (int i = n; i < n*10; i += n) {
+		for (int i = n; i < bucket.size(); i += n) {
 			bestCandidates = filterByQuality(bucket.subList(i-n, (i > bucket.size()? bucket.size() : i)), random, trajectory);
 			
 			if (i > bucket.size() || !bestCandidates.isEmpty()) break;
@@ -267,6 +272,17 @@ ProportionQualityMeasure<MO> proportionMeasure;
 	protected List<Subtrajectory> bucket = new ArrayList<Subtrajectory>();
 	
 	/**
+	 * Mehod bucketSize. 
+	 * 
+	 */
+	protected int bucketSize(int candidatesByProp) {
+		if (BU < 0) return candidatesByProp;
+		
+		int n = (int) Math.ceil((double) (candidatesByProp+bucket.size()) * BU); // By 10%
+		return (n > candidatesByProp)? candidatesByProp : n;
+	}
+	
+	/**
 	 * Filter by proportion.
 	 *
 	 * @param candidatesByProp the candidates by prop
@@ -274,30 +290,35 @@ ProportionQualityMeasure<MO> proportionMeasure;
 	 * @return the list
 	 */
 	public List<Subtrajectory> filterByProportion(List<Subtrajectory> candidatesByProp, Random random) {
-		calculateProportion(candidatesByProp, random);
+//		calculateProportion(candidatesByProp, random);
+//		candidatesByProp = filterEqualCandidates(candidatesByProp);
 		
 		// Relative TAU based on the higher proportion:
 		double rel_tau = (candidatesByProp.size() > 0? candidatesByProp.get(0).getQuality().getData().get("quality") : 0.0) * TAU;
+		
+		int n = bucketSize(candidatesByProp.size());
 
 		/* STEP 2.1.2: SELECT ONLY CANDIDATES WITH PROPORTION > 50%
 		 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 		List<Subtrajectory> orderedCandidates = new ArrayList<>();
 		for(Subtrajectory candidate : candidatesByProp)
-			if(candidate.getQuality().getData().get("quality") >= rel_tau) //TAU)
+			if(orderedCandidates.size() <= n &&
+			   candidateQuality(candidate) >= rel_tau) //TAU)
 				orderedCandidates.add(candidate);
 			else 
-//				break;
 				bucket.add(candidate);
 		
-		if (orderedCandidates.isEmpty()) 
-			return orderedCandidates;
-//			orderedCandidates = bucket;
-				
-		List<Subtrajectory> bestCandidates = filterEqualCandidates(orderedCandidates);
-		
-//		bestCandidates = bestCandidates.subList(0, (int) Math.ceil((double) bestCandidates.size() * GAMMA));
-		
-		return bestCandidates;
+		return orderedCandidates;
+	}
+
+	/**
+	 * Mehod candidateQuality. 
+	 * 
+	 * @param candidate
+	 * @return
+	 */
+	protected double candidateQuality(Subtrajectory candidate) {
+		return candidate.getQuality().getData().get("quality");
 	}
 
 	/**
@@ -398,73 +419,13 @@ ProportionQualityMeasure<MO> proportionMeasure;
 		return filterMovelets(bestCandidates);
 	}
 	
-//	public List<Subtrajectory> filterByQuality(List<Subtrajectory> list, Random random, 
-//			MAT<MO> trajectory) {
-//		
-//		// Sort by size:
-//		list.sort(new Comparator<Subtrajectory>() {
-//			@Override
-//			public int compare(Subtrajectory o1, Subtrajectory o2) {
-//				
-//				return Integer.compare(o1.getSize(), o2.getSize());				
-//				
-//			}
-//		});
-//		
-//		int n = trajectory.getPoints().size();
-//		
-//		double[][][][] mdist = computeBaseDistances(trajectory, this.train);
-//		
-//		for (int size = 1; size <= n; size++) {
-//						
-//			for (Subtrajectory subtrajectory : list) {	
-//				
-//				if (subtrajectory.getSize() != size) continue;
-//				
-//				double[][][] distancesForAllT = mdist[subtrajectory.getStart()];
-//				
-//				// For each trajectory in the database
-//				for (int i = 0; i < this.train.size(); i++) {
-//					MAT<MO> T = this.train.get(i);	
-//					
-//					double[][] distancesForT = distancesForAllT[i];
-//					double[][] ranksForT = new double[distancesForT.length][];
-//					
-//					int limit = T.getPoints().size() - size + 1;
-//					
-//					if (limit > 0)
-//						for (int k = 0; k < numberOfFeatures; k++) {				
-//							ranksForT[k] = rankingAlgorithm.rank(Arrays.stream(distancesForT[k],0,limit).toArray());
-//						} // for (int k = 0; k < numberOfFeatures; k++)
-//						
-//					int bestPosition = (limit > 0) ? bestAlignmentByRanking(ranksForT, subtrajectory.getPointFeatures()) : -1;
-//					for (int j = 0; j < subtrajectory.getPointFeatures().length; j++) {	
-//						double distance = (bestPosition >= 0) ? 
-//								distancesForT[subtrajectory.getPointFeatures()[j]][bestPosition] : MAX_VALUE;
-//						subtrajectory.getDistances()[j][i] = (distance != MAX_VALUE) ? 
-//								Math.sqrt( distance / size ) : MAX_VALUE;					
-//					}
-//					
-//				} // for (int currentFeatures = 1; currentFeatures <= numberOfFeatures; currentFeatures++)
-//				
-//				assesQuality(subtrajectory, random);
-//					
-//			} // for (int start = 0; start <= (n - size); start++)
-//			
-//			mdist = newSize(trajectory, this.train, base, mdist, size+1);
-//		}
-//		
-//		return filterMovelets(list);
-//		
-//	}
-	
 	/**
- * Gets the dimensions.
- *
- * @param candidate the candidate
- * @return the dimensions
- */
-public List<HashMap<Integer, Aspect<?>>> getDimensions(Subtrajectory candidate) {
+	 * Gets the dimensions.
+	 *
+	 * @param candidate the candidate
+	 * @return the dimensions
+	 */
+	public List<HashMap<Integer, Aspect<?>>> getDimensions(Subtrajectory candidate) {
 		
 		List<Integer> features_in_movelet = new ArrayList<>();
 		
@@ -522,8 +483,8 @@ public List<HashMap<Integer, Aspect<?>>> getDimensions(Subtrajectory candidate) 
 			
 			HashMap<Integer, Aspect<?>> f = first.get(i);
 			HashMap<Integer, Aspect<?>> s = second.get(i);
-			
-			if(f.entrySet().stream()
+						
+			if(!f.entrySet().stream()
 				      .allMatch(e -> e.getValue().equals(s.get(e.getKey()))))
 				return false;
 			
@@ -531,84 +492,4 @@ public List<HashMap<Integer, Aspect<?>>> getDimensions(Subtrajectory candidate) 
 	    return all_match;
 	}
 	
-//	public double[][][][] computeBaseDistances(MAT<?> trajectory, List<MAT<MO>> trajectories){
-//		int n = trajectory.getPoints().size();
-//		int size = 1;
-//		
-//		maxDistances = new double[getDescriptor().getAttributes().size()];
-//		
-//		double[][][][] base = new double[(n - size)+1][][][];		
-//		
-//		for (int start = 0; start <= (n - size); start++) {
-//			
-//			base[start] = new double[trajectories.size()][][];				
-//			
-//			for (int i = 0; i < trajectories.size(); i++) {
-//				
-//				MAT<?> T = trajectories.get(i);
-//				Point a = trajectory.getPoints().get(start);
-//								
-//				base[start][i] = new double[getDescriptor().getAttributes().size()][(trajectories.get(i).getPoints().size()-size)+1];
-//						
-//				for (int j = 0; j <= (T.getPoints().size()-size); j++) {
-//					Point b = T.getPoints().get(j);
-//					
-//
-//					for (int k = 0; k < getDescriptor().getAttributes().size(); k++) {
-//						AttributeDescriptor attr = getDescriptor().getAttributes().get(k);						
-//						base[start][i][k][j] = attr.getDistanceComparator().calculateDistance(
-//								a.getAspects().get(k), 
-//								b.getAspects().get(k), 
-//								attr);
-//						
-//						if (maxDistances[k] < base[start][i][k][j] && base[start][i][k][j] != MAX_VALUE)
-//							maxDistances[k] = base[start][i][k][j];
-//					
-////						base[start][i][k][j] = (distance != MAX_VALUE) ? (distance) : MAX_VALUE;	// No sense				
-//					
-//					} // for (int k = 0; k < distance.length; k++)
-//					
-//				} // for (int j = 0; j <= (train.size()-size); j++)
-//				
-//			} //for (int i = 0; i < train.size(); i++)
-//			
-//		} // for (int start = 0; start <= (n - size); start++)
-//
-//		return base;
-//	}
-//	
-//	public double[][][][] newSize(MAT<?> trajectory, List<MAT<MO>> trajectories, double[][][][] base, double[][][][] lastSize, int size) {
-//		
-//		int n = trajectory.getPoints().size();	
-//		
-//		for (int start = 0; start <= (n - size); start++) {
-//						
-//			for (int i = 0; i < trajectories.size(); i++) {
-//				
-//				if (trajectories.get(i).getPoints().size() >= size) {						
-//							
-//					for (int j = 0; j <= (trajectories.get(i).getPoints().size()-size); j++) {
-//												
-//						for (int k = 0; k < lastSize[start][i].length; k++) {
-//							
-//							if (lastSize[start][i][k][j] != MAX_VALUE)
-//								lastSize[start][i][k][j] += base[start+size-1][i][k][j+size-1];
-//							
-//
-//							if (maxDistances[k] < lastSize[start][i][k][j] && lastSize[start][i][k][j] != MAX_VALUE)
-//								maxDistances[k] = lastSize[start][i][k][j];
-//						
-//						} // for (int k = 0; k < distance.length; k++) {
-//											
-//					} // for (int j = 0; j <= (train.size()-size); j++)
-//					
-//				} // if (train.get(i).getData().size() >= size) 
-//				
-//			} // for (int i = 0; i < train.size(); i++)
-//			
-//		} // for (int start = 0; start <= (n - size); start++)
-//		
-//		return lastSize;
-//	}
-
 }

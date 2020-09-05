@@ -3,10 +3,8 @@
  */
 package br.com.tarlis.mov3lets.method.discovery;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Random;
 
 import br.com.tarlis.mov3lets.method.qualitymeasure.QualityMeasure;
 import br.com.tarlis.mov3lets.method.structures.descriptor.Descriptor;
@@ -53,49 +51,43 @@ public class HiperENMoveletsDiscovery<MO> extends HiperCEMoveletsDiscovery<MO> {
 			public int compare(Subtrajectory o1, Subtrajectory o2) {
 				
 //				return (-1) * o1.getQuality().compareTo(o2.getQuality());
-				return (-1) * Double.compare(entrophy(o1), entrophy(o2));				
+				return (-1) * Double.compare(candidateQuality(o1), candidateQuality(o2));				
 				
 			}
 		});
 	}
 	
-	/**
-	 * Overridden method. 
-	 * @see br.com.tarlis.mov3lets.method.discovery.SuperMoveletsDiscovery#filterByProportion(java.util.List, java.util.Random).
-	 * 
-	 * @param candidatesByProp
-	 * @param random
-	 * @return
-	 */
-	public List<Subtrajectory> filterByProportion(List<Subtrajectory> candidatesByProp, Random random) {
-		calculateProportion(candidatesByProp, random);
-
-		/* STEP 2.1.2: SELECT ONLY CANDIDATES WITH PROPORTION > 50%
-		 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-		List<Subtrajectory> orderedCandidates = new ArrayList<>();
-		for(Subtrajectory candidate : candidatesByProp)
-			if(entrophy(candidate) >= TAU)
-				orderedCandidates.add(candidate);
-			else 
-//				break;
-				bucket.add(candidate);
-		
-		if (orderedCandidates.isEmpty()) return orderedCandidates;
-				
-		List<Subtrajectory> bestCandidates = filterEqualCandidates(orderedCandidates);
-		
-//		bestCandidates = bestCandidates.subList(0, (int) Math.ceil((double) bestCandidates.size() * GAMMA));
-		
-		return bestCandidates;
-	}
+//	/**
+//	 * Overridden method. 
+//	 * @see br.com.tarlis.mov3lets.method.discovery.SuperMoveletsDiscovery#filterByProportion(java.util.List, java.util.Random).
+//	 * 
+//	 * @param candidatesByProp
+//	 * @param random
+//	 * @return
+//	 */
+//	public List<Subtrajectory> filterByProportion(List<Subtrajectory> candidatesByProp, Random random) {
+//		calculateProportion(candidatesByProp, random);
+////		candidatesByProp = filterEqualCandidates(candidatesByProp);
+//
+//		/* STEP 2.1.2: SELECT ONLY CANDIDATES WITH PROPORTION > 50%
+//		 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+//		List<Subtrajectory> orderedCandidates = new ArrayList<>();
+//		for(Subtrajectory candidate : candidatesByProp)
+//			if(entrophy(candidate) >= TAU)
+//				orderedCandidates.add(candidate);
+//			else 
+//				bucket.add(candidate);
+//
+//		return orderedCandidates;
+//	}
 
 	/**
 	 * Entrophy.
 	 *
 	 * @param candidate the candidate
-	 * @return the double
+	 * @return the quality
 	 */
-	public Double entrophy(Subtrajectory candidate) {
+	protected double candidateQuality(Subtrajectory candidate) {
 		double p = candidate.getQuality().getData().get("p_target") / candidate.getQuality().getData().get("p_nontarget");
 		return -p * (Math.log(p));
 //		return -Math.log(candidate.getQuality().getData().get("p_target") / candidate.getQuality().getData().get("p_nontarget"));

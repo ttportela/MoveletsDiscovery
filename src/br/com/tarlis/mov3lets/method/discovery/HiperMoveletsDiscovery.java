@@ -152,16 +152,18 @@ public class HiperMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> {
 			List<Subtrajectory> candidatesByProp) {
 		List<Subtrajectory> bestCandidates;
 
-//		GAMMA = getDescriptor().getParamAsDouble("gamma");
+		calculateProportion(candidatesByProp, random);
 		bestCandidates = filterByProportion(candidatesByProp, random);
-		
 		bestCandidates = filterByQuality(bestCandidates, random, trajectory);
-		Set<MAT<MO>> covered = getCoveredInClass(bestCandidates);
-		if (bestCandidates.size() > 0) {
-			/** UPDATE QUEUE: */
-			queue.removeAll(covered);
+		
+		/* STEP 2.1.5: Recover Approach (IF Nothing found)
+		 * * * * * * * * * * * * * * * * * * * * * * * * */
+		if (bestCandidates.isEmpty()) { 
+			bestCandidates = recoverCandidates(trajectory, random, candidatesByProp);
 		}
-
+		
+		queue.removeAll(getCoveredInClass(bestCandidates));	
+		
 		progressBar.plus("Class: " + trajectory.getMovingObject() 
 						+ ". Trajectory: " + trajectory.getTid() 
 						+ ". Trajectory Size: " + trajectory.getPoints().size() 
@@ -169,42 +171,17 @@ public class HiperMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> {
 						+ ". Total of Movelets: " + bestCandidates.size() 
 						+ ". Max Size: " + maxSize
 						+ ". Used Features: " + this.maxNumberOfFeatures);
-//						+ ". Memory Use: " + Mov3letsUtils.getUsedMemory());
 
 		return bestCandidates;
 	}
 
-//	public Set<MAT<MO>> getCoveredInClass(List<Subtrajectory> bestCandidates) {
-//		Set<MAT<MO>> covered = new LinkedHashSet<MAT<MO>>();
-////		int[] count = new int[this.trajsFromClass.size()];
-//		// To remove from queue other covered trajectories: - by Tarlis
-//		for (int i = 0; i < bestCandidates.size(); i++) {
-////			for (MAT<?> T : bestCandidates.get(i).getCovered()) {
-////				count[this.trajsFromClass.indexOf(T)] += 1;
-////			}
-//			if (covered.isEmpty())
-//				covered.addAll((List) bestCandidates.get(i).getCovered());
-//			else
-//				covered.retainAll((List) bestCandidates.get(i).getCovered());
-//		}
-//		
-////		for (int j = 0; j < count.length; j++) {
-////			if (count[j] >= this.trajsFromClass.size() * TAU)
-////				covered.add(this.trajsFromClass.get(j));
-////		}
-//		
-//		return covered;
-//	}
-
-
-	
 	/**
- * Gets the covered in class.
- *
- * @param bestCandidates the best candidates
- * @return the covered in class
- */
-public Set<MAT<MO>> getCoveredInClass(List<Subtrajectory> bestCandidates) {
+	 * Gets the covered in class.
+	 *
+	 * @param bestCandidates the best candidates
+	 * @return the covered in class
+	 */
+	public Set<MAT<MO>> getCoveredInClass(List<Subtrajectory> bestCandidates) {
 		Set<MAT<MO>> covered = new LinkedHashSet<MAT<MO>>();
 		Map<MAT<?>, Integer> count = new HashMap<MAT<?>, Integer>();
 

@@ -41,7 +41,7 @@ public class NumericDiffnotnegDistance extends NumericDifferenceDistance {
 		if (asp0.getValue() >= 0 && asp1.getValue() >= 0)
 			return super.distance(asp0, asp1, attr); 
 		else
-			return Double.POSITIVE_INFINITY;
+			return MAX_VALUE;
 	}
 
 }
