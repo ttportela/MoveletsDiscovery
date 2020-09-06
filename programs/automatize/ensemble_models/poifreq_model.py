@@ -383,10 +383,10 @@ def poifreq(sequences, dataset, features, folder, result_dir, method='npoi', sav
             pd.DataFrame(possible_sequences).to_csv(os.path.join(result_dir, \
                feature+'_'+str(sequence)+'_'+dataset+'-sequences.csv'), index=False, header=None)
 
-            if method is 'poi':
+            if method == 'poi':
                 x_train, x_test, y_train, y_test = poi(df_train, df_test, possible_sequences, \
                                                        seq2idx, sequence, dataset, feature, result_dir=save_all)
-            elif method is 'npoi':
+            elif method == 'npoi':
                 x_train, x_test, y_train, y_test = npoi(df_train, df_test, possible_sequences, \
                                                        seq2idx, sequence, dataset, feature, result_dir=save_all)
             else:
