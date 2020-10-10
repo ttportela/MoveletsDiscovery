@@ -13,7 +13,7 @@ from IPython.utils import io
 # --------------------------------------------------------------------------------
 
 def k_run(k, data_folder, res_path, prefix, folder, descriptor, version = 'hiper', ms = False, Ms = False, extra=False, 
-        java_opts='', jar_name='HIPERMovelets', n_threads=1, prg_path='./', print_only=False, keep_folder=True):
+        java_opts='', jar_name='HIPERMovelets', n_threads=1, prg_path='./', print_only=False, keep_folder=2):
     
     for x in range(k):
         subpath_data = os.path.join(data_folder, 'run'+str(x+1))
@@ -21,15 +21,9 @@ def k_run(k, data_folder, res_path, prefix, folder, descriptor, version = 'hiper
         run(subpath_data, subpath_rslt, prefix, folder, descriptor, version, ms, Ms, extra, 
         java_opts, jar_name, n_threads, prg_path, print_only, keep_folder)
 
-# def runkFold(k, data_folder, res_path, prefix, folder, descriptor, ms = False, Ms = False, AL = False, PVT=False, extra=False, 
-#              java_opts='', jar_name='MASTERMov3lets', n_threads=1, prg_path='./', print_only=False):
-#     for x in range(k):
-#         subpath = os.path.join(res_path, str(k) + '-fold_'+str(x+1))
-#         run(data_folder, subpath, prefix, str(k)+'_'+str(x+1)+'_fold-'+folder, ms, Ms, AL, PVT, extra, java_opts, jar_name, n_threads, prg_path, print_only)
-
 # --------------------------------------------------------------------------------
 def run(data_folder, res_path, prefix, folder, descriptor, version = 'hiper', ms = False, Ms = False, extra=False, 
-        java_opts='', jar_name='HIPERMovelets', n_threads=1, prg_path='./', print_only=False, keep_folder=True):
+        java_opts='', jar_name='HIPERMovelets', n_threads=1, prg_path='./', print_only=False, keep_folder=2):
     print('# --------------------------------------------------------------------------------------')
     print('# ' + prefix + ' - ' +folder)
     print('# --------------------------------------------------------------------------------------')
@@ -67,8 +61,8 @@ def run(data_folder, res_path, prefix, folder, descriptor, version = 'hiper', ms
 #     if PVT:
 #         CMD = CMD + ' -pvt true -lp false -pp 10 -op false'
         
-    if os.name == 'nt':
-        CMD = CMD +  ' > "'+outfile +  '" && type "'+outfile+'"'
+    if os_name == 'nt':
+        CMD = CMD +  ' >> "'+outfile +  '"'
     else:
         CMD = CMD +  ' | tee -a "'+outfile+'"'
         
@@ -89,9 +83,10 @@ def run(data_folder, res_path, prefix, folder, descriptor, version = 'hiper', ms
 #     if jar_name == 'MASTERMovelets' and PVT:
 #         dir_path = dir_path + "Pivots"
         
-    mergeAndMove(res_folder, dir_path, prg_path, print_only)
+    if keep_folder >= 1: # keep_folder = 1 or 2
+        mergeAndMove(res_folder, dir_path, prg_path, print_only)
     
-    if not keep_folder:
+    if keep_folder <= 1: # keep_folder = 0 or 1, 1 for both
         execute('rm -R "'+os.path.join(res_folder, dir_path)+'"', print_only)
         
     print('# --------------------------------------------------------------------------------------')

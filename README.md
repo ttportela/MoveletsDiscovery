@@ -130,7 +130,7 @@ java -jar HIPERMovelets.jar
 -version hiper -nt 8 -Ms -3
 ```
 
-**HIPERPivots**
+**HIPERMovelets-Pivots**
 
 
 ```Shell
@@ -139,7 +139,7 @@ java -jar HIPERMovelets.jar
 -version hiper-pvt -nt 8 
 ```
 
-**HIPERPivots-Log**
+**HIPERMovelets-Pivots-Log**
 
 
 ```Shell

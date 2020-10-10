@@ -264,6 +264,7 @@ ProportionQualityMeasure<MO> proportionMeasure;
 			bestCandidates = filterByQuality(bucket.subList(i-n, (i > bucket.size()? bucket.size() : i)), random, trajectory);
 			
 			if (i > bucket.size() || !bestCandidates.isEmpty()) break;
+			else n *= 2; // expand the window size
 		}
 		return bestCandidates;
 	}

@@ -37,7 +37,7 @@ def def_random_seed(random_num=1, seed_num=1):
     
 # --------------------------------------------------------------------------------------
 
-def results2df(res_path, prefix, modelfolder='model'):
+def results2df(res_path, prefix, modelfolder='model', isformat=True):
     filelist = []
     filesList = []
 
@@ -63,14 +63,14 @@ def results2df(res_path, prefix, modelfolder='model'):
         cols.append(method)
         
         path = os.path.dirname(ijk)
-        df[method] = addResults(df, ijk, path, method, modelfolder)
+        df[method] = addResults(df, ijk, path, method, modelfolder, isformat)
       
     print("Done.")
     cols.sort()
     cols = ['Dataset',' '] + cols
     return df[cols]
 
-def kFoldResults(res_path, prefix, method, modelfolder='model'):
+def kFoldResults(res_path, prefix, method, modelfolder='model', isformat=True):
     filelist = []
     filesList = []
 
@@ -96,26 +96,27 @@ def kFoldResults(res_path, prefix, method, modelfolder='model'):
         run = os.path.basename(os.path.abspath(os.path.join(path ,"../..")))
         
         cols.append(run)
-        df[run] = addResults(df, ijk, path, method, False, modelfolder)
+        df[run] = addResults(df, ijk, path, method, modelfolder, False)
         
     
     df[method] = df[cols].mean(axis=1)
     
-    for column in cols:
-        df[column] = format_col(df, column)
-    
-    df[method] = format_col(df, method)
+    if isformat:
+        for column in cols:
+            df[column] = format_col(df, column)
+
+        df[method] = format_col(df, method)
         
     cols = ['Dataset',' '] + cols + [method]
     return df[cols]
 
-def addResults(df, resfile, path, method, isformat=True, modelfolder='model'):
+def addResults(df, resfile, path, method, modelfolder='model', isformat=True):
     print("Loading " + method + " results from: " + path)
     data = read_csv(resfile)
-    total_can = get_total_number_of_candidates_file_by_dataframe("Number of Candidates: ", data)
-    total_mov = get_total_number_of_candidates_file_by_dataframe("Total of Movelets: ", data)
-    trajs_looked = get_total_number_of_candidates_file_by_dataframe("Trajs. Looked: ", data)
-    trajs_ignored = get_total_number_of_candidates_file_by_dataframe("Trajs. Ignored: ", data)
+    total_can = get_sum_of_file_by_dataframe("Number of Candidates: ", data)
+    total_mov = get_sum_of_file_by_dataframe("Total of Movelets: ", data)
+    trajs_looked = get_sum_of_file_by_dataframe("Trajs. Looked: ", data)
+    trajs_ignored = get_sum_of_file_by_dataframe("Trajs. Ignored: ", data)
     time = get_total_number_of_ms("Processing time: ", data)
 
     mlp_acc = getACC_MLP(path, method, modelfolder) * 100
@@ -258,10 +259,10 @@ def printHour(millis):
 #     res_file = os.path.join(RES_PATH, file + '.txt')
     
 #     data = read_csv(res_file)
-#     total_can = get_total_number_of_candidates_file_by_dataframe("Number of Candidates: ", data)
-#     total_mov = get_total_number_of_candidates_file_by_dataframe("Total of Movelets: ", data)
-#     trajs_looked = get_total_number_of_candidates_file_by_dataframe("Trajs. Looked: ", data)
-#     trajs_ignored = get_total_number_of_candidates_file_by_dataframe("Trajs. Ignored: ", data)
+#     total_can = get_sum_of_file_by_dataframe("Number of Candidates: ", data)
+#     total_mov = get_sum_of_file_by_dataframe("Total of Movelets: ", data)
+#     trajs_looked = get_sum_of_file_by_dataframe("Trajs. Looked: ", data)
+#     trajs_ignored = get_sum_of_file_by_dataframe("Trajs. Ignored: ", data)
 #     time = get_total_number_of_ms("Processing time: ", data)
     
 #     print('# <=====================================================>')
@@ -320,6 +321,10 @@ def ALL_Classifiers(res_path, prefix, dir_path, save_results = True, modelfolder
     dir_path = os.path.join(res_path, prefix, dir_path)
     times = {'SVM': [0], 'RF': [0], 'MLP': [0], 'EC': [0]}
     
+    times_file = os.path.join(dir_path, modelfolder, "classification_times.csv")
+    if os.path.isfile(times_file):
+        times = pd.read_csv(times_file)
+    
     if 'SVM' in classifiers:
         times['SVM'] = [Classifier_SVM(dir_path, save_results, modelfolder)]
     if 'RF' in classifiers:
@@ -336,8 +341,7 @@ def ALL_Classifiers(res_path, prefix, dir_path, save_results = True, modelfolder
     if (save_results) :
         if not os.path.exists(os.path.join(dir_path, modelfolder)):
             os.makedirs(os.path.join(dir_path, modelfolder))
-        pd.DataFrame(times).to_csv(
-            os.path.join(dir_path, modelfolder, "classification_times.csv"))
+        pd.DataFrame(times).to_csv(times_file)
 
 # --------------------------------------------------------------------------------->
 # def RN4All(res_path, prefix, save_results = True, modelfolder='model'):
@@ -529,6 +533,33 @@ def get_total_number_of_candidates_file_by_dataframe(str_target, df):
             number = row['content'].split(str_target)[1]
             number = number.split(".")[0]
             total = total + int(number)
+    return total
+
+def get_sum_of_file_by_dataframe(str_target, df):
+    total = 0
+    for index,row in df.iterrows():
+        if str_target in row['content']:
+            number = row['content'].split(str_target)[1]
+            number = number.split(".")[0]
+            total = total + int(number)
+    return total
+
+def get_max_number_of_file_by_dataframe(str_target, df):
+    total = 0
+    for index,row in df.iterrows():
+        if str_target in row['content']:
+            number = row['content'].split(str_target)[1]
+            number = int(number.split(".")[0])
+            total = max(total, number)
+    return total
+
+def get_min_number_of_file_by_dataframe(str_target, df):
+    total = 99999
+    for index,row in df.iterrows():
+        if str_target in row['content']:
+            number = row['content'].split(str_target)[1]
+            number = int(number.split(".")[0])
+            total = min(total, number)
     return total
 
 def get_total_number_of_ms(str_target, df):

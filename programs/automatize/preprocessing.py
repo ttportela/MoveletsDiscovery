@@ -81,34 +81,60 @@ def readData_Files(path, col_names, file_ext='.txt', delimiter=',', file_prefix=
 
 
 # --------------------------------------------------------------------------------
-def printFeaturesJSON(df):
-    s = '{\n   "readsDesc": [\n'
+def printFeaturesJSON(df, version=1, deftype='nominal', defcomparator='equals'):
     
-    order = 1
-    for f in df.columns:
-        s += ('	{\n          "order": '+str(order)+',\n          "type": "numeric",\n          "text": "'+f+'"\n        }')
-        if len(df.columns) == order:
-            s += ('\n')
-        else:
-            s += (',\n')
-        order += 1
-    
-    s += ('      ],\n    "pointFeaturesDesc": [\n      ],\n    "subtrajectoryFeaturesDesc": [\n	  ],\n')
-    s += ('    "trajectoryFeaturesDesc": [\n      ],\n    "pointComparisonDesc": {\n      "pointDistance": "euclidean",\n')
-    s += ('      "featureComparisonDesc": [\n')
-    
-    order = 1
-    for f in df.columns:
-        s += ('			{\n			  "distance": "difference",\n			  "maxValue": -1,\n			  "text": "'+f+'"\n			}')
-        if len(df.columns) == order:
-            s += ('\n')
-        else:
-            s += (',\n')
-        order += 1
+    if isinstance(df, list):
+        cols = df
+    else:
+        cols = df.columns
+            
+    if version == 1:
+        s = '{\n   "readsDesc": [\n'
+
+        order = 1
+        for f in cols:
+            s += ('	{\n          "order": '+str(order)+',\n          "type": "'+deftype+'",\n          "text": "'+f+'"\n        }')
+            if len(cols) == order:
+                s += ('\n')
+            else:
+                s += (',\n')
+            order += 1
+
+        s += ('      ],\n    "pointFeaturesDesc": [\n      ],\n    "subtrajectoryFeaturesDesc": [\n	  ],\n')
+        s += ('    "trajectoryFeaturesDesc": [\n      ],\n    "pointComparisonDesc": {\n      "pointDistance": "euclidean",\n')
+        s += ('      "featureComparisonDesc": [\n')
+
+        order = 1
+        for f in cols:
+            if f != 'tid' and f != 'label':
+                s += ('			{\n			  "distance": "'+defcomparator+'",\n			  "maxValue": -1,\n			  "text": "'+f+'"\n			}')
+                if len(cols) == order:
+                    s += ('\n')
+                else:
+                    s += (',\n')
+            order += 1
+
+        s += ('		]\n    },\n    "subtrajectoryComparisonDesc": {\n      "subtrajectoryDistance": "euclidean",\n')
+        s += ('      "featureComparisonDesc": [\n			{\n			  "distance": "euclidean",\n			  "text": "points"\n')
+        s += ('			}\n		]\n    }\n}')
+    else:        
+        s  = '{\n   "input": {\n          "train": ["train"],\n          "test": ["test"],\n          "format": "CZIP",\n'
+        s += '          "loader": "interning"\n   },\n'
+        s += '   "idFeature": {\n          "order": '+str(cols.index('tid')+1)+',\n          "type": "numeric",\n          "text": "tid"\n    },\n'
+        s += '   "labelFeature": {\n          "order": '+str(cols.index('label')+1)+',\n          "type": "nominal",\n          "text": "label"\n    },\n'
+        s += '   "attributes": [\n'
         
-    s += ('		]\n    },\n    "subtrajectoryComparisonDesc": {\n      "subtrajectoryDistance": "euclidean",\n')
-    s += ('      "featureComparisonDesc": [\n			{\n			  "distance": "euclidean",\n			  "text": "points"\n')
-    s += ('			}\n		]\n    }\n}')
+        order = 1
+        for f in cols:
+            if f != 'tid' and f != 'label':
+                s += '	    {\n	          "order": '+str(order)+',\n	          "type": "'+deftype+'",\n	          "text": "'+str(f)+'",\n	          "comparator": {\n	            "distance": "'+defcomparator+'"\n	          }\n	    }'
+                if len(cols) == order:
+                    s += ('\n')
+                else:
+                    s += (',\n')
+            order += 1
+        s += '	]\n}'
+        
     print(s)
     
 #-------------------------------------------------------------------------->>

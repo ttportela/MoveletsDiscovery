@@ -1,5 +1,6 @@
-import sys
-from analysis import def_random_seed, ACC4All
+import sys, os
+sys.path.insert(0, os.path.abspath(os.path.join('.')))
+from automatize.analysis import def_random_seed, ACC4All
 
 def_random_seed(random_num=1, seed_num=1)
 
