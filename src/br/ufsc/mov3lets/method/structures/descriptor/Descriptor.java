@@ -147,29 +147,35 @@ public class Descriptor {
 			}
 		}
 		
-		if (getInput() != null && getInput().getFormat() != null) {
+		if (getInput() != null) {
 			// Config input format:
-			switch (getInput().getFormat()) {
-				case "CSV":
-					setParam("data_format", "CSV");
-					break;
-				case "CZIP":
-				default:
-					setParam("data_format", "CZIP");
-					break;
-			}
+//			switch (getInput().getFormat()) {
+//				case "CSV":
+//					setParam("data_format", "CSV");
+//					break;
+//				case "TSARFF":
+//					setParam("data_format", "TSARFF");
+//					break;
+//				case "CZIP":
+//				default:
+//					setParam("data_format", "CZIP");
+//					break;
+//			}
+			if (getInput().getFormat() != null) 
+				setParam("data_format", getInput().getFormat());
 			
 			// Config Optimization:
-			switch (getInput().getLoader()) {
-				case "indexed":
-					setFlag("indexed", true);
-					break;
-				case "interning":
-				case "default":
-				default:
-					setFlag("interning", true);
-					break;
-			}
+			if (getInput().getLoader() != null) 
+				switch (getInput().getLoader()) {
+					case "indexed":
+						setFlag("indexed", true);
+						break;
+					case "interning":
+					case "default":
+					default:
+						setFlag("interning", true);
+						break;
+				}
 			
 		}
 	}

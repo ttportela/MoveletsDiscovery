@@ -62,6 +62,9 @@ public abstract class DiscoveryAdapter<MO> implements Callable<Integer> {
 	protected MAT<MO> trajectory;
 
 //	protected List<Subtrajectory> candidates;
+
+	/** The queue. */
+	protected List<MAT<MO>> queue;
 	
 	/** The outputers. */
 	protected List<OutputterAdapter<MO>> outputers = new ArrayList<OutputterAdapter<MO>>();
@@ -244,6 +247,69 @@ public abstract class DiscoveryAdapter<MO> implements Callable<Integer> {
 	 */
 	public void setProgressBar(ProgressBar progressBar) {
 		this.progressBar = progressBar;
+	}
+	
+	/**
+	 * Getter for data.
+	 * 
+	 * @return the data.
+	 */
+	public List<MAT<MO>> getData() {
+		return data;
+	}
+	
+	/**
+	 * Getter for train.
+	 * 
+	 * @return the train.
+	 */
+	public List<MAT<MO>> getTrain() {
+		return train;
+	}
+	
+	/**
+	 * Getter for test.
+	 * 
+	 * @return the test.
+	 */
+	public List<MAT<MO>> getTest() {
+		return test;
+	}
+	
+	/**
+	 * Getter for trajectory.
+	 * 
+	 * @return the trajectory.
+	 */
+	public MAT<MO> getTrajectory() {
+		return trajectory;
+	}
+	
+	/**
+	 * Getter for trajsFromClass.
+	 * 
+	 * @return the trajsFromClass.
+	 */
+	public List<MAT<MO>> getTrajsFromClass() {
+		return trajsFromClass;
+	}
+	
+	/**
+	 * Getter for queue.
+	 * 
+	 * @return the queue.
+	 */
+	public List<MAT<MO>> getQueue() {
+		return queue;
+	}
+	
+	/**
+	 * Setter for queue.
+	 * 
+	 * @param queue the queue to set (as List<MAT<MO>> instance).
+	 */
+	public void setQueue(List<MAT<MO>> queue) {
+		this.queue = queue;
 	}
 
 }

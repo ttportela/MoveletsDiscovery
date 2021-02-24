@@ -29,9 +29,6 @@ import br.ufsc.mov3lets.model.Subtrajectory;
  */
 public class HiperMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> {
 
-	/** The queue. */
-	protected List<MAT<MO>> queue;
-
 	/**
 	 * Instantiates a new hiper movelets discovery.
 	 *
@@ -45,8 +42,8 @@ public class HiperMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> {
 	public HiperMoveletsDiscovery(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test,
 			QualityMeasure qualityMeasure, Descriptor descriptor) {
 		super(null, trajsFromClass, data, train, test, qualityMeasure, descriptor);
-		this.queue = new ArrayList<MAT<MO>>();
-		queue.addAll(trajsFromClass);
+//		this.queue = new ArrayList<MAT<MO>>();
+//		queue.addAll(trajsFromClass);
 	}
 	
 	/**
@@ -72,7 +69,6 @@ public class HiperMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> {
 			MAT<MO> trajectory = queue.get(0);
 			queue.remove(trajectory);
 			trajsLooked++;
-			int removed = queue.size();
 			
 			// This guarantees the reproducibility
 			Random random = new Random(trajectory.getTid());
@@ -82,8 +78,9 @@ public class HiperMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> {
 //			progressBar.trace("Class: " + trajsFromClass.get(0).getMovingObject() 
 //					+ ". Trajectory: " + trajectory.getTid() 
 //					+ ". Used GAMMA: " + GAMMA);
-			
-			trajsIgnored += (removed - queue.size());
+
+			// Removes trajectories from queue:
+			trajsIgnored += updateQueue(getCoveredInClass(candidates));
 			
 			/** STEP 2.4: SELECTING BEST CANDIDATES */			
 //			candidates = filterMovelets(candidates);		
@@ -95,26 +92,10 @@ public class HiperMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> {
 		/** STEP 2.2: Runs the pruning process */
 		if(getDescriptor().getFlag("last_prunning"))
 			movelets = lastPrunningFilter(movelets);
-		/** STEP 2.2: --------------------------------- */
-		
-		/** STEP 2.3.1: Output Movelets (partial) */
-		super.output("train", this.train, movelets, true);
-		
-		// Compute distances and best alignments for the test trajectories:
-		/* If a test trajectory set was provided, it does the same.
-		 * and return otherwise */
-		/** STEP 2.3.2: Output Movelets (partial) */
-		if (!this.test.isEmpty()) {
-//			base = computeBaseDistances(trajectory, this.test);
-			for (Subtrajectory candidate : movelets) {
-				// It initializes the set of distances of all movelets to null
-				candidate.setDistances(null);
-				// In this step the set of distances is filled by this method
-				computeDistances(candidate, this.test); //, computeBaseDistances(trajectory, this.test));
-			}
-			super.output("test", this.test, movelets, true);
-		}
-		/** --------------------------------- */	
+
+		/** STEP 2.2: ---------------------------- */
+		outputMovelets(movelets);
+		/** -------------------------------------- */	
 		
 		progressBar.plus(trajsIgnored, 
 						   "Class: " + trajsFromClass.get(0).getMovingObject() 
@@ -139,6 +120,20 @@ public class HiperMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> {
 	}
 
 	/**
+	 * Mehod updateQueue. 
+	 * 
+	 * @param trajsIgnored
+	 * @param candidates
+	 * @return
+	 */
+	public int updateQueue(Set<MAT<MO>> coveredTrajectories) {
+		int n = queue.size();
+		queue.removeAll(coveredTrajectories);	
+		int trajsIgnored = (n - queue.size());		
+		return trajsIgnored;
+	}
+
+	/**
 	 * Overridden method. 
 	 * @see br.com.tarlis.mov3lets.method.discovery.SuperMoveletsDiscovery#selectBestCandidates(br.com.tarlis.mov3lets.model.MAT, int, java.util.Random, java.util.List).
 	 * 
@@ -154,6 +149,10 @@ public class HiperMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> {
 
 		calculateProportion(candidatesByProp, random);
 		bestCandidates = filterByProportion(candidatesByProp, random);
+		
+		if (getDescriptor().getFlag("feature_limit"))
+			bestCandidates = selectMaxFeatures(bestCandidates);
+		
 		bestCandidates = filterByQuality(bestCandidates, random, trajectory);
 		
 		/* STEP 2.1.5: Recover Approach (IF Nothing found)
@@ -162,7 +161,7 @@ public class HiperMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> {
 			bestCandidates = recoverCandidates(trajectory, random, candidatesByProp);
 		}
 		
-		queue.removeAll(getCoveredInClass(bestCandidates));	
+//		queue.removeAll(getCoveredInClass(bestCandidates));	
 		
 		progressBar.plus("Class: " + trajectory.getMovingObject() 
 						+ ". Trajectory: " + trajectory.getTid() 

@@ -41,8 +41,9 @@ test.dt <- bind_cols( lapply(files.test, function(file.name){
 }))
 
 print("Writing test file")
-
+column.index <- c( grep( "class", colnames(test.dt), invert = T), grep( "^class$", colnames(test.dt)) ) # By Tarlis
 test.dt1 <- data.frame(test.dt)[, column.index]
+
 fwrite(test.dt1, file = paste0(dir,"/","test.csv"), row.names = F)
 
 print("Done.")

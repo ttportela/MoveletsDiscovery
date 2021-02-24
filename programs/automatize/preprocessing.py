@@ -268,6 +268,10 @@ def createZIP(data_path, df, file, class_col='label', tid_col='tid', select_cols
         data = df[df.tid == x]
         if select_cols is not None:
             data = data[select_cols]
+        
+        # Remove tid and label:
+        data = data.drop(['tid', class_col], axis=1)
+        
         data.to_csv(filename, index=False, header=False)
         zipf.write(filename)
         os.remove(filename)

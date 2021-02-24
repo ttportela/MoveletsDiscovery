@@ -24,3 +24,10 @@ if len(sys.argv) > 3:
 
 print('Starting analysis in: ', res_path, prefix)
 ACC4All(res_path, prefix, save_results, modelfolder, classifiers=['MLP', 'RF'])
+
+print('Results for: ', res_path, prefix)
+
+from automatize.results import results2df
+
+df = results2df(os.path.join(res_path, '**'), prefix)
+print(df)

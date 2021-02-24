@@ -17,10 +17,17 @@
  */
 package br.ufsc.mov3lets.run;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.util.Arrays;
-import java.util.stream.Collectors;
+import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
+import br.ufsc.mov3lets.model.MAT;
+import weka.core.Attribute;
+import weka.core.Instance;
+import weka.core.Instances;
+import weka.core.converters.ArffLoader.ArffReader;
 
 /**
  * The Class Test.
@@ -37,11 +44,61 @@ public class Test {
 	 */
 	public static void main(String[] arg) throws Exception {
 		
-		String a = "hiper-random";
+		String path = "/Users/tarlis/git/HIPERMovelets/tarlis/new_data/worms/train.arff";
+		BufferedReader reader = new BufferedReader(new FileReader(new File(path)));
+		ArffReader arff = new ArffReader(reader, 1000);         
+		Instances data = arff.getStructure();
+		data.setClassIndex(0);
+
 		
-		a = Arrays.asList(a.split("-")).stream().map(StringUtils::capitalize).collect(Collectors.joining(""));
+		System.out.println(data.numAttributes());
+		System.out.println(data.numClasses());
 		
-		System.out.println(a);
+		Instance inst;
+		while ((inst = arff.readInstance(data)) != null) {    
+			
+			System.out.println(inst.attribute(899));
+			System.exit(0);
+			
+		    // the first attribute is ignored because it is the index
+		    for(int index = 0 ; index < inst.numAttributes() ; index++) {
+			    System.out.println("index "+index+" is : "+(inst.value(index)) + " - " + inst.attribute(index).type());
+		    	
+		        switch(inst.attribute(index).type()) {
+		        case Attribute.NUMERIC :
+		            System.out.println(inst.value(index)); break;
+		        case Attribute.STRING :
+		        case Attribute.NOMINAL:
+		            System.out.println(inst.stringValue(index)); break;
+		        case Attribute.RELATIONAL : 
+		            // test if we have an imbrication of two relations or not
+		            if (inst.attribute(index).relation().numAttributes() > 0 &&
+		                    inst.attribute(index).relation().attribute(0).isRelationValued()) {
+		                // case of an array of int arrays
+		                double[][] seq = new double[inst.attribute(index).relation().numAttributes()][];
+		                for (int i = 0 ; i < inst.attribute(index).relation().numAttributes() ; i++) {
+		                    Instances instances = inst.relationalValue(index);
+		                    seq[i] = new double[instances.attribute(0).relation().numAttributes()];
+
+		                    Instance q = instances.instance(0).relationalValue(i).get(0);
+		                    for(int j = 0 ; j < instances.attribute(0).relation().numAttributes() ; j++) {
+		                        seq[i][j] = q.value(j);
+
+		                    }
+		                }
+		                System.out.println(seq);
+		            } else {
+		                // case wit only an arry of int
+		                double[] seq = new double[inst.attribute(index).relation().numAttributes()];
+		                for (int i = 0 ; i < inst.attribute(index).relation().numAttributes() ; i++) {
+		                        seq[i] = inst.value(i);
+		                }
+		                System.out.println(seq);
+		            }
+		        }
+		    }
+		}
+		
 		
 	}
 

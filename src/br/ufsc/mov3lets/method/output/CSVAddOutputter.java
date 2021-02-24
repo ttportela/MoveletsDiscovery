@@ -3,8 +3,10 @@
  */
 package br.ufsc.mov3lets.method.output;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,7 +30,7 @@ import br.ufsc.mov3lets.utils.Mov3letsUtils;
  * @author tarlis
  * @param <MO> the generic type
  */
-public class CSVOutputter<MO> extends OutputterAdapter<MO> {
+public class CSVAddOutputter<MO> extends OutputterAdapter<MO> {
 
 	/** The medium. */
 	protected String medium = "none"; // Other values minmax, sd, interquartil
@@ -41,7 +43,6 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO> {
 	
 	/** The attributes to test. */
 	protected List<Map<String, Double>> attributesToTest = new ArrayList<Map<String,Double>>();
-//	protected List<Map<String, Double>> features = new ArrayList<Map<String,Double>>(); // TODO Necessary?
 	
 	/**
 	 * Instantiates a new CSV outputter.
@@ -50,7 +51,7 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO> {
 	 * @param descriptor the descriptor
 	 * @param subfolderClasses the subfolder classes
 	 */
-	public CSVOutputter(String filePath, Descriptor descriptor, boolean subfolderClasses) {
+	public CSVAddOutputter(String filePath, Descriptor descriptor, boolean subfolderClasses) {
 		super(filePath, descriptor, subfolderClasses);
 	}
 	
@@ -59,7 +60,7 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO> {
 	 *
 	 * @param descriptor the descriptor
 	 */
-	public CSVOutputter(Descriptor descriptor) {
+	public CSVAddOutputter(Descriptor descriptor) {
 		super(descriptor);
 	}
 
@@ -69,7 +70,7 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO> {
 	 * @param resultDirPath the result dir path
 	 * @param descriptor the descriptor
 	 */
-	public CSVOutputter(String resultDirPath, Descriptor descriptor) {
+	public CSVAddOutputter(String resultDirPath, Descriptor descriptor) {
 		super(resultDirPath, descriptor, true);
 	}
 
@@ -83,17 +84,12 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO> {
 	 * @param delayOutput
 	 */
 	@Override
-	public void write(String filename, List<MAT<MO>> trajectories, List<Subtrajectory> movelets, boolean delayOutput) {
+	public synchronized void write(String filename, List<MAT<MO>> trajectories, List<Subtrajectory> movelets, boolean delayOutput) {
 		List<Map<String, Double>> attributeToTrajectories = 
 				"train".equals(filename)? attributesToTrain : attributesToTest;
-		
-		if (delayOutput) {
-			attributesToTrajectories(trajectories, movelets, attributeToTrajectories);
-			
-			decreaseDelayCount(filename);
-			if (delayCount > 0)
-				return;
-		}
+
+		attributesToTrajectories(trajectories, movelets, attributeToTrajectories);
+//		if (delayOutput) return;
 		
 		if (movelets.isEmpty()) {
 			Mov3letsUtils.traceW("Empty movelets set [NOT OUTPUTTED]");
@@ -101,20 +97,24 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO> {
 		}
 		
 		BufferedWriter writer;
+		BufferedReader reader;
 
 		try {
+			File filetemp = getFile(movelets.get(0).getTrajectory().getMovingObject().toString(), filename + ".tmp");
 			File file = getFile(movelets.get(0).getTrajectory().getMovingObject().toString(), filename + ".csv");
-			boolean append = !this.subfolderClasses && file.exists() // Append if it is not class separated
-					|| !delayOutput;  // OR is not delayed
+			boolean append = true; //!this.subfolderClasses && file.exists() // Append if it is not class separated
+//							 || !delayOutput;  // OR is not delayed
 			file.getParentFile().mkdirs();
-			writer = new BufferedWriter(new FileWriter(file, append));
+			reader = file.exists()? new BufferedReader(new FileReader(file)): null;
+			writer = new BufferedWriter(new FileWriter(filetemp, append));
 
-			// TODO Features?
-//			String header = (!trajectories.get(0).getFeatures().keySet().isEmpty()) ? 
-//					trajectories.get(0).getFeatures().keySet().toString().replaceAll("[\\[|\\]|\\s]", "") + "," : "";
+			String header = "";
+			if (reader != null) {
+				header = reader.readLine();
+				header = header.substring(0, header.indexOf(",class"));
+			}
 				
 //			if (!append) { //TODO incorreto, necessário adicionar as colunas (movelets) com exceção da classe
-			String header = "";
 			header += (!attributeToTrajectories.get(0).keySet().isEmpty()) ?
 					attributeToTrajectories.get(0).keySet().toString().replaceAll("[\\[|\\]|\\s]", "") + "," : ""; 
 			
@@ -125,9 +125,11 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO> {
 			for (int i = 0; i < trajectories.size(); i++) {
 				Map<String,Double> attributes = attributeToTrajectories.get(i);
 				String line = "";
-				// TODO Features?
-//				String line = (!trajectory.getFeatures().values().isEmpty()) ?
-//								trajectory.getFeatures().values().toString().replaceAll("[\\[|\\]|\\s]", "") + "," : "";
+				
+				if (reader != null) {
+					line = reader.readLine();
+					line = line.substring(0, header.lastIndexOf(","));
+				}
 				
 				line += (!attributes.values().isEmpty()) ?
 						attributes.values().toString().replaceAll("[\\[|\\]|\\s]", "") + "," : "";
@@ -137,14 +139,17 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO> {
 				writer.write(line);
 			}
 
-			writer.close();
 			attributeToTrajectories.clear();
+			reader.close();
+			writer.close();
+			
+			filetemp.renameTo(file);
 
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-
+	
 	/**
 	 * Attributes to trajectories.
 	 *
@@ -152,7 +157,7 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO> {
 	 * @param movelets the movelets
 	 * @param attributeToTrajectories the attribute to trajectories
 	 */
-	protected synchronized void attributesToTrajectories(List<MAT<MO>> trajectories, List<Subtrajectory> movelets, List<Map<String, Double>> attributeToTrajectories) {
+	protected void attributesToTrajectories(List<MAT<MO>> trajectories, List<Subtrajectory> movelets, List<Map<String, Double>> attributeToTrajectories) {
 		// It puts distances as trajectory attributes
 		for (Subtrajectory movelet : movelets) {
 			switch (output){
@@ -175,7 +180,7 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO> {
 	 * @param movelet the movelet
 	 * @param attributeToTrajectories the attribute to trajectories
 	 */
-	protected synchronized  void attributeToTrajectoriesNumeric(List<MAT<MO>> trajectories, Subtrajectory movelet, List<Map<String, Double>> attributeToTrajectories) {
+	protected void attributeToTrajectoriesNumeric(List<MAT<MO>> trajectories, Subtrajectory movelet, List<Map<String, Double>> attributeToTrajectories) {
 		String attributeName =  "sh_TID" + movelet.getTrajectory().getTid() + 
 								"_START" + movelet.getStart() + 
 								"_SIZE" + movelet.getSize() + 

@@ -157,4 +157,5 @@ public abstract class OutputterAdapter<MO> {
 		if ("train".equals(filename))
 			delayCount--;
 	}
+
 }

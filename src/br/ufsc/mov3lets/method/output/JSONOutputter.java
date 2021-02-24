@@ -78,6 +78,9 @@ public class JSONOutputter<MO> extends OutputterAdapter<MO> {
 				return;
 		}
 		
+		if ("test".equals(filename))
+			return;
+		
 		if (movelets.isEmpty()) {
 //			Mov3letsUtils.traceW("Empty movelets set [NOT OUTPUTTED]");
 			return;

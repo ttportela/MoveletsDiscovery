@@ -21,7 +21,7 @@ import br.ufsc.mov3lets.model.Subtrajectory;
  * @author tarlis
  * @param <MO> the generic type
  */
-public class HiperPivotsCEMoveletsDiscovery<MO> extends HiperPivotsMoveletsDiscovery<MO> {
+public class HiperPivotsCeMoveletsDiscovery<MO> extends HiperPivotsMoveletsDiscovery<MO> {
 
 	/** The sample trajectories. */
 	protected List<MAT<MO>> sampleTrajectories;
@@ -36,7 +36,7 @@ public class HiperPivotsCEMoveletsDiscovery<MO> extends HiperPivotsMoveletsDisco
 	 * @param qualityMeasure the quality measure
 	 * @param descriptor the descriptor
 	 */
-	public HiperPivotsCEMoveletsDiscovery(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test,
+	public HiperPivotsCeMoveletsDiscovery(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test,
 			QualityMeasure qualityMeasure, Descriptor descriptor) {
 		super(trajsFromClass, data, train, test, qualityMeasure, descriptor);
 	}
@@ -74,7 +74,6 @@ public class HiperPivotsCEMoveletsDiscovery<MO> extends HiperPivotsMoveletsDisco
 			MAT<MO> trajectory = queue.get(0);
 			queue.remove(trajectory);
 			trajsLooked++;
-			int removed = queue.size();
 			
 			// This guarantees the reproducibility
 			random = new Random(trajectory.getTid());
@@ -85,8 +84,9 @@ public class HiperPivotsCEMoveletsDiscovery<MO> extends HiperPivotsMoveletsDisco
 //			progressBar.trace("Class: " + trajsFromClass.get(0).getMovingObject() 
 //					+ ". Trajectory: " + trajectory.getTid() 
 //					+ ". Used GAMMA: " + GAMMA);
-			
-			trajsIgnored += (removed - queue.size());
+
+			// Removes trajectories from queue:
+			trajsIgnored += updateQueue(getCoveredInClass(candidates));
 			
 			/** STEP 2.4: SELECTING BEST CANDIDATES */			
 //			candidates = filterMovelets(candidates);		
@@ -98,26 +98,10 @@ public class HiperPivotsCEMoveletsDiscovery<MO> extends HiperPivotsMoveletsDisco
 		/** STEP 2.2: Runs the pruning process */
 		if(getDescriptor().getFlag("last_prunning"))
 			movelets = lastPrunningFilter(movelets);
-		/** STEP 2.2: --------------------------------- */
-		
-		/** STEP 2.3.1: Output Movelets (partial) */
-		super.output("train", this.train, movelets, true);
-		
-		// Compute distances and best alignments for the test trajectories:
-		/* If a test trajectory set was provided, it does the same.
-		 * and return otherwise */
-		/** STEP 2.3.2: Output Movelets (partial) */
-		if (!this.test.isEmpty()) {
-//			base = computeBaseDistances(trajectory, this.test);
-			for (Subtrajectory candidate : movelets) {
-				// It initializes the set of distances of all movelets to null
-				candidate.setDistances(null);
-				// In this step the set of distances is filled by this method
-				computeDistances(candidate, this.test); //, computeBaseDistances(trajectory, this.test));
-			}
-			super.output("test", this.test, movelets, true);
-		}
-		/** --------------------------------- */
+
+		/** STEP 2.2: ---------------------------- */
+		outputMovelets(movelets);
+		/** -------------------------------------- */
 		
 		progressBar.plus(trajsIgnored, 
 						   "Class: " + trajsFromClass.get(0).getMovingObject() 

@@ -111,27 +111,10 @@ public class MasterMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 		/** STEP 2.2: Runs the pruning process */
 		if(getDescriptor().getFlag("last_prunning"))
 			movelets = lastPrunningFilter(movelets);
-		/** STEP 2.2: --------------------------------- */
-		
-		/** STEP 2.3.1: Output Movelets (partial) */
-		super.output("train", this.train, movelets, true);
-		base =  null;
-		
-		// Compute distances and best alignments for the test trajectories:
-		/* If a test trajectory set was provided, it does the same.
-		 * and return otherwise */
-		/** STEP 2.3.2: Output Movelets (partial) */
-		if (!this.test.isEmpty()) {
-//			base = computeBaseDistances(trajectory, this.test);
-			for (Subtrajectory candidate : movelets) {
-				// It initializes the set of distances of all movelets to null
-				candidate.setDistances(null);
-				// In this step the set of distances is filled by this method
-				computeDistances(candidate, this.test); //, computeBaseDistances(trajectory, this.test));
-			}
-			super.output("test", this.test, movelets, true);
-		}
-		/** --------------------------------- */
+
+		/** STEP 2.3: ---------------------------- */
+		outputMovelets(movelets);
+		/** -------------------------------------- */
 
 //		/** STEP 2.3.3, to write all outputs: */
 //		super.output("train", this.train, movelets, false);
@@ -140,6 +123,33 @@ public class MasterMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 //			super.output("test", this.test, movelets, false);
 		
 		return movelets;
+	}
+
+	/**
+	 * Method to output movelets. It is synchronized by thread. 
+	 * 
+	 * @param movelets
+	 */
+	public void outputMovelets(List<Subtrajectory> movelets) {
+		synchronized (DiscoveryAdapter.class) {
+			super.output("train", this.train, movelets, true);
+			base =  null;
+			
+			// Compute distances and best alignments for the test trajectories:
+			/* If a test trajectory set was provided, it does the same.
+			 * and return otherwise */
+			/** STEP 2.3.2: Output Movelets (partial) */
+			if (!this.test.isEmpty()) {
+	//			base = computeBaseDistances(trajectory, this.test);
+				for (Subtrajectory candidate : movelets) {
+					// It initializes the set of distances of all movelets to null
+					candidate.setDistances(null);
+					// In this step the set of distances is filled by this method
+					computeDistances(candidate, this.test); //, computeBaseDistances(trajectory, this.test));
+				}
+				super.output("test", this.test, movelets, true);
+			}
+		}
 	}
 
 	/**
@@ -224,7 +234,7 @@ public class MasterMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 						+ ". Used Features: " + this.maxNumberOfFeatures);
 //						+ ". Memory Use: " + Mov3letsUtils.getUsedMemory());
 	
-		base =  null;
+		base = null;
 		lastSize = null;
 
 		return candidates;

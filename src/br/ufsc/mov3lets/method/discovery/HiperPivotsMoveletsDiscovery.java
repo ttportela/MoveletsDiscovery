@@ -110,6 +110,10 @@ public class HiperPivotsMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO>
 		/** STEP 2.2: SELECTING BEST CANDIDATES */	
 		orderCandidates(candidatesByProp);
 		List<Subtrajectory> bestCandidates = filterEqualCandidates(candidatesByProp);
+		
+		if (getDescriptor().getFlag("feature_limit"))
+			bestCandidates = selectMaxFeatures(bestCandidates);
+		
 		bestCandidates = filterByQuality(bestCandidates, random, trajectory);	
 		
 		/* STEP 2.1.5: Recover Approach (IF Nothing found)
@@ -118,7 +122,7 @@ public class HiperPivotsMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO>
 			bestCandidates = recoverCandidates(trajectory, random, candidatesByProp);
 		}
 		
-		queue.removeAll(getCoveredInClass(bestCandidates));	
+//		queue.removeAll(getCoveredInClass(bestCandidates));	
 	
 		progressBar.plus("Class: " + trajectory.getMovingObject() 
 						+ ". Trajectory: " + trajectory.getTid() 

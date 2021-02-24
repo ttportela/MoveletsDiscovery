@@ -12,24 +12,32 @@ from datetime import datetime
 from IPython.utils import io
 # --------------------------------------------------------------------------------
 
-def k_run(k, data_folder, res_path, prefix, folder, descriptor, version = 'hiper', ms = False, Ms = False, extra=False, 
+def k_Movelets(k, data_folder, res_path, prefix, folder, descriptor, version = 'hiper', ms = False, Ms = False, extra=False, 
         java_opts='', jar_name='HIPERMovelets', n_threads=1, prg_path='./', print_only=False, keep_folder=2):
     
-    for x in range(k):
-        subpath_data = os.path.join(data_folder, 'run'+str(x+1))
-        subpath_rslt = os.path.join(res_path,    'run'+str(x+1))
-        run(subpath_data, subpath_rslt, prefix, folder, descriptor, version, ms, Ms, extra, 
+    if isinstance(k, int):
+        k = range(1, k+1)
+    
+    for x in k:
+        subpath_data = os.path.join(data_folder, 'run'+str(x))
+        subpath_rslt = os.path.join(res_path,    prefix, 'run'+str(x))
+        Movelets(subpath_data, subpath_rslt, None, folder, descriptor, version, ms, Ms, extra, 
         java_opts, jar_name, n_threads, prg_path, print_only, keep_folder)
 
 # --------------------------------------------------------------------------------
-def run(data_folder, res_path, prefix, folder, descriptor, version = 'hiper', ms = False, Ms = False, extra=False, 
+def Movelets(data_folder, res_path, prefix, folder, descriptor, version = 'hiper', ms = False, Ms = False, extra=False, 
         java_opts='', jar_name='HIPERMovelets', n_threads=1, prg_path='./', print_only=False, keep_folder=2):
     print('# --------------------------------------------------------------------------------------')
-    print('# ' + prefix + ' - ' +folder)
+    print('# ' + res_path + ' - ' +folder)
     print('# --------------------------------------------------------------------------------------')
-#     print()
+#     print('echo RUN - ' + res_path + ' - ' +folder)
+    print()
     
-    res_folder = os.path.join(res_path, prefix, folder)
+    if prefix != None:
+        res_folder = os.path.join(res_path, prefix, folder)
+    else:
+        res_folder = os.path.join(res_path, folder)
+#     res_folder = os.path.join(res_path, prefix, folder)
     mkdir(res_folder, print_only)
     
     program = os.path.join(prg_path, jar_name+'.jar')
@@ -61,10 +69,10 @@ def run(data_folder, res_path, prefix, folder, descriptor, version = 'hiper', ms
 #     if PVT:
 #         CMD = CMD + ' -pvt true -lp false -pp 10 -op false'
         
-    if os_name == 'nt':
+    if os.name == 'nt':
         CMD = CMD +  ' >> "'+outfile +  '"'
     else:
-        CMD = CMD +  ' | tee -a "'+outfile+'"'
+        CMD = CMD +  ' 2>&1 | tee -a "'+outfile+'" '
         
     execute(CMD, print_only)
     print('# --------------------------------------------------------------------------------------')
@@ -136,9 +144,10 @@ def execute(cmd, print_only=False):
 #         os.system(cmd)
     
 def mkdir(folder, print_only=False):
+    cmd = 'md' if os.name == 'nt' else 'mkdir -p'
     if not os.path.exists(folder):
         if print_only:
-            execute('mkdir -p "' + folder + '"', print_only)
+            execute(cmd+' "' + folder + '"', print_only)
         else:
             os.makedirs(folder)
 
@@ -173,37 +182,54 @@ def mergeClasses(res_folder, prg_path='./', print_only=False):
     dir_from = getResultPath(res_folder)
     
     if print_only:
-        dir_from = '$pattern'
+#         dir_from = '$pattern'
+        dir_from = res_folder
     
-    if dir_from is None:
-        return False
+#     if dir_from is None:
+#         return False
     
-    prg = os.path.join(prg_path, 'automatize', 'MergeDatasets.R')
-    print("# Merging here: " + str(dir_from) + " (" + res_folder + ")")
-    execute('Rscript "'+prg+'" "'+dir_from+'"', print_only)
-#     ! Rscript MergeDatasets.R "$dir_from"
+# #     print("# Merging here: " + str(dir_from) + " (" + res_folder + ")")
+#     prg = os.path.join(prg_path, 'automatize', 'MergeDatasets.R')
+#     execute('Rscript "'+prg+'" "'+dir_from+'"', print_only)
+# #     ! Rscript MergeDatasets.R "$dir_from"
+
+    prg = os.path.join(prg_path, 'automatize', 'MergeDatasets.py')
+    execute('python3 "'+prg+'" "'+res_folder+'"', print_only)
+#     execute('python3 "'+prg+'" "'+res_folder+'" "test.csv"', print_only)
+
     return dir_from
     
 def mergeAndMove(res_folder, folder, prg_path='./', print_only=False):
 #     dir_analisys = os.path.join(AN_PATH, prefix, dir_to)
 
-    if print_only:
-        print('pattern="'+os.path.join(res_folder, folder)+'"')
-        print('rdir=$(ls "${pattern}" | head -1)')
-        print('pattern=$(realpath "${pattern}")/"$rdir"')
+#     if print_only:
+#         print('pattern="'+os.path.join(res_folder, folder)+'"')
+#         print('rdir=$(ls "${pattern}" | head -1)')
+#         print('pattern=$(realpath "${pattern}")/"$rdir"')
 
-    dir_from = mergeClasses(os.path.join(res_folder, folder), prg_path, print_only)
+    dir_from = mergeClasses(res_folder, prg_path, print_only)
+    #mergeClasses(os.path.join(res_folder, folder), prg_path, print_only)
     
     if not print_only and not dir_from:
         print("Nothing to Merge. Abort.")
         return
-    
-#     if not os.path.exists(dir_analisys):
-#         os.makedirs(dir_analisys)
         
 #     print("Analysis   : " + str(dir_analisys))
-    moveResults(dir_from, res_folder, print_only)
-#     moveFolder(res_folder, prefix, dir_to)
+#     moveResults(dir_from, res_folder, print_only)
+
+# --------------------------------------------------------------------------------------
+def mergeDatasets(dir_path, file='train.csv'):
+    files = [i for i in glob.glob(os.path.join(dir_path, '*', '**', file))]
+
+    print("Loading files - " + file)
+    # combine all files in the list
+    combined_csv = pd.concat([pd.read_csv(f).drop('class', axis=1) for f in files[:len(files)-1]], axis=1)
+    combined_csv = pd.concat([combined_csv, pd.read_csv(files[len(files)-1])], axis=1)
+    #export to csv
+    print("Writing "+file+" file")
+    combined_csv.to_csv(os.path.join(dir_path, file), index=False)
+    
+    print("Done.")
 
 # --------------------------------------------------------------------------------------
 def countMovelets(dir_path):
@@ -223,10 +249,13 @@ def k_MARC(k, data_folder, res_path, prefix, folder, train="train.csv", test="te
             EMBEDDING_SIZE=100, MERGE_TYPE="concatenate", RNN_CELL="lstm",
             prg_path='./', print_only=False):
     
-    for x in range(k):
-        subpath_data = os.path.join(data_folder, 'run'+str(x+1))
-        subpath_rslt = os.path.join(res_path,    'run'+str(x+1))
-        MARC(subpath_data, subpath_rslt, prefix, folder, train, test,
+    if isinstance(k, int):
+        k = range(1, k+1)
+    
+    for x in k:
+        subpath_data = os.path.join(data_folder, 'run'+str(x))
+        subpath_rslt = os.path.join(res_path,    prefix, 'run'+str(x))
+        MARC(subpath_data, subpath_rslt, None, folder, train, test,
             EMBEDDING_SIZE, MERGE_TYPE, RNN_CELL,
             prg_path, print_only)
     
@@ -235,11 +264,16 @@ def MARC(data_folder, res_path, prefix, folder, train="train.csv", test="test.cs
             prg_path='./', print_only=False):
     
     print("# ---------------------------------------------------------------------------------")
-    print("# MARC: " + prefix + ' - ' +folder)
+    print("# MARC: " + res_path + ' - ' +folder)
     print("# ---------------------------------------------------------------------------------")
+#     print('echo MARC - ' + res_path + ' - ' +folder)
     print()
     
-    res_folder = os.path.join(res_path, prefix, folder)
+    if prefix != None:
+        res_folder = os.path.join(res_path, prefix, folder)
+    else:
+        res_folder = os.path.join(res_path, folder)
+#     res_folder = os.path.join(res_path, prefix, folder)
     mkdir(res_folder, print_only)
     
     TRAIN_FILE   = os.path.join(data_folder, train)
@@ -254,9 +288,9 @@ def MARC(data_folder, res_path, prefix, folder, train="train.csv", test="test.cs
     CMD = 'python3 "'+PROGRAM+'" "' + TRAIN_FILE + '" "' + TEST_FILE + '" "' + RESULTS_FILE + '" "' + DATASET_NAME + '" ' + str(EMBEDDING_SIZE) + ' ' + MERGE_TYPE + ' ' + RNN_CELL
     
     if os.name == 'nt':
-        tee = ' >> '+OUTPUT_FILE +  ' && type '+OUTPUT_FILE
+        tee = ' >> '+OUTPUT_FILE 
     else:
-        tee = ' | tee -a '+OUTPUT_FILE
+        tee = ' 2>&1 | tee -a '+OUTPUT_FILE
         
     CMD = CMD + tee    
         
@@ -279,3 +313,57 @@ def MARC(data_folder, res_path, prefix, folder, train="train.csv", test="test.cs
         print(captured.stdout)
         print("Done. " + str(time) + " milliseconds")
     print("# ---------------------------------------------------------------------------------")
+    
+def k_POIFREQ(k, data_folder, res_path, prefix, dataset, sequences, features, py_name='python3', \
+              print_only=False, doclass=True):
+    
+    if isinstance(k, int):
+        k = range(1, k+1)
+    
+    for x in k:
+        subpath_data = os.path.join(data_folder, 'run'+str(x))
+        subpath_rslt = os.path.join(res_path,    prefix, 'run'+str(x))
+#         print(subpath_data, subpath_rslt, None, dataset, sequences, features, py_name, print_only, doclass)
+        POIFREQ(subpath_data, subpath_rslt, None, dataset, sequences, features, py_name, print_only, doclass)
+        
+def POIFREQ(data_folder, res_path, prefix, dataset, sequences, features, py_name='python3', print_only=False, doclass=True):
+    
+    folder = 'POIFREQ-' + '_'.join(features)
+    
+    print("# ---------------------------------------------------------------------------------")
+    print("# POIFREQ: " + res_path + ' - ' +folder)
+    print("# ---------------------------------------------------------------------------------")
+    print()
+    
+    if prefix != None:
+        res_folder = os.path.join(res_path, prefix, folder)
+    else:
+        res_folder = os.path.join(res_path, folder)
+        
+    mkdir(res_folder, print_only)
+    print()
+    
+    if print_only:
+#         print('echo POIFREQ - ' + res_path + ' - ' +folder)
+        print()
+        outfile = os.path.join(res_folder, folder+'.txt')
+    
+        CMD = py_name + " automatize/poifreq/poifreq.py "
+        CMD = CMD + "\"npoi\" "
+        CMD = CMD + "\""+(','.join([str(n) for n in sequences]))+"\" "
+        CMD = CMD + "\""+('_'.join(features))+"\" "
+        CMD = CMD + "\""+dataset+"\" "
+        CMD = CMD + "\""+data_folder+"\" "
+        CMD = CMD + "\""+res_folder+"\""
+        
+        if os.name == 'nt':
+            CMD = CMD +  ' >> "'+outfile+'"'
+        else:
+            CMD = CMD +  ' 2>&1 | tee -a "'+outfile+'"'
+        
+        execute(CMD, print_only)
+        
+        return os.path.join(res_folder, 'npoi_'+('_'.join(features))+'_'+('_'.join([str(n) for n in sequences]))+'_'+dataset)
+    else:
+        from automatize.ensemble_models.poifreq import poifreq
+        return poifreq(sequences, dataset, features, data_folder, res_folder, doclass=doclass)

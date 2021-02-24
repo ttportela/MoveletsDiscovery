@@ -86,6 +86,8 @@ public class Mov3letsRun {
 			showUsage(mov.getDescriptor().getParams(), "-curpath\tCould not load train dataset: " + e.getMessage());
 //			e.printStackTrace();
 			return;
+		} catch (Exception e) {
+			error(e);
 		}
 		
 		try {
@@ -95,6 +97,8 @@ public class Mov3letsRun {
 			// Empty if can't
 			Mov3letsUtils.trace("Empty test dataset: "+ e.getMessage() +" [continue]");
 			mov.setTest(new ArrayList<MAT<String>>());
+		} catch (Exception e) {
+			error(e);
 		}
 		
 		if (mov.getTrain().isEmpty()) { 
@@ -113,17 +117,26 @@ public class Mov3letsRun {
 		try {
 			mov.mov3lets();
 		} catch (Exception e) {
-			// Empty if can't
-			Mov3letsUtils.traceE("HIPERMovelets encoutered the following error.", e);
-			Mov3letsUtils.getInstance().stopTimer("[3] >> Processing time");
-//			e.printStackTrace();
-			System.exit(1);
+			error(e);
 		}
 		Mov3letsUtils.getInstance().stopTimer("[3] >> Processing time");
 //		System.out.println(inputFile);
 		
 		// End Date:
 		Mov3letsUtils.trace(new Date().toString());
+	}
+
+	/**
+	 * Mehod error. 
+	 * 
+	 * @param e
+	 */
+	public static void error(Exception e) {
+		// Empty if can't
+		Mov3letsUtils.traceE("HIPERMovelets encoutered the following error.", e);
+		Mov3letsUtils.getInstance().stopTimer("[3] >> Processing time");
+		e.printStackTrace();
+		System.exit(1);
 	}
 	
 	/**
@@ -158,7 +171,7 @@ public class Mov3letsRun {
 				{"-Ms", 				"Max size", 				params.get("max_size"), 					"Any positive, All sizes: -1, Log: -3"},
 //				{"", 					"", 						"",						 					"All sizes: -1,"},
 //				{"", 					"", 						"", 										"Log: -3"},
-				{"-mnf", 				"Max Number of Dimensions",	params.get("max_number_of_features"), 		"Any positive, Explore dim.: -1, Log: -3"},
+				{"-mnf", 				"Max Number of Dimensions",	params.get("max_number_of_features"), 		"Any positive, Explore dim.: -1, Log: -2, Other: -3"},
 //				{"", 					"", 						"",						 					"Explore dim.: -1,"},
 //				{"", 					"", 						"", 										"Log: -3"},
 //				{"-ed", 				"Explore dimensions", 		params.get("explore_dimensions"), 			"Same as -mnf -1"},
@@ -244,7 +257,8 @@ public class Mov3letsRun {
 		params.put("str_quality_measure",		 "LSP"); // LSP | PROP
 //		params.put("cache",						 true); // Deprecated: JSON configuration.	
 		params.put("explore_dimensions",		 false);
-		params.put("max_number_of_features",	 -1);
+		params.put("max_number_of_features",	 -1);					
+		params.put("feature_limit",				 false);
 		params.put("samples",					 1);			
 		params.put("sample_size",				 0.5);			
 		params.put("medium",					 "none"); // Other values minmax, sd, interquartil
@@ -252,8 +266,7 @@ public class Mov3letsRun {
 		params.put("outputters",				 "CSV,JSON"); // OUTPUTTERs Styles							
 		params.put("delay_output",				 true);			
 		params.put("pivots",					 false);						
-		params.put("supervised",				 false);						
-		params.put("feature_limit",				 false);
+		params.put("supervised",				 false);	
 		params.put("movelets_per_trajectory",	 -1);	// Filtering		
 		params.put("lowm_memory",				 false);		
 		params.put("last_prunning",				 false);		
@@ -263,6 +276,7 @@ public class Mov3letsRun {
 		params.put("verbose",				 	 true);
 		params.put("version",				 	 "2.0");
 		params.put("tau",					 	 0.9);
+		params.put("relative_tau",			 	 true);
 		params.put("bucket_slice",				 0.1);
 		params.put("filter_strategy",		 	 "none"); // Use Buckets
 		params.put("LDM",					 	 false);
@@ -328,6 +342,8 @@ public class Mov3letsRun {
 			case "-maxNumberOfFeatures":			
 			case "-max_number_of_features":
 				params.put("max_number_of_features", Integer.valueOf(value));
+				if (Integer.valueOf(value) < -2)
+					params.put("feature_limit", true);
 				break;
 			case "-samples":
 				params.put("samples", Integer.valueOf(value));			
@@ -361,12 +377,12 @@ public class Mov3letsRun {
 			case "-supervised":
 				params.put("supervised", Boolean.valueOf(value));				
 				break;		
-			case "-Al":	
-			case "-al":	
-			case "-AL":
-			case "-feature_limit":
-				params.put("feature_limit", Boolean.valueOf(value));				
-				break;
+//			case "-Al":	
+//			case "-al":	
+//			case "-AL":
+//			case "-feature_limit":
+//				params.put("feature_limit", Boolean.valueOf(value));				
+//				break;
 			case "-mpt":
 			case "-movelets_per_trajectory":
 			case "-moveletsPerTrajectory":
@@ -404,8 +420,17 @@ public class Mov3letsRun {
 				if ("pivots".equalsIgnoreCase(value)) params.put("pivots",  true);
 				break;		
 			case "-tau":	
-			case "-T":
-				params.put("tau", Double.valueOf(value));			
+			case "-fixed_tau":
+			case "-TAU":	
+			case "-T":	
+			case "-TF":
+				params.put("tau", Double.valueOf(value));	
+				params.put("relative_tau", false);		
+				break;	
+			case "-relative_tau":
+			case "-TR":
+				params.put("tau", Double.valueOf(value));	
+				params.put("relative_tau", true);		
 				break;	
 			case "-bucket_slice":	
 			case "-BU":

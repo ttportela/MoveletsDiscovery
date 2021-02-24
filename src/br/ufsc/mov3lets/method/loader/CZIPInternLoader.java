@@ -7,6 +7,6 @@ import br.ufsc.mov3lets.model.MAT;
  *
  * @param <T> the generic type
  */
-public class ZippedInternLoader<T extends MAT<?>> extends ZippedLoader<T> implements InterningLoaderAdapter<T> {
+public class CZIPInternLoader<T extends MAT<?>> extends CZIPLoader<T> implements InterningLoaderAdapter<T> {
 
 }

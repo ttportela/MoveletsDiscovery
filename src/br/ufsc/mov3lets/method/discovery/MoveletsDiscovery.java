@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 
@@ -92,9 +93,13 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 		this.exploreDimensions = getDescriptor().getFlag("explore_dimensions");
 		
 		switch (maxNumberOfFeatures) {
-			case -1: this.maxNumberOfFeatures = numberOfFeatures; break;
+			case -1: // All features
+			case -3: // Learn feature limits (mode)
+			case -4: this.maxNumberOfFeatures = numberOfFeatures; break; // Learn feature limits (most frequent) 
+			
 			case -2: this.maxNumberOfFeatures = (int) Math.ceil(Math.log(numberOfFeatures))+1; break;
-			default: break;
+			
+			default: break; // Fixed number of features
 		}
 	}
 	
@@ -172,26 +177,10 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 		/** STEP 2.2: Runs the pruning process */
 		if(getDescriptor().getFlag("last_prunning"))
 			movelets = lastPrunningFilter(movelets);
-		/** STEP 2.2: --------------------------------- */
-		
-		/** STEP 2.3.1: Output Movelets (partial) */
-		super.output("train", this.train, movelets, true);
-		
-		// Compute distances and best alignments for the test trajectories:
-		/* If a test trajectory set was provided, it does the same.
-		 * and return otherwise */
-		/** STEP 2.3.2: Output Movelets (partial) */
-		if (!this.test.isEmpty()) {
-//			base = computeBaseDistances(trajectory, this.test);
-			for (Subtrajectory candidate : movelets) {
-				// It initializes the set of distances of all movelets to null
-				candidate.setDistances(null);
-				// In this step the set of distances is filled by this method
-				computeDistances(candidate, this.test); //, computeBaseDistances(trajectory, this.test));
-			}
-			super.output("test", this.test, movelets, true);
-		}
-		/** --------------------------------- */
+
+		/** STEP 2.2: ---------------------------- */
+		outputMovelets(movelets);
+		/** -------------------------------------- */
 		
 //		/** STEP 2.3.3, to write all outputs: */
 //		super.output("train", this.train, movelets, false);
@@ -203,6 +192,33 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 		
 		return movelets;
 				
+	}
+
+	/**
+	 * Method to output movelets. It is synchronized by thread. 
+	 * 
+	 * @param movelets
+	 */
+	public void outputMovelets(List<Subtrajectory> movelets) {
+		/** STEP 2.3.1: Output Movelets (partial) */
+		synchronized (DiscoveryAdapter.class) {
+			super.output("train", this.train, movelets, true);
+			
+			// Compute distances and best alignments for the test trajectories:
+			/* If a test trajectory set was provided, it does the same.
+			 * and return otherwise */
+			/** STEP 2.3.2: Output Movelets (partial) */
+			if (!this.test.isEmpty()) {
+	//			base = computeBaseDistances(trajectory, this.test);
+				for (Subtrajectory candidate : movelets) {
+					// It initializes the set of distances of all movelets to null
+					candidate.setDistances(null);
+					// In this step the set of distances is filled by this method
+					computeDistances(candidate, this.test); //, computeBaseDistances(trajectory, this.test));
+				}
+				super.output("test", this.test, movelets, true);
+			}
+		}
 	}
 
 	/**
@@ -340,8 +356,8 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 		} else {
 			currentFeatures = numberOfFeatures;
 		}
-		
-		combinations = new int[(int) (Math.pow(2, maxNumberOfFeatures) - 1)][];
+				
+		combinations = new int[(int) (Math.pow(2, numberOfFeatures) - 1)][];
 		int k = 0;
 		// For each possible NumberOfFeatures and each combination of those: 
 		for (;currentFeatures <= maxNumberOfFeatures; currentFeatures++) {
@@ -352,6 +368,8 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 			} // for (int[] comb : new Combinations(numberOfFeatures,currentFeatures)) 					
 		} // for (int i = 0; i < train.size(); i++
 
+		combinations = Arrays.stream(combinations).filter(Objects::nonNull).toArray(int[][]::new);
+		
 		return combinations;
 	}
 	
@@ -821,6 +839,34 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 			return intersection >= selfSimilarityProp;
 
 		}
+
+	}
+	
+	/**
+	 * Are self similar.
+	 *
+	 * @param candidate the candidate
+	 * @param subtrajectory the subtrajectory
+	 * @param selfSimilarityProp the self similarity prop
+	 * @return true, if successful
+	 */
+	public boolean areFeaturesSimilar(Subtrajectory candidate, int[] pointFeatures,
+			double featuresSimilarityProp) {
+		
+		if (featuresSimilarityProp == 0)
+			return true;
+		
+		double intersection = 0.0;
+		
+		for (int k : candidate.getPointFeatures())
+			for (int j : pointFeatures)
+				if (k == j)
+					intersection += 1.0;
+
+		intersection = intersection
+				/ (double) Math.min(candidate.getPointFeatures().length, pointFeatures.length);
+		
+		return intersection >= featuresSimilarityProp;
 
 	}
 	

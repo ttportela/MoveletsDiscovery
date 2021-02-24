@@ -37,11 +37,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import br.ufsc.mov3lets.method.discovery.DiscoveryAdapter;
 import br.ufsc.mov3lets.method.discovery.PrecomputeMoveletsDiscovery;
-import br.ufsc.mov3lets.method.loader.CSVInternLoader;
-import br.ufsc.mov3lets.method.loader.CSVLoader;
 import br.ufsc.mov3lets.method.loader.LoaderAdapter;
-import br.ufsc.mov3lets.method.loader.ZippedInternLoader;
-import br.ufsc.mov3lets.method.loader.ZippedLoader;
 import br.ufsc.mov3lets.method.output.OutputterAdapter;
 import br.ufsc.mov3lets.method.qualitymeasure.LeftSidePureCVLigth;
 import br.ufsc.mov3lets.method.qualitymeasure.ProportionQualityMeasure;
@@ -200,17 +196,17 @@ public class Mov3lets<MO> {
 			if ( ! Paths.get(resultDirPath, myclass.toString(), "test.csv").toFile().exists() ) {
 				List<MAT<MO>> trajsFromClass = train.stream().filter(e-> myclass.equals(e.getMovingObject())).collect(Collectors.toList());
 
+				List<MAT<MO>> sharedQueue = new ArrayList<MAT<MO>>();
+				sharedQueue.addAll(trajsFromClass);
+				
 				DiscoveryAdapter<MO> moveletsDiscovery;
 				List<OutputterAdapter<MO>> outs = configOutput(trajsFromClass.size());
 				
-				if (getDescriptor().getParamAsText("version").equals("hiper") ||
-					getDescriptor().getParamAsText("version").equals("hiper-pvt") ||
-					getDescriptor().getParamAsText("version").equals("hiper-ce") ||
-					getDescriptor().getParamAsText("version").equals("hiper-pvt-ce") ||
-					getDescriptor().getParamAsText("version").equals("hiper-en")||
-					getDescriptor().getParamAsText("version").equals("ultra")) {
+				if (getDescriptor().getParamAsText("version").startsWith("hiper")   ||
+					getDescriptor().getParamAsText("version").equals("super-class")) {
 					
 					moveletsDiscovery = instantiateMoveletsDiscovery(qualityMeasure, trajsFromClass, outs);
+					moveletsDiscovery.setQueue(sharedQueue);
 					
 					// Configure Outputs
 					moveletsDiscovery.setOutputers(outs);
@@ -219,12 +215,12 @@ public class Mov3lets<MO> {
 				} else
 					for (MAT<MO> T : trajsFromClass) {
 						moveletsDiscovery = instantiateMoveletsDiscovery(qualityMeasure, trajsFromClass, outs, T);
+						moveletsDiscovery.setQueue(sharedQueue);
 						
 						// Configure Outputs
 						moveletsDiscovery.setOutputers(outs);
 						lsMDs.add(moveletsDiscovery);
 					}
-				
 				
 				// XXX - V2:
 //				try {
@@ -396,7 +392,7 @@ public class Mov3lets<MO> {
 	 *
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
-	public void loadTrain() throws IOException {
+	public void loadTrain() throws Exception {
 		LoaderAdapter loader = instantiateLoader();
 		
 		if (getDescriptor().getInput() != null && getDescriptor().getInput().getTrain() != null) {
@@ -414,7 +410,7 @@ public class Mov3lets<MO> {
 	 *
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
-	public void loadTest() throws IOException {
+	public void loadTest() throws Exception {
 		LoaderAdapter loader = instantiateLoader();
 		
 		if (getDescriptor().getInput() != null && getDescriptor().getInput().getTest() != null) {
@@ -431,27 +427,44 @@ public class Mov3lets<MO> {
 	 * STEP 1.
 	 *
 	 * @return the loader adapter
+	 * @throws ClassNotFoundException 
+	 * @throws SecurityException 
+	 * @throws NoSuchMethodException 
+	 * @throws InvocationTargetException 
+	 * @throws IllegalArgumentException 
+	 * @throws IllegalAccessException 
+	 * @throws InstantiationException 
 	 */
-	public LoaderAdapter instantiateLoader() {
-		LoaderAdapter loader;
+	public LoaderAdapter instantiateLoader() throws Exception {
+
+		String cname = getDescriptor().getParamAsText("data_format").toUpperCase();
+		
+		if (getDescriptor().getFlag("interning")) {
+			cname += "Intern";
+		}
+		
+		LoaderAdapter loader = (LoaderAdapter) Class.forName("br.ufsc.mov3lets.method.loader."+cname+"Loader")
+				.getDeclaredConstructor().newInstance();
+		
+		
 //		if (getDescriptor().getFlag("indexed")) { // For future implementations
 //			data = new IndexedLoaderAdapter<MAT<MO>>().load(file, getDescriptor());
 //		} else 
-		if (getDescriptor().getFlag("interning")) {
-
-			if ("CSV".equals(getDescriptor().getParamAsText("data_format")))			
-				loader = new CSVInternLoader<MAT<MO>>();
-			else
-				loader = new ZippedInternLoader<MAT<MO>>(); // DEFAULT
-			
-		} else {
-
-			if ("CSV".equals(getDescriptor().getParamAsText("data_format")))			
-				loader = new CSVLoader<MAT<MO>>();
-			else
-				loader = new ZippedLoader<MAT<MO>>();
-			
-		}
+//		if (getDescriptor().getFlag("interning")) {
+//
+//			if ("CSV".equals(getDescriptor().getParamAsText("data_format")))			
+//				loader = new CSVInternLoader<MAT<MO>>();
+//			else
+//				loader = new ZippedInternLoader<MAT<MO>>(); // DEFAULT
+//			
+//		} else {
+//
+//			if ("CSV".equals(getDescriptor().getParamAsText("data_format")))			
+//				loader = new CSVLoader<MAT<MO>>();
+//			else
+//				loader = new ZippedLoader<MAT<MO>>();
+//			
+//		}
 		
 		return loader;
 	}

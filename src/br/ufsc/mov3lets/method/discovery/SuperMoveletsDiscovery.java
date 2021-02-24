@@ -107,26 +107,10 @@ public class SuperMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> {
 		/** STEP 2.2: Runs the pruning process */
 		if(getDescriptor().getFlag("last_prunning"))
 			movelets = lastPrunningFilter(movelets);
-		/** STEP 2.2: --------------------------------- */
-		
-		/** STEP 2.3.1: Output Movelets (partial) */
-		super.output("train", this.train, movelets, true);
-		
-		// Compute distances and best alignments for the test trajectories:
-		/* If a test trajectory set was provided, it does the same.
-		 * and return otherwise */
-		/** STEP 2.3.2: Output Movelets (partial) */
-		if (!this.test.isEmpty()) {
-//			base = computeBaseDistances(trajectory, this.test);
-			for (Subtrajectory candidate : movelets) {
-				// It initializes the set of distances of all movelets to null
-				candidate.setDistances(null);
-				// In this step the set of distances is filled by this method
-				computeDistances(candidate, this.test); //, computeBaseDistances(trajectory, this.test));
-			}
-			super.output("test", this.test, movelets, true);
-		}
-		/** --------------------------------- */
+
+		/** STEP 2.2: ---------------------------- */
+		outputMovelets(movelets);
+		/** -------------------------------------- */
 		
 //		progressBar.trace("Class: " + trajsFromClass.get(0).getMovingObject() 
 //				   + ". Total of Movelets: " + movelets.size());
@@ -209,36 +193,6 @@ public class SuperMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> {
 	}
 
 	/**
-	 * Mehod selectMaxDimensions. Selection of Lambda threshold.
-	 * 
-	 * @param candidatesByProp
-	 * @return
-	 */
-	public List<Subtrajectory> selectMaxFeatures(List<Subtrajectory> candidatesByProp) {
-		
-		int[] attribute_usage = new int [this.maxNumberOfFeatures]; // array of ints
-
-		for(Subtrajectory candidate : candidatesByProp)
-			attribute_usage[candidate.getPointFeatures().length-1]++;
-		
-		// Selection of Lambda threshold
-		int LAMBDA = -1;
-		for (int i = 0; i < attribute_usage.length; i++) {
-			if (LAMBDA <= attribute_usage[i])
-				LAMBDA = i+1;
-		}
-		
-		List<Subtrajectory> filteredCandidates = new ArrayList<>();
-		for(Subtrajectory candidate : candidatesByProp)
-			if(candidate.getPointFeatures().length <= LAMBDA)
-				filteredCandidates.add(candidate);
-		
-		this.maxNumberOfFeatures = LAMBDA;
-		
-		return filteredCandidates;
-	}
-
-	/**
 	 * Select best candidates.
 	 *
 	 * @param trajectory the trajectory
@@ -251,21 +205,20 @@ public class SuperMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> {
 			List<Subtrajectory> candidatesByProp) {
 		List<Subtrajectory> bestCandidates;
 
-//		GAMMA = getDescriptor().getParamAsDouble("gamma");
-
 		calculateProportion(candidatesByProp, random);
 		bestCandidates = filterByProportion(candidatesByProp, random);
-		
+				
+		// If using feature limit, remove candidates out of the dimension limit
 		if (getDescriptor().getFlag("feature_limit"))
 			bestCandidates = selectMaxFeatures(bestCandidates);
 		
 		bestCandidates = filterByQuality(bestCandidates, random, trajectory);
 
-		/* STEP 2.1.5: Recover Approach (IF Nothing found)
-		 * * * * * * * * * * * * * * * * * * * * * * * * */
-		if (bestCandidates.isEmpty()) { 
-			bestCandidates = recoverCandidates(trajectory, random, candidatesByProp);
-		}
+//		/* STEP 2.1.5: Recover Approach (IF Nothing found)
+//		 * * * * * * * * * * * * * * * * * * * * * * * * */
+//		if (bestCandidates.isEmpty()) { 
+//			bestCandidates = recoverCandidates(trajectory, random, candidatesByProp);
+//		}
 		
 		progressBar.plus("Class: " + trajectory.getMovingObject() 
 						+ ". Trajectory: " + trajectory.getTid() 
@@ -273,9 +226,127 @@ public class SuperMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> {
 						+ ". Number of Candidates: " + candidatesByProp.size() 
 						+ ". Total of Movelets: " + bestCandidates.size() 
 						+ ". Max Size: " + maxSize
-						+ ". Used Features: " + this.maxNumberOfFeatures);
+						+ ". Used Features: " + this.maxNumberOfFeatures
+						+ ". TAU: " + TAU);
 
 		return bestCandidates;
+	}
+
+	/**
+	 * Mehod overlappingCandidates. 
+	 * 
+	 * @param bestCandidates
+	 */
+	public List<Subtrajectory> overlappingCandidatesByPoints(List<Subtrajectory> bestCandidates) {
+		List<Subtrajectory> recovered = new ArrayList<Subtrajectory>();
+		for (Subtrajectory candidate1 : bestCandidates) {
+			for (Subtrajectory candidate2 : bucket) {
+				if (areSelfSimilar(candidate1, candidate2, 0)) {
+					recovered.add(candidate2);
+				}
+			}		
+		}
+//		bestCandidates.addAll(recovered);
+		bucket.removeAll(recovered);
+		
+		return recovered;
+	}
+
+	/**
+	 * Mehod overlappingCandidates. 
+	 * 
+	 * @param bestCandidates
+	 */
+	public List<Subtrajectory> overlappingCandidatesByFeatures(List<Subtrajectory> bestCandidates, int[] pointFeatures) {
+		List<Subtrajectory> recovered = new ArrayList<Subtrajectory>();
+		for (Subtrajectory candidate : bucket) {
+			if (areFeaturesSimilar(candidate, pointFeatures, 0)) {
+				recovered.add(candidate);
+			}
+		}		
+//		bestCandidates.addAll(recovered);
+		bucket.removeAll(recovered);
+		
+		return recovered;
+	}
+
+	/**
+	 * Mehod selectMaxFeatures. 
+	 * Options:
+	 * 		-2: Log Limit (not implemented here)
+	 * 		-3: Limit by mode of dimension usage from best candidates.
+	 * 		-4: Limit by most frequent dimensions from best candidates
+	 * 
+	 * @param candidatesByProp
+	 * @return
+	 */
+	public List<Subtrajectory> selectMaxFeatures(List<Subtrajectory> candidatesByProp) {
+		
+		if (getDescriptor().getParamAsInt("max_number_of_features") == -3) {
+			return selectMaxFeatures_3(candidatesByProp);
+		} else if (getDescriptor().getParamAsInt("max_number_of_features") == -4) {
+			return selectMaxFeatures_4(candidatesByProp);
+		} else
+			return candidatesByProp;
+	}
+	
+	public List<Subtrajectory> selectMaxFeatures_3(List<Subtrajectory> candidatesByProp) {
+		
+		int[] attribute_usage = new int [this.numberOfFeatures]; // array of ints
+
+		for(Subtrajectory candidate : candidatesByProp)
+			attribute_usage[candidate.getPointFeatures().length-1]++;
+		
+		// Selection of threshold:
+		// Limit by mode of dimension usage from best candidates.
+		int LAMBDA = -1;
+		for (int i = 0; i < attribute_usage.length; i++) {
+			if (LAMBDA <= attribute_usage[i])
+				LAMBDA = i+1;
+		}
+		
+		// Include every other candidate with overlapping points
+//		candidatesByProp.addAll(overlappingCandidatesByPoints(candidatesByProp));
+		
+		List<Subtrajectory> filteredCandidates = new ArrayList<>();
+		for(Subtrajectory candidate : candidatesByProp)
+			if(candidate.getPointFeatures().length <= LAMBDA)
+				filteredCandidates.add(candidate);
+		
+		this.maxNumberOfFeatures = Math.min(LAMBDA, this.maxNumberOfFeatures);
+		
+		return filteredCandidates;
+	}
+	
+	public List<Subtrajectory> selectMaxFeatures_4(List<Subtrajectory> candidatesByProp) {
+		
+		int[] attribute_usage = new int [numberOfFeatures]; // array of ints
+
+		for(Subtrajectory candidate : candidatesByProp)
+			for (int i : candidate.getPointFeatures())
+				attribute_usage[i]++;
+
+		// Selection of dimensions:
+		// Limit by most frequent dimensions from best candidates
+		List<Integer> features = new ArrayList<Integer>();
+		for (int i = 0; i < attribute_usage.length; i++) {
+			if (attribute_usage[i] >= (candidatesByProp.size() * TAU))
+				features.add(i);
+		}
+		
+		int[] pointFeatures = features.stream().mapToInt(Integer::valueOf).toArray();
+		List<Subtrajectory> filteredCandidates = new ArrayList<>();
+		for (Subtrajectory candidate : candidatesByProp) {
+			if (areFeaturesSimilar(candidate, pointFeatures, 0)) {
+				filteredCandidates.add(candidate);
+			}
+		}		
+//		candidatesByProp.removeAll(recovered);
+//		bucket.addAll(recovered);
+		
+		this.maxNumberOfFeatures = Math.min(pointFeatures.length, this.maxNumberOfFeatures);
+		
+		return filteredCandidates;
 	}
 
 	/**
@@ -332,7 +403,8 @@ public class SuperMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> {
 //		candidatesByProp = filterEqualCandidates(candidatesByProp);
 		
 		// Relative TAU based on the higher proportion:
-		double rel_tau = (candidatesByProp.size() > 0? candidatesByProp.get(0).getQuality().getData().get("quality") : 0.0) * TAU;
+		double rel_tau = getDescriptor().getFlag("relative_tau")? ((candidatesByProp.size() > 0? 
+				 candidatesByProp.get(0).getQuality().getData().get("quality") : 0.0) * TAU) : TAU;	
 		
 		int n = bucketSize(candidatesByProp.size());
 

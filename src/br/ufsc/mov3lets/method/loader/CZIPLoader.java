@@ -27,7 +27,7 @@ import br.ufsc.mov3lets.model.Point;
  *
  * @param <T> the generic type
  */
-public class ZippedLoader<T extends MAT<?>> extends CSVLoader<T> {
+public class CZIPLoader<T extends MAT<?>> extends CSVLoader<T> {
 
 	/**
 	 * Overridden method. 
