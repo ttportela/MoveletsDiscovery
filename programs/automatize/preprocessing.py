@@ -139,13 +139,24 @@ def printFeaturesJSON(df, version=1, deftype='nominal', defcomparator='equals'):
     
 #-------------------------------------------------------------------------->>
 def countClasses(data_path, folder, file, class_col = 'label'):
-    df = pd.read_csv(os.path.join(data_path, folder, file))
+    df = pd.read_csv(os.path.join(data_path, folder, file))    
+    return countClasses_df(df, class_col)
+
+def countClasses_df(df, class_col = 'label'):
     group = df.groupby([class_col, 'tid'])
     df2 = group.apply(lambda x: x[class_col].unique())
     print(file + " Samples: " + str(len(df['tid'].unique())))
     print(df2.value_counts())
     
     return df2.value_counts()
+
+def readStatistics(data_path, folder, file, class_col = 'label'):
+
+def datasetStatistics(data_path, folder, file, class_col = 'label'):
+    
+    print('Statistics from TRAIN:')
+    print('Statistics from TEST.:')
+    
 
 
 #-------------------------------------------------------------------------->>

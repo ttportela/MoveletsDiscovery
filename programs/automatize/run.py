@@ -348,10 +348,11 @@ def POIFREQ(data_folder, res_path, prefix, dataset, sequences, features, py_name
         print()
         outfile = os.path.join(res_folder, folder+'.txt')
     
+        # RUN:
         CMD = py_name + " automatize/poifreq/poifreq.py "
         CMD = CMD + "\"npoi\" "
         CMD = CMD + "\""+(','.join([str(n) for n in sequences]))+"\" "
-        CMD = CMD + "\""+('_'.join(features))+"\" "
+        CMD = CMD + "\""+(','.join(features))+"\" "
         CMD = CMD + "\""+dataset+"\" "
         CMD = CMD + "\""+data_folder+"\" "
         CMD = CMD + "\""+res_folder+"\""
@@ -363,7 +364,24 @@ def POIFREQ(data_folder, res_path, prefix, dataset, sequences, features, py_name
         
         execute(CMD, print_only)
         
-        return os.path.join(res_folder, 'npoi_'+('_'.join(features))+'_'+('_'.join([str(n) for n in sequences]))+'_'+dataset)
+        result_name = ('_'.join(features))+'_'+('_'.join([str(n) for n in sequences]))+'_'+dataset
+        result_file = os.path.join(res_folder, 'npoi_'+result_name)
+        
+        # Classification:
+#         CMD = py_name + " automatize/poifreq/classification-p.py "
+#         CMD = CMD + "\"npoi\" "
+#         CMD = CMD + "\""+result_name+"\" "
+#         CMD = CMD + "\""+res_folder+"\" "
+#         CMD = CMD + "\"NN_"+folder+'.txt'+"\""
+        
+#         if os.name == 'nt':
+#             CMD = CMD +  ' >> "'+outfile+'"'
+#         else:
+#             CMD = CMD +  ' 2>&1 | tee -a "'+outfile+'"'
+        
+#         execute(CMD, print_only)
+        
+        return result_file
     else:
         from automatize.ensemble_models.poifreq import poifreq
         return poifreq(sequences, dataset, features, data_folder, res_folder, doclass=doclass)

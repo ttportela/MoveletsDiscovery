@@ -421,11 +421,21 @@ def poifreq(sequences, dataset, features, folder, result_dir, method='npoi', sav
                 agg_x_test = pd.DataFrame(x_test)
             else:
                 agg_x_test = pd.concat([agg_x_test, pd.DataFrame(x_test)], axis=1)    
-            
-            
+                
+    
+    del df_train
+    del df_test 
+    del x_train
+    del x_test   
+   
     core_name = os.path.join(result_dir, method+'_'+('_'.join(features))+'_'+('_'.join([str(n) for n in sequences]))+'_'+dataset)
     to_file(core_name, agg_x_train, agg_x_test, y_train, y_test)
     time_ext = (datetime.now()-time).total_seconds() * 1000
+    
+    del agg_x_train
+    del agg_x_test 
+    del y_train
+    del y_test 
     
     if doclass:
         time = datetime.now()

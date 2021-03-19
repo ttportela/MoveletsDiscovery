@@ -16,7 +16,7 @@ DATASET = sys.argv[4]
 path_name = sys.argv[5]
 RESULTS_DIR = sys.argv[6]
 
-from automatize.ensemble_models.poifreq_model import poifreq
+from automatize.ensemble_models.poifreq import poifreq
 time = datetime.now()
 poifreq(SEQUENCES, DATASET, FEATURES, path_name, RESULTS_DIR, method=METHOD, save_all=True, doclass=True)
 time_ext = (datetime.now()-time).total_seconds() * 1000

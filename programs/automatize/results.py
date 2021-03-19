@@ -73,7 +73,8 @@ def kFoldResults(res_path, prefix, method, modelfolder='model', isformat=True):
         df[run] = addResults(df, ijk, path, method, modelfolder, False)
         
     
-    df[method] = df[cols].mean(axis=1)
+    df[method] = df[cols][:-1].mean(axis=1)
+    df[method][11] = '-'
     
     if isformat:
         for column in cols:
