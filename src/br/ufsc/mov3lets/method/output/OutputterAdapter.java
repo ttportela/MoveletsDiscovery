@@ -22,6 +22,9 @@ public abstract class OutputterAdapter<MO> {
 	/** The file path. */
 	protected String filePath;
 	
+	/** The file path. */
+	protected String movingObject;
+	
 	/** The descriptor. */
 	protected Descriptor descriptor;
 	
@@ -37,7 +40,7 @@ public abstract class OutputterAdapter<MO> {
 	 * @param descriptor the descriptor
 	 */
 	public OutputterAdapter(Descriptor descriptor) {
-		this(descriptor.getParamAsText("respath"), descriptor, false);
+		this(descriptor.getParamAsText("respath"), "", descriptor, false);
 	}
 	
 	/**
@@ -47,8 +50,9 @@ public abstract class OutputterAdapter<MO> {
 	 * @param descriptor the descriptor
 	 * @param subfolderClasses the subfolder classes
 	 */
-	public OutputterAdapter(String filePath, Descriptor descriptor, boolean subfolderClasses) {
+	public OutputterAdapter(String filePath, String movingObjectName, Descriptor descriptor, boolean subfolderClasses) {
 		this.filePath = filePath;
+		this.movingObject = movingObjectName;
 		this.descriptor = descriptor;
 		this.subfolderClasses = subfolderClasses;
 	}
@@ -128,6 +132,14 @@ public abstract class OutputterAdapter<MO> {
 		return Paths.get(getFilePath(),
 				(this.subfolderClasses?	className : ""),
 				filename).toFile();
+	}
+	
+	public String getMovingObject() {
+		return movingObject;
+	}
+	
+	public void setMovingObject(String movingObject) {
+		this.movingObject = movingObject;
 	}
 	
 	/**

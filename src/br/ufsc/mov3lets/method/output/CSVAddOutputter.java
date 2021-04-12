@@ -51,8 +51,8 @@ public class CSVAddOutputter<MO> extends OutputterAdapter<MO> {
 	 * @param descriptor the descriptor
 	 * @param subfolderClasses the subfolder classes
 	 */
-	public CSVAddOutputter(String filePath, Descriptor descriptor, boolean subfolderClasses) {
-		super(filePath, descriptor, subfolderClasses);
+	public CSVAddOutputter(String filePath, String movingObjectName, Descriptor descriptor, boolean subfolderClasses) {
+		super(filePath, movingObjectName, descriptor, subfolderClasses);
 	}
 	
 	/**
@@ -70,8 +70,8 @@ public class CSVAddOutputter<MO> extends OutputterAdapter<MO> {
 	 * @param resultDirPath the result dir path
 	 * @param descriptor the descriptor
 	 */
-	public CSVAddOutputter(String resultDirPath, Descriptor descriptor) {
-		super(resultDirPath, descriptor, true);
+	public CSVAddOutputter(String resultDirPath, String movingObjectName, Descriptor descriptor) {
+		super(resultDirPath, movingObjectName, descriptor, true);
 	}
 
 	/**
@@ -91,8 +91,13 @@ public class CSVAddOutputter<MO> extends OutputterAdapter<MO> {
 		attributesToTrajectories(trajectories, movelets, attributeToTrajectories);
 //		if (delayOutput) return;
 		
-		if (movelets.isEmpty()) {
-			Mov3letsUtils.traceW("Empty movelets set [NOT OUTPUTTED]");
+//		if (movelets.isEmpty()) {
+//			Mov3letsUtils.traceW("Empty movelets set [NOT OUTPUTTED]");
+////			return;
+//		}
+		
+		if (attributeToTrajectories.isEmpty()) {
+			Mov3letsUtils.traceW("Empty movelets set for class "+getMovingObject()+" [NOT OUTPUTTED]");
 			return;
 		}
 		
@@ -100,7 +105,7 @@ public class CSVAddOutputter<MO> extends OutputterAdapter<MO> {
 		BufferedReader reader;
 
 		try {
-			File filetemp = getFile(movelets.get(0).getTrajectory().getMovingObject().toString(), filename + ".tmp");
+			File filetemp = getFile(getMovingObject(), filename + ".tmp");
 			File file = getFile(movelets.get(0).getTrajectory().getMovingObject().toString(), filename + ".csv");
 			boolean append = true; //!this.subfolderClasses && file.exists() // Append if it is not class separated
 //							 || !delayOutput;  // OR is not delayed

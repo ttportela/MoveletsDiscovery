@@ -200,7 +200,7 @@ public class Mov3lets<MO> {
 				sharedQueue.addAll(trajsFromClass);
 				
 				DiscoveryAdapter<MO> moveletsDiscovery;
-				List<OutputterAdapter<MO>> outs = configOutput(trajsFromClass.size());
+				List<OutputterAdapter<MO>> outs = configOutput(trajsFromClass.size(), myclass);
 				
 				if (getDescriptor().getParamAsText("version").startsWith("hiper")   ||
 					getDescriptor().getParamAsText("version").equals("super-class")) {
@@ -356,6 +356,7 @@ public class Mov3lets<MO> {
 	/**
 	 * Config output.
 	 * @param nT Number of class trajectories.
+	 * @param myclass 
 	 *
 	 * @return the list
 	 * @throws ClassNotFoundException 
@@ -366,15 +367,15 @@ public class Mov3lets<MO> {
 	 * @throws IllegalAccessException 
 	 * @throws InstantiationException 
 	 */
-	public List<OutputterAdapter<MO>> configOutput(int nT) throws Exception {
+	public List<OutputterAdapter<MO>> configOutput(int nT, MO myclass) throws Exception {
 		List<OutputterAdapter<MO>> outs = new ArrayList<OutputterAdapter<MO>>();
 		
 		String[] outputters = getDescriptor().getParamAsText("outputters").split(",");
 		
 		for (String outx : outputters) {
 			OutputterAdapter o = (OutputterAdapter) Class.forName("br.ufsc.mov3lets.method.output."+outx+"Outputter")
-				.getDeclaredConstructor(String.class, Descriptor.class)
-				.newInstance(resultDirPath, getDescriptor());
+				.getDeclaredConstructor(String.class, String.class, Descriptor.class)
+				.newInstance(resultDirPath, myclass.toString(), getDescriptor());
 			
 			o.setDelayCount(nT);
 			

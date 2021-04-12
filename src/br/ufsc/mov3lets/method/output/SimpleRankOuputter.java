@@ -28,8 +28,8 @@ public class SimpleRankOuputter<MO> extends OutputterAdapter<MO> {
 	 * @param filePath the file path
 	 * @param descriptor the descriptor
 	 */
-	public SimpleRankOuputter(String filePath, Descriptor descriptor) {
-		super(filePath, descriptor, false);
+	public SimpleRankOuputter(String filePath, String movingObjectName, Descriptor descriptor) {
+		super(filePath, movingObjectName, descriptor, false);
 		writeColumns();
 	}
 

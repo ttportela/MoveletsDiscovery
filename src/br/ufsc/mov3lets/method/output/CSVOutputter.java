@@ -50,8 +50,8 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO> {
 	 * @param descriptor the descriptor
 	 * @param subfolderClasses the subfolder classes
 	 */
-	public CSVOutputter(String filePath, Descriptor descriptor, boolean subfolderClasses) {
-		super(filePath, descriptor, subfolderClasses);
+	public CSVOutputter(String filePath, String movingObjectName, Descriptor descriptor, boolean subfolderClasses) {
+		super(filePath, movingObjectName, descriptor, subfolderClasses);
 	}
 	
 	/**
@@ -69,8 +69,8 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO> {
 	 * @param resultDirPath the result dir path
 	 * @param descriptor the descriptor
 	 */
-	public CSVOutputter(String resultDirPath, Descriptor descriptor) {
-		super(resultDirPath, descriptor, true);
+	public CSVOutputter(String resultDirPath, String movingObjectName, Descriptor descriptor) {
+		super(resultDirPath, movingObjectName, descriptor, true);
 	}
 
 	/**
@@ -95,15 +95,17 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO> {
 				return;
 		}
 		
-		if (movelets.isEmpty()) {
-			Mov3letsUtils.traceW("Empty movelets set [NOT OUTPUTTED]");
+//		if (movelets.isEmpty()) {
+//			Mov3letsUtils.traceW("Empty movelets set [NOT OUTPUTTED]");
+		if (attributeToTrajectories.isEmpty()) {
+			Mov3letsUtils.traceW("Empty movelets set for class "+getMovingObject()+" [NOT OUTPUTTED]");
 			return;
 		}
 		
 		BufferedWriter writer;
 
 		try {
-			File file = getFile(movelets.get(0).getTrajectory().getMovingObject().toString(), filename + ".csv");
+			File file = getFile(getMovingObject(), filename + ".csv");
 			boolean append = !this.subfolderClasses && file.exists() // Append if it is not class separated
 					|| !delayOutput;  // OR is not delayed
 			file.getParentFile().mkdirs();

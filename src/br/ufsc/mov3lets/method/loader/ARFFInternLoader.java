@@ -63,15 +63,15 @@ public class ARFFInternLoader<T extends MAT<?>> implements InterningLoaderAdapte
 		BufferedReader reader = new BufferedReader(new FileReader(new File(file)));
 		ArffReader arff = new ArffReader(reader, 1000);         
 		Instances data = arff.getStructure();
-		data.setClassIndex(data.numAttributes() - 1);
+		
+		int labelOrder = data.numAttributes() - 1;
+		data.setClassIndex(labelOrder);
 		
 		boolean isNew = trajectories.isEmpty();
 		
 		Instance inst;
 		int i = 0;
 		while ((inst = arff.readInstance(data)) != null) { 
-			
-			int labelOrder = descriptor.getLabelFeature().getOrder()-1;
 			
 			if (isNew) {
 				// IF MO type is String:

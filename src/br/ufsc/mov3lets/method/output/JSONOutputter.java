@@ -37,8 +37,8 @@ public class JSONOutputter<MO> extends OutputterAdapter<MO> {
 	 * @param descriptor the descriptor
 	 * @param subfolderClasses the subfolder classes
 	 */
-	public JSONOutputter(String filePath, Descriptor descriptor, boolean subfolderClasses) {
-		super(filePath, descriptor, subfolderClasses);
+	public JSONOutputter(String filePath, String movingObjectName, Descriptor descriptor, boolean subfolderClasses) {
+		super(filePath, movingObjectName, descriptor, subfolderClasses);
 	}
 	
 	/**
@@ -56,8 +56,8 @@ public class JSONOutputter<MO> extends OutputterAdapter<MO> {
 	 * @param resultDirPath the result dir path
 	 * @param descriptor the descriptor
 	 */
-	public JSONOutputter(String resultDirPath, Descriptor descriptor) {
-		super(resultDirPath, descriptor, true);
+	public JSONOutputter(String resultDirPath, String movingObjectName, Descriptor descriptor) {
+		super(resultDirPath, movingObjectName, descriptor, true);
 	}
 
 	/**
@@ -105,7 +105,7 @@ public class JSONOutputter<MO> extends OutputterAdapter<MO> {
 		TOGSON toGSON = new TOGSON(classOfTrajectories, subtrajectoryToGSONs);
 		
 		try {
-			File file = getFile(movelets.get(0).getTrajectory().getMovingObject().toString(), 
+			File file = getFile(getMovingObject().toString(), 
 					"moveletsOn"+ StringUtils.capitalize(filename) + ".json");
 //			String f = getFilePath() + movelets.get(0).getTrajectory().getMovingObject() 
 //					+ System.getProperty("file.separator") + "moveletsOn"+ StringUtils.capitalize(filename) + ".json";
