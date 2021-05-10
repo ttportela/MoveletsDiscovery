@@ -26,8 +26,11 @@ public class EntropyQualityMeasure<MO> extends ProportionQualityMeasure<MO> {
 	 * @param trajectories the trajectories
 	 * @param tau the tau
 	 */
-	public EntropyQualityMeasure(List<MAT<MO>> trajectories, double tau) {
-		super(trajectories, tau);
+//	public EntropyQualityMeasure(List<MAT<MO>> trajectories, double tau) {
+//		super(trajectories, tau);
+//	}
+	public EntropyQualityMeasure(List<MAT<MO>> trajectories) {
+		super(trajectories);
 	}
 
 	/**
@@ -162,7 +165,7 @@ public class EntropyQualityMeasure<MO> extends ProportionQualityMeasure<MO> {
 		
 		proportion = proportion / (double) distances.length;
 		
-		if (covered != null && proportion >= TAU) {
+		if (covered != null) {// && proportion >= TAU) {
 			RealMatrix rm = new Array2DRowRealMatrix(distances);
 			for (int j = 0; j < distances[0].length; j++) {
 				

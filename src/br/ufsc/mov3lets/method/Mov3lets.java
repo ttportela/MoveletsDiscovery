@@ -36,12 +36,17 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 
 import br.ufsc.mov3lets.method.discovery.DiscoveryAdapter;
-import br.ufsc.mov3lets.method.discovery.PrecomputeMoveletsDiscovery;
+import br.ufsc.mov3lets.method.discovery.IndexedMoveletsDiscovery;
+import br.ufsc.mov3lets.method.discovery.deprecated.PrecomputeMoveletsDiscovery;
+import br.ufsc.mov3lets.method.feature.PointFeature;
 import br.ufsc.mov3lets.method.loader.LoaderAdapter;
+import br.ufsc.mov3lets.method.output.CSVIndexOutputter;
+import br.ufsc.mov3lets.method.output.MSVMOutputter;
 import br.ufsc.mov3lets.method.output.OutputterAdapter;
 import br.ufsc.mov3lets.method.qualitymeasure.LeftSidePureCVLigth;
 import br.ufsc.mov3lets.method.qualitymeasure.ProportionQualityMeasure;
 import br.ufsc.mov3lets.method.qualitymeasure.QualityMeasure;
+import br.ufsc.mov3lets.method.structures.descriptor.AttributeDescriptor;
 import br.ufsc.mov3lets.method.structures.descriptor.Descriptor;
 import br.ufsc.mov3lets.model.MAT;
 import br.ufsc.mov3lets.utils.ProgressBar;
@@ -192,6 +197,19 @@ public class Mov3lets<MO> {
 		List<DiscoveryAdapter<MO>> lsMDs = new ArrayList<DiscoveryAdapter<MO>>();
 		
 		/** STEP 2.1: Starts at discovering movelets */
+		if (getDescriptor().getParamAsText("version").startsWith("indexed")) { // Special case
+			DiscoveryAdapter<MO> moveletsDiscovery = 
+					new IndexedMoveletsDiscovery<MO>(data, train, test, qualityMeasure, descriptor);
+			
+			// Configure Outputs
+			moveletsDiscovery.getOutputers().add(
+					new CSVIndexOutputter<MO>(descriptor.getParamAsText("respath"), null, descriptor, false));
+			lsMDs.add(moveletsDiscovery);
+
+			return lsMDs;
+		}
+		
+		
 		for (MO myclass : classes) {
 			if ( ! Paths.get(resultDirPath, myclass.toString(), "test.csv").toFile().exists() ) {
 				List<MAT<MO>> trajsFromClass = train.stream().filter(e-> myclass.equals(e.getMovingObject())).collect(Collectors.toList());
@@ -200,10 +218,11 @@ public class Mov3lets<MO> {
 				sharedQueue.addAll(trajsFromClass);
 				
 				DiscoveryAdapter<MO> moveletsDiscovery;
-				List<OutputterAdapter<MO>> outs = configOutput(trajsFromClass.size(), myclass);
 				
 				if (getDescriptor().getParamAsText("version").startsWith("hiper")   ||
 					getDescriptor().getParamAsText("version").equals("super-class")) {
+					
+					List<OutputterAdapter<MO,?>> outs = configOutput(1, myclass); // For classes, it calls once.
 					
 					moveletsDiscovery = instantiateMoveletsDiscovery(qualityMeasure, trajsFromClass, outs);
 					moveletsDiscovery.setQueue(sharedQueue);
@@ -212,7 +231,9 @@ public class Mov3lets<MO> {
 					moveletsDiscovery.setOutputers(outs);
 					lsMDs.add(moveletsDiscovery);
 
-				} else
+				} else {
+					List<OutputterAdapter<MO,?>> outs = configOutput(trajsFromClass.size(), myclass);
+					
 					for (MAT<MO> T : trajsFromClass) {
 						moveletsDiscovery = instantiateMoveletsDiscovery(qualityMeasure, trajsFromClass, outs, T);
 						moveletsDiscovery.setQueue(sharedQueue);
@@ -221,6 +242,7 @@ public class Mov3lets<MO> {
 						moveletsDiscovery.setOutputers(outs);
 						lsMDs.add(moveletsDiscovery);
 					}
+				}
 				
 				// XXX - V2:
 //				try {
@@ -309,7 +331,7 @@ public class Mov3lets<MO> {
 	}
 
 	private DiscoveryAdapter<MO> instantiateMoveletsDiscovery(QualityMeasure qualityMeasure,
-			List<MAT<MO>> trajsFromClass, List<OutputterAdapter<MO>> outs, MAT<MO> T)
+			List<MAT<MO>> trajsFromClass, List<OutputterAdapter<MO,?>> outs, MAT<MO> T)
 			throws InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, ClassNotFoundException {
 		DiscoveryAdapter<MO> moveletsDiscovery;
 //		try {
@@ -331,7 +353,7 @@ public class Mov3lets<MO> {
 	}
 
 	private DiscoveryAdapter<MO> instantiateMoveletsDiscovery(QualityMeasure qualityMeasure,
-			List<MAT<MO>> trajsFromClass, List<OutputterAdapter<MO>> outs)
+			List<MAT<MO>> trajsFromClass, List<OutputterAdapter<MO,?>> outs)
 			throws InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, ClassNotFoundException {
 		DiscoveryAdapter<MO> moveletsDiscovery;
 			
@@ -355,7 +377,7 @@ public class Mov3lets<MO> {
 
 	/**
 	 * Config output.
-	 * @param nT Number of class trajectories.
+	 * @param n Number of class trajectories.
 	 * @param myclass 
 	 *
 	 * @return the list
@@ -367,17 +389,15 @@ public class Mov3lets<MO> {
 	 * @throws IllegalAccessException 
 	 * @throws InstantiationException 
 	 */
-	public List<OutputterAdapter<MO>> configOutput(int nT, MO myclass) throws Exception {
-		List<OutputterAdapter<MO>> outs = new ArrayList<OutputterAdapter<MO>>();
+	public List<OutputterAdapter<MO,?>> configOutput(int n, MO myclass) throws Exception {
+		List<OutputterAdapter<MO,?>> outs = new ArrayList<OutputterAdapter<MO,?>>();
 		
 		String[] outputters = getDescriptor().getParamAsText("outputters").split(",");
 		
 		for (String outx : outputters) {
-			OutputterAdapter o = (OutputterAdapter) Class.forName("br.ufsc.mov3lets.method.output."+outx+"Outputter")
-				.getDeclaredConstructor(String.class, String.class, Descriptor.class)
-				.newInstance(resultDirPath, myclass.toString(), getDescriptor());
+			OutputterAdapter o = instantiateOutputter(myclass, outx);
 			
-			o.setDelayCount(nT);
+			o.setDelay(n);
 			
 			outs.add(o);
 		}
@@ -386,6 +406,25 @@ public class Mov3lets<MO> {
 //		outs.add(new CSVOutputter<MO>(resultDirPath, getDescriptor()));
 //		out.add(new CSVOutputter<MO>(resultDirPath, getDescriptor(), false));
 		return outs;
+	}
+
+	private OutputterAdapter instantiateOutputter(MO myclass, String outx) throws Exception {
+		
+		OutputterAdapter o;
+		
+		// For Singleton outputters:
+		if ("MSVM".equalsIgnoreCase(outx)) {
+			
+			o = MSVMOutputter.getInstance(resultDirPath, myclass, getDescriptor());
+			
+		} else {
+		
+			o = (OutputterAdapter) Class.forName("br.ufsc.mov3lets.method.output."+outx+"Outputter")
+				.getDeclaredConstructor(String.class, String.class, Descriptor.class)
+				.newInstance(resultDirPath, String.valueOf(myclass), getDescriptor());
+		}
+			
+		return o;
 	}
 
 	/**
@@ -403,6 +442,10 @@ public class Mov3lets<MO> {
 			}
 		} else {
 			setTrain(loader.load("train", getDescriptor()));
+		}
+
+		if (getDescriptor().getFeatures() != null && !getDescriptor().getFeatures().isEmpty()) {
+			loadPointFeatures(getTrain());
 		}
 	}
 
@@ -422,6 +465,44 @@ public class Mov3lets<MO> {
 		} else {
 			setTest(loader.load("test", getDescriptor()));
 		}
+		
+		if (getDescriptor().getFeatures() != null && !getDescriptor().getFeatures().isEmpty()) {
+			loadPointFeatures(getTest());
+		}
+	}
+
+	/**
+	 * Load test.
+	 * @param trajectories 
+	 *
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
+	public void loadPointFeatures(List<MAT<MO>> trajectories) throws Exception {
+		
+		ArrayList<PointFeature> features = new ArrayList<PointFeature>();
+		
+		// Load Features:
+		for (AttributeDescriptor attr : getDescriptor().getFeatures()) {
+			String className = attr.getType();
+			
+			className = "br.ufsc.mov3lets.method.feature." 
+					+ className.substring(0, 1).toUpperCase() + className.substring(1).toLowerCase();
+			className += "PointFeature";
+			
+			// Throw exception if class not found
+			PointFeature feat = (PointFeature) Class.forName(className).getConstructor().newInstance();
+			feat.init(getDescriptor());
+						
+			features.add(feat);
+		}		
+
+		// Fill trajectories:
+		for (PointFeature feat : features) {
+			for (MAT<MO> T : trajectories) {
+				feat.fillPoints(T);
+			}
+		}
+		
 	}
 
 	/**

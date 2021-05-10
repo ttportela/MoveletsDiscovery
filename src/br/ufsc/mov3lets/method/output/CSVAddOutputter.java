@@ -22,7 +22,6 @@ import org.apache.commons.math3.util.Pair;
 import br.ufsc.mov3lets.method.structures.descriptor.Descriptor;
 import br.ufsc.mov3lets.model.MAT;
 import br.ufsc.mov3lets.model.Subtrajectory;
-import br.ufsc.mov3lets.utils.Mov3letsUtils;
 
 /**
  * The Class CSVOutputter.
@@ -30,7 +29,7 @@ import br.ufsc.mov3lets.utils.Mov3letsUtils;
  * @author tarlis
  * @param <MO> the generic type
  */
-public class CSVAddOutputter<MO> extends OutputterAdapter<MO> {
+public class CSVAddOutputter<MO> extends OutputterAdapter<MO,List<Subtrajectory>> {
 
 	/** The medium. */
 	protected String medium = "none"; // Other values minmax, sd, interquartil
@@ -84,9 +83,10 @@ public class CSVAddOutputter<MO> extends OutputterAdapter<MO> {
 	 * @param delayOutput
 	 */
 	@Override
-	public synchronized void write(String filename, List<MAT<MO>> trajectories, List<Subtrajectory> movelets, boolean delayOutput) {
-		List<Map<String, Double>> attributeToTrajectories = 
-				"train".equals(filename)? attributesToTrain : attributesToTest;
+	public synchronized void write(String filename, List<MAT<MO>> trajectories, List<Subtrajectory> movelets, 
+			boolean delayOutput, Object... params) {
+		List<Map<String, Double>> attributeToTrajectories =  new ArrayList<Map<String,Double>>();
+//				"train".equals(filename)? attributesToTrain : attributesToTest;
 
 		attributesToTrajectories(trajectories, movelets, attributeToTrajectories);
 //		if (delayOutput) return;
@@ -96,10 +96,15 @@ public class CSVAddOutputter<MO> extends OutputterAdapter<MO> {
 ////			return;
 //		}
 		
-		if (attributeToTrajectories.isEmpty()) {
-			Mov3letsUtils.traceW("Empty movelets set for class "+getMovingObject()+" [NOT OUTPUTTED]");
-			return;
-		}
+		decreaseDelayCount(filename);
+		boolean finish = false;
+		if (!(delayCount > 0))
+			finish = true;
+		
+		if (attributeToTrajectories.isEmpty()) return; //{
+//			Mov3letsUtils.traceW("Empty movelets set for class "+getMovingObject()+" [NOT OUTPUTTED]");
+//			return;
+//		}
 		
 		BufferedWriter writer;
 		BufferedReader reader;
@@ -116,14 +121,16 @@ public class CSVAddOutputter<MO> extends OutputterAdapter<MO> {
 			String header = "";
 			if (reader != null) {
 				header = reader.readLine();
-				header = header.substring(0, header.indexOf(",class"));
+//				header = header.substring(0, header.indexOf(",class"));
 			}
 				
 //			if (!append) { //TODO incorreto, necessário adicionar as colunas (movelets) com exceção da classe
 			header += (!attributeToTrajectories.get(0).keySet().isEmpty()) ?
 					attributeToTrajectories.get(0).keySet().toString().replaceAll("[\\[|\\]|\\s]", "") + "," : ""; 
 			
-			header += "class" + System.getProperty("line.separator");
+			if (finish)
+				header += "class";
+			header += System.getProperty("line.separator");
 			
 			writer.write(header);
 			
@@ -133,19 +140,21 @@ public class CSVAddOutputter<MO> extends OutputterAdapter<MO> {
 				
 				if (reader != null) {
 					line = reader.readLine();
-					line = line.substring(0, header.lastIndexOf(","));
 				}
 				
 				line += (!attributes.values().isEmpty()) ?
 						attributes.values().toString().replaceAll("[\\[|\\]|\\s]", "") + "," : "";
 				
-				line += "\"" + trajectories.get(i).getMovingObject() + "\""+ System.getProperty("line.separator");
+				if (finish)
+					line += "\"" + trajectories.get(i).getMovingObject() + "\"";
+				line += System.getProperty("line.separator");
 				
 				writer.write(line);
 			}
 
 			attributeToTrajectories.clear();
-			reader.close();
+			if (reader != null)
+				reader.close();
 			writer.close();
 			
 			filetemp.renameTo(file);

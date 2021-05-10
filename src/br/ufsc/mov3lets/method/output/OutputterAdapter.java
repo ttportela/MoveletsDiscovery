@@ -9,7 +9,6 @@ import java.util.List;
 
 import br.ufsc.mov3lets.method.structures.descriptor.Descriptor;
 import br.ufsc.mov3lets.model.MAT;
-import br.ufsc.mov3lets.model.Subtrajectory;
 
 /**
  * The Class OutputterAdapter.
@@ -17,7 +16,7 @@ import br.ufsc.mov3lets.model.Subtrajectory;
  * @author tarlis
  * @param <MO> the generic type
  */
-public abstract class OutputterAdapter<MO> {
+public abstract class OutputterAdapter<MO, D> {
 	
 	/** The file path. */
 	protected String filePath;
@@ -58,14 +57,15 @@ public abstract class OutputterAdapter<MO> {
 	}
 	
 	/**
-	 * Write.
+	 * Write movelets.
+	 * (Overwrite this method)
 	 *
 	 * @param filename the filename
 	 * @param trajectories the trajectories
 	 * @param movelets the movelets
 	 * @param delayOutput the delay output
 	 */
-	public abstract void write(String filename, List<MAT<MO>> trajectories, List<Subtrajectory> movelets, boolean delayOutput);
+	public abstract void write(String filename, List<MAT<MO>> trajectories, D data, boolean delayOutput, Object... params);
 	
 	/**
 	 * Gets the file path.
@@ -158,6 +158,15 @@ public abstract class OutputterAdapter<MO> {
 	 */
 	public void setDelayCount(int delayCount) {
 		this.delayCount = delayCount;
+	}
+	
+	/**
+	 * Setter for delayCount.
+	 * 
+	 * @param delayCount the delayCount to set (as int instance).
+	 */
+	public void setDelay(int delayCount) {
+		this.delayCount += delayCount;
 	}
 	
 	/**

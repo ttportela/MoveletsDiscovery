@@ -22,7 +22,7 @@ import br.ufsc.mov3lets.model.Subtrajectory;
 public class ProportionQualityMeasure<MO> extends QualityMeasure<MO> {
 
 	/** The tau. */
-	protected double TAU = 0.5;
+//	protected double TAU = 0.5;
 	
 	/**
 	 * Instantiates a new proportion quality measure.
@@ -30,9 +30,13 @@ public class ProportionQualityMeasure<MO> extends QualityMeasure<MO> {
 	 * @param trajectories the trajectories
 	 * @param tau the tau
 	 */
-	public ProportionQualityMeasure(List<MAT<MO>> trajectories, double tau) {
+//	public ProportionQualityMeasure(List<MAT<MO>> trajectories, double tau) {
+//		super(trajectories, 1, 1.0, "");
+////		this.TAU = tau;
+//	}
+	public ProportionQualityMeasure(List<MAT<MO>> trajectories) {
 		super(trajectories, 1, 1.0, "");
-		this.TAU = tau;
+//		this.TAU = tau;
 	}
 
 	/**
@@ -330,7 +334,7 @@ public class ProportionQualityMeasure<MO> extends QualityMeasure<MO> {
 		
 		proportion 		= proportion / (double) distances.length;
 		
-		if (proportion >= TAU) {
+//		if (proportion >= TAU) {
 			RealMatrix rm = new Array2DRowRealMatrix(distances);
 			for (int j = 0; j < distances[0].length; j++) {
 				
@@ -342,7 +346,7 @@ public class ProportionQualityMeasure<MO> extends QualityMeasure<MO> {
 	//			}
 				
 			}
-		}
+//		}
 		
 		Map<String, Double> data = new HashMap<>();
 		

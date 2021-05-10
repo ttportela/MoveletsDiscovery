@@ -26,6 +26,8 @@ public class ProgressBar {
     
     /** The control. */
     protected char control = '\r';
+    
+    private int size = 300;
 
     /**
      * initialize progress bar properties.
@@ -116,11 +118,12 @@ public class ProgressBar {
      * @param total an int representing the total work
      * @param message the message
      */
-    public synchronized void update(long done, long total, String message) {
+    public synchronized void update(long done, long total, String message) { // TODO optimize
         char[] workchars = {'|', '/', '-', '\\'};
         String format = this.control + "%s: %c [%s%s] %3d%% %s";
-        message = (message != null? ">> "+message + "." : "");
-        message += CharBuffer.allocate( 250 - message.length() ).toString().replace( '\0', ' ' );
+        message = (message != null? ">> "+message : "");
+        if (size - message.length() < 1) size += message.length() - size + 1;
+        message += CharBuffer.allocate( size - message.length() ).toString().replace( '\0', ' ' );
 
         int percent = (int) ((++done * 100) / total);
         int extrachars = (percent / 2) - this.progress.length();
@@ -179,5 +182,11 @@ public class ProgressBar {
      */
     public void setTotal(long total) {
 		this.total = total;
+	}
+    
+    public void reset(long total) {
+		this.total = total;
+		this.done = 0;
+		init();
 	}
 }

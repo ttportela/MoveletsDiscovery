@@ -28,13 +28,13 @@ import br.ufsc.mov3lets.utils.Mov3letsUtils;
  * @author tarlis
  * @param <MO> the generic type
  */
-public class CSVOutputter<MO> extends OutputterAdapter<MO> {
+public class CSVOutputter<MO> extends OutputterAdapter<MO, List<Subtrajectory>> {
 
 	/** The medium. */
 	protected String medium = "none"; // Other values minmax, sd, interquartil
 	
 	/** The output. */
-	protected String output = "numeric"; // Other values: normalized?? and discrete
+	protected String output = "discrete"; // Other values: numeric
 	
 	/** The attributes to train. */
 	protected List<Map<String, Double>> attributesToTrain = new ArrayList<Map<String,Double>>();
@@ -52,6 +52,7 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO> {
 	 */
 	public CSVOutputter(String filePath, String movingObjectName, Descriptor descriptor, boolean subfolderClasses) {
 		super(filePath, movingObjectName, descriptor, subfolderClasses);
+		init();
 	}
 	
 	/**
@@ -61,6 +62,7 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO> {
 	 */
 	public CSVOutputter(Descriptor descriptor) {
 		super(descriptor);
+		init();
 	}
 
 	/**
@@ -71,6 +73,12 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO> {
 	 */
 	public CSVOutputter(String resultDirPath, String movingObjectName, Descriptor descriptor) {
 		super(resultDirPath, movingObjectName, descriptor, true);
+		init();
+	}
+	
+	public void init() {
+		medium = getDescriptor().hasParam("medium")? getDescriptor().getParamAsText("medium") : medium;
+		output = getDescriptor().hasParam("output")? getDescriptor().getParamAsText("output") : output;
 	}
 
 	/**
@@ -83,7 +91,8 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO> {
 	 * @param delayOutput
 	 */
 	@Override
-	public void write(String filename, List<MAT<MO>> trajectories, List<Subtrajectory> movelets, boolean delayOutput) {
+	public void write(String filename, List<MAT<MO>> trajectories, List<Subtrajectory> movelets, 
+			boolean delayOutput, Object... params) {
 		List<Map<String, Double>> attributeToTrajectories = 
 				"train".equals(filename)? attributesToTrain : attributesToTest;
 		
@@ -171,13 +180,13 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO> {
 	}
 
 	/**
-	 * Attribute to trajectories numeric.
+	 * Attribute to trajectories Discrete.
 	 *
 	 * @param trajectories the trajectories
 	 * @param movelet the movelet
 	 * @param attributeToTrajectories the attribute to trajectories
 	 */
-	protected synchronized  void attributeToTrajectoriesNumeric(List<MAT<MO>> trajectories, Subtrajectory movelet, List<Map<String, Double>> attributeToTrajectories) {
+	protected synchronized  void attributeToTrajectoriesDiscrete(List<MAT<MO>> trajectories, Subtrajectory movelet, List<Map<String, Double>> attributeToTrajectories) {
 		String attributeName =  "sh_TID" + movelet.getTrajectory().getTid() + 
 								"_START" + movelet.getStart() + 
 								"_SIZE" + movelet.getSize() + 
@@ -205,13 +214,13 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO> {
 	}
 
 	/**
-	 * Attribute to trajectories discrete.
+	 * Attribute to trajectories Numeric.
 	 *
 	 * @param trajectories the trajectories
 	 * @param movelet the movelet
 	 * @param attributeToTrajectories the attribute to trajectories
 	 */
-	protected void attributeToTrajectoriesDiscrete(List<MAT<MO>> trajectories, Subtrajectory movelet, List<Map<String, Double>> attributeToTrajectories) {
+	protected void attributeToTrajectoriesNumeric(List<MAT<MO>> trajectories, Subtrajectory movelet, List<Map<String, Double>> attributeToTrajectories) {
 		String attributeName =  "sh_TID" + movelet.getTrajectory().getTid() + 
 								"_START" + movelet.getStart() + 
 								"_SIZE" + movelet.getSize() + 
@@ -227,7 +236,7 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO> {
 		for (int i = 0; i < trajectories.size(); i++) {
 			
 			if (isCovered(rm.getColumn(i), splitpoints)){
-				distance = normalizeCovered(rm.getColumn(i), splitpoints);
+				distance = normalizeCovered(rm.getColumn(i), splitpoints, maxDistances);
 			} else {
 				distance = normalizeNonCovered(rm.getColumn(i), splitpoints, maxDistances);
 			}
@@ -313,6 +322,13 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO> {
 		
 		return true;
 	}
+
+	protected double divOrDefault(double a, double b, double def) {
+//		double value = (a == 0.0 && b == 0.0)? 0.0 : a / b;
+//		return (Double.isNaN(value) || Double.isInfinite(value))? def : value;
+		double value = a / b;
+		return Double.isNaN(value)? 0.0 : (Double.isInfinite(value)? def : value);
+	}
 	
 	/**
 	 * Normalize covered.
@@ -321,12 +337,13 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO> {
 	 * @param limits the limits
 	 * @return the double
 	 */
-	protected double normalizeCovered(double[] point, double[] limits) {
+	protected double normalizeCovered(double[] point, double[] limits, double[] maxDistances) {
 		int dimensions = limits.length;
 		double sumOfProportions = 0;
 		
 		for (int i = 0; i < dimensions; i++) {
-			sumOfProportions += point[i] / limits[i];
+//			sumOfProportions += point[i] / limits[i];
+			sumOfProportions += divOrDefault( point[i] , limits[i] , maxDistances[i] );
 		}
 		
 		return sumOfProportions / dimensions;
@@ -353,7 +370,8 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO> {
 			if (point[i] >= maxDistances[i]){
 				point[i] = maxDistances[i];				
 			}
-			sumOfProportions += point[i] / limits[i];
+//			sumOfProportions += point[i] / limits[i];
+			sumOfProportions += divOrDefault( point[i] , limits[i] , maxDistances[i] );
 		}
 		
 		return 1.0 + sumOfProportions / dimensions;

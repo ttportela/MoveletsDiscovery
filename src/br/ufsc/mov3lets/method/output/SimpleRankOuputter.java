@@ -20,7 +20,7 @@ import br.ufsc.mov3lets.model.Subtrajectory;
  * @author tarlis
  * @param <MO> the generic type
  */
-public class SimpleRankOuputter<MO> extends OutputterAdapter<MO> {
+public class SimpleRankOuputter<MO> extends OutputterAdapter<MO,List<Subtrajectory>> {
 
 	/**
 	 * Instantiates a new simple rank ouputter.
@@ -95,7 +95,8 @@ public class SimpleRankOuputter<MO> extends OutputterAdapter<MO> {
 	 * @param delayOutput
 	 */
 	@Override
-	public synchronized void write(String filename, List<MAT<MO>> trajectories, List<Subtrajectory> movelets, boolean delayOutput) {
+	public synchronized void write(String filename, List<MAT<MO>> trajectories, List<Subtrajectory> movelets, 
+			boolean delayOutput, Object... params) {
 //		System.out.println("\t==> Output Rank of Movelets:");
 		
 		if (delayOutput) { // Do nothing

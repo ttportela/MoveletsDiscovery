@@ -29,8 +29,8 @@ import br.ufsc.mov3lets.model.aspect.Aspect;
  */
 public class Point {
 	
-	/** The id. */
-	private int id;
+//	/** The id. */
+//	private long id;
 	
 	/** The trajectory. */
 	private MAT<?> trajectory;
@@ -38,23 +38,23 @@ public class Point {
 	/** The aspects. */
 	private List<Aspect<?>> aspects = new ArrayList<Aspect<?>>();
 	
-	/**
-	 * Gets the id.
-	 *
-	 * @return the id
-	 */
-	public int getId() {
-		return id;
-	}
-	
-	/**
-	 * Sets the id.
-	 *
-	 * @param id the id to set
-	 */
-	public void setId(int id) {
-		this.id = id;
-	}
+//	/**
+//	 * Gets the id.
+//	 *
+//	 * @return the id
+//	 */
+//	public long getId() {
+//		return id;
+//	}
+//	
+//	/**
+//	 * Sets the id.
+//	 *
+//	 * @param pid the id to set
+//	 */
+//	public void setId(long pid) {
+//		this.id = pid;
+//	}
 	
 	/**
 	 * Gets the trajectory.
