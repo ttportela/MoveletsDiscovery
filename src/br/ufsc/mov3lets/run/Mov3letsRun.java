@@ -119,6 +119,7 @@ public class Mov3letsRun {
 		} catch (Exception e) {
 			error(e);
 		}
+		Mov3letsUtils.trace("");
 		Mov3letsUtils.getInstance().stopTimer("[3] >> Processing time");
 //		System.out.println(inputFile);
 		
@@ -183,7 +184,7 @@ public class Mov3letsRun {
 				{"-output", 			"Output", 					params.get("output")+
 																	" ("+params.get("outputters")+")", 			""},
 				{"", 					"", 						"", 										""},
-				{"-version", 			"Version Impl.", 			params.get("version"), 						"1.0, 2.0, super, hiper, hiper-pvt"},
+				{"-version", 			"Version Impl.", 			params.get("version"), 						"master, super, hiper[-pivots], random, ultra"},
 				{"", 					"-- Last Prunning",			params.get("last_prunning"), 				""},
 			};
 		
@@ -214,7 +215,19 @@ public class Mov3letsRun {
 			at.addRow(row);
 		}
 //		at.addRule();
+		
+		if (params.containsKey("tau"))
+			if (params.get("relative_tau").equals(true)) 
+				at.addRow(new Object[] {"", "-- TAU (relative)", params.get("tau"), ""});
+			else
+				at.addRow(new Object[] {"", "-- TAU (absolute)", params.get("tau"), ""});
 
+		if (params.containsKey("bucket_slice"))
+			at.addRow(new Object[] {"", "-- Movelets Limit", params.get("bucket_slice"), ""});
+
+		if (params.containsKey("random_seed"))
+			at.addRow(new Object[] {"", "-- Random Seed", params.get("random_seed"), ""});
+		
 //		at.addRow("Optimizations:", "", "", "");
 //		at.addRow("", "Interning", 	(params.containsKey("interning")? (boolean)params.get("interning") : false), 	"");
 //		at.addRow("", "Index", 		(params.containsKey("index")? 	  (boolean)params.get("index") 	   : false), 	"");
@@ -275,10 +288,10 @@ public class Mov3letsRun {
 		params.put("interning",  				 true);
 		params.put("verbose",				 	 true);
 		params.put("version",				 	 "2.0");
-		params.put("tau",					 	 0.9);
+//		params.put("tau",					 	 0.9);
 		params.put("relative_tau",			 	 true);
-		params.put("bucket_slice",				 0.1);
-		params.put("filter_strategy",		 	 "none"); // Use Buckets
+//		params.put("bucket_slice",				 0.1);
+//		params.put("filter_strategy",		 	 "none"); // Use Buckets
 		params.put("LDM",					 	 false);
 		
 		return params;
@@ -373,10 +386,10 @@ public class Mov3letsRun {
 				} else
 					params.put("pivots", false);				
 				break;		
-			case "-sup":
-			case "-supervised":
-				params.put("supervised", Boolean.valueOf(value));				
-				break;		
+//			case "-sup":
+//			case "-supervised":
+//				params.put("supervised", Boolean.valueOf(value));				
+//				break;		
 //			case "-Al":	
 //			case "-al":	
 //			case "-AL":
@@ -404,9 +417,9 @@ public class Mov3letsRun {
 			case "-only_pivots":
 			case "-op":
 				params.put("only_pivots", Boolean.valueOf(value));
-			case "-index":
-				params.put("index", Boolean.valueOf(value));
-				break;
+//			case "-index":
+//				params.put("index", Boolean.valueOf(value));
+//				break;
 			case "-interning":
 				params.put("interning", Boolean.valueOf(value));
 				break;
@@ -438,12 +451,31 @@ public class Mov3letsRun {
 				break;	
 			case "-filter":
 			case "-filter_strategy":
+			case "-feature_selecion":
+			case "-FS":
 				params.put("filter_strategy", value);
 				break;
 			case "-LDM":	
 			case "-ldm":
 				params.put("LDM", Boolean.valueOf(value));			
-				break;				
+				break;		
+			case "-random_seed":
+			case "-seed":
+			case "-s":
+				params.put("random_seed", Integer.valueOf(value));		
+				break;		
+			case "-th_temporal":
+			case "-temporal_threshold":
+				params.put("temporal_threshold", Integer.valueOf(value));	
+				break;	
+			case "-th_spatial":
+			case "-spatial_threshold":
+				params.put("spatial_threshold", Double.valueOf(value));		
+				break;
+			case "-th_numeric":
+			case "-numeric_threshold":
+				params.put("numeric_threshold", Integer.valueOf(value));	
+				break;
 			default:
 				System.err.println("Parâmetro " + key + " inválido.");
 				System.exit(1);
@@ -468,11 +500,11 @@ public class Mov3letsRun {
 		String str = new String();
 		
 		if(descriptor.getFlag("pivots"))
-			str += "Starting HIPERMovelets +Pivots extractor (10%) " + System.getProperty("line.separator");
+			str += "Starting Movelets +Pivots extractor (10%) " + System.getProperty("line.separator");
 		else if(descriptor.getParamAsInt("max_size")==-3)
-			str += "Starting HIPERMovelets +Log extractor " + System.getProperty("line.separator");
+			str += "Starting Movelets +Log extractor " + System.getProperty("line.separator");
 		else
-			str += "Starting HIPERMovelets extractor " + System.getProperty("line.separator");
+			str += "Starting Movelets extractor " + System.getProperty("line.separator");
 		
 		if (descriptor.hasParam("outside_pivots"))
 			str += "Getting pivots from outside file:" + descriptor.getParam("outside_pivots") + System.getProperty("line.separator");

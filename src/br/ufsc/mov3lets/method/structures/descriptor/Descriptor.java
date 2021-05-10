@@ -51,6 +51,9 @@ public class Descriptor {
 	/** The attributes. */
 	private List<AttributeDescriptor> attributes = null;
 	
+	/** The attributes. */
+	private List<AttributeDescriptor> features = null;
+	
 	/** The input. */
 	private LoaderDescriptor input = null;
 	
@@ -112,6 +115,24 @@ public class Descriptor {
 	}
 	
 	/**
+	 * Gets the features.
+	 *
+	 * @return the features
+	 */
+	public List<AttributeDescriptor> getFeatures() {
+		return features;
+	}
+
+	/**
+	 * Sets the features.
+	 *
+	 * @param attributes the features to set
+	 */
+	public void setFeatures(List<AttributeDescriptor> features) {
+		this.features = features;
+	}
+	
+	/**
 	 * Gets the input.
 	 *
 	 * @return the input
@@ -135,7 +156,7 @@ public class Descriptor {
 	public void configure() {
 		attributes.removeAll(Collections.singletonList(null));
 		
-		if ("hiper".equals(getParamAsText("version")) && getFlag("LDM"))
+		if (getFlag("LDM"))
 			attributes = LDMAttributes();
 		
 		for (AttributeDescriptor attr : attributes) {
