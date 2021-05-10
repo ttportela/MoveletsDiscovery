@@ -44,6 +44,9 @@ public class HiperMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> {
 		super(null, trajsFromClass, data, train, test, qualityMeasure, descriptor);
 //		this.queue = new ArrayList<MAT<MO>>();
 //		queue.addAll(trajsFromClass);
+
+		TAU 	= getDescriptor().hasParam("tau")? getDescriptor().getParamAsDouble("tau") : 0.9;
+		BU 		= getDescriptor().hasParam("bucket_slice")? getDescriptor().getParamAsDouble("bucket_slice") : 0.1;
 	}
 	
 	/**
@@ -63,7 +66,7 @@ public class HiperMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> {
 
 		progressBar.trace("Hiper Movelets Discovery for Class: " + trajsFromClass.get(0).getMovingObject()); 
 		
-		this.proportionMeasure = new ProportionQualityMeasure<MO>(this.trajsFromClass, TAU);
+		this.proportionMeasure = new ProportionQualityMeasure<MO>(this.trajsFromClass); //, TAU);
 		
 		while (queue.size() > 0) {
 			MAT<MO> trajectory = queue.get(0);
@@ -85,6 +88,8 @@ public class HiperMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> {
 			/** STEP 2.4: SELECTING BEST CANDIDATES */			
 //			candidates = filterMovelets(candidates);		
 			movelets.addAll(filterMovelets(candidates));
+			
+			setStats("");
 			
 //			System.gc();
 		}
@@ -110,11 +115,11 @@ public class HiperMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> {
 //			System.out.println(subtrajectory);
 //		}
 
-		/** STEP 2.5, to write all outputs: */
-		super.output("train", this.train, movelets, false);
-		
-		if (!this.test.isEmpty())
-			super.output("test", this.test, movelets, false);
+//		/** STEP 2.5, to write all outputs: */
+//		super.output("train", this.train, movelets, false);
+//		
+//		if (!this.test.isEmpty())
+//			super.output("test", this.test, movelets, false);
 		
 		return movelets;
 	}
@@ -147,11 +152,18 @@ public class HiperMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> {
 			List<Subtrajectory> candidatesByProp) {
 		List<Subtrajectory> bestCandidates;
 
+		
+		addStats("Class", trajectory.getMovingObject()); 
+		addStats("Trajectory", trajectory.getTid());
+		addStats("Trajectory Size", trajectory.getPoints().size()); 
+		addStats("Number of Candidates", candidatesByProp.size());
+		
 		calculateProportion(candidatesByProp, random);
 		bestCandidates = filterByProportion(candidatesByProp, random);
 		
 		if (getDescriptor().getFlag("feature_limit"))
 			bestCandidates = selectMaxFeatures(bestCandidates);
+//		addStats("Scored Candidates", bestCandidates.size());
 		
 		bestCandidates = filterByQuality(bestCandidates, random, trajectory);
 		
@@ -163,13 +175,18 @@ public class HiperMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> {
 		
 //		queue.removeAll(getCoveredInClass(bestCandidates));	
 		
-		progressBar.plus("Class: " + trajectory.getMovingObject() 
-						+ ". Trajectory: " + trajectory.getTid() 
-						+ ". Trajectory Size: " + trajectory.getPoints().size() 
-						+ ". Number of Candidates: " + candidatesByProp.size() 
-						+ ". Total of Movelets: " + bestCandidates.size() 
-						+ ". Max Size: " + maxSize
-						+ ". Used Features: " + this.maxNumberOfFeatures);
+		addStats("Total of Movelets", bestCandidates.size());
+		addStats("Max Size", maxSize);
+		addStats("Used Features", this.maxNumberOfFeatures);
+
+		progressBar.plus(getStats());
+//		progressBar.plus("Class: " + trajectory.getMovingObject() 
+//						+ ". Trajectory: " + trajectory.getTid() 
+//						+ ". Trajectory Size: " + trajectory.getPoints().size() 
+//						+ ". Number of Candidates: " + candidatesByProp.size() 
+//						+ ". Total of Movelets: " + bestCandidates.size() 
+//						+ ". Max Size: " + maxSize
+//						+ ". Used Features: " + this.maxNumberOfFeatures);
 
 		return bestCandidates;
 	}

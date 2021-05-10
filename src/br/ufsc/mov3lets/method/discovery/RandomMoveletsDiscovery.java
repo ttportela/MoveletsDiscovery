@@ -52,9 +52,9 @@ public class RandomMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO> {
 		
 //		int trajsLooked = 0, trajsIgnored = 0;
 
-		progressBar.trace("Random Movelets Discovery for Class: " + trajsFromClass.get(0).getMovingObject()); 
+		printStart(); 
 		
-		this.proportionMeasure = new ProportionQualityMeasure<MO>(this.trajsFromClass, TAU);
+		this.proportionMeasure = new ProportionQualityMeasure<MO>(this.trajsFromClass); //, TAU);
 
 //		while (queue.size() > 0) {
 //			MAT<MO> trajectory = queue.get(0);
@@ -111,6 +111,10 @@ public class RandomMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO> {
 		return movelets;
 	}
 
+	protected void printStart() {
+		progressBar.trace("Random Movelets Discovery for Class: " + trajsFromClass.get(0).getMovingObject());
+	}
+
 	/**
 	 * Overridden method.
 	 * 
@@ -126,11 +130,24 @@ public class RandomMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO> {
 	public List<Subtrajectory> selectBestCandidates(MAT<MO> trajectory, int maxSize, Random random,
 			List<Subtrajectory> candidatesByProp) {
 		List<Subtrajectory> bestCandidates;
+		
+		Random randSelection;
+		if (getDescriptor().hasParam("random_seed")) 
+			randSelection = new Random(getDescriptor().getParamAsInt("random_seed"));
+		else
+			randSelection = new Random();
 
-		int candidates_total = candidatesByProp.size();
+//		int candidates_total = candidatesByProp.size();
 		int n = bucketSize(candidatesByProp.size());
+
+		addStats("Class", trajectory.getMovingObject()); 
+		addStats("Trajectory", trajectory.getTid());
+		addStats("Trajectory Size", trajectory.getPoints().size()); 
+		addStats("Number of Candidates", candidatesByProp.size());
 				
-		bestCandidates = randomPop(candidatesByProp, n);
+		bestCandidates = randomPop(candidatesByProp, n, randSelection);
+		
+		long scored = bestCandidates.size();
 		bestCandidates = filterByQuality(bestCandidates, random, trajectory);
 
 		/*
@@ -139,7 +156,10 @@ public class RandomMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO> {
 		 */
 		if (bestCandidates.isEmpty())
 			for (int i = n; i < candidatesByProp.size(); i += n) {
-				bestCandidates = filterByQuality(randomPop(candidatesByProp, n), random, trajectory);
+				bestCandidates = randomPop(candidatesByProp, n, randSelection);
+				
+				scored += bestCandidates.size();
+				bestCandidates = filterByQuality(bestCandidates, random, trajectory);
 				
 				if (i > candidatesByProp.size() || !bestCandidates.isEmpty()) break;
 				else n *= 2; // expand the window size
@@ -147,21 +167,21 @@ public class RandomMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO> {
 
 //		queue.removeAll(getCoveredInClass(bestCandidates));
 
-		progressBar.plus("Class: " + trajectory.getMovingObject() + ". Trajectory: " + trajectory.getTid()
-				+ ". Trajectory Size: " + trajectory.getPoints().size() + ". Number of Candidates: "
-				+ candidates_total + ". Total of Movelets: " + bestCandidates.size() + ". Max Size: " + maxSize
-				+ ". Used Features: " + this.maxNumberOfFeatures);
+		addStats("Scored Candidates", scored);
+		addStats("Total of Movelets", bestCandidates.size());
+		addStats("Max Size", maxSize);
+		addStats("Used Features", this.maxNumberOfFeatures);
+		progressBar.plus(getStats());
 
 		return bestCandidates;
 	}
 
-	public List<Subtrajectory> randomPop(List<Subtrajectory> list, int totalItems) {
-		Random rand = new Random();
-
+	public List<Subtrajectory> randomPop(List<Subtrajectory> list, int totalItems, Random rand) {
 		// create a temporary list for storing 
 		// selected element 
 		List<Subtrajectory> newList = new ArrayList<>();
 		for (int i = 0; i < totalItems; i++) {
+			if (list.isEmpty()) break;
 
 			// take a raundom index between 0 to size 
 			// of given List 

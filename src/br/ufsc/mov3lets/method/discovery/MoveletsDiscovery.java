@@ -22,7 +22,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 
@@ -357,18 +356,21 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 			currentFeatures = numberOfFeatures;
 		}
 				
-		combinations = new int[(int) (Math.pow(2, numberOfFeatures) - 1)][];
-		int k = 0;
+//		combinations = new int[(int) (Math.pow(2, numberOfFeatures) - 1)][];
+		ArrayList<int[]> combaux = new ArrayList<int[]>();
+//		int k = 0;
 		// For each possible NumberOfFeatures and each combination of those: 
 		for (;currentFeatures <= maxNumberOfFeatures; currentFeatures++) {
 			for (int[] comb : new Combinations(numberOfFeatures,currentFeatures)) {					
 				
-				combinations[k++] = comb;
+//				combinations[k++] = comb;
+				combaux.add(comb);
 				
 			} // for (int[] comb : new Combinations(numberOfFeatures,currentFeatures)) 					
 		} // for (int i = 0; i < train.size(); i++
 
-		combinations = Arrays.stream(combinations).filter(Objects::nonNull).toArray(int[][]::new);
+//		combinations = Arrays.stream(combinations).filter(Objects::nonNull).toArray(int[][]::new);
+		combinations = combaux.stream().toArray(int[][]::new);
 		
 		return combinations;
 	}

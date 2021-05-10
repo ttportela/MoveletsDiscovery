@@ -1,4 +1,4 @@
-package br.ufsc.mov3lets.method.discovery;
+package br.ufsc.mov3lets.method.discovery.deprecated;
 
 import java.util.List;
 import java.util.concurrent.Callable;

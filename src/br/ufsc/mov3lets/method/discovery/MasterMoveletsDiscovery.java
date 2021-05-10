@@ -76,8 +76,7 @@ public class MasterMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 
 		List<Subtrajectory> movelets = new ArrayList<Subtrajectory>();
 		
-		progressBar.trace("MASTERMovelets Discovery for Class: " + trajsFromClass.get(0).getMovingObject() 
-				+ ". Trajectory: " + trajectory.getTid());
+		printStart();
 		
 //		for (MAT<MO> trajectory : trajsFromClass) {
 			// This guarantees the reproducibility
@@ -123,6 +122,11 @@ public class MasterMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 //			super.output("test", this.test, movelets, false);
 		
 		return movelets;
+	}
+
+	protected void printStart() {
+		progressBar.trace("MASTERMovelets Discovery for Class: " + trajsFromClass.get(0).getMovingObject() 
+				+ ". Trajectory: " + trajectory.getTid());
 	}
 
 	/**

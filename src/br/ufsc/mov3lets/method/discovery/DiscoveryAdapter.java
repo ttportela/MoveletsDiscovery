@@ -44,6 +44,7 @@ public abstract class DiscoveryAdapter<MO> implements Callable<Integer> {
 	
 	/** The progress bar. */
 	protected ProgressBar progressBar;
+	protected String stats = "";
 
 //	protected MAT<MO> trajectory;
 	/** The trajs from class. */
@@ -67,7 +68,7 @@ public abstract class DiscoveryAdapter<MO> implements Callable<Integer> {
 	protected List<MAT<MO>> queue;
 	
 	/** The outputers. */
-	protected List<OutputterAdapter<MO>> outputers = new ArrayList<OutputterAdapter<MO>>();
+	protected List<OutputterAdapter<MO, ?>> outputers = new ArrayList<OutputterAdapter<MO, ?>>();
 	
 	/** The max value. */
 	public double MAX_VALUE = DistanceMeasure.DEFAULT_MAX_VALUE;
@@ -97,7 +98,7 @@ public abstract class DiscoveryAdapter<MO> implements Callable<Integer> {
 	 * @param outputers the outputers
 	 */
 	public DiscoveryAdapter(MAT<MO> trajectory, List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test, 
-			Descriptor descriptor, List<OutputterAdapter<MO>> outputers) {
+			Descriptor descriptor, List<OutputterAdapter<MO, ?>> outputers) {
 		init(trajectory, trajsFromClass, data, train, test, descriptor);
 		this.outputers = outputers;
 	}
@@ -190,7 +191,7 @@ public abstract class DiscoveryAdapter<MO> implements Callable<Integer> {
 //		defaultOutputters();
 		// It puts distances as trajectory attributes
 		if (outputers != null)
-			for (OutputterAdapter<MO> output : outputers) {
+			for (OutputterAdapter output : outputers) {
 				output.write(filename, trajectories, movelets, delayOutput);			
 			}
 		
@@ -205,7 +206,7 @@ public abstract class DiscoveryAdapter<MO> implements Callable<Integer> {
 	 */
 	public boolean defaultOutputters() {
 		if (this.outputers == null) {
-			this.outputers = new ArrayList<OutputterAdapter<MO>>();
+			this.outputers = new ArrayList<OutputterAdapter<MO,?>>();
 			this.outputers.add(new CSVOutputter<MO>(getDescriptor()));
 			this.outputers.add(new JSONOutputter<MO>(getDescriptor()));
 			return true;
@@ -218,7 +219,7 @@ public abstract class DiscoveryAdapter<MO> implements Callable<Integer> {
 	 *
 	 * @param outputers the outputers to set
 	 */
-	public void setOutputers(List<OutputterAdapter<MO>> outputers) {
+	public void setOutputers(List<OutputterAdapter<MO,?>> outputers) {
 		this.outputers = outputers;
 	}
 	
@@ -227,7 +228,7 @@ public abstract class DiscoveryAdapter<MO> implements Callable<Integer> {
 	 *
 	 * @return the outputers
 	 */
-	public List<OutputterAdapter<MO>> getOutputers() {
+	public List<OutputterAdapter<MO,?>> getOutputers() {
 		return outputers;
 	}
 	
@@ -310,6 +311,18 @@ public abstract class DiscoveryAdapter<MO> implements Callable<Integer> {
 	 */
 	public void setQueue(List<MAT<MO>> queue) {
 		this.queue = queue;
+	}
+	
+	public String getStats() {
+		return stats;
+	}
+	
+	public void setStats(String stats) {
+		this.stats = stats;
+	}
+	
+	public void addStats(String str, Object stat) {
+		this.stats = this.stats + str + ": " + stat + ". ";
 	}
 
 }

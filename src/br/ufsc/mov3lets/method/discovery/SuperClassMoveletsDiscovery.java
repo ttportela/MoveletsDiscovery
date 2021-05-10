@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import br.ufsc.mov3lets.method.output.OutputterAdapter;
 import br.ufsc.mov3lets.method.qualitymeasure.ProportionQualityMeasure;
 import br.ufsc.mov3lets.method.qualitymeasure.QualityMeasure;
 import br.ufsc.mov3lets.method.structures.descriptor.Descriptor;
@@ -67,7 +66,7 @@ public class SuperClassMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> 
 		progressBar.trace("By Class - SUPERMovelets Discovery for Class: " + trajsFromClass.get(0).getMovingObject() 
 				+ ". Trajectory: " + trajectory.getTid());
 		
-		this.proportionMeasure = new ProportionQualityMeasure<MO>(this.trajsFromClass, TAU);
+		this.proportionMeasure = new ProportionQualityMeasure<MO>(this.trajsFromClass); //, TAU);
 		
 		for (MAT<MO> trajectory : trajsFromClass) {
 			// This guarantees the reproducibility
@@ -81,6 +80,8 @@ public class SuperClassMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> 
 			
 			/** STEP 2.4: CANDIDATES */			
 			movelets.addAll(candidates);
+			
+			setStats("");
 
 //			System.gc();
 		}
@@ -92,10 +93,10 @@ public class SuperClassMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> 
 			movelets = lastPrunningFilter(movelets);
 
 		/** STEP 2.2: ---------------------------- */
-		if (outputers != null)
-			for (OutputterAdapter<MO> output : outputers) {
-				output.setDelayCount(1);			
-			}
+//		if (outputers != null)
+//			for (OutputterAdapter<MO,?> output : outputers) {
+//				output.setDelayCount(1);			
+//			}
 		
 		outputMovelets(movelets);
 		/** -------------------------------------- */
@@ -197,12 +198,6 @@ public class SuperClassMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> 
 			bestCandidates = selectMaxFeatures(bestCandidates);
 		
 		bestCandidates = filterByQuality(bestCandidates, random, trajectory);
-
-//		/* STEP 2.1.5: Recover Approach (IF Nothing found)
-//		 * * * * * * * * * * * * * * * * * * * * * * * * */
-//		if (bestCandidates.isEmpty()) { 
-//			bestCandidates = recoverCandidates(trajectory, random, candidatesByProp);
-//		}
 		
 		progressBar.trace("Class: " + trajectory.getMovingObject() 
 						+ ". Total of Movelets: " + bestCandidates.size() 
