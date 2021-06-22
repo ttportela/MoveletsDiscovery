@@ -17,17 +17,12 @@
  */
 package br.ufsc.mov3lets.run;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.nio.CharBuffer;
 
-import org.apache.commons.math3.util.Combinations;
+import org.apache.commons.lang3.StringUtils;
 
-import br.ufsc.mov3lets.model.MAT;
-import br.ufsc.mov3lets.model.MemPoint;
-import br.ufsc.mov3lets.model.Point;
-import br.ufsc.mov3lets.model.aspect.Aspect;
+import br.ufsc.mov3lets.utils.ProgressBar;
+import br.ufsc.mov3lets.utils.SimpleOutput;
 
 /**
  * The Class Test.
@@ -44,40 +39,16 @@ public class Test {
 	 */
 	public static void main(String[] arg) throws Exception {
 		
-		System.out.println(0.0 / 0.0);
-		System.out.println(0.0 / 1.0);
-		System.out.println(1.0 / 0.0);
-				
-	}
-	
-	public static int[][] makeCombinations(boolean exploreDimensions, int numberOfFeatures, int maxNumberOfFeatures) {
-					
-		int currentFeatures;
-		if (exploreDimensions){
-			currentFeatures = 1;
-		} else {
-			currentFeatures = numberOfFeatures;
+		double[] ps = new double[] {1.0/6.0, 2.0/6.0, 3.0/6.0, 0.0};
+		
+		double entropy = 0.0;
+		for (double p : ps) {
+			entropy += -(p * Math.log(p) / Math.log(2));
+			System.out.println(-(p * Math.log(p) / Math.log(2)));
 		}
-				
-		ArrayList<int[]> combaux = new ArrayList<int[]>();
-		int[][] combinations;// = new int[(int) (Math.pow(2, numberOfFeatures) - 1)][];
-		int k = 0;
-		// For each possible NumberOfFeatures and each combination of those: 
-		for (;currentFeatures <= maxNumberOfFeatures; currentFeatures++) {
-			for (int[] comb : new Combinations(numberOfFeatures,currentFeatures)) {					
-				
-//				combinations[k++] = comb;
-				combaux.add(comb);
-				
-			} // for (int[] comb : new Combinations(numberOfFeatures,currentFeatures)) 					
-		} // for (int i = 0; i < train.size(); i++
 
-		
-//		combinations = Arrays.stream(combinations).filter(Objects::nonNull).toArray(int[][]::new);
-		combinations = combaux.stream().toArray(int[][]::new);
-		System.out.println(combinations.length);
-		
-		return combinations;
+		System.out.println(entropy);
+				
 	}
 
 }

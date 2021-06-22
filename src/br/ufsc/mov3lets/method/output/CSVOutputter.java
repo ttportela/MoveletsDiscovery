@@ -17,6 +17,7 @@ import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.util.Pair;
 
+import br.ufsc.mov3lets.method.distancemeasure.DistanceMeasure;
 import br.ufsc.mov3lets.method.structures.descriptor.Descriptor;
 import br.ufsc.mov3lets.model.MAT;
 import br.ufsc.mov3lets.model.Subtrajectory;
@@ -323,11 +324,13 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO, List<Subtrajectory>> 
 		return true;
 	}
 
-	protected double divOrDefault(double a, double b, double def) {
+	protected double divOrDefault(double a, double b) {
 //		double value = (a == 0.0 && b == 0.0)? 0.0 : a / b;
-//		return (Double.isNaN(value) || Double.isInfinite(value))? def : value;
+//		double value = 1.0 - (b / a); //a / b;
 		double value = a / b;
-		return Double.isNaN(value)? 0.0 : (Double.isInfinite(value)? def : value);
+//		double value = a / def;
+//		return (Double.isNaN(value) || Double.isInfinite(value))? 1.0 : value;
+		return Double.isNaN(value)? 0.0 : (Double.isInfinite(value)? 1.0 : value);
 	}
 	
 	/**
@@ -343,7 +346,7 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO, List<Subtrajectory>> 
 		
 		for (int i = 0; i < dimensions; i++) {
 //			sumOfProportions += point[i] / limits[i];
-			sumOfProportions += divOrDefault( point[i] , limits[i] , maxDistances[i] );
+			sumOfProportions += divOrDefault( point[i] , limits[i] );
 		}
 		
 		return sumOfProportions / dimensions;
@@ -363,7 +366,7 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO, List<Subtrajectory>> 
 		
 		if (maxDistances == null){
 			maxDistances = new double[point.length];
-			Arrays.fill(maxDistances, Double.MAX_VALUE);
+			Arrays.fill(maxDistances, DistanceMeasure.DEFAULT_MAX_VALUE);
 		}
 		
 		for (int i = 0; i < dimensions; i++) {
@@ -371,10 +374,12 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO, List<Subtrajectory>> 
 				point[i] = maxDistances[i];				
 			}
 //			sumOfProportions += point[i] / limits[i];
-			sumOfProportions += divOrDefault( point[i] , limits[i] , maxDistances[i] );
+			sumOfProportions += divOrDefault( point[i] , limits[i] );
 		}
 		
-		return 1.0 + sumOfProportions / dimensions;
+//		return 1.0 + sumOfProportions / dimensions;
+		sumOfProportions = sumOfProportions / dimensions;
+		return sumOfProportions * sumOfProportions;
 	}
 
 	/**

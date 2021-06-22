@@ -81,8 +81,8 @@ public class SuperMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> {
 
 		List<Subtrajectory> movelets = new ArrayList<Subtrajectory>();
 
-		progressBar.trace("SUPERMovelets Discovery for Class: " + trajsFromClass.get(0).getMovingObject() 
-				+ ". Trajectory: " + trajectory.getTid());
+//		progressBar.trace("SUPERMovelets Discovery for Class: " + trajsFromClass.get(0).getMovingObject() 
+//				+ ". Trajectory: " + trajectory.getTid());
 		
 		this.proportionMeasure = new ProportionQualityMeasure<MO>(this.trajsFromClass); //, TAU);
 		
@@ -137,14 +137,9 @@ public class SuperMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> {
 		List<Subtrajectory> candidatesByProp = new ArrayList<Subtrajectory>();
 
 		int n = trajectory.getPoints().size();
-		
-		// TO USE THE LOG, PUT "-Ms -3"
-		switch (maxSize) {
-			case -1: maxSize = n; break;
-			case -2: maxSize = (int) Math.round( Math.log10(n) / Math.log10(2) ); break;	
-			case -3: maxSize = (int) Math.ceil(Math.log(n))+1; break;	
-			default: break;
-		}
+
+		minSize = minSize(minSize, n);
+		maxSize = maxSize(maxSize, minSize, n);
 
 		// It starts with the base case	
 		int size = 1;
@@ -166,13 +161,13 @@ public class SuperMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> {
 	
 			// Precompute de distance matrix
    			double[][][][] newSize = newSize(trajectory, trajectories, base, lastSize, size);
-
-			// Create candidates and compute min distances		
-			List<Subtrajectory> candidatesOfSize = findCandidates(trajectory, trajectories, size, newSize);
-		
-			total_size = total_size + candidatesOfSize.size();
 			
 			if (size >= minSize){
+
+				// Create candidates and compute min distances		
+				List<Subtrajectory> candidatesOfSize = findCandidates(trajectory, trajectories, size, newSize);
+			
+				total_size = total_size + candidatesOfSize.size();
 				
 				//for (Subtrajectory candidate : candidatesOfSize) assesQuality(candidate);				
 //				candidatesOfSize.forEach(x -> assesQuality(x, random));
@@ -210,7 +205,11 @@ public class SuperMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> {
 		addStats("Number of Candidates", candidatesByProp.size());
 
 		calculateProportion(candidatesByProp, random);
-		bestCandidates = filterByProportion(candidatesByProp, random);
+		
+		// Relative TAU based on the higher proportion:
+		double rel_tau = relativeFrequency(candidatesByProp);	addStats("TAU", rel_tau);
+		int bs = bucketSize(candidatesByProp.size());  			addStats("Bucket Size", bs);
+		bestCandidates = filterByProportion(candidatesByProp, rel_tau, bs);
 //		bestCandidates = filterTopCandidates(candidatesByProp);
 				
 		// If using feature limit, remove candidates out of the dimension limit
@@ -250,9 +249,13 @@ public class SuperMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> {
 	 * 
 	 */
 	protected int bucketSize(int candidatesByProp) {
-		if (BU < 0) return candidatesByProp;
-		
-		int n = (int) Math.ceil((double) (candidatesByProp+bucket.size()) * BU); // By 10%
+//		if (BU < 0) return candidatesByProp;
+		int n = candidatesByProp;
+		if (BU > 0.0) {
+			n = (int) Math.ceil((double) (candidatesByProp+bucket.size()) * BU); // By 10%
+		} else if (BU == -2.0) { // LOG^2
+			n = (int) Math.ceil(Math.pow( Math.log(candidatesByProp+bucket.size()) , 2));
+		}
 		return (n > candidatesByProp)? candidatesByProp : n;
 	}
 	
@@ -263,17 +266,16 @@ public class SuperMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> {
 	 * @param random the random
 	 * @return the list
 	 */
-	public List<Subtrajectory> filterByProportion(List<Subtrajectory> candidatesByProp, Random random) {
+	public List<Subtrajectory> filterByProportion(List<Subtrajectory> candidatesByProp, double rel_tau, int n) {
 //		calculateProportion(candidatesByProp, random);
 //		candidatesByProp = filterEqualCandidates(candidatesByProp);
 		
-		// Relative TAU based on the higher proportion:
-		double rel_tau = getDescriptor().getFlag("relative_tau")? ((candidatesByProp.size() > 0? 
-				 candidatesByProp.get(0).getQuality().getData().get("quality") : 0.0) * TAU) : TAU;	
-		
-		int n = bucketSize(candidatesByProp.size());
-		addStats("TAU", rel_tau);
-		addStats("Bucket Size", n);
+//		// Relative TAU based on the higher proportion:
+//		double rel_tau = relativeFrequency(candidatesByProp);	
+//		
+//		int n = bucketSize(candidatesByProp.size());
+//		addStats("TAU", rel_tau);
+//		addStats("Bucket Size", n);
 
 		/* STEP 2.1.2: SELECT ONLY CANDIDATES WITH PROPORTION > 50%
 		 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -286,6 +288,11 @@ public class SuperMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> {
 				bucket.add(candidate);
 		
 		return orderedCandidates;
+	}
+
+	protected double relativeFrequency(List<Subtrajectory> candidatesByProp) {
+		return getDescriptor().getFlag("relative_tau")? ((candidatesByProp.size() > 0? 
+				 candidatesByProp.get(0).getQuality().getData().get("quality") : 0.0) * TAU) : TAU;
 	}
 
 	public List<Subtrajectory> filterTopCandidates(List<Subtrajectory> candidatesByProp) {		
@@ -421,20 +428,24 @@ public class SuperMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> {
 	public List<Subtrajectory> recoverCandidates(MAT<MO> trajectory, Random random,
 			List<Subtrajectory> candidatesByProp) {
 		
-		int n = bucketSize(candidatesByProp.size());;
+		int n = bucketSize(candidatesByProp.size());
 		
 		orderCandidates(bucket);
 //		bucket = filterEqualCandidates(bucket);
 		List<Subtrajectory> bestCandidates = new ArrayList<Subtrajectory>();
 		
 //		bestCandidates = filterByQuality(bestCandidates, random, trajectory);
-		
+		long recovered = 0;
 		for (int i = n; i < bucket.size(); i += n) {
-			bestCandidates = filterByQuality(bucket.subList(i-n, (i > bucket.size()? bucket.size() : i)), random, trajectory);
+			bestCandidates = bucket.subList(i-n, (i > bucket.size()? bucket.size() : i));
+			recovered += bestCandidates.size();
+			bestCandidates = filterByQuality(bestCandidates, random, trajectory);
 			
 			if (i > bucket.size() || !bestCandidates.isEmpty()) break;
 			else n *= 2; // expand the window size
 		}
+		addStats("Recovered Candidates", recovered);
+		
 		return bestCandidates;
 	}
 

@@ -1,7 +1,8 @@
-package br.ufsc.mov3lets.method.feature;
+package br.ufsc.mov3lets.method.feature.extraction.point;
 
 import java.util.List;
 
+import br.ufsc.mov3lets.method.feature.extraction.PointFeature;
 import br.ufsc.mov3lets.method.structures.descriptor.AttributeDescriptor;
 import br.ufsc.mov3lets.method.structures.descriptor.Descriptor;
 import br.ufsc.mov3lets.model.MAT;
@@ -10,26 +11,25 @@ import br.ufsc.mov3lets.model.aspect.Aspect;
 
 public class StaytimePointFeature extends PointFeature {
 	
-	protected int indexTime = -1;
 	protected AttributeDescriptor timeComparator;
 
 	@Override
-	public void init(Descriptor descriptor) {
+	public void init(Descriptor descriptor, AttributeDescriptor feature) {
 		for (int i = 0; i < descriptor.getAttributes().size(); i++) {
 			if (descriptor.getAttributes().get(i).getType().equalsIgnoreCase("time")) {
-				indexTime = i;
+				index = i;
 				timeComparator = descriptor.getAttributes().get(i);
 			}
 		}
-		if (indexTime < 0)
+		if (index < 0)
 			throw new RuntimeException("[Staytime Feature] Descriptor must have time like for attibute type.");
 	}
 
 	public double calculate(Point p1, Point p2) {
 				
 		double diffTime = timeComparator.getDistanceComparator().calculateDistance(
-				p1.getAspects().get(indexTime), 
-				p2.getAspects().get(indexTime), 
+				p1.getAspects().get(index), 
+				p2.getAspects().get(index), 
 				timeComparator);	
 
 		return diffTime / 2.0;

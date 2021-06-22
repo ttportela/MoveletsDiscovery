@@ -50,18 +50,17 @@ public class HiperPivotsMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO>
 		List<Subtrajectory> candidatesByProp = new ArrayList<Subtrajectory>();
 
 		int n = trajectory.getPoints().size();
-		
-		// TO USE THE LOG, PUT "-Ms -3"
-		switch (maxSize) {
-			case -1: maxSize = n; break;
-			case -2: maxSize = (int) Math.round( Math.log10(n) / Math.log10(2) ); break;	
-			case -3: maxSize = (int) Math.ceil(Math.log(n))+1; break;	
-			default: break;
-		}
+
+		minSize = minSize(minSize, n);
+		maxSize = maxSize(maxSize, minSize, n);
 
 		// It starts with the base case	
 		int size = 1;
-		Integer total_size = 0;
+		long total_size = 0;
+		
+		addStats("Class", trajectory.getMovingObject()); 
+		addStats("Trajectory", trajectory.getTid());
+		addStats("Trajectory Size", n);
 		
 		base = computeBaseDistances(trajectory, trajectories);
 		
@@ -70,7 +69,11 @@ public class HiperPivotsMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO>
 //		GAMMA = getDescriptor().getParamAsDouble("gamma");
 		calculateProportion(candidatesOfSize, random);
 //		orderCandidates(candidatesOfSize);
-		candidatesOfSize = filterByProportion(candidatesOfSize, random);
+		// Relative TAU based on the higher proportion:
+		double rel_tau = relativeFrequency(candidatesOfSize); addStats("TAU", rel_tau);
+		int bs = bucketSize(candidatesOfSize.size());         addStats("Bucket Size", bs);
+		candidatesOfSize = filterByProportion(candidatesOfSize, rel_tau, bs);
+//		candidatesOfSize = filterByProportion(candidatesOfSize, random);
 
 		if( minSize <= 1 ) {
 			candidatesByProp.addAll(candidatesOfSize);
@@ -92,12 +95,11 @@ public class HiperPivotsMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO>
 			calculateProportion(candidatesOfSize, random);
 //			orderCandidates(candidatesOfSize);
 			candidatesOfSize = filterOvelappingPoints(candidatesOfSize);
-			candidatesOfSize = filterByProportion(candidatesOfSize, random);
+			candidatesOfSize = filterByProportion(candidatesOfSize, relativeFrequency(candidatesOfSize), bucketSize(candidatesOfSize.size()));
 	
 			total_size = total_size + candidatesOfSize.size();
 			
-			if (size >= minSize){
-				
+			if (size >= minSize) {	
 				//for (Subtrajectory candidate : candidatesOfSize) assesQuality(candidate);				
 //				candidatesOfSize.forEach(x -> assesQuality(x, random));
 				candidatesByProp.addAll(candidatesOfSize);
@@ -113,7 +115,9 @@ public class HiperPivotsMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO>
 		
 		if (getDescriptor().getFlag("feature_limit"))
 			bestCandidates = selectMaxFeatures(bestCandidates);
-		
+ 
+		addStats("Number of Candidates", candidatesByProp.size());
+		addStats("Scored Candidates", bestCandidates.size());
 		bestCandidates = filterByQuality(bestCandidates, random, trajectory);	
 		
 		/* STEP 2.1.5: Recover Approach (IF Nothing found)
@@ -123,14 +127,18 @@ public class HiperPivotsMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO>
 		}
 		
 //		queue.removeAll(getCoveredInClass(bestCandidates));	
-	
-		progressBar.plus("Class: " + trajectory.getMovingObject() 
-						+ ". Trajectory: " + trajectory.getTid() 
-						+ ". Trajectory Size: " + trajectory.getPoints().size() 
-						+ ". Number of Candidates: " + candidatesByProp.size() 
-						+ ". Total of Movelets: " + bestCandidates.size() 
-						+ ". Max Size: " + maxSize
-						+ ". Used Features: " + this.maxNumberOfFeatures);
+
+		addStats("Total of Movelets", bestCandidates.size());
+		addStats("Max Size", maxSize);
+		addStats("Used Features", this.maxNumberOfFeatures);
+		progressBar.plus(getStats());
+//		progressBar.plus("Class: " + trajectory.getMovingObject() 
+//						+ ". Trajectory: " + trajectory.getTid() 
+//						+ ". Trajectory Size: " + trajectory.getPoints().size() 
+//						+ ". Number of Candidates: " + candidatesByProp.size() 
+//						+ ". Total of Movelets: " + bestCandidates.size() 
+//						+ ". Max Size: " + maxSize
+//						+ ". Used Features: " + this.maxNumberOfFeatures);
 //						+ ". Memory Use: " + Mov3letsUtils.getUsedMemory());
 	
 		base =  null;

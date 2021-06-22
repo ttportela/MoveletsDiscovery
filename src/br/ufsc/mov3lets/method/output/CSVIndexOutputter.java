@@ -225,11 +225,11 @@ public class CSVIndexOutputter<MO> extends OutputterAdapter<MO,List<IndexPoint>>
 		switch (output){
 			case "discrete" :
 				if (value >= getDescriptor().getAttributes().size()) {
-					return 2.0;
+					return 0.0;
 //				} else if (value >= (getDescriptor().getAttributes().size()/2)) {
 //					return 1.0;
 				} else {
-					return 0.0;
+					return 2.0;
 				}
 
 			case "numeric" :

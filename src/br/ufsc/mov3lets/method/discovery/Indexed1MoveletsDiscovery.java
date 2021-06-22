@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import br.ufsc.mov3lets.method.discovery.structures.GlobalDiscovery;
 import br.ufsc.mov3lets.method.output.OutputterAdapter;
 import br.ufsc.mov3lets.method.qualitymeasure.QualityMeasure;
 import br.ufsc.mov3lets.method.structures.descriptor.Descriptor;
@@ -46,7 +47,7 @@ import br.ufsc.mov3lets.model.aspect.Space2DAspect;
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  * @param <MO> the generic type
  */
-public class Indexed1MoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
+public class Indexed1MoveletsDiscovery<MO> extends MoveletsDiscovery<MO> implements GlobalDiscovery {
 
 	protected double spatialThreshold;
 	protected int temporalThreshold;

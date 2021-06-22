@@ -35,21 +35,30 @@ import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 
-import br.ufsc.mov3lets.method.discovery.DiscoveryAdapter;
-import br.ufsc.mov3lets.method.discovery.IndexedMoveletsDiscovery;
-import br.ufsc.mov3lets.method.discovery.deprecated.PrecomputeMoveletsDiscovery;
-import br.ufsc.mov3lets.method.feature.PointFeature;
+import br.ufsc.mov3lets.method.discovery.structures.ClassDiscovery;
+import br.ufsc.mov3lets.method.discovery.structures.DiscoveryAdapter;
+import br.ufsc.mov3lets.method.discovery.structures.GlobalDiscovery;
+import br.ufsc.mov3lets.method.discovery.structures.TrajectoryDiscovery;
+import br.ufsc.mov3lets.method.feature.extraction.FeatureExtractor;
+import br.ufsc.mov3lets.method.feature.extraction.PointFeature;
+import br.ufsc.mov3lets.method.feature.selection.FeatureSelector;
 import br.ufsc.mov3lets.method.loader.LoaderAdapter;
 import br.ufsc.mov3lets.method.output.CSVIndexOutputter;
+import br.ufsc.mov3lets.method.output.MKNMOutputter;
+import br.ufsc.mov3lets.method.output.MKNTOutputter;
 import br.ufsc.mov3lets.method.output.MSVMOutputter;
 import br.ufsc.mov3lets.method.output.OutputterAdapter;
 import br.ufsc.mov3lets.method.qualitymeasure.LeftSidePureCVLigth;
+import br.ufsc.mov3lets.method.qualitymeasure.LeftSidePureCVLigthBS;
+import br.ufsc.mov3lets.method.qualitymeasure.LeftSidePureCVLigthEA;
 import br.ufsc.mov3lets.method.qualitymeasure.ProportionQualityMeasure;
 import br.ufsc.mov3lets.method.qualitymeasure.QualityMeasure;
 import br.ufsc.mov3lets.method.structures.descriptor.AttributeDescriptor;
 import br.ufsc.mov3lets.method.structures.descriptor.Descriptor;
 import br.ufsc.mov3lets.model.MAT;
+import br.ufsc.mov3lets.utils.Mov3letsUtils;
 import br.ufsc.mov3lets.utils.ProgressBar;
+import br.ufsc.mov3lets.utils.SimpleOutput;
 
 /**
  * The Class Mov3lets.
@@ -77,7 +86,7 @@ public class Mov3lets<MO> {
 	private List<MAT<MO>> test = null;
 	
 	/** The progress bar. */
-	public static ProgressBar progressBar = new ProgressBar();
+	public static ProgressBar progressBar = new SimpleOutput();
 
 	/**
 	 * Instantiates a new mov 3 lets.
@@ -108,25 +117,45 @@ public class Mov3lets<MO> {
 		// STEP 1 - Load Trajectories: is done before this method starts.
 		this.data = Stream.concat(train.stream(), test.stream()).collect(Collectors.toList());
 		
-		// When using precompute version:
-		if (getDescriptor().getParamAsText("version").equals("3.0"))
-			PrecomputeMoveletsDiscovery.initBaseCases(data,	N_THREADS, getDescriptor());
+//		// When using precompute version:
+//		if (getDescriptor().getParamAsText("version").equals("3.0"))
+//			PrecomputeMoveletsDiscovery.initBaseCases(data,	N_THREADS, getDescriptor());
 				
 		// STEP 2 - Select Candidates:
 //		Mov3letsUtils.getInstance().startTimer("[2.1] >> Extracting Movelets");
 		List<MO> classes = train.stream().map(e -> (MO) e.getMovingObject()).distinct().collect(Collectors.toList());
 		
 		QualityMeasure qualityMeasure;
-		if (getDescriptor().getParamAsText("str_quality_measure").equalsIgnoreCase("LSP"))
-			qualityMeasure = new LeftSidePureCVLigth<MO>(train, 
-									    		getDescriptor().getParamAsInt("samples"), 
-									    		getDescriptor().getParamAsDouble("sample_size"), 
-									    		getDescriptor().getParamAsText("medium"));
-		else 
+		switch (getDescriptor().getParamAsText("str_quality_measure")) {
+		case "PROP":
 			qualityMeasure = new ProportionQualityMeasure<MO>(this.train,
-									    		getDescriptor().getParamAsInt("samples"), 
-									    		getDescriptor().getParamAsDouble("sample_size"), 
-									    		getDescriptor().getParamAsText("medium"));
+		    		getDescriptor().getParamAsInt("samples"), 
+		    		getDescriptor().getParamAsDouble("sample_size"), 
+		    		getDescriptor().getParamAsText("medium"));
+			break;
+			
+		case "LSPBS":
+			qualityMeasure = new LeftSidePureCVLigthBS<MO>(train, 
+		    		getDescriptor().getParamAsInt("samples"), 
+		    		getDescriptor().getParamAsDouble("sample_size"), 
+		    		getDescriptor().getParamAsText("medium"));
+			break;
+			
+		case "LSPEA":
+			qualityMeasure = new LeftSidePureCVLigthEA<MO>(train, 
+		    		getDescriptor().getParamAsInt("samples"), 
+		    		getDescriptor().getParamAsDouble("sample_size"), 
+		    		getDescriptor().getParamAsText("medium"));
+			break;
+
+		case "LSP":
+		default:
+			qualityMeasure = new LeftSidePureCVLigth<MO>(train, 
+		    		getDescriptor().getParamAsInt("samples"), 
+		    		getDescriptor().getParamAsDouble("sample_size"), 
+		    		getDescriptor().getParamAsText("medium"));
+			break;
+		}
 
 //		List<Subtrajectory> candidates = new ArrayList<Subtrajectory>();	
 		
@@ -196,19 +225,22 @@ public class Mov3lets<MO> {
 			throws Exception {
 		List<DiscoveryAdapter<MO>> lsMDs = new ArrayList<DiscoveryAdapter<MO>>();
 		
+		Class cdc = getDiscoveryClass();
+		
 		/** STEP 2.1: Starts at discovering movelets */
-		if (getDescriptor().getParamAsText("version").startsWith("indexed")) { // Special case
+		if (GlobalDiscovery.class.equals(getTypeOf(cdc))) { // Special case
 			DiscoveryAdapter<MO> moveletsDiscovery = 
-					new IndexedMoveletsDiscovery<MO>(data, train, test, qualityMeasure, descriptor);
+//					new IndexedMoveletsDiscovery<MO>(data, train, test, qualityMeasure, descriptor);
+					(DiscoveryAdapter<MO>) cdc.getConstructor(List.class, List.class, List.class, QualityMeasure.class, Descriptor.class)
+					.newInstance(data, train, test, qualityMeasure, descriptor);
 			
-			// Configure Outputs
+			// TODO Configure Outputs:
 			moveletsDiscovery.getOutputers().add(
 					new CSVIndexOutputter<MO>(descriptor.getParamAsText("respath"), null, descriptor, false));
 			lsMDs.add(moveletsDiscovery);
 
 			return lsMDs;
 		}
-		
 		
 		for (MO myclass : classes) {
 			if ( ! Paths.get(resultDirPath, myclass.toString(), "test.csv").toFile().exists() ) {
@@ -219,12 +251,13 @@ public class Mov3lets<MO> {
 				
 				DiscoveryAdapter<MO> moveletsDiscovery;
 				
-				if (getDescriptor().getParamAsText("version").startsWith("hiper")   ||
-					getDescriptor().getParamAsText("version").equals("super-class")) {
+				if (ClassDiscovery.class.equals(getTypeOf(cdc))) {
+//				if (getDescriptor().getParamAsText("version").startsWith("hiper")   ||
+//					getDescriptor().getParamAsText("version").equals("super-class")) {
 					
 					List<OutputterAdapter<MO,?>> outs = configOutput(1, myclass); // For classes, it calls once.
 					
-					moveletsDiscovery = instantiateMoveletsDiscovery(qualityMeasure, trajsFromClass, outs);
+					moveletsDiscovery = instantiateMoveletsDiscovery(cdc, qualityMeasure, trajsFromClass, outs);
 					moveletsDiscovery.setQueue(sharedQueue);
 					
 					// Configure Outputs
@@ -235,7 +268,7 @@ public class Mov3lets<MO> {
 					List<OutputterAdapter<MO,?>> outs = configOutput(trajsFromClass.size(), myclass);
 					
 					for (MAT<MO> T : trajsFromClass) {
-						moveletsDiscovery = instantiateMoveletsDiscovery(qualityMeasure, trajsFromClass, outs, T);
+						moveletsDiscovery = instantiateMoveletsDiscovery(cdc, qualityMeasure, trajsFromClass, outs, T);
 						moveletsDiscovery.setQueue(sharedQueue);
 						
 						// Configure Outputs
@@ -330,13 +363,13 @@ public class Mov3lets<MO> {
 		return lsMDs;
 	}
 
-	private DiscoveryAdapter<MO> instantiateMoveletsDiscovery(QualityMeasure qualityMeasure,
+	protected DiscoveryAdapter<MO> instantiateMoveletsDiscovery(Class cdc, QualityMeasure qualityMeasure,
 			List<MAT<MO>> trajsFromClass, List<OutputterAdapter<MO,?>> outs, MAT<MO> T)
 			throws InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, ClassNotFoundException {
 		DiscoveryAdapter<MO> moveletsDiscovery;
 //		try {
 			
-			Class cdc = Class.forName("br.ufsc.mov3lets.method.discovery."+getDiscoveryClass());
+//			Class cdc = Class.forName("br.ufsc.mov3lets.method.discovery."+getDiscoveryClass());
 			moveletsDiscovery = (DiscoveryAdapter<MO>) 
 					cdc.getConstructor(MAT.class, List.class, List.class, List.class, List.class, QualityMeasure.class, Descriptor.class)
 					.newInstance(T, trajsFromClass, data, train, test, qualityMeasure, getDescriptor());
@@ -352,12 +385,12 @@ public class Mov3lets<MO> {
 		return moveletsDiscovery;
 	}
 
-	private DiscoveryAdapter<MO> instantiateMoveletsDiscovery(QualityMeasure qualityMeasure,
+	protected DiscoveryAdapter<MO> instantiateMoveletsDiscovery(Class cdc, QualityMeasure qualityMeasure,
 			List<MAT<MO>> trajsFromClass, List<OutputterAdapter<MO,?>> outs)
 			throws InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, ClassNotFoundException {
 		DiscoveryAdapter<MO> moveletsDiscovery;
 			
-		Class cdc = Class.forName("br.ufsc.mov3lets.method.discovery."+getDiscoveryClass());
+//		Class cdc = Class.forName("br.ufsc.mov3lets.method.discovery."+getDiscoveryClass();
 		moveletsDiscovery = (DiscoveryAdapter<MO>) 
 				cdc.getConstructor(List.class, List.class, List.class, List.class, QualityMeasure.class, Descriptor.class)
 				.newInstance(trajsFromClass, data, train, test, qualityMeasure, getDescriptor());
@@ -369,10 +402,27 @@ public class Mov3lets<MO> {
 	 * Mehod getDiscoveryClass. 
 	 * 
 	 * @return
+	 * @throws Exception 
 	 */
-	private String getDiscoveryClass() {
-		return Arrays.asList(getDescriptor().getParamAsText("version").split("-"))
-				.stream().map(StringUtils::capitalize).collect(Collectors.joining("")) + "MoveletsDiscovery";
+	protected Class<?> getDiscoveryClass() throws Exception {
+		return Class.forName("br.ufsc.mov3lets.method.discovery." + 
+				Arrays.asList(getDescriptor().getParamAsText("version").split("-"))
+				.stream().map(StringUtils::capitalize).collect(Collectors.joining("")) + "MoveletsDiscovery");
+	}
+	
+	protected static  Class<?> getTypeOf(Class<?> clazz) {
+        if (clazz != null) {
+        	if (Arrays.asList(clazz.getInterfaces()).contains(TrajectoryDiscovery.class)) {
+        		return TrajectoryDiscovery.class;
+        	} else if (Arrays.asList(clazz.getInterfaces()).contains(ClassDiscovery.class)) {
+        		return ClassDiscovery.class;
+        	} else { 
+	            clazz = clazz.getSuperclass();
+	            return getTypeOf(clazz);
+        	}
+        } else {
+            return null;
+        }
 	}
 
 	/**
@@ -415,7 +465,15 @@ public class Mov3lets<MO> {
 		// For Singleton outputters:
 		if ("MSVM".equalsIgnoreCase(outx)) {
 			
-			o = MSVMOutputter.getInstance(resultDirPath, myclass, getDescriptor());
+			o = MSVMOutputter.getInstance(resultDirPath, getDescriptor());
+			
+		} else if ("MKNM".equalsIgnoreCase(outx)) {
+			
+			o = MKNMOutputter.getInstance(resultDirPath, getDescriptor());
+			
+		} else if ("MKNT".equalsIgnoreCase(outx)) {
+			
+			o = MKNTOutputter.getInstance(resultDirPath, getDescriptor());
 			
 		} else {
 		
@@ -443,10 +501,7 @@ public class Mov3lets<MO> {
 		} else {
 			setTrain(loader.load("train", getDescriptor()));
 		}
-
-		if (getDescriptor().getFeatures() != null && !getDescriptor().getFeatures().isEmpty()) {
-			loadPointFeatures(getTrain());
-		}
+		
 	}
 
 	/**
@@ -466,9 +521,77 @@ public class Mov3lets<MO> {
 			setTest(loader.load("test", getDescriptor()));
 		}
 		
+	}
+
+	public void preProcessing() throws Exception {
+		ArrayList<AttributeDescriptor> attributes = new ArrayList<AttributeDescriptor>(getDescriptor().getAttributes());
+//		ArrayList<PointFeature> features = null;
+
+		List<AttributeDescriptor> newAttr = new ArrayList<AttributeDescriptor>();
+		
+		// Extract Features
 		if (getDescriptor().getFeatures() != null && !getDescriptor().getFeatures().isEmpty()) {
-			loadPointFeatures(getTest());
+			Mov3letsUtils.getInstance().startTimer("[1.1] >> Extract Features");
+			newAttr.addAll( pointFeatureExtraction(attributes) );
+			Mov3letsUtils.getInstance().stopTimer( "[1.1] >> Extract Features");
 		}
+
+		// Feature Extraction (Automatic)
+		if (getDescriptor().hasParam("feature_extraction_strategy")) {
+			Mov3letsUtils.getInstance().startTimer("[1.2] >> Automatic Feature Extraction");
+			newAttr.addAll( featureExtraction(attributes) );
+			Mov3letsUtils.getInstance().stopTimer( "[1.2] >> Automatic Feature Extraction");
+		}
+		
+		// Feature Selection
+		if (getDescriptor().hasParam("filter_strategy")) {
+			Mov3letsUtils.getInstance().startTimer("[1.3] >> Feature Selection");
+			featureSelection(attributes);
+			Mov3letsUtils.getInstance().stopTimer( "[1.3] >> Feature Selection");
+		}
+		
+		// Update Attributes at the end
+		if (!newAttr.isEmpty())
+			getDescriptor().getAttributes().addAll(newAttr);
+		
+	}
+	
+	public List<AttributeDescriptor> pointFeatureExtraction(ArrayList<AttributeDescriptor> attributes) throws Exception {
+		
+		ArrayList<PointFeature> features = instantiatePointFeatures();	
+		extractPointFeatures(features, getTrain());
+		extractPointFeatures(features, getTest());
+		
+		List<AttributeDescriptor> newAttr = new ArrayList<AttributeDescriptor>();
+		// Add Features to attributes:
+		for (int i = 0; i < features.size(); i++) {
+			newAttr.add(getDescriptor().instantiateFeature(
+					getDescriptor().getFeatures().get(i), features.get(i)));			
+		}
+		
+		return newAttr;
+		
+	}
+
+	public ArrayList<PointFeature> instantiatePointFeatures() throws Exception {
+		ArrayList<PointFeature> features = new ArrayList<PointFeature>();
+		
+		// Load Features:
+		for (AttributeDescriptor attr : getDescriptor().getFeatures()) {
+			String className = attr.getType();
+			
+			className = "br.ufsc.mov3lets.method.feature.extraction.point." 
+					+ className.substring(0, 1).toUpperCase() + className.substring(1).toLowerCase();
+			className += "PointFeature";
+			
+			// Throw exception if class not found
+			PointFeature feat = (PointFeature) Class.forName(className).getConstructor().newInstance();
+			feat.init(getDescriptor(), attr);
+						
+			features.add(feat);
+		}
+		
+		return features;
 	}
 
 	/**
@@ -477,25 +600,8 @@ public class Mov3lets<MO> {
 	 *
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
-	public void loadPointFeatures(List<MAT<MO>> trajectories) throws Exception {
-		
-		ArrayList<PointFeature> features = new ArrayList<PointFeature>();
-		
-		// Load Features:
-		for (AttributeDescriptor attr : getDescriptor().getFeatures()) {
-			String className = attr.getType();
-			
-			className = "br.ufsc.mov3lets.method.feature." 
-					+ className.substring(0, 1).toUpperCase() + className.substring(1).toLowerCase();
-			className += "PointFeature";
-			
-			// Throw exception if class not found
-			PointFeature feat = (PointFeature) Class.forName(className).getConstructor().newInstance();
-			feat.init(getDescriptor());
-						
-			features.add(feat);
-		}		
-
+	public void extractPointFeatures(List<PointFeature> features, List<MAT<MO>> trajectories) throws Exception {
+	
 		// Fill trajectories:
 		for (PointFeature feat : features) {
 			for (MAT<MO> T : trajectories) {
@@ -503,6 +609,49 @@ public class Mov3lets<MO> {
 			}
 		}
 		
+	}
+
+	public List<AttributeDescriptor> featureExtraction(ArrayList<AttributeDescriptor> attributes) throws Exception {
+		
+		// Load Instance:
+		String className = getDescriptor().getParamAsText("feature_extraction_strategy");
+		
+		className = "br.ufsc.mov3lets.method.feature.extraction." 
+				+ className.substring(0, 1).toUpperCase() + className.substring(1).toLowerCase();
+		className += "FeatureExtractor";
+			
+		// Throw exception if class not found
+		FeatureExtractor feat = (FeatureExtractor) Class.forName(className).getConstructor().newInstance();
+		List<AttributeDescriptor> newAttr = feat.updateTrajectories(
+				getDescriptor(), attributes, getTrain(), getTest());
+						
+		// Update features references:
+		if (getDescriptor().getFeatures() == null)
+			getDescriptor().setFeatures( newAttr );
+		else
+			getDescriptor().getFeatures().addAll(newAttr);
+		
+		return newAttr;
+	}
+
+	public List<AttributeDescriptor> featureSelection(ArrayList<AttributeDescriptor> attributes) throws Exception {
+		
+		// Load Instance:
+		String className = getDescriptor().getParamAsText("filter_strategy");
+		
+		className = "br.ufsc.mov3lets.method.feature.selection." 
+				+ className.substring(0, 1).toUpperCase() + className.substring(1).toLowerCase();
+		className += "FeatureSelector";
+			
+		// Throw exception if class not found
+		FeatureSelector feat = (FeatureSelector) Class.forName(className).getConstructor().newInstance();
+		List<AttributeDescriptor> unusedAttr = feat.updateTrajectories(
+				getDescriptor(), attributes, getTrain(), getTest());
+						
+		// Update attributes:
+		getDescriptor().getAttributes().removeAll(unusedAttr);
+		
+		return unusedAttr;
 	}
 
 	/**
@@ -550,82 +699,6 @@ public class Mov3lets<MO> {
 		
 		return loader;
 	}
-	
-	/**
-	 * STEP 2.
-	 *
-	 * @return the descriptor
-	 */
-//	private List<Subtrajectory> selectCandidates(List<MAT<MO>> train, List<MAT<MO>> test, QualityMeasure qualityMeasure) {
-//		List<MO> classes = train.stream().map(e -> (MO) e.getMovingObject()).distinct().collect(Collectors.toList());
-//		
-//		List<Subtrajectory> candidates = new ArrayList<Subtrajectory>();
-//		
-//		int N_THREADS = getDescriptor().getParamAsInt("nthreads");
-//		
-////		PrecomputeMoveletsDiscovery.initBaseCases(
-////				Stream.concat(train.stream(), test.stream()).collect(Collectors.toList()), 
-////				N_THREADS, getDescriptor());
-//				
-//		ExecutorService executor = (ExecutorService) 
-//				Executors.newFixedThreadPool(N_THREADS);
-//		List<Future<Integer>> resultList = new ArrayList<>();
-//		
-//		/* Keeping up with Progress output */
-//		ProgressBar progressBar = new ProgressBar("[2.2] >> Movelet Discovery", train.size());
-////		progressBar.setInline(false);
-//		int progress = 0;
-//		progressBar.update(progress, train.size());
-//		
-//		/** STEP 2.1: Starts at discovering movelets */
-//		for (MO myclass : classes) {
-//			if ( ! Paths.get(resultDirPath, myclass.toString(), "test.csv").toFile().exists() ) {
-//				List<MAT<MO>> trajsFromClass = train.stream().filter(e-> myclass.equals(e.getMovingObject())).collect(Collectors.toList());
-//				
-//				for (MAT<MO> trajectory : trajsFromClass) {
-//					DiscoveryAdapter<MO> moveletsDiscovery;
-//					if (getDescriptor().getFlag("pivots")) {
-//						moveletsDiscovery = new PivotsMoveletsDiscovery<MO>(trajectory, train, test, candidates, qualityMeasure, 
-//								getDescriptor());
-//					} else if (getDescriptor().getFlag("supervised")) {
-//						moveletsDiscovery = new SupervisedMoveletsDiscovery<MO>(trajectory, train, test, candidates, qualityMeasure, 
-//								getDescriptor());
-//					} else {
-////						moveletsDiscovery = new BaseCaseMoveletsDiscovery<MO>(trajectory, train, test, candidates, qualityMeasure, getDescriptor());
-//						moveletsDiscovery = new MoveletsDiscovery<MO>(trajectory, train, test, candidates, qualityMeasure, getDescriptor());
-////						moveletsDiscovery = new PrecomputeMoveletsDiscovery<MO>(trajectory, train, test, candidates, qualityMeasure, getDescriptor());
-//					}
-//					
-//					/** Configuring outputs: */
-//					moveletsDiscovery.setProgressBar(progressBar);
-//					moveletsDiscovery.setOutputers(new ArrayList<OutputterAdapter<MO>>());
-//					moveletsDiscovery.getOutputers().add(new JSONOutputter<MO>(resultDirPath, getDescriptor()));
-//					moveletsDiscovery.getOutputers().add(new CSVOutputter<MO>(resultDirPath, getDescriptor()));
-////					moveletsDiscovery.getOutputers().add(new CSVOutputter<MO>(resultDirPath, getDescriptor(), false));
-//
-////					progressBar.update(progress++, train.size());
-//					resultList.add(executor.submit(moveletsDiscovery));
-////					moveletsDiscovery.discover();
-//				}
-//			} else {
-//				Mov3letsUtils.trace("\t[Class: " + myclass + "] >> Movelets previously discovered.");
-//			}
-//		}
-//		/** STEP 2.1: --------------------------------- */
-//		for (Future<Integer> future : resultList) {
-//			try {
-//				future.get();
-//				progressBar.update(progress++, train.size());
-//				System.gc();
-//				Executors.newCachedThreadPool();
-//			} catch (InterruptedException | ExecutionException e) {
-//				e.getCause().printStackTrace();
-//			}
-//		}
-//		executor.shutdown();
-//		
-//		return candidates;
-//	}
 
 	/**
 	 * @return the descriptor

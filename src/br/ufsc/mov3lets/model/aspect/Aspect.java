@@ -65,5 +65,14 @@ public class Aspect<T> {
 	public String toString() {
 		return getValue().toString();
 	}
+
+	public Double toDouble() {
+		if (value instanceof Double) 
+			return (Double) value;
+		else if (value instanceof Integer)
+			return ((Integer) value).doubleValue();
+		else
+			return null;
+	}
 	
 }

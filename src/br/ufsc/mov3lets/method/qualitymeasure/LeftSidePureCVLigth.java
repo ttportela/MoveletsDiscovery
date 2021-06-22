@@ -33,7 +33,7 @@ public class LeftSidePureCVLigth<MO> extends QualityMeasure<MO> {
 //	private List<MAT> trajectories;
 
 	/** The classes. */
-	private Map<MO, Long> classes;
+	protected Map<MO, Long> classes;
 
 //	private RankingAlgorithm rankingAlgorithm = new NaturalRanking();
 
@@ -198,7 +198,6 @@ public class LeftSidePureCVLigth<MO> extends QualityMeasure<MO> {
 		 */
 		for (int i = 1; i < nonTargetDistances.size(); i++) {
 			if (Arrays.equals(nonTargetDistances.get(i - 1).getSecond(), nonTargetDistances.get(i).getSecond()))
-
 				nonTargetDistances.remove(i--);
 		}
 
@@ -283,6 +282,8 @@ public class LeftSidePureCVLigth<MO> extends QualityMeasure<MO> {
 
 			results.add(bestSplitpoints);
 		}
+		
+//		System.out.println(ct);System.exit(1);
 
 		// Agora resultado vai ser usado para acumular os resultados parciais
 		double[][] splitPoints = new double[distances.length][this.samples];

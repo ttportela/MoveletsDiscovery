@@ -65,14 +65,9 @@ public class PivotsMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> {
 		List<Subtrajectory> candidates = new ArrayList<Subtrajectory>();
 
 		int n = trajectory.getPoints().size();
-		
-		// TO USE THE LOG, PUT "-Ms -3"
-		switch (maxSize) {
-			case -1: maxSize = n; break;
-			case -2: maxSize = (int) Math.round( Math.log10(n) / Math.log10(2) ); break;	
-			case -3: maxSize = (int) Math.ceil(Math.log(n))+1; break;	
-			default: break;
-		}
+
+		minSize = minSize(minSize, n);
+		maxSize = maxSize(maxSize, minSize, n);
 
 		// It starts with the base case	
 		int size = 1;

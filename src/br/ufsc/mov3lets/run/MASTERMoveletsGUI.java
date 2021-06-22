@@ -7,7 +7,7 @@ import java.util.List;
 import javax.swing.JFileChooser;
 
 import br.ufsc.mov3lets.method.Mov3lets;
-import br.ufsc.mov3lets.utils.ProgressBar;
+import br.ufsc.mov3lets.utils.ProgressOutput;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -27,7 +27,7 @@ public class MASTERMoveletsGUI extends javax.swing.JFrame {
      */
     public MASTERMoveletsGUI() {
         initComponents();
-        Mov3lets.progressBar = new ProgressBar() {
+        Mov3lets.progressBar = new ProgressOutput() {
         	
         	public void setPrefix(String prefix) {
         		super.setPrefix(prefix);

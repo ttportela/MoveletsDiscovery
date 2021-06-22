@@ -26,6 +26,7 @@ import java.util.Random;
 import java.util.Set;
 
 import org.apache.commons.collections4.SetUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.stat.ranking.NaturalRanking;
@@ -33,6 +34,8 @@ import org.apache.commons.math3.stat.ranking.RankingAlgorithm;
 import org.apache.commons.math3.util.Combinations;
 import org.apache.commons.math3.util.Pair;
 
+import br.ufsc.mov3lets.method.discovery.structures.DiscoveryAdapter;
+import br.ufsc.mov3lets.method.discovery.structures.TrajectoryDiscovery;
 import br.ufsc.mov3lets.method.qualitymeasure.QualityMeasure;
 import br.ufsc.mov3lets.method.structures.descriptor.AttributeDescriptor;
 import br.ufsc.mov3lets.method.structures.descriptor.Descriptor;
@@ -46,7 +49,7 @@ import br.ufsc.mov3lets.model.Subtrajectory;
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  * @param <MO> the generic type
  */
-public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
+public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> implements TrajectoryDiscovery {
 
 	/** The number of features. */
 	protected int numberOfFeatures = 1;
@@ -94,7 +97,7 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 		switch (maxNumberOfFeatures) {
 			case -1: // All features
 			case -3: // Learn feature limits (mode)
-			case -4: this.maxNumberOfFeatures = numberOfFeatures; break; // Learn feature limits (most frequent) 
+			case -4: this.maxNumberOfFeatures = numberOfFeatures; break; // Learn feature limits (most frequent)
 			
 			case -2: this.maxNumberOfFeatures = (int) Math.ceil(Math.log(numberOfFeatures))+1; break;
 			
@@ -180,6 +183,7 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 		/** STEP 2.2: ---------------------------- */
 		outputMovelets(movelets);
 		/** -------------------------------------- */
+		System.gc();
 		
 //		/** STEP 2.3.3, to write all outputs: */
 //		super.output("train", this.train, movelets, false);
@@ -234,14 +238,9 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 		List<Subtrajectory> candidates = new ArrayList<Subtrajectory>();
 		
 		int n = trajectory.getPoints().size();
-		
-		// TO USE THE LOG, PUT "-Ms -3"
-		switch (maxSize) {
-			case -1: maxSize = n; break;
-			case -2: maxSize = (int) Math.round( Math.log10(n) / Math.log10(2) ); break;	
-			case -3: maxSize = (int) Math.ceil(Math.log(n))+1; break;	
-			default: break;
-		}
+
+		minSize = minSize(minSize, n);
+		maxSize = maxSize(maxSize, minSize, n);
 
 		// It starts with the base case	
 		int size = 1;
@@ -282,6 +281,32 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 						+ ". Used Features: " + this.maxNumberOfFeatures);
 				
 		return candidates;
+	}
+
+	protected int minSize(int minSize, int n) {
+		switch (minSize) {			
+			// LOG Window size:
+			case -2: minSize = ((int) Math.ceil(Math.log(n))+1); break;	
+			
+			case -1:
+			default: minSize = -1;
+		}
+		return minSize;
+	}
+
+	protected int maxSize(int maxSize, int minSize, int n) {
+		// TO USE THE LOG, PUT "-Ms -3"
+		switch (maxSize) {
+			case -1: maxSize = n; break;
+			case -2: maxSize = (int) Math.round( Math.log10(n) / Math.log10(2) ); break;	
+			case -3: maxSize = (int) Math.ceil(Math.log(n))+1; break;		
+			
+			// LOG Window size:
+			case -4: maxSize = minSize + ((int) Math.ceil(Math.log(n))+1); break;	
+			
+			default: break;
+		}
+		return maxSize;
 	}
 
 	/**
@@ -371,6 +396,36 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> {
 
 //		combinations = Arrays.stream(combinations).filter(Objects::nonNull).toArray(int[][]::new);
 		combinations = combaux.stream().toArray(int[][]::new);
+		
+		return combinations;
+	}
+	
+	/**
+	 * Make combinations (by addition).
+	 *
+	 * @param exploreDimensions the explore dimensions
+	 * @param numberOfFeatures the number of features
+	 * @param maxNumberOfFeatures the max number of features
+	 * @return the int[][]
+	 */
+	public int[][] addCombinations(int minNumberOfFeatures, int maxNumberOfFeatures) {
+		
+		int currentFeatures = minNumberOfFeatures;
+		ArrayList<int[]> combaux = new ArrayList<int[]>();
+		// Start in minimum size until max:
+		for (;currentFeatures <= maxNumberOfFeatures; currentFeatures++) {
+			for (int[] comb : new Combinations(numberOfFeatures,currentFeatures)) {					
+				
+				combaux.add(comb);
+				
+			}		
+		}
+		
+		if (combinations != null) {
+			combinations = ArrayUtils.addAll(combinations, combaux.stream().toArray(int[][]::new));
+		} else {
+			combinations = combaux.stream().toArray(int[][]::new);
+		}
 		
 		return combinations;
 	}

@@ -33,6 +33,8 @@ import com.google.gson.GsonBuilder;
 
 import br.ufsc.mov3lets.method.distancemeasure.DistanceMeasure;
 import br.ufsc.mov3lets.method.distancemeasure.NominalEqualsDistance;
+import br.ufsc.mov3lets.method.feature.extraction.PointFeature;
+import br.ufsc.mov3lets.method.feature.extraction.point.LagPointFeature;
 import br.ufsc.mov3lets.utils.Mov3letsUtils;
 
 /**
@@ -155,7 +157,7 @@ public class Descriptor {
 	 */
 	public void configure() {
 		attributes.removeAll(Collections.singletonList(null));
-		
+				
 		if (getFlag("LDM"))
 			attributes = LDMAttributes();
 		
@@ -201,6 +203,24 @@ public class Descriptor {
 		}
 	}
 	
+	public AttributeDescriptor instantiateFeature(AttributeDescriptor attr, PointFeature feature) {
+		AttributeDescriptor feat = new AttributeDescriptor(attr.getOrder(), attr.getType(), attr.getText());
+
+		switch (attr.getType()) {
+//		case "numeric": // TODO for types that need different comparators
+		case "lag":
+			feat.setType(getAttributes().get(((LagPointFeature) feature).getIndex()).getType()); break;
+		default:
+			feat.setType("numeric"); 
+			break;
+		}
+		
+		feat.setComparator(attr.getComparator());
+		instantiateDistanceMeasure(feat);
+		
+		return feat;
+	}
+
 	/**
 	 * LDM attributes.
 	 *
@@ -261,7 +281,10 @@ public class Descriptor {
 	 * @param attr the attr
 	 */
 	private void instantiateDistanceMeasure(AttributeDescriptor attr) {
-		String className = attr.getType().replace("composite_", "");
+		String className = attr.getType()
+				.replace("composite_", "")
+				.replace("composite2_", "")
+				.replace("composite3_", "");
 		
 		className = "br.ufsc.mov3lets.method.distancemeasure." 
 				+ className.substring(0, 1).toUpperCase() + className.substring(1).toLowerCase();

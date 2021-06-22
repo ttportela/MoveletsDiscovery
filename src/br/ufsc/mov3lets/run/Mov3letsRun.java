@@ -48,7 +48,7 @@ public class Mov3letsRun {
 	 * @param args the arguments
 	 */
 	public static void main(String[] args) {
-		// PARAMS:
+		// 1.1 - PARAMS:
 		HashMap<String, Object> params = configure(args);
 
 		// Config to - Show trace messages OR Ignore all
@@ -64,7 +64,7 @@ public class Mov3letsRun {
 		}
 		String descFile = params.get("descfile").toString();
 				
-		// 2 - RUN
+		// 1.2 - RUN Configuration
 		Mov3lets<String> mov;
 		try {
 			mov = new Mov3lets<String>(descFile, params);
@@ -76,15 +76,20 @@ public class Mov3letsRun {
 
 //		mov.getDescriptor().setParams(params);
 		mov.getDescriptor().setParam("result_dir_path", configRespath(descFile, mov.getDescriptor()));
+
+		// Set Result Dir:
+		mov.setResultDirPath(mov.getDescriptor().getParamAsText("result_dir_path"));
+		// Trace configurations:
+		Mov3letsUtils.trace(showConfiguration(mov.getDescriptor()));
 		
-		// STEP 1 - Input:
+		// STEP 1.3 - Input:
 		Mov3letsUtils.getInstance().startTimer("[1] >> Load Input");
 //				Mov3letsUtils.getInstance().printMemory();
 		try {
 			mov.loadTrain();
 		} catch (IOException e) {
 			showUsage(mov.getDescriptor().getParams(), "-curpath\tCould not load train dataset: " + e.getMessage());
-//			e.printStackTrace();
+			e.printStackTrace();
 			return;
 		} catch (Exception e) {
 			error(e);
@@ -95,7 +100,8 @@ public class Mov3letsRun {
 			mov.loadTest();
 		} catch (IOException e) {
 			// Empty if can't
-			Mov3letsUtils.trace("Empty test dataset: "+ e.getMessage() +" [continue]");
+			Mov3letsUtils.trace("Empty test dataset: "+ e.getMessage() +" [continuing]");
+			e.printStackTrace();
 			mov.setTest(new ArrayList<MAT<String>>());
 		} catch (Exception e) {
 			error(e);
@@ -104,12 +110,21 @@ public class Mov3letsRun {
 		if (mov.getTrain().isEmpty()) { 
 			showUsage(mov.getDescriptor().getParams(), "-curpath\tEmpty training set!");
 			return;
-		}
-				
-		// Set Result Dir:
-		mov.setResultDirPath(mov.getDescriptor().getParamAsText("result_dir_path"));
-		Mov3letsUtils.trace(showConfiguration(mov.getDescriptor()));
+		}		
 		Mov3letsUtils.getInstance().stopTimer("[1] >> Load Input");
+		
+		// STEP 1.4 - Pre-processing (optional):
+		try {
+			mov.preProcessing();
+		} catch (Exception e) {
+			Mov3letsUtils.trace("[Warning] pre-processing: "+ e.getMessage() +" [continuing]");
+			error(e);
+		}
+
+		Mov3letsUtils.trace("");
+		Mov3letsUtils.trace(printAttributes(mov.getDescriptor()));
+
+		Mov3letsUtils.trace("");
 		Mov3letsUtils.printMemory();
 		
 		// STEP 2 - RUN:
@@ -149,7 +164,7 @@ public class Mov3letsRun {
 	public static void showUsage(HashMap<String, Object> params, String errorMessage) {
 		Mov3letsUtils.trace(errorMessage + " [ERROR]");
 		Mov3letsUtils.trace("Usage: java -jar HIPERMovelets.jar [args...]");
-		Mov3letsUtils.trace(printParams(params, null));
+//		Mov3letsUtils.trace(printParams(params, null));
 	}
 
 	/**
@@ -168,11 +183,11 @@ public class Mov3letsRun {
 //				{"-respath", 			"Results directory", 		(params.containsKey("result_dir_path")? params.get("result_dir_path") : params.get("respath")), 				""},
 //				{"-descfile", 			"Description file", 		params.get("descfile"), 					""},
 				{"-nt", 				"Allowed Threads", 			params.get("nthreads"), 					""},
-				{"-ms", 				"Min size", 				params.get("min_size"), 					""},
-				{"-Ms", 				"Max size", 				params.get("max_size"), 					"Any positive, All sizes: -1, Log: -3"},
+				{"-ms", 				"Min size", 				params.get("min_size"), 					"Any positive | -1 | Log: -2"},
+				{"-Ms", 				"Max size", 				params.get("max_size"), 					"Any | All sizes: -1 | Log: -3 or -4"},
 //				{"", 					"", 						"",						 					"All sizes: -1,"},
 //				{"", 					"", 						"", 										"Log: -3"},
-				{"-mnf", 				"Max Number of Dimensions",	params.get("max_number_of_features"), 		"Any positive, Explore dim.: -1, Log: -2, Other: -3"},
+				{"-mnf", 				"Max. Dimensions",			params.get("max_number_of_features"), 		"Any | Explore dim.: -1 | Log: -2 | Other: -3"},
 //				{"", 					"", 						"",						 					"Explore dim.: -1,"},
 //				{"", 					"", 						"", 										"Log: -3"},
 //				{"-ed", 				"Explore dimensions", 		params.get("explore_dimensions"), 			"Same as -mnf -1"},
@@ -180,7 +195,7 @@ public class Mov3letsRun {
 				{"-sampleSize", 		"Sample Size", 				params.get("sample_size"), 					""},
 				{"-q", 					"Quality Measure", 			params.get("str_quality_measure"), 			""},
 				{"-medium", 			"Medium", 					params.get("medium"), 						""},
-				{"-mpt", 				"Movelets Per Traj.", 		params.get("movelets_per_trajectory"), 		"Any positive, Auto: -1"},
+				{"-mpt", 				"Movelets Per Traj.", 		params.get("movelets_per_trajectory"), 		"Any | Auto: -1"},
 				{"-output", 			"Output", 					params.get("output")+
 																	" ("+params.get("outputters")+")", 			""},
 				{"", 					"", 						"", 										""},
@@ -223,22 +238,28 @@ public class Mov3letsRun {
 				at.addRow(new Object[] {"", "-- TAU (absolute)", params.get("tau"), ""});
 
 		if (params.containsKey("bucket_slice"))
-			at.addRow(new Object[] {"", "-- Movelets Limit", params.get("bucket_slice"), ""});
+			at.addRow(new Object[] {"", "-- % Limit", params.get("bucket_slice"), ""});
 
 		if (params.containsKey("random_seed"))
 			at.addRow(new Object[] {"", "-- Random Seed", params.get("random_seed"), ""});
 		
+		if (params.containsKey("feature_extraction_strategy"))
+			at.addRow(new Object[] {"", "-- Feature Extraction", params.get("feature_extraction_strategy"), ""});
+		
+		if (params.containsKey("filter_strategy"))
+			at.addRow(new Object[] {"", "-- Feature Selection", params.get("filter_strategy"), ""});
+		
 //		at.addRow("Optimizations:", "", "", "");
 //		at.addRow("", "Interning", 	(params.containsKey("interning")? (boolean)params.get("interning") : false), 	"");
 //		at.addRow("", "Index", 		(params.containsKey("index")? 	  (boolean)params.get("index") 	   : false), 	"");
-		at.addRule();
-		
-		if (descriptor != null) {
-			at.addRow("Attributes:", "", "Type:", "Comparrator:");
-			int i = 1;
-			for (AttributeDescriptor attr : descriptor.getAttributes())
-				at.addRow(i++, attr.getOrder() + " - " + attr.getText(), attr.getType(), attr.getComparator().toString());
-		}
+//		at.addRule();
+//		
+//		if (descriptor != null) {
+//			at.addRow("Attributes:", "", "Type:", "Comparrator:");
+//			int i = 1;
+//			for (AttributeDescriptor attr : descriptor.getAttributes())
+//				at.addRow(i++, attr.getOrder() + " - " + attr.getText(), attr.getType(), attr.getComparator().toString());
+//		}
 		
 		str += at.print();
 		
@@ -247,6 +268,36 @@ public class Mov3letsRun {
 //				+ "\t[Index: " + (params.containsKey("index")? (boolean)params.get("index") : false) + "], "
 //				+ "[Interning: " + (params.containsKey("interning")? (boolean)params.get("interning") : false) + "]"
 //				+ System.getProperty("line.separator");
+		
+		return str;
+	}
+	
+	public static String printAttributes(Descriptor descriptor) {
+		String str = "Attributes and Features:" + System.getProperty("line.separator");
+		
+		TableList at = new TableList("#", "Attribute", "Type", "Comparator");
+//		at.addRule();
+		
+		if (descriptor != null) {
+			if (descriptor.getFeatures() == null || descriptor.getFeatures().isEmpty()) {
+				int i = 1;
+				for (AttributeDescriptor attr : descriptor.getAttributes())
+					at.addRow(i++, attr.getOrder() + " - " + attr.getText(), attr.getType(), attr.getComparator().toString());
+			} else {
+				for (int i = 0; i < descriptor.getAttributes().size(); i++) {
+					AttributeDescriptor attr = descriptor.getAttributes().get(i);
+					
+					if (i == (descriptor.getAttributes().size() - descriptor.getFeatures().size())) {
+						at.addRule();
+						at.addRow("Features:", "", "", "");
+					}
+					
+					at.addRow(i+1, attr.getOrder() + " - " + attr.getText(), attr.getType(), attr.getComparator().toString());
+				}
+			}
+		}
+		
+		str += at.print();
 		
 		return str;
 	}
@@ -267,15 +318,15 @@ public class Mov3letsRun {
 		params.put("nthreads",					 1);
 		params.put("min_size",					 1);
 		params.put("max_size",					 -1); // unlimited maxSize
-		params.put("str_quality_measure",		 "LSP"); // LSP | PROP
+		params.put("str_quality_measure",		 "LSP"); // LSP | PROP | LSPEA
 //		params.put("cache",						 true); // Deprecated: JSON configuration.	
 		params.put("explore_dimensions",		 false);
 		params.put("max_number_of_features",	 -1);					
 		params.put("feature_limit",				 false);
 		params.put("samples",					 1);			
 		params.put("sample_size",				 0.5);			
-		params.put("medium",					 "none"); // Other values minmax, sd, interquartil
-		params.put("output",					 "numeric"); // Other values numeric discretized	
+		params.put("medium",					 "none"); // Other values minmax | sd | interquartil
+		params.put("output",					 "numeric"); // Other values: numeric | discrete	
 		params.put("outputters",				 "CSV,JSON"); // OUTPUTTERs Styles							
 		params.put("delay_output",				 true);			
 		params.put("pivots",					 false);						
@@ -340,6 +391,8 @@ public class Mov3letsRun {
 				params.put("max_size", Integer.valueOf(value));
 				break;
 			case "-q":
+			case "-Q":
+			case "-QM":
 			case "-strQualityMeasure":
 				params.put("str_quality_measure", value);
 				break;
@@ -453,12 +506,23 @@ public class Mov3letsRun {
 			case "-filter_strategy":
 			case "-feature_selecion":
 			case "-FS":
+			case "-fs":
 				params.put("filter_strategy", value);
 				break;
-			case "-LDM":	
-			case "-ldm":
-				params.put("LDM", Boolean.valueOf(value));			
-				break;		
+			case "-feature_extraction_strategy":
+			case "-feature_extraction":
+			case "-FE":
+			case "-fe":
+				params.put("feature_extraction_strategy", value);
+				break;
+//			case "-LDM":	
+//			case "-ldm":
+//				params.put("LDM", Boolean.valueOf(value));			
+//				break;	
+			case "-mknn_k":
+			case "-k":
+				params.put("mknn_k", Integer.valueOf(value));		
+				break;	
 			case "-random_seed":
 			case "-seed":
 			case "-s":

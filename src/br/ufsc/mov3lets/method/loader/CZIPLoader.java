@@ -118,11 +118,13 @@ public class CZIPLoader<T extends MAT<?>> extends CSVLoader<T> {
 			Point poi = new Point();	
 			poi.setTrajectory(mat);
 			for (AttributeDescriptor attr : descriptor.getAttributes()) {
-				
-				if (attr.getType().startsWith("composite_")) {
+				if (attr.getType().startsWith("composite_") || attr.getType().startsWith("composite2_")) {
 					String value = row[attr.getOrder()-1] + " " + row[attr.getOrder()];
 					poi.getAspects().add(instantiateAspect(attr, value));
-				} else 
+				} else if (attr.getType().startsWith("composite3_")) {
+					String value = row[attr.getOrder()-1] + " " + row[attr.getOrder()] + " " + row[attr.getOrder()+1];
+					poi.getAspects().add(instantiateAspect(attr, value));
+				} else
 					poi.getAspects().add(instantiateAspect(attr, row[attr.getOrder()-1]));
 				
 			}

@@ -14,6 +14,7 @@ import br.ufsc.mov3lets.method.structures.descriptor.Descriptor;
 import br.ufsc.mov3lets.model.MAT;
 import br.ufsc.mov3lets.model.aspect.Aspect;
 import br.ufsc.mov3lets.model.aspect.Space2DAspect;
+import br.ufsc.mov3lets.model.aspect.Space3DAspect;
 import br.ufsc.mov3lets.utils.Mov3letsUtils;
 
 /**
@@ -71,8 +72,13 @@ public interface LoaderAdapter<T extends MAT<?>> {
 				return new Aspect<Double>(Double.parseDouble(value));
 			case "space2d":
 			case "composite_space2d":
+			case "composite2_space2d":
 				if ("?".equalsIgnoreCase(value)) return new Space2DAspect(null);
 				return new Space2DAspect(value);
+			case "space3d":
+			case "composite3_space3d":
+				if ("?".equalsIgnoreCase(value)) return new Space3DAspect(null);
+				return new Space3DAspect(value);
 			case "time":
 				if ("?".equalsIgnoreCase(value)) return new Aspect<Integer>(null);
 				return new Aspect<Integer>(Integer.parseInt(value));

@@ -4,7 +4,6 @@
 package br.ufsc.mov3lets.method.discovery;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -13,8 +12,7 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 
-import org.apache.commons.math3.util.Combinations;
-
+import br.ufsc.mov3lets.method.discovery.structures.ClassDiscovery;
 import br.ufsc.mov3lets.method.qualitymeasure.ProportionQualityMeasure;
 import br.ufsc.mov3lets.method.qualitymeasure.QualityMeasure;
 import br.ufsc.mov3lets.method.structures.descriptor.Descriptor;
@@ -27,7 +25,7 @@ import br.ufsc.mov3lets.model.Subtrajectory;
  * @author tarlis
  * @param <MO> the generic type
  */
-public class HiperMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> {
+public class HiperMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> implements ClassDiscovery {
 
 	/**
 	 * Instantiates a new hiper movelets discovery.
@@ -101,6 +99,7 @@ public class HiperMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> {
 		/** STEP 2.2: ---------------------------- */
 		outputMovelets(movelets);
 		/** -------------------------------------- */	
+		System.gc();
 		
 		progressBar.plus(trajsIgnored, 
 						   "Class: " + trajsFromClass.get(0).getMovingObject() 
@@ -159,12 +158,17 @@ public class HiperMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> {
 		addStats("Number of Candidates", candidatesByProp.size());
 		
 		calculateProportion(candidatesByProp, random);
-		bestCandidates = filterByProportion(candidatesByProp, random);
+		// Relative TAU based on the higher proportion:
+		double rel_tau = relativeFrequency(candidatesByProp); addStats("TAU", rel_tau);
+		int bs = bucketSize(candidatesByProp.size());         addStats("Bucket Size", bs);
+		bestCandidates = filterByProportion(candidatesByProp, rel_tau, bs);
+//		bestCandidates = filterByProportion(candidatesByProp, random);
 		
 		if (getDescriptor().getFlag("feature_limit"))
 			bestCandidates = selectMaxFeatures(bestCandidates);
 //		addStats("Scored Candidates", bestCandidates.size());
-		
+
+		addStats("Scored Candidates", bestCandidates.size());
 		bestCandidates = filterByQuality(bestCandidates, random, trajectory);
 		
 		/* STEP 2.1.5: Recover Approach (IF Nothing found)
@@ -174,7 +178,7 @@ public class HiperMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> {
 		}
 		
 //		queue.removeAll(getCoveredInClass(bestCandidates));	
-		
+
 		addStats("Total of Movelets", bestCandidates.size());
 		addStats("Max Size", maxSize);
 		addStats("Used Features", this.maxNumberOfFeatures);
@@ -217,69 +221,69 @@ public class HiperMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> {
 		return covered;
 	}
 	
-	/**
-	 * Overridden method. 
-	 * @see br.com.tarlis.mov3lets.method.discovery.MoveletsDiscovery#makeCombinations(boolean, int, int).
-	 * 
-	 * @param exploreDimensions
-	 * @param numberOfFeatures
-	 * @param maxNumberOfFeatures
-	 * @return
-	 */
-	public int[][] makeCombinations(boolean exploreDimensions, int numberOfFeatures, int maxNumberOfFeatures) {
-		
-		if (combinations != null)
-			return combinations;
-		
-		if (!getDescriptor().getFlag("LDM"))
-			return super.makeCombinations(exploreDimensions, numberOfFeatures, maxNumberOfFeatures);
-		
-		List<int[]> selected = new ArrayList<int[]>();
-		
-		int currentFeatures;
-		if (exploreDimensions){
-			currentFeatures = 1;
-		} else {
-			currentFeatures = numberOfFeatures;
-		}
-		
-//		combinations = new int[(int) (Math.pow(2, maxNumberOfFeatures) - 1)][];
-//		int k = 0;
-		// For each possible NumberOfFeatures and each combination of those: 
-		for (;currentFeatures <= maxNumberOfFeatures; currentFeatures++) {
-			for (int[] comb : new Combinations(numberOfFeatures,currentFeatures)) {					
-				
-				if (!hasDuplicates(comb))
-					selected.add(comb);
-//				combinations[k++] = comb;
-				
-			} // for (int[] comb : new Combinations(numberOfFeatures,currentFeatures)) 					
-		} // for (int i = 0; i < train.size(); i++
+//	/**
+//	 * Overridden method. 
+//	 * @see br.com.tarlis.mov3lets.method.discovery.MoveletsDiscovery#makeCombinations(boolean, int, int).
+//	 * 
+//	 * @param exploreDimensions
+//	 * @param numberOfFeatures
+//	 * @param maxNumberOfFeatures
+//	 * @return
+//	 */
+//	public int[][] makeCombinations(boolean exploreDimensions, int numberOfFeatures, int maxNumberOfFeatures) {
+//		
+//		if (combinations != null)
+//			return combinations;
+//		
+//		if (!getDescriptor().getFlag("LDM"))
+//			return super.makeCombinations(exploreDimensions, numberOfFeatures, maxNumberOfFeatures);
+//		
+//		List<int[]> selected = new ArrayList<int[]>();
+//		
+//		int currentFeatures;
+//		if (exploreDimensions){
+//			currentFeatures = 1;
+//		} else {
+//			currentFeatures = numberOfFeatures;
+//		}
+//		
+////		combinations = new int[(int) (Math.pow(2, maxNumberOfFeatures) - 1)][];
+////		int k = 0;
+//		// For each possible NumberOfFeatures and each combination of those: 
+//		for (;currentFeatures <= maxNumberOfFeatures; currentFeatures++) {
+//			for (int[] comb : new Combinations(numberOfFeatures,currentFeatures)) {					
+//				
+//				if (!hasDuplicates(comb))
+//					selected.add(comb);
+////				combinations[k++] = comb;
+//				
+//			} // for (int[] comb : new Combinations(numberOfFeatures,currentFeatures)) 					
+//		} // for (int i = 0; i < train.size(); i++
+//
+//		return selected.toArray(new int[selected.size()][]);
+//	}
 
-		return selected.toArray(new int[selected.size()][]);
-	}
-
-	/**
-	 * Checks for duplicates.
-	 *
-	 * @param comb the comb
-	 * @return true, if successful
-	 */
-	public boolean hasDuplicates(int[] comb) {
-
-		int[] orders = new int[comb.length];
-		for (int j = 0; j < comb.length; j++) {
-			orders[j] = getDescriptor().getAttributes().get(comb[j]).getOrder();
-		}
-		
-		Arrays.sort(orders);
-		for(int i = 1; i < orders.length; i++) {
-		    if(orders[i] == orders[i - 1]) {
-		        return true;
-		    }
-		}
-		
-		return false;
-	}
+//	/**
+//	 * Checks for duplicates.
+//	 *
+//	 * @param comb the comb
+//	 * @return true, if successful
+//	 */
+//	public boolean hasDuplicates(int[] comb) {
+//
+//		int[] orders = new int[comb.length];
+//		for (int j = 0; j < comb.length; j++) {
+//			orders[j] = getDescriptor().getAttributes().get(comb[j]).getOrder();
+//		}
+//		
+//		Arrays.sort(orders);
+//		for(int i = 1; i < orders.length; i++) {
+//		    if(orders[i] == orders[i - 1]) {
+//		        return true;
+//		    }
+//		}
+//		
+//		return false;
+//	}
 
 }

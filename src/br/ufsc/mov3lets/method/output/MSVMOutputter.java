@@ -32,9 +32,9 @@ public class MSVMOutputter<MO> extends CSVOutputter<MO> {
 
 	// This is a singleton outputter:
 	private static MSVMOutputter<?> instance = null;
-	public static <MO> OutputterAdapter getInstance(String resultDirPath, MO myclass, Descriptor descriptor) {
+	public static <MO> OutputterAdapter getInstance(String resultDirPath, Descriptor descriptor) {
 		if (instance == null)
-			instance = new MSVMOutputter<MO>(resultDirPath, myclass.toString(), descriptor);
+			instance = new MSVMOutputter<MO>(resultDirPath, null, descriptor);
 		return instance;
 	}
 
@@ -241,7 +241,7 @@ public class MSVMOutputter<MO> extends CSVOutputter<MO> {
 			} else {
 				distance = normalizeNonCovered(rm.getColumn(i), splitpoints, maxDistances);
 			}
-				
+			
 			putAttributes(i, attributeToTrajectories, attributeName, distance);
 			putCount(movelet.getTrajectory().getMovingObject().toString());
 		}

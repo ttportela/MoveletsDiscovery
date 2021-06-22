@@ -3,9 +3,12 @@
  */
 package br.ufsc.mov3lets.method.discovery;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import br.ufsc.mov3lets.method.discovery.structures.TrajectoryDiscovery;
+import br.ufsc.mov3lets.method.qualitymeasure.ProportionQualityMeasure;
 import br.ufsc.mov3lets.method.qualitymeasure.QualityMeasure;
 import br.ufsc.mov3lets.method.structures.descriptor.Descriptor;
 import br.ufsc.mov3lets.model.MAT;
@@ -17,7 +20,7 @@ import br.ufsc.mov3lets.model.Subtrajectory;
  * @author tarlis
  * @param <MO> the generic type
  */
-public class UltraMoveletsDiscovery<MO> extends RandomMoveletsDiscovery<MO> {
+public class UltraMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO> implements TrajectoryDiscovery {
 
 	/**
 	 * Instantiates a new hiper pivots movelets discovery.
@@ -29,83 +32,115 @@ public class UltraMoveletsDiscovery<MO> extends RandomMoveletsDiscovery<MO> {
 	 * @param qualityMeasure the quality measure
 	 * @param descriptor the descriptor
 	 */
-	public UltraMoveletsDiscovery(MAT<MO> trajectory, List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train,
-			List<MAT<MO>> test, QualityMeasure qualityMeasure, Descriptor descriptor) {
-		super(trajectory, trajsFromClass, data, train, test, qualityMeasure, descriptor);
+	public UltraMoveletsDiscovery(MAT<MO> trajectory, List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test,
+			QualityMeasure qualityMeasure, Descriptor descriptor) {
+		super(trajsFromClass, data, train, test, qualityMeasure, descriptor);
+		this.trajectory = trajectory;
 		
-		TAU 	= getDescriptor().hasParam("tau")? getDescriptor().getParamAsDouble("tau") : 0.9;
-		BU 		= getDescriptor().hasParam("bucket_slice")? getDescriptor().getParamAsDouble("bucket_slice") : 0.1;
+		// Ultra default is Log^2:
+		BU 		= getDescriptor().hasParam("bucket_slice")? getDescriptor().getParamAsDouble("bucket_slice") : -2;
 	}
 
-	protected void printStart() {
-		progressBar.trace("Ultra Movelets Discovery for Class: " + trajectory.getMovingObject());
-	}
-
+	
 	/**
-	 * Overridden method.
+	 * Overridden method. 
+	 * @see br.com.tarlis.mov3lets.method.discovery.SuperMoveletsDiscovery#discover().
 	 * 
-	 * @see br.com.tarlis.mov3lets.method.discovery.SuperMoveletsDiscovery#selectBestCandidates(br.com.tarlis.mov3lets.model.MAT,
-	 *      int, java.util.Random, java.util.List).
-	 * 
-	 * @param trajectory
-	 * @param maxSize
-	 * @param random
-	 * @param candidatesByProp
 	 * @return
 	 */
-	public List<Subtrajectory> selectBestCandidates(MAT<MO> trajectory, int maxSize, Random random,
-			List<Subtrajectory> candidatesByProp) {
-		List<Subtrajectory> bestCandidates;
+	public List<Subtrajectory> discover() {
 
-		int candidates_total = candidatesByProp.size();
-//		int n = bucketSize(candidatesByProp.size());
-		int n = (int) Math.ceil((double) candidates_total * BU/2.0); // By 10%
+		int maxSize = getDescriptor().getParamAsInt("max_size");
+		int minSize = getDescriptor().getParamAsInt("min_size");
+
+		List<Subtrajectory> movelets = new ArrayList<Subtrajectory>();
+
+//		progressBar.trace("HiperT-Pivots Movelets Discovery for Class: " + trajsFromClass.get(0).getMovingObject()); 
 		
-		addStats("Class", trajectory.getMovingObject()); 
-		addStats("Trajectory", trajectory.getTid());
-		addStats("Trajectory Size", trajectory.getPoints().size()); 
-		addStats("Number of Candidates", candidatesByProp.size());
-
-		Random randSelection;
-		if (getDescriptor().hasParam("random_seed")) 
-			randSelection = new Random(getDescriptor().getParamAsInt("random_seed"));
-		else
-			randSelection = new Random();
-
-		calculateProportion(candidatesByProp, random);
-		bestCandidates = filterByProportion(candidatesByProp, random);
+		this.proportionMeasure = new ProportionQualityMeasure<MO>(this.trajsFromClass); //, TAU);
 		
-		orderCandidates(bucket);
-		bestCandidates.addAll( randomPop(bucket, n, randSelection) );
+		// This guarantees the reproducibility
+		Random random = new Random(trajectory.getTid());
+		/** STEP 2.1: Starts at discovering movelets */
+		List<Subtrajectory> candidates = moveletsDiscovery(trajectory, this.trajsFromClass, minSize, maxSize, random);
 		
-		long scored = bestCandidates.size();
-		bestCandidates = filterByQuality(bestCandidates, random, trajectory);
+		/** STEP 2.4: SELECTING BEST CANDIDATES */		
+		movelets.addAll(filterMovelets(candidates));
+		
+		setStats("");
+		
+		/** STEP 2.2: Runs the pruning process */
+		if(getDescriptor().getFlag("last_prunning"))
+			movelets = lastPrunningFilter(movelets);
 
-		/*
-		 * STEP 2.1.5: Recover Approach (IF Nothing found) * * * * * * * * * * * * * * *
-		 * * * * * * * * *
-		 */
-		if (bestCandidates.isEmpty())
-			while (bestCandidates.isEmpty() || !bucket.isEmpty()) {
-				bestCandidates = bucket.subList(0, (n > bucket.size()? bucket.size() : n)); // 1/2 Top candidates
-				bucket.removeAll(bestCandidates);
+		/** STEP 2.2: ---------------------------- */
+		outputMovelets(movelets);
+		/** -------------------------------------- */	
+		System.gc();
+		
+		return movelets;
+	}
+	
+	/**
+	 * Movelets discovery.
+	 *
+	 * @param trajectory the trajectory
+	 * @param trajectories the trajectories
+	 * @param minSize the min size
+	 * @param maxSize the max size
+	 * @param random the random
+	 * @return the list
+	 */
+	public List<Subtrajectory> moveletsDiscovery(MAT<MO> trajectory, List<MAT<MO>> trajectories, int minSize, int maxSize, Random random) {
+		List<Subtrajectory> candidatesByProp = new ArrayList<Subtrajectory>();
+
+		int n = trajectory.getPoints().size();
+
+		minSize = minSize(minSize, n);
+		maxSize = maxSize(maxSize, minSize, n);
+
+		// It starts with the base case	
+		int size = 1;
+		Integer total_size = 0;
+		
+		base = computeBaseDistances(trajectory, trajectories);
+		
+		if( minSize <= 1 ) {
+			candidatesByProp.addAll(findCandidates(trajectory, trajectories, size, base));
+//			candidates.forEach(x -> assesQuality(x, random));
+		}				
+		
+		double[][][][] lastSize = clone4DArray(base);		
+
+		total_size = total_size + candidatesByProp.size();
+		
+		// Tratar o resto dos tamanhos 
+		for (size = 2; size <= maxSize; size++) {
+	
+			// Precompute de distance matrix
+   			double[][][][] newSize = newSize(trajectory, trajectories, base, lastSize, size);
+			
+			if (size >= minSize){
+
+				// Create candidates and compute min distances		
+				List<Subtrajectory> candidatesOfSize = findCandidates(trajectory, trajectories, size, newSize);
+			
+				total_size = total_size + candidatesOfSize.size();
 				
-				bestCandidates.addAll( randomPop(bucket, n, randSelection) );				// 1/2 random candidates
-				
-				scored += bestCandidates.size();
-				bestCandidates = filterByQuality(bestCandidates, random, trajectory);
-				
-				n *= 2;
+				//for (Subtrajectory candidate : candidatesOfSize) assesQuality(candidate);				
+//				candidatesOfSize.forEach(x -> assesQuality(x, random));
+				candidatesByProp.addAll(candidatesOfSize);
 			}
-
-//		queue.removeAll(getCoveredInClass(bestCandidates));
-
-		addStats("Scored Candidates", scored);
-		addStats("Total of Movelets", bestCandidates.size());
-		addStats("Max Size", maxSize);
-		addStats("Used Features", this.maxNumberOfFeatures);
-		progressBar.plus(getStats());
-
+		
+			lastSize = newSize;
+						
+		} // for (int size = 2; size <= max; size++)
+		
+		List<Subtrajectory> bestCandidates = selectBestCandidates(trajectory, maxSize, random, candidatesByProp);	
+	
+		base =  null;
+		lastSize = null;
+		
 		return bestCandidates;
 	}
 

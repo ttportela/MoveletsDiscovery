@@ -3,12 +3,13 @@ package br.ufsc.mov3lets.method.discovery;
 import java.util.List;
 import java.util.Random;
 
+import br.ufsc.mov3lets.method.discovery.structures.TrajectoryDiscovery;
 import br.ufsc.mov3lets.method.qualitymeasure.QualityMeasure;
 import br.ufsc.mov3lets.method.structures.descriptor.Descriptor;
 import br.ufsc.mov3lets.model.MAT;
 import br.ufsc.mov3lets.model.Subtrajectory;
 
-public class DTWMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
+public class DTWMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> implements TrajectoryDiscovery {
 
 	public DTWMoveletsDiscovery(MAT<MO> trajectory, List<MAT<MO>> trajsFromClass, List<MAT<MO>> data,
 			List<MAT<MO>> train, List<MAT<MO>> test, QualityMeasure qualityMeasure, Descriptor descriptor) {

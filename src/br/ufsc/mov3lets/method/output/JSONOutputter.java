@@ -29,6 +29,9 @@ import br.ufsc.mov3lets.model.Subtrajectory;
  * @param <MO> the generic type
  */
 public class JSONOutputter<MO> extends OutputterAdapter<MO,List<Subtrajectory>> {
+	
+	/** The movelets */
+	protected List<Subtrajectory> movelets = new ArrayList<Subtrajectory>();
 
 	/**
 	 * Instantiates a new JSON outputter.
@@ -70,17 +73,19 @@ public class JSONOutputter<MO> extends OutputterAdapter<MO,List<Subtrajectory>> 
 	 * @param delayOutput
 	 */
 	@Override
-	public synchronized void write(String filename, List<MAT<MO>> trajectories, List<Subtrajectory> movelets, 
+	public synchronized void write(String filename, List<MAT<MO>> trajectories, List<Subtrajectory> moveletsToAdd, 
 			boolean delayOutput, Object... params) {
+
+		if ("test".equals(filename))
+			return;
+		
+		this.movelets.addAll(moveletsToAdd);
 		
 		if (delayOutput) { // Do nothing
 			decreaseDelayCount(filename);
 			if (delayCount > 0)
 				return;
 		}
-		
-		if ("test".equals(filename))
-			return;
 		
 		if (movelets.isEmpty()) {
 //			Mov3letsUtils.traceW("Empty movelets set [NOT OUTPUTTED]");
@@ -118,6 +123,7 @@ public class JSONOutputter<MO> extends OutputterAdapter<MO,List<Subtrajectory>> 
 			
 			gson.toJson(toGSON, fileWriter);
 			fileWriter.close();
+			movelets = null;
 
 			
 		} catch (IOException e) {

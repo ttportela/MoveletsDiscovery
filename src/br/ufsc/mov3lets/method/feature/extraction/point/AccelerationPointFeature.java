@@ -1,4 +1,4 @@
-package br.ufsc.mov3lets.method.feature;
+package br.ufsc.mov3lets.method.feature.extraction.point;
 
 import java.util.List;
 

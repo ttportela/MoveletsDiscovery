@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import br.ufsc.mov3lets.method.discovery.structures.ClassDiscovery;
 import br.ufsc.mov3lets.method.qualitymeasure.ProportionQualityMeasure;
 import br.ufsc.mov3lets.method.qualitymeasure.QualityMeasure;
 import br.ufsc.mov3lets.method.structures.descriptor.Descriptor;
@@ -33,7 +34,7 @@ import br.ufsc.mov3lets.model.Subtrajectory;
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  * @param <MO> the generic type
  */
-public class SuperClassMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> {
+public class SuperClassMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> implements ClassDiscovery {
 	
 	/**
 	 * Instantiates a new super movelets discovery.
@@ -118,14 +119,9 @@ public class SuperClassMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> 
 		List<Subtrajectory> candidatesByProp = new ArrayList<Subtrajectory>();
 
 		int n = trajectory.getPoints().size();
-		
-		// TO USE THE LOG, PUT "-Ms -3"
-		switch (maxSize) {
-			case -1: maxSize = n; break;
-			case -2: maxSize = (int) Math.round( Math.log10(n) / Math.log10(2) ); break;	
-			case -3: maxSize = (int) Math.ceil(Math.log(n))+1; break;	
-			default: break;
-		}
+
+		minSize = minSize(minSize, n);
+		maxSize = maxSize(maxSize, minSize, n);
 
 		// It starts with the base case	
 		int size = 1;
@@ -148,12 +144,11 @@ public class SuperClassMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> 
 			// Precompute de distance matrix
    			double[][][][] newSize = newSize(trajectory, trajectories, base, lastSize, size);
 
-			// Create candidates and compute min distances		
-			List<Subtrajectory> candidatesOfSize = findCandidates(trajectory, trajectories, size, newSize);
-		
-			total_size = total_size + candidatesOfSize.size();
-			
 			if (size >= minSize){
+				// Create candidates and compute min distances		
+				List<Subtrajectory> candidatesOfSize = findCandidates(trajectory, trajectories, size, newSize);
+			
+				total_size = total_size + candidatesOfSize.size();
 				
 				//for (Subtrajectory candidate : candidatesOfSize) assesQuality(candidate);				
 //				candidatesOfSize.forEach(x -> assesQuality(x, random));
@@ -192,7 +187,10 @@ public class SuperClassMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> 
 		List<Subtrajectory> bestCandidates;
 
 		calculateProportion(candidatesByProp, random);
-		bestCandidates = filterByProportion(candidatesByProp, random);
+		double rel_tau = relativeFrequency(candidatesByProp);
+		int bs = bucketSize(candidatesByProp.size());
+		bestCandidates = filterByProportion(candidatesByProp, rel_tau, bs);
+//		bestCandidates = filterByProportion(candidatesByProp, random);
 		
 		if (getDescriptor().getFlag("feature_limit"))
 			bestCandidates = selectMaxFeatures(bestCandidates);
@@ -200,6 +198,8 @@ public class SuperClassMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> 
 		bestCandidates = filterByQuality(bestCandidates, random, trajectory);
 		
 		progressBar.trace("Class: " + trajectory.getMovingObject() 
+						+ ". TAU: " + rel_tau 
+						+ ". Bucket Size: " + bs 
 						+ ". Total of Movelets: " + bestCandidates.size() 
 						+ ". Used Features: " + this.maxNumberOfFeatures);
 

@@ -24,6 +24,8 @@ import java.util.Random;
 
 import org.apache.commons.math3.util.Pair;
 
+import br.ufsc.mov3lets.method.discovery.structures.DiscoveryAdapter;
+import br.ufsc.mov3lets.method.discovery.structures.TrajectoryDiscovery;
 import br.ufsc.mov3lets.method.qualitymeasure.QualityMeasure;
 import br.ufsc.mov3lets.method.structures.descriptor.AttributeDescriptor;
 import br.ufsc.mov3lets.method.structures.descriptor.Descriptor;
@@ -37,7 +39,7 @@ import br.ufsc.mov3lets.model.Subtrajectory;
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  * @param <MO> the generic type
  */
-public class MasterMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
+public class MasterMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> implements TrajectoryDiscovery {
 	
 	/** The base. */
 	protected double[][][][] base;
@@ -76,7 +78,7 @@ public class MasterMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 
 		List<Subtrajectory> movelets = new ArrayList<Subtrajectory>();
 		
-		printStart();
+//		printStart();
 		
 //		for (MAT<MO> trajectory : trajsFromClass) {
 			// This guarantees the reproducibility
@@ -104,7 +106,6 @@ public class MasterMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 //			candidates = filterMovelets(candidates);		
 			movelets.addAll(filterMovelets(candidates));
 			
-//			System.gc();
 //		}
 		
 		/** STEP 2.2: Runs the pruning process */
@@ -114,6 +115,7 @@ public class MasterMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 		/** STEP 2.3: ---------------------------- */
 		outputMovelets(movelets);
 		/** -------------------------------------- */
+		System.gc();
 
 //		/** STEP 2.3.3, to write all outputs: */
 //		super.output("train", this.train, movelets, false);
@@ -181,14 +183,9 @@ public class MasterMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 		List<Subtrajectory> candidates = new ArrayList<Subtrajectory>();
 
 		int n = trajectory.getPoints().size();
-		
-		// TO USE THE LOG, PUT "-Ms -3"
-		switch (maxSize) {
-			case -1: maxSize = n; break;
-			case -2: maxSize = (int) Math.round( Math.log10(n) / Math.log10(2) ); break;	
-			case -3: maxSize = (int) Math.ceil(Math.log(n))+1; break;	
-			default: break;
-		}
+
+		minSize = minSize(minSize, n);
+		maxSize = maxSize(maxSize, minSize, n);
 
 		// It starts with the base case	
 		int size = 1;
@@ -210,13 +207,13 @@ public class MasterMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 	
 			// Precompute de distance matrix
    			double[][][][] newSize = newSize(trajectory, trajectories, base, lastSize, size);
-
-			// Create candidates and compute min distances		
-			List<Subtrajectory> candidatesOfSize = findCandidates(trajectory, trajectories, size, newSize);
-		
-			total_size = total_size + candidatesOfSize.size();
 			
 			if (size >= minSize){
+
+				// Create candidates and compute min distances		
+				List<Subtrajectory> candidatesOfSize = findCandidates(trajectory, trajectories, size, newSize);
+			
+				total_size = total_size + candidatesOfSize.size();
 				
 				//for (Subtrajectory candidate : candidatesOfSize) assesQuality(candidate);				
 				candidatesOfSize.forEach(x -> assesQuality(x, random));

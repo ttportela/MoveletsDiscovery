@@ -17,6 +17,8 @@
  */
 package br.ufsc.mov3lets.method.structures.descriptor;
 
+import java.util.HashMap;
+
 import br.ufsc.mov3lets.method.distancemeasure.DistanceMeasure;
 
 /**
@@ -37,6 +39,8 @@ public class AttributeDescriptor {
     
     /** The comparator. */
     private Comparator comparator;
+    
+    private HashMap<String,String> options;
     
     /** The distance comparator. */
     private DistanceMeasure<?> distanceComparator = null;
@@ -63,8 +67,21 @@ public class AttributeDescriptor {
 		this.text = text;
 		this.comparator = new Comparator(distance, maxValue);
 	}
-
-
+    
+	/**
+	 * Instantiates a new attribute descriptor.
+	 *
+	 * @param order the order
+	 * @param type the type
+	 * @param text the text
+	 * @param distance the distance
+	 * @param maxValue the max value
+	 */
+	public AttributeDescriptor(Integer order, String type, String text) {
+		this.order = order;
+		this.type = type;
+		this.text = text;
+	}
 
 	/**
 	 * Gets the order.
@@ -156,6 +173,26 @@ public class AttributeDescriptor {
 		this.distanceComparator = distanceComparator;
 	}
 	
+	public HashMap<String, String> getOptions() {
+		return options;
+	}
+	
+	public void setOptions(HashMap<String, String> options) {
+		this.options = options;
+	}
+	
+	public boolean hasOption(String key) {
+		if (getOptions() == null) return false;
+		return getOptions().containsKey(key);
+	}
+	
+	public String getOption(String key) {
+		if (getOptions() != null) {
+			return getOptions().get(key);
+		}
+		return null;
+	}
+	
 	/**
 	 * Overridden method. 
 	 * @see java.lang.Object#toString().
@@ -165,6 +202,17 @@ public class AttributeDescriptor {
 	@Override
 	public String toString() {
 		return "Attr: " + getOrder() +" - "+ getText() +"/"+ getType() +" ("+getComparator()+")";
+	}
+
+	public boolean isNumeric() {
+		switch (getType()) {
+//		case "datetime":
+		case "time":
+		case "numeric":
+			return true;
+		default:
+			return false;
+		}
 	}
 
 }

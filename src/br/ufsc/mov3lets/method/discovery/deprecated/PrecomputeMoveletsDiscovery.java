@@ -37,6 +37,7 @@ import br.ufsc.mov3lets.model.Point;
 import br.ufsc.mov3lets.model.Subtrajectory;
 import br.ufsc.mov3lets.utils.Mov3letsUtils;
 import br.ufsc.mov3lets.utils.ProgressBar;
+import br.ufsc.mov3lets.utils.ProgressOutput;
 
 /**
  * The Class PrecomputeMoveletsDiscovery.
@@ -145,7 +146,7 @@ public class PrecomputeMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO>
 
 		base = new double[trajectories.size()][][][][];
 		
-		ProgressBar bar = new ProgressBar("[2.0] >> Computing Base Distances", 
+		ProgressBar bar = new ProgressOutput("[2.0] >> Computing Base Distances", 
 				Mov3letsUtils.getInstance().totalPoints((List) trajectories));
 		
 		for (int i = 0; i < trajectories.size(); i++) {
@@ -163,7 +164,7 @@ public class PrecomputeMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO>
 	 * @param descriptor the descriptor
 	 */
 	public static <MO> void multithreadComputeBaseDistances(List<MAT<MO>> trajectories, int N_THREADS, Descriptor descriptor) {
-		ProgressBar bar = new ProgressBar("[2.0] >> Computing Base Distances", 
+		ProgressBar bar = new ProgressOutput("[2.0] >> Computing Base Distances", 
 				Mov3letsUtils.getInstance().totalPoints((List) trajectories));
 
 		base = new double[trajectories.size()][][][][];

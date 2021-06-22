@@ -62,8 +62,11 @@ public class CSVLoader<T extends MAT<?>> implements LoaderAdapter<T> {
 			poi.setTrajectory(mat);
 			for (AttributeDescriptor attr : descriptor.getAttributes()) {
 //				poi.getAspects().put(attr.getText(), instantiateAspect(attr, line.get(attr.getOrder()-1)));
-				if (attr.getType().startsWith("composite_")) {
+				if (attr.getType().startsWith("composite_") || attr.getType().startsWith("composite2_")) {
 					String value = line.get(attr.getOrder()-1) + " " + line.get(attr.getOrder());
+					poi.getAspects().add(instantiateAspect(attr, value));
+				} else if (attr.getType().startsWith("composite3_")) {
+					String value = line.get(attr.getOrder()-1) + " " + line.get(attr.getOrder()) + " " + line.get(attr.getOrder()+1);
 					poi.getAspects().add(instantiateAspect(attr, value));
 				} else 
 					poi.getAspects().add(instantiateAspect(attr, line.get(attr.getOrder()-1)));
