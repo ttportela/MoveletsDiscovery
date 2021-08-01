@@ -73,7 +73,7 @@ public class Mov3letsUtils {
 	 *
 	 * @return the instance
 	 */
-	public synchronized static Mov3letsUtils getInstance() {
+	public static Mov3letsUtils getInstance() {
 		if (instance == null)
 			instance = new Mov3letsUtils();
 		return instance;
@@ -84,7 +84,7 @@ public class Mov3letsUtils {
 	 *
 	 * @param timer the timer
 	 */
-	public synchronized void startTimer(String timer) {
+	public void startTimer(String timer) {
 //		timers.put(timer, System.nanoTime());
 		timers.put(timer, System.currentTimeMillis());
 //		this.log.trace("[Timer Set] " + timer);
@@ -96,7 +96,7 @@ public class Mov3letsUtils {
 	 * @param timer the timer
 	 * @return the long
 	 */
-	public synchronized long stopTimer(String timer) {
+	public long stopTimer(String timer) {
 		if (timers.containsKey(timer)) {
 //			long time = (System.nanoTime() - timers.get(timer));
 			long time = (System.currentTimeMillis() - timers.get(timer));
@@ -112,14 +112,14 @@ public class Mov3letsUtils {
 	 *
 	 * @param s the s
 	 */
-//	public synchronized void printTimer(String timer) {
+//	public void printTimer(String timer) {
 //		if (this.log != null && timers.containsKey(timer))
 //			this.log.printTimer(timer, (System.nanoTime() - timers.get(timer)));
 //		else
 //			this.log.trace("No timer found: " + timer);
 //	}
 	
-	public synchronized static void trace(String s) {
+	public static void trace(String s) {
 		if (getInstance().log != null) getInstance().log.trace(s);
 	}
 	
@@ -128,7 +128,7 @@ public class Mov3letsUtils {
 	 *
 	 * @param s the s
 	 */
-	public synchronized static void traceW(String s) {
+	public static void traceW(String s) {
 		if (getInstance().log != null) getInstance().log.traceW(s);
 	}
 	
@@ -138,14 +138,14 @@ public class Mov3letsUtils {
 	 * @param s the s
 	 * @param e the e
 	 */
-	public synchronized static void traceE(String s, Exception e) {
+	public static void traceE(String s, Exception e) {
 		if (getInstance().log != null) getInstance().log.traceE(s, e);
 	}
 
 	/**
 	 * Prints the memory.
 	 */
-	public synchronized static void printMemory() {
+	public static void printMemory() {
 		if (getInstance().log != null) getInstance().log.printMemory();
 	}
 	
@@ -170,7 +170,7 @@ public class Mov3letsUtils {
 	 *
 	 * @return the used memory
 	 */
-	public synchronized static double getUsedMemory() {
+	public static double getUsedMemory() {
 		Runtime rt = Runtime.getRuntime();
 		double total = rt.totalMemory() / (1024.0 * 1024.0);
 		double free = rt.freeMemory() / (1024.0 * 1024.0);

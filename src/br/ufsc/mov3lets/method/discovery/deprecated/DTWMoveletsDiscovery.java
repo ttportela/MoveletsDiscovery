@@ -1,8 +1,9 @@
-package br.ufsc.mov3lets.method.discovery;
+package br.ufsc.mov3lets.method.discovery.deprecated;
 
 import java.util.List;
 import java.util.Random;
 
+import br.ufsc.mov3lets.method.discovery.MoveletsDiscovery;
 import br.ufsc.mov3lets.method.discovery.structures.TrajectoryDiscovery;
 import br.ufsc.mov3lets.method.qualitymeasure.QualityMeasure;
 import br.ufsc.mov3lets.method.structures.descriptor.Descriptor;

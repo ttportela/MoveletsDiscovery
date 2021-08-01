@@ -249,4 +249,12 @@ public abstract class QualityMeasure<MO> {
 		return true;
 	}
 
+	public double getSampleSize() {
+		return sampleSize;
+	}
+	
+	public void setSampleSize(double sampleSize) {
+		this.sampleSize = sampleSize;
+	}
+	
 }

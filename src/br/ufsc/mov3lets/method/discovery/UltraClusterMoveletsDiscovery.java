@@ -5,6 +5,7 @@ package br.ufsc.mov3lets.method.discovery;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
@@ -14,6 +15,7 @@ import org.apache.commons.math3.util.Pair;
 
 import br.ufsc.mov3lets.method.discovery.structures.TrajectoryDiscovery;
 import br.ufsc.mov3lets.method.qualitymeasure.QualityMeasure;
+import br.ufsc.mov3lets.method.qualitymeasure.WeightedFrequencyQualityMeasure;
 import br.ufsc.mov3lets.method.structures.descriptor.Descriptor;
 import br.ufsc.mov3lets.model.MAT;
 import br.ufsc.mov3lets.model.MSubtrajectory;
@@ -26,7 +28,7 @@ import br.ufsc.mov3lets.model.Subtrajectory;
  * @author tarlis
  * @param <MO> the generic type
  */
-public class UltraMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> implements TrajectoryDiscovery {
+public class UltraClusterMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> implements TrajectoryDiscovery {
 
 	/** The max number of combination of features. */
 	protected int maxCombinationOfFeatures = 0;
@@ -44,7 +46,7 @@ public class UltraMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> impl
 	 * @param qualityMeasure the quality measure
 	 * @param descriptor the descriptor
 	 */
-	public UltraMoveletsDiscovery(MAT<MO> trajectory, List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test,
+	public UltraClusterMoveletsDiscovery(MAT<MO> trajectory, List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test,
 			QualityMeasure qualityMeasure, Descriptor descriptor) {
 		super(trajectory, trajsFromClass, data, train, test, qualityMeasure, descriptor);
 //		this.trajectory = trajectory;
@@ -68,11 +70,12 @@ public class UltraMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> impl
 		List<Subtrajectory> movelets = new ArrayList<Subtrajectory>();
 
 //		progressBar.trace("HiperT-Pivots Movelets Discovery for Class: " + trajsFromClass.get(0).getMovingObject());
+		this.qualityMeasure = new WeightedFrequencyQualityMeasure<MO>(this.data);
 				
 		// This guarantees the reproducibility
 		Random random = new Random(trajectory.getTid());
 		/** STEP 2.1: Starts at discovering movelets */
-		List<Subtrajectory> candidates = moveletsDiscovery(trajectory, this.train, minSize, maxSize, random);
+		List<Subtrajectory> candidates = moveletsDiscovery(trajectory, this.data, minSize, maxSize, random);
 		
 		/** STEP 2.4: SELECTING BEST CANDIDATES */		
 		movelets.addAll(filterMovelets(candidates));
@@ -84,13 +87,54 @@ public class UltraMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> impl
 			movelets = lastPrunningFilter(movelets);
 
 		/** STEP 2.2: ---------------------------- */
-		outputMovelets(movelets);
+//		outputMovelets(movelets);
+		outputClusters(movelets);
 		/** -------------------------------------- */	
 //		System.gc();
 		
 		return movelets;
 	}
 	
+	private void outputClusters(List<Subtrajectory> movelets) {
+		// TODO TEMP Method:
+		for (Subtrajectory subtrajectory : movelets) {
+//			if (subtrajectory.getCovered().size() < 2 ||
+//				subtrajectory.getPointFeatures().length < 2 ||
+//				subtrajectory.getSize() < 2) continue;
+			
+			System.out.println("Cluster [" +subtrajectory.getCovered().size() + "]:" );
+			System.out.println(subtrajectory);
+
+//			List<HashMap<String, Object>> features = new ArrayList<>();
+			List<HashMap<String, Object>> used_features = new ArrayList<>();
+			int[] list_features = subtrajectory.getPointFeatures();
+			for(int i=0; i < subtrajectory.getPoints().size(); i++) {
+				
+				Point point = subtrajectory.getPoints().get(i);
+
+//				HashMap<String, Object> features_in_point = new HashMap<>();
+				HashMap<String, Object> used_features_in_point = new HashMap<>();
+				
+				for(int j=0; j < descriptor.getAttributes().size(); j++) {
+//					features_in_point.put(descriptor.getAttributes().get(j).getText(), point.getAspects().get(j).getValue());				
+					
+					if(ArrayUtils.contains(list_features, j))
+						used_features_in_point.put(descriptor.getAttributes().get(j).getText(), point.getAspects().get(j).getValue());
+				}
+
+//				features.add(features_in_point);
+				used_features.add(used_features_in_point);
+			}
+			System.out.println(used_features);
+
+			System.out.print("\t");
+			for (MAT<?> T : subtrajectory.getCovered()) {
+				System.out.print(" " + T.getTid());				
+			}
+			System.out.println("\n");
+		}
+	}
+
 	protected Integer total_size = 0;
 	
 	/**
@@ -136,10 +180,6 @@ public class UltraMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> impl
 //		addStats("Pivot Candidates", candidatesOfSize.size());
 		addStats("Selected Candidates", candidates.size());
 		
-//		for (Subtrajectory subtrajectory : candidates) {
-//			computeDistances(subtrajectory, this.train);
-//			assesQuality(subtrajectory, random);
-//		}
 		candidates = filterMovelets(candidates);
 		
 		addStats("Total of Movelets", candidates.size());
@@ -202,15 +242,6 @@ public class UltraMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> impl
 		Subtrajectory subtrajectoryOfSize = buildNewSize(candidate, trajectory, trajectories, size, false, random);
 		Subtrajectory subtrajectoryOfFeatures = growFeatures(candidate, trajectory, trajectories, random);
 		
-//		// Try growing by size and/or features
-//		if (size < maxSize && !subtrajectoryOfSize.equals(candidate)) {
-//			this.maxSizeOfCandidates = Integer.max(size, this.maxSizeOfCandidates);
-//			subtrajectoryOfSize = growPivot(subtrajectoryOfSize, trajectory, trajectories, size+1, maxSize, random);
-//		}
-//		if (!subtrajectoryOfFeatures.equals(candidate))
-//			subtrajectoryOfFeatures = growPivot(subtrajectoryOfFeatures, trajectory, trajectories, size+1, maxSize, random);
-
-//		return subtrajectoryOfSize.best(subtrajectoryOfFeatures);
 		subtrajectoryOfSize = subtrajectoryOfSize.best(subtrajectoryOfFeatures);
 		
 		if (subtrajectoryOfSize.equals(candidate))
@@ -301,6 +332,15 @@ public class UltraMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> impl
 		
 		return subtrajectoryOfFeature;
 	}
+	
+//	/**
+//	 * @param candidate
+//	 * @param random
+//	 * @return
+//	 */
+//	public void assesQuality(Subtrajectory candidate, Random random) {
+//		((ProportionQualityMeasure) qualityMeasure).assesClassQuality(candidate, this.maxDistances, random);
+//	}
 
 	/**
 	 * [THE GREAT GAP].
@@ -353,6 +393,8 @@ public class UltraMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> impl
 			candidates.addAll(list);
 
 		} // for (int start = 0; start <= (n - size); start++)
+		
+		((WeightedFrequencyQualityMeasure) this.qualityMeasure).setMaxDistances(maxDistances);
 		
 		return candidates;
 		
@@ -492,120 +534,5 @@ public class UltraMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> impl
 		
 		return new Pair<>(new Subtrajectory(start, end , t), bestAlignment);
 	}
-	
-//	/**
-//	 * Best alignment by point features. 
-//	 * (With subtrajectory distancesToTrajs) 
-//	 *
-//	 * @param s the s
-//	 * @param t the t
-//	 * @return the pair
-//	 */
-//	public Pair<Subtrajectory, double[]> bestAlignmentByPointFeatures(Subtrajectory s, MAT<MO> t, int ti) {
-//		double[] maxValues = new double[numberOfFeatures];
-//		Arrays.fill(maxValues, MAX_VALUE);
-//				
-//		if (s.getSize() > t.getPoints().size())
-//			return new Pair<>(null, maxValues);
-//
-////		List<Point> menor = s.getPoints();
-//		List<Point> maior = t.getPoints();
-//		
-//		int size =  s.getSize();
-//		int diffLength = maior.size() - size;	
-//		int limit = maior.size() - size + 1;		
-//				
-//		int[] comb = s.getPointFeatures();
-//		double[] currentSum; // = new double[comb.length];
-////		double[] values = new double[numberOfFeatures];
-//		double[][] distancesForT = ((MSubtrajectory) s).getDistancesForAllT()[ti]; //new double[comb.length][diffLength+1];
-//		
-//		// A - Get distances from candidate:
-////		double[][] distancesAux = ((MSubtrajectory) s).getDistancesForAllT()[ti];
-////		for (int k = 0; k < comb.length-1; k++) {
-////			distancesForT[k] = distancesAux[k];
-////		}
-//		
-//		// B - Calculate distances remaining:
-//		double[] x = new double[comb.length];
-//		Arrays.fill(x, MAX_VALUE);
-//				
-//		for (int i = 0; i <= diffLength; i++) {
-//
-//			currentSum = new double[comb.length];
-//						
-//			for (int j = 0; j < size; j++) {
-//
-//				// Only for the last 
-////				distancesForT[comb[comb.length-1]][i+j] = getDistance(menor.get(j), maior.get(i + j), s.getPointFeatures()[comb.length-1]); 
-//				
-//				// Here we get from mdist:
-//				int k = 0;
-//				for (; k < comb.length; k++) {	
-//					if (currentSum[k] != MAX_VALUE && distancesForT[comb[k]][i+j] != MAX_VALUE)
-//						currentSum[k] += distancesForT[comb[k]][i+j];
-//					else
-//						currentSum[k] = MAX_VALUE;
-//				}								
-//				
-//			}
-//			
-//			for (int k = 0; k < comb.length; k++) {
-//				distancesForT[k][i] = currentSum[k];
-//			}
-//		}
-//		
-//		// C - Set distances for T:
-////		((MSubtrajectory) s).getDistancesForAllT()[ti] = distancesForT;
-//		
-//		// D - Ranks and best alignment
-//		double[][] ranksForT = new double[distancesForT.length][];
-//		
-//		if (limit > 0)
-//			for (int k = 0; k < comb.length; k++) {
-//				ranksForT[k] = rankingAlgorithm.rank(Arrays.stream(distancesForT[k],0,limit).toArray());
-//			}
-//		
-//		
-//		int bestPosition = (limit > 0) ? bestAlignmentByRanking(ranksForT,comb) : -1;
-//		
-//		double[] bestAlignment = new double[comb.length];
-//		
-//		for (int j = 0; j < comb.length; j++) {
-//			
-//			double distance = (bestPosition >= 0) ? distancesForT[j][bestPosition] : MAX_VALUE;
-//			
-//			bestAlignment[j] = (distance != MAX_VALUE) ? 
-//					Math.sqrt( distance / size ) : MAX_VALUE;
-//			
-//		}
-//		
-//		int start = bestPosition;
-//		int end = bestPosition + size - 1;
-//		
-//		return new Pair<>(new Subtrajectory(start, end , t), bestAlignment);
-//	}
-//	
-//	/**
-//	 * Gets the distances.
-//	 *
-//	 * @param a the a
-//	 * @param b the b
-//	 * @param k the attribute index
-//	 * @return the distance
-//	 */
-//	public double getDistance(Point a, Point b, int k) {
-//		double distance = 0.0;
-//		
-//		AttributeDescriptor attr = this.descriptor.getAttributes().get(k);
-//		
-//		distance = attr.getDistanceComparator().calculateDistance(
-//				a.getAspects().get(k), 
-//				b.getAspects().get(k), 
-//				attr);
-//		
-//		return distance;
-//		
-//	}
 
 }

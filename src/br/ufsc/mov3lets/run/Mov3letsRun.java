@@ -29,6 +29,7 @@ import java.util.HashMap;
 import org.apache.commons.io.FilenameUtils;
 
 import br.ufsc.mov3lets.method.Mov3lets;
+import br.ufsc.mov3lets.method.discovery.structures.TimeContract;
 import br.ufsc.mov3lets.method.structures.descriptor.AttributeDescriptor;
 import br.ufsc.mov3lets.method.structures.descriptor.Descriptor;
 import br.ufsc.mov3lets.model.MAT;
@@ -50,6 +51,8 @@ public class Mov3letsRun {
 	public static void main(String[] args) {
 		// 1.1 - PARAMS:
 		HashMap<String, Object> params = configure(args);
+		
+//		try { System.in.read(); } catch (IOException e1) {} // TEMP
 
 		// Config to - Show trace messages OR Ignore all
 		if (params.containsKey("verbose") && (Boolean) params.get("verbose"))
@@ -140,6 +143,8 @@ public class Mov3letsRun {
 		
 		// End Date:
 		Mov3letsUtils.trace(new Date().toString());
+		
+//		while (true); // TEMP
 	}
 
 	/**
@@ -248,6 +253,9 @@ public class Mov3letsRun {
 		
 		if (params.containsKey("filter_strategy"))
 			at.addRow(new Object[] {"", "-- Feature Selection", params.get("filter_strategy"), ""});
+		
+		if (params.containsKey("time_contract"))
+			at.addRow(new Object[] {"-TC", "Time Contract", params.get("time_contract"), "Use: w(eeks), d, h, m, s(econds)"});
 		
 //		at.addRow("Optimizations:", "", "", "");
 //		at.addRow("", "Interning", 	(params.containsKey("interning")? (boolean)params.get("interning") : false), 	"");
@@ -539,6 +547,11 @@ public class Mov3letsRun {
 			case "-th_numeric":
 			case "-numeric_threshold":
 				params.put("numeric_threshold", Integer.valueOf(value));	
+				break;
+			case "-TC":
+			case "-tc":
+			case "-time_contract":
+				params.put("time_contract", new TimeContract(value));	
 				break;
 			default:
 				System.err.println("Parâmetro " + key + " inválido.");

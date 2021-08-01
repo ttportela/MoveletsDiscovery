@@ -118,7 +118,7 @@ public class IndexedMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> implemen
 			// Add to dictionary:
 			mCompositeIndex.putAll(mCombDictionary);
 		}
-		combinationsIndex = null; System.gc();
+		combinationsIndex = null; //System.gc();
 				
 		progressBar.plus("(2/5) Combine: Combined Keys: "+mCompositeIndex.size()+". Time for MAT-Index: "+timer+" milliseconds.");
 		

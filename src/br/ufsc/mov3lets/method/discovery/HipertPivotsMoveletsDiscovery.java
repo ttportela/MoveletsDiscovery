@@ -89,7 +89,7 @@ public class HipertPivotsMoveletsDiscovery<MO> extends HiperPivotsMoveletsDiscov
 		/** STEP 2.2: ---------------------------- */
 		outputMovelets(movelets);
 		/** -------------------------------------- */	
-		System.gc();
+//		System.gc();
 		
 		return movelets;
 	}

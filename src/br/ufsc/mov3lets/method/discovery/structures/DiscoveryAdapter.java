@@ -158,7 +158,7 @@ public abstract class DiscoveryAdapter<MO> implements Callable<Integer> {
 		this.data = null;
 		this.descriptor = null;
 
-		System.gc();
+//		System.gc();
 	}
 
 //	/**
@@ -185,18 +185,20 @@ public abstract class DiscoveryAdapter<MO> implements Callable<Integer> {
 	 * @param movelets the movelets
 	 * @param delayOutput the delay output
 	 */
-	public void output(String filename, List<MAT<MO>> trajectories, List<Subtrajectory> movelets, boolean delayOutput) {	
-		// This sets the default outputters, otherwise use the configured ones	
-		// By Default, it writes a JSON and a CSV in a attribute-value format
-//		defaultOutputters();
-		// It puts distances as trajectory attributes
-		if (outputers != null)
-			for (OutputterAdapter output : outputers) {
-				output.write(filename, trajectories, movelets, delayOutput);			
-			}
-		
-//		trajectories.forEach(e ->  e.getFeatures().clear()); // TODO needed?
-//		trajectories.forEach(e ->  e.getAttributes().clear());
+	public void output(String filename, List<MAT<MO>> trajectories, List<Subtrajectory> movelets, boolean delayOutput) {
+//		synchronized (DiscoveryAdapter.class) {
+			// This sets the default outputters, otherwise use the configured ones	
+			// By Default, it writes a JSON and a CSV in a attribute-value format
+	//		defaultOutputters();
+			// It puts distances as trajectory attributes
+			if (outputers != null)
+				for (OutputterAdapter output : outputers) {
+					output.write(filename, trajectories, movelets, delayOutput);			
+				}
+			
+	//		trajectories.forEach(e ->  e.getFeatures().clear()); // TODO needed?
+	//		trajectories.forEach(e ->  e.getAttributes().clear());
+//		}
 	}
 	
 	/**

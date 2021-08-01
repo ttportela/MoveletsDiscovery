@@ -115,7 +115,7 @@ public class MasterMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> implement
 		/** STEP 2.3: ---------------------------- */
 		outputMovelets(movelets);
 		/** -------------------------------------- */
-		System.gc();
+//		System.gc();
 
 //		/** STEP 2.3.3, to write all outputs: */
 //		super.output("train", this.train, movelets, false);
@@ -481,8 +481,8 @@ public class MasterMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> implement
 		double[] values = new double[numberOfFeatures];
 		double[][] distancesForT = new double[comb.length][diffLength+1];
 						
-		double[] x = new double[comb.length];
-		Arrays.fill(x, MAX_VALUE);
+//		double[] x = new double[comb.length];
+//		Arrays.fill(x, MAX_VALUE);
 				
 		for (int i = 0; i <= diffLength; i++) {
 

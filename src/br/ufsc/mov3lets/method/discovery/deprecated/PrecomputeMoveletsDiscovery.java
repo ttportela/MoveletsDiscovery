@@ -129,7 +129,7 @@ public class PrecomputeMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO>
 				multithreadComputeBaseDistances(data, N_THREADS, descriptor);
 			else 
 				computeBaseDistances(data, descriptor);
-			System.gc();
+//			System.gc();
 		}
 	}
 
@@ -183,7 +183,7 @@ public class PrecomputeMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO>
 			try {
 				future.get();
 				Executors.newCachedThreadPool();
-				System.gc();
+//				System.gc();
 			} catch (InterruptedException | ExecutionException e) {
 				e.printStackTrace();
 			}

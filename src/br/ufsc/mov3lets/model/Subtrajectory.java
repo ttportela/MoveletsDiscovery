@@ -43,7 +43,7 @@ public class Subtrajectory {
 	/** The points. */
 	private List<Point> points;
 		
-/** The distances. */
+	/** The distances. */
 //	private List<List<Double>> distances;
 	private double[][] distances;
 	
@@ -69,7 +69,7 @@ public class Subtrajectory {
 //	private Map<Integer, double[]> mdist; 
 	
 	/** The splitpoints. */
-private double[] splitpoints;
+	private double[] splitpoints;
 	
 	/** The max distances. */
 	private double[] maxDistances;
@@ -160,12 +160,12 @@ private double[] splitpoints;
 //	}
 
 	/**
- * Overridden method. 
- * @see java.lang.Object#toString().
- * 
- * @return
- */
-@Override
+	 * Overridden method. 
+	 * @see java.lang.Object#toString().
+	 * 
+	 * @return
+	 */
+	@Override
 	public String toString() {
 
 		String string = new String();
@@ -257,11 +257,11 @@ private double[] splitpoints;
 //	}
 
 	/**
- * Gets the size.
- *
- * @return the size
- */
-public int getSize() {
+	 * Gets the size.
+	 *
+	 * @return the size
+	 */
+	public int getSize() {
 		return end - start + 1;
 	}
 	
@@ -310,11 +310,11 @@ public int getSize() {
 //	}
 	
 	/**
- * Gets the distances.
- *
- * @return the distances
- */
-public double[][] getDistances() {
+	 * Gets the distances.
+	 *
+	 * @return the distances
+	 */
+	public double[][] getDistances() {
 		return distances;
 	}
 	
@@ -340,11 +340,11 @@ public double[][] getDistances() {
 //	}	
 	
 	/**
- * Sets the quality.
- *
- * @param quality the new quality
- */
-public void setQuality(Quality quality) {
+	 * Sets the quality.
+	 *
+	 * @param quality the new quality
+	 */
+	public void setQuality(Quality quality) {
 		this.quality = quality;
 	}
 	
@@ -374,11 +374,11 @@ public void setQuality(Quality quality) {
 //	}
 	
 	/**
- * Gets the point features.
- *
- * @return the point features
- */
-public int[] getPointFeatures() {
+	 * Gets the point features.
+	 *
+	 * @return the point features
+	 */
+	public int[] getPointFeatures() {
 		return pointFeatures;
 	}
 	
@@ -478,11 +478,11 @@ public int[] getPointFeatures() {
 //	}
 	
 	/**
- * Gets the covered.
- *
- * @return the covered
- */
-public List<MAT<?>> getCovered() {
+	 * Gets the covered.
+	 *
+	 * @return the covered
+	 */
+	public List<MAT<?>> getCovered() {
 		return covered;
 	}
 	
@@ -493,5 +493,13 @@ public List<MAT<?>> getCovered() {
 	 */
 	public void setCovered(List<MAT<?>> covered) {
 		this.covered = covered;
+	}
+
+	public Subtrajectory best(Subtrajectory s) {
+		int x = this.getQuality().compareTo(s.getQuality());
+		if (x <= 0)
+			return this;
+		else 
+			return s;
 	}
 }

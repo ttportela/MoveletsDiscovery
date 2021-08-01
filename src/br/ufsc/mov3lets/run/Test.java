@@ -17,12 +17,12 @@
  */
 package br.ufsc.mov3lets.run;
 
-import java.nio.CharBuffer;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
-
-import br.ufsc.mov3lets.utils.ProgressBar;
-import br.ufsc.mov3lets.utils.SimpleOutput;
+import org.apache.commons.math3.util.Combinations;
 
 /**
  * The Class Test.
@@ -39,16 +39,42 @@ public class Test {
 	 */
 	public static void main(String[] arg) throws Exception {
 		
-		double[] ps = new double[] {1.0/6.0, 2.0/6.0, 3.0/6.0, 0.0};
-		
-		double entropy = 0.0;
-		for (double p : ps) {
-			entropy += -(p * Math.log(p) / Math.log(2));
-			System.out.println(-(p * Math.log(p) / Math.log(2)));
-		}
+		List<Integer> ls = new ArrayList<Integer>();
+		ls.add(1);
+		ls.add(2);
+		ls.add(3);
 
-		System.out.println(entropy);
+		System.out.println(ls.toString());
+		Iterator<Integer> i = ls.iterator();
+		while (i.hasNext()) {
+		   Integer s = i.next(); // must be called before you can call i.remove()
+		   // Do something
+		   i.remove();
+		   System.out.println(ls.toString());
+		}
+		
 				
+	}
+	
+	public static int[][] addCombinations(int minNumberOfFeatures, int maxNumberOfFeatures) {
+		int numberOfFeatures = 4;
+		int[][] combinations;
+		
+		int currentFeatures = minNumberOfFeatures;
+		ArrayList<int[]> combaux = new ArrayList<int[]>();
+		// Start in minimum size until max:
+		for (;currentFeatures <= maxNumberOfFeatures; currentFeatures++) {
+			for (int[] comb : new Combinations(numberOfFeatures,currentFeatures)) {					
+				
+				combaux.add(comb);
+				System.out.println(Arrays.toString(comb));
+				
+			}		
+		}
+		
+		combinations = combaux.stream().toArray(int[][]::new);
+		
+		return combinations;
 	}
 
 }

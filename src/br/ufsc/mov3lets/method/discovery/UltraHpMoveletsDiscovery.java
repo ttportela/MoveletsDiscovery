@@ -13,6 +13,7 @@ import org.apache.commons.math3.util.Combinations;
 import org.apache.commons.math3.util.Pair;
 
 import br.ufsc.mov3lets.method.discovery.structures.TrajectoryDiscovery;
+import br.ufsc.mov3lets.method.qualitymeasure.ProportionQualityMeasure;
 import br.ufsc.mov3lets.method.qualitymeasure.QualityMeasure;
 import br.ufsc.mov3lets.method.structures.descriptor.Descriptor;
 import br.ufsc.mov3lets.model.MAT;
@@ -26,7 +27,7 @@ import br.ufsc.mov3lets.model.Subtrajectory;
  * @author tarlis
  * @param <MO> the generic type
  */
-public class UltraMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> implements TrajectoryDiscovery {
+public class UltraHpMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> implements TrajectoryDiscovery {
 
 	/** The max number of combination of features. */
 	protected int maxCombinationOfFeatures = 0;
@@ -44,7 +45,7 @@ public class UltraMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> impl
 	 * @param qualityMeasure the quality measure
 	 * @param descriptor the descriptor
 	 */
-	public UltraMoveletsDiscovery(MAT<MO> trajectory, List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test,
+	public UltraHpMoveletsDiscovery(MAT<MO> trajectory, List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test,
 			QualityMeasure qualityMeasure, Descriptor descriptor) {
 		super(trajectory, trajsFromClass, data, train, test, qualityMeasure, descriptor);
 //		this.trajectory = trajectory;
@@ -68,11 +69,13 @@ public class UltraMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> impl
 		List<Subtrajectory> movelets = new ArrayList<Subtrajectory>();
 
 //		progressBar.trace("HiperT-Pivots Movelets Discovery for Class: " + trajsFromClass.get(0).getMovingObject());
-				
+		
+		this.proportionMeasure = new ProportionQualityMeasure<MO>(this.trajsFromClass); //, TAU);
+		
 		// This guarantees the reproducibility
 		Random random = new Random(trajectory.getTid());
 		/** STEP 2.1: Starts at discovering movelets */
-		List<Subtrajectory> candidates = moveletsDiscovery(trajectory, this.train, minSize, maxSize, random);
+		List<Subtrajectory> candidates = moveletsDiscovery(trajectory, this.trajsFromClass, minSize, maxSize, random);
 		
 		/** STEP 2.4: SELECTING BEST CANDIDATES */		
 		movelets.addAll(filterMovelets(candidates));
@@ -120,26 +123,25 @@ public class UltraMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> impl
 
 		List<Subtrajectory> candidatesOfSize = findPivotCandidates(trajectory, trajectories, minSize);
 //		computeQuality(candidatesOfSize, random, trajectory);
-//		calculateProportion(candidatesOfSize, random);
-		for (Subtrajectory subtrajectory : candidatesOfSize) {
+		calculateProportion(candidatesOfSize, random);
+//		for (Subtrajectory subtrajectory : candidatesOfSize) {
 //			computeDistances(subtrajectory, trajectories);
-			assesQuality(subtrajectory, random);
-		}
-		total_size += candidatesOfSize.size();
-
-		candidatesOfSize = filterMovelets(candidatesOfSize);
+//			assesQuality(subtrajectory, random);
+//		}
+		total_size += candidates.size();
+		
 		for(Subtrajectory candidate : candidatesOfSize) {
 			candidates.add(growPivot(candidate, trajectory, trajectories, minSize+1, maxSize, random));
 		}
 
 		addStats("Number of Candidates", total_size);
-//		addStats("Pivot Candidates", candidatesOfSize.size());
-		addStats("Selected Candidates", candidates.size());
+		addStats("Scored Candidates", candidates.size());
+//		addStats("Selected Candidates", candidates.size());
 		
-//		for (Subtrajectory subtrajectory : candidates) {
-//			computeDistances(subtrajectory, this.train);
-//			assesQuality(subtrajectory, random);
-//		}
+		for (Subtrajectory subtrajectory : candidates) {
+			computeDistances(subtrajectory, this.train);
+			assesQuality(subtrajectory, random);
+		}
 		candidates = filterMovelets(candidates);
 		
 		addStats("Total of Movelets", candidates.size());
@@ -249,9 +251,9 @@ public class UltraMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> impl
 				candidate.getPointFeatures(), candidate.getK());
 		
 		// asses quality:
-		computeDistances(subtrajectory, trajectories);
-		assesQuality(subtrajectory, random);
-//		proportionMeasure.assesClassQuality(subtrajectory, maxDistances, random);
+//		computeDistances(subtrajectory, trajectories);
+//		assesQuality(subtrajectory, random);
+		proportionMeasure.assesClassQuality(subtrajectory, maxDistances, random);
 		
 		return subtrajectory.best(candidate);
 	}
@@ -292,9 +294,9 @@ public class UltraMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> impl
 			total_size += 1;
 			
 			// asses quality:
-			computeDistances(subtrajectory, trajectories);
-			assesQuality(subtrajectory, random);
-//			proportionMeasure.assesClassQuality(subtrajectory, maxDistances, random);
+//			computeDistances(subtrajectory, trajectories);
+//			assesQuality(subtrajectory, random);
+			proportionMeasure.assesClassQuality(subtrajectory, maxDistances, random);
 			
 			subtrajectoryOfFeature = subtrajectory.best(subtrajectoryOfFeature);
 		}

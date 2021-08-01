@@ -87,7 +87,7 @@ public class HipertMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO> impl
 		/** STEP 2.2: ---------------------------- */
 		outputMovelets(movelets);
 		/** -------------------------------------- */	
-		System.gc();
+//		System.gc();
 		
 //		progressBar.plus(trajsIgnored, 
 //						   "Class: " + trajsFromClass.get(0).getMovingObject() 

@@ -24,7 +24,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -38,6 +40,7 @@ import org.apache.commons.lang3.StringUtils;
 import br.ufsc.mov3lets.method.discovery.structures.ClassDiscovery;
 import br.ufsc.mov3lets.method.discovery.structures.DiscoveryAdapter;
 import br.ufsc.mov3lets.method.discovery.structures.GlobalDiscovery;
+import br.ufsc.mov3lets.method.discovery.structures.TimeContract;
 import br.ufsc.mov3lets.method.discovery.structures.TrajectoryDiscovery;
 import br.ufsc.mov3lets.method.feature.extraction.FeatureExtractor;
 import br.ufsc.mov3lets.method.feature.extraction.PointFeature;
@@ -115,7 +118,11 @@ public class Mov3lets<MO> {
 		int N_THREADS = getDescriptor().getParamAsInt("nthreads");
 
 		// STEP 1 - Load Trajectories: is done before this method starts.
-		this.data = Stream.concat(train.stream(), test.stream()).collect(Collectors.toList());
+		this.data = Collections.unmodifiableList(
+						Stream.concat(train.stream(), test.stream()).collect(Collectors.toList())
+					);
+		this.train = Collections.unmodifiableList(this.train);
+		this.test  = Collections.unmodifiableList(this.test);
 		
 //		// When using precompute version:
 //		if (getDescriptor().getParamAsText("version").equals("3.0"))
@@ -125,38 +132,6 @@ public class Mov3lets<MO> {
 //		Mov3letsUtils.getInstance().startTimer("[2.1] >> Extracting Movelets");
 		List<MO> classes = train.stream().map(e -> (MO) e.getMovingObject()).distinct().collect(Collectors.toList());
 		
-		QualityMeasure qualityMeasure;
-		switch (getDescriptor().getParamAsText("str_quality_measure")) {
-		case "PROP":
-			qualityMeasure = new ProportionQualityMeasure<MO>(this.train,
-		    		getDescriptor().getParamAsInt("samples"), 
-		    		getDescriptor().getParamAsDouble("sample_size"), 
-		    		getDescriptor().getParamAsText("medium"));
-			break;
-			
-		case "LSPBS":
-			qualityMeasure = new LeftSidePureCVLigthBS<MO>(train, 
-		    		getDescriptor().getParamAsInt("samples"), 
-		    		getDescriptor().getParamAsDouble("sample_size"), 
-		    		getDescriptor().getParamAsText("medium"));
-			break;
-			
-		case "LSPEA":
-			qualityMeasure = new LeftSidePureCVLigthEA<MO>(train, 
-		    		getDescriptor().getParamAsInt("samples"), 
-		    		getDescriptor().getParamAsDouble("sample_size"), 
-		    		getDescriptor().getParamAsText("medium"));
-			break;
-
-		case "LSP":
-		default:
-			qualityMeasure = new LeftSidePureCVLigth<MO>(train, 
-		    		getDescriptor().getParamAsInt("samples"), 
-		    		getDescriptor().getParamAsDouble("sample_size"), 
-		    		getDescriptor().getParamAsText("medium"));
-			break;
-		}
-
 //		List<Subtrajectory> candidates = new ArrayList<Subtrajectory>();	
 		
 		/* Keeping up with Progress output */
@@ -166,19 +141,21 @@ public class Mov3lets<MO> {
 		int progress = 0;
 		progressBar.update(progress, train.size());
 		
-		List<DiscoveryAdapter<MO>> lsMDs = instantiate(classes, qualityMeasure, progressBar);	
+		scheduleIfTimeContractable();
 		
+		List<DiscoveryAdapter<MO>> lsMDs = instantiate(classes, progressBar);	
+
 		if (N_THREADS > 1) {
 			ExecutorService executor = (ExecutorService) 
 					Executors.newFixedThreadPool(N_THREADS);
 			List<Future<Integer>> resultList = new ArrayList<>();
-			
 
 			/** STEP 2.1: Starts at discovering movelets */
 			for (DiscoveryAdapter<MO> moveletsDiscovery : lsMDs) {
 				moveletsDiscovery.setProgressBar(progressBar);
 				resultList.add(executor.submit(moveletsDiscovery));
 			}
+			lsMDs = null;
 			
 			/** STEP 2.1: --------------------------------- */
 			for (Future<Integer> future : resultList) {
@@ -195,15 +172,36 @@ public class Mov3lets<MO> {
 		} else {
 			
 			/** STEP 2.1: Starts at discovering movelets */
-			for (DiscoveryAdapter<MO> moveletsDiscovery : lsMDs) {
+//			for (DiscoveryAdapter<MO> moveletsDiscovery : lsMDs) {
+//				moveletsDiscovery.setProgressBar(progressBar);
+//				moveletsDiscovery.discover();
+////				progressBar.update(progress++, train.size());
+////				System.gc();
+//			}
+			// With the iterator we can remove completed instances from memory:
+			Iterator<DiscoveryAdapter<MO>> i = lsMDs.iterator();
+			while (i.hasNext()) {
+				DiscoveryAdapter<MO> moveletsDiscovery = i.next();
 				moveletsDiscovery.setProgressBar(progressBar);
 				moveletsDiscovery.discover();
-//				progressBar.update(progress++, train.size());
-				System.gc();
+				i.remove();
 			}
 			
 		}
 		
+		stopIfTimeContractable();
+	}
+
+	public void scheduleIfTimeContractable() {
+		if (getDescriptor().hasParam("time_contract")) {
+			((TimeContract) getDescriptor().getParam("time_contract")).start();
+		}
+	}
+
+	public void stopIfTimeContractable() {
+		if (getDescriptor().hasParam("time_contract")) {
+			((TimeContract) getDescriptor().getParam("time_contract")).stop();
+		}
 	}
 
 	/**
@@ -221,18 +219,19 @@ public class Mov3lets<MO> {
 	 * @throws InstantiationException 
 	 * @throws ClassNotFoundException 
 	 */
-	private List<DiscoveryAdapter<MO>> instantiate(List<MO> classes, QualityMeasure qualityMeasure, ProgressBar progressBar)  
+	private List<DiscoveryAdapter<MO>> instantiate(List<MO> classes, ProgressBar progressBar)  
 			throws Exception {
 		List<DiscoveryAdapter<MO>> lsMDs = new ArrayList<DiscoveryAdapter<MO>>();
 		
 		Class cdc = getDiscoveryClass();
+//		QualityMeasure qualityMeasure = instatiateQuality();
 		
 		/** STEP 2.1: Starts at discovering movelets */
 		if (GlobalDiscovery.class.equals(getTypeOf(cdc))) { // Special case
 			DiscoveryAdapter<MO> moveletsDiscovery = 
 //					new IndexedMoveletsDiscovery<MO>(data, train, test, qualityMeasure, descriptor);
 					(DiscoveryAdapter<MO>) cdc.getConstructor(List.class, List.class, List.class, QualityMeasure.class, Descriptor.class)
-					.newInstance(data, train, test, qualityMeasure, descriptor);
+					.newInstance(data, train, test, instatiateQuality(), descriptor);
 			
 			// TODO Configure Outputs:
 			moveletsDiscovery.getOutputers().add(
@@ -257,7 +256,7 @@ public class Mov3lets<MO> {
 					
 					List<OutputterAdapter<MO,?>> outs = configOutput(1, myclass); // For classes, it calls once.
 					
-					moveletsDiscovery = instantiateMoveletsDiscovery(cdc, qualityMeasure, trajsFromClass, outs);
+					moveletsDiscovery = instantiateMoveletsDiscovery(cdc, instatiateQuality(), trajsFromClass, outs);
 					moveletsDiscovery.setQueue(sharedQueue);
 					
 					// Configure Outputs
@@ -268,7 +267,7 @@ public class Mov3lets<MO> {
 					List<OutputterAdapter<MO,?>> outs = configOutput(trajsFromClass.size(), myclass);
 					
 					for (MAT<MO> T : trajsFromClass) {
-						moveletsDiscovery = instantiateMoveletsDiscovery(cdc, qualityMeasure, trajsFromClass, outs, T);
+						moveletsDiscovery = instantiateMoveletsDiscovery(cdc, instatiateQuality(), trajsFromClass, outs, T);
 						moveletsDiscovery.setQueue(sharedQueue);
 						
 						// Configure Outputs
@@ -363,16 +362,52 @@ public class Mov3lets<MO> {
 		return lsMDs;
 	}
 
+	protected QualityMeasure instatiateQuality() {
+		QualityMeasure qualityMeasure;
+		switch (getDescriptor().getParamAsText("str_quality_measure")) {
+		case "PROP":
+			qualityMeasure = new ProportionQualityMeasure<MO>(this.train,
+		    		getDescriptor().getParamAsInt("samples"), 
+		    		getDescriptor().getParamAsDouble("sample_size"), 
+		    		getDescriptor().getParamAsText("medium"));
+			break;
+			
+		case "LSPBS":
+			qualityMeasure = new LeftSidePureCVLigthBS<MO>(this.train, 
+		    		getDescriptor().getParamAsInt("samples"), 
+		    		getDescriptor().getParamAsDouble("sample_size"), 
+		    		getDescriptor().getParamAsText("medium"));
+			break;
+			
+		case "LSPEA":
+			qualityMeasure = new LeftSidePureCVLigthEA<MO>(this.train, 
+		    		getDescriptor().getParamAsInt("samples"), 
+		    		getDescriptor().getParamAsDouble("sample_size"), 
+		    		getDescriptor().getParamAsText("medium"));
+			break;
+
+		case "LSP":
+		default:
+			qualityMeasure = new LeftSidePureCVLigth<MO>(this.train, 
+		    		getDescriptor().getParamAsInt("samples"), 
+		    		getDescriptor().getParamAsDouble("sample_size"), 
+		    		getDescriptor().getParamAsText("medium"));
+			break;
+		}
+		return qualityMeasure;
+	}
+
 	protected DiscoveryAdapter<MO> instantiateMoveletsDiscovery(Class cdc, QualityMeasure qualityMeasure,
 			List<MAT<MO>> trajsFromClass, List<OutputterAdapter<MO,?>> outs, MAT<MO> T)
 			throws InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, ClassNotFoundException {
 		DiscoveryAdapter<MO> moveletsDiscovery;
 //		try {
-			
+		
 //			Class cdc = Class.forName("br.ufsc.mov3lets.method.discovery."+getDiscoveryClass());
 			moveletsDiscovery = (DiscoveryAdapter<MO>) 
 					cdc.getConstructor(MAT.class, List.class, List.class, List.class, List.class, QualityMeasure.class, Descriptor.class)
-					.newInstance(T, trajsFromClass, data, train, test, qualityMeasure, getDescriptor());
+					.newInstance(T, Collections.unmodifiableList(trajsFromClass), data, train, test, qualityMeasure, getDescriptor());
+//					.newInstance(T, trajsFromClass, data, train, test, qualityMeasure, getDescriptor());
 		
 //		} catch (ClassNotFoundException e1) {
 //
@@ -393,7 +428,7 @@ public class Mov3lets<MO> {
 //		Class cdc = Class.forName("br.ufsc.mov3lets.method.discovery."+getDiscoveryClass();
 		moveletsDiscovery = (DiscoveryAdapter<MO>) 
 				cdc.getConstructor(List.class, List.class, List.class, List.class, QualityMeasure.class, Descriptor.class)
-				.newInstance(trajsFromClass, data, train, test, qualityMeasure, getDescriptor());
+				.newInstance(Collections.unmodifiableList(trajsFromClass), data, train, test, qualityMeasure, getDescriptor());
 		
 		return moveletsDiscovery;
 	}

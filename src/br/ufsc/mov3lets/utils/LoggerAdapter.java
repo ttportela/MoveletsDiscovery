@@ -23,7 +23,7 @@ public abstract class LoggerAdapter {
 	 * @param timer the timer
 	 * @param time the time
 	 */
-	public synchronized void printTimer(String timer, long time) {
+	public void printTimer(String timer, long time) {
 		trace(timer + ": " + time + " milliseconds");
 	}
 	
@@ -32,7 +32,7 @@ public abstract class LoggerAdapter {
 	 *
 	 * @param s the s
 	 */
-	public synchronized void traceW(String s) {
+	public void traceW(String s) {
 		trace("Warning: " + s);
 	}
 	
@@ -42,7 +42,7 @@ public abstract class LoggerAdapter {
 	 * @param s the s
 	 * @param e the e
 	 */
-	public synchronized void traceE(String s, Exception e) {
+	public void traceE(String s, Exception e) {
 		trace("\n[Error] " + s);
 //		String stacktrace = ExceptionUtils.getStackTrace(e);
 //        trace(stacktrace);

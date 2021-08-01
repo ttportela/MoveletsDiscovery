@@ -132,7 +132,7 @@ public class Indexed1MoveletsDiscovery<MO> extends MoveletsDiscovery<MO> impleme
 		}
 		Map<Integer, int[]> mMATIndex = integrateDimensions(indexes, points, trainId, mSemCompositeIndex, mCSemCompositeIndex);
 		
-		indexes = null; mSemCompositeIndex = null; mCSemCompositeIndex = null; System.gc();	
+		indexes = null; mSemCompositeIndex = null; mCSemCompositeIndex = null; //System.gc();	
 		
 		// Removes test data from index:
 //		for (int i = trainId; i < rId; i++) {
@@ -148,7 +148,7 @@ public class Indexed1MoveletsDiscovery<MO> extends MoveletsDiscovery<MO> impleme
 		List<IndexPoint> bestPoints = points; //.subList(0, trainId);
 		if (getDescriptor().hasParam("filter_strategy")) {
 			progressBar.trace("(5/5) Processing Results: Assessing Quality");
-			points = null; System.gc();
+			points = null; //System.gc();
 			
 			if ("MSM1".equalsIgnoreCase(getDescriptor().getParamAsText("filter_strategy")))
 				assessQualityMSM1(mClasses, bestPoints, mMATIndex);

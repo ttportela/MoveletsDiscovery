@@ -26,7 +26,7 @@ import br.ufsc.mov3lets.model.Subtrajectory;
  * @author tarlis
  * @param <MO> the generic type
  */
-public class UltraMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> implements TrajectoryDiscovery {
+public class UltraSMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> implements TrajectoryDiscovery {
 
 	/** The max number of combination of features. */
 	protected int maxCombinationOfFeatures = 0;
@@ -44,7 +44,7 @@ public class UltraMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> impl
 	 * @param qualityMeasure the quality measure
 	 * @param descriptor the descriptor
 	 */
-	public UltraMoveletsDiscovery(MAT<MO> trajectory, List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test,
+	public UltraSMoveletsDiscovery(MAT<MO> trajectory, List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test,
 			QualityMeasure qualityMeasure, Descriptor descriptor) {
 		super(trajectory, trajsFromClass, data, train, test, qualityMeasure, descriptor);
 //		this.trajectory = trajectory;

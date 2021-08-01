@@ -99,7 +99,7 @@ public class HiperMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> imple
 		/** STEP 2.2: ---------------------------- */
 		outputMovelets(movelets);
 		/** -------------------------------------- */	
-		System.gc();
+//		System.gc();
 		
 		progressBar.plus(trajsIgnored, 
 						   "Class: " + trajsFromClass.get(0).getMovingObject() 

@@ -26,7 +26,6 @@ import java.util.Random;
 import java.util.Set;
 
 import org.apache.commons.collections4.SetUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.stat.ranking.NaturalRanking;
@@ -183,7 +182,7 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> implements Traje
 		/** STEP 2.2: ---------------------------- */
 		outputMovelets(movelets);
 		/** -------------------------------------- */
-		System.gc();
+//		System.gc();
 		
 //		/** STEP 2.3.3, to write all outputs: */
 //		super.output("train", this.train, movelets, false);
@@ -401,36 +400,6 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> implements Traje
 	}
 	
 	/**
-	 * Make combinations (by addition).
-	 *
-	 * @param exploreDimensions the explore dimensions
-	 * @param numberOfFeatures the number of features
-	 * @param maxNumberOfFeatures the max number of features
-	 * @return the int[][]
-	 */
-	public int[][] addCombinations(int minNumberOfFeatures, int maxNumberOfFeatures) {
-		
-		int currentFeatures = minNumberOfFeatures;
-		ArrayList<int[]> combaux = new ArrayList<int[]>();
-		// Start in minimum size until max:
-		for (;currentFeatures <= maxNumberOfFeatures; currentFeatures++) {
-			for (int[] comb : new Combinations(numberOfFeatures,currentFeatures)) {					
-				
-				combaux.add(comb);
-				
-			}		
-		}
-		
-		if (combinations != null) {
-			combinations = ArrayUtils.addAll(combinations, combaux.stream().toArray(int[][]::new));
-		} else {
-			combinations = combaux.stream().toArray(int[][]::new);
-		}
-		
-		return combinations;
-	}
-	
-	/**
 	 * Best alignment by point features.
 	 *
 	 * @param s the s
@@ -456,8 +425,8 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> implements Traje
 		double[] values = new double[numberOfFeatures];
 		double[][] distancesForT = new double[comb.length][diffLength+1];
 						
-		double[] x = new double[comb.length];
-		Arrays.fill(x, MAX_VALUE);
+//		double[] x = new double[comb.length];
+//		Arrays.fill(x, MAX_VALUE);
 				
 		for (int i = 0; i <= diffLength; i++) {
 
@@ -597,19 +566,39 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> implements Traje
 	 * * * * * * * * * * * * * * * * * * * * ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * >>
 	 * HERE FOLLOWS THE QUALITY ASSESMENT:    * * * * * * * * * * * * * * * * * * * * * * * * * * * * * >>
 	 * ** * * * * * * * * * * * * * * * * * * *.
-	 *
-	 * @param candidate the candidate
-	 * @param random the random
 	 */
+
+	/**
+	 * Compute quality.
+	 *
+	 * @param candidates the best candidates
+	 * @param random the random
+	 * @param trajectory the trajectory
+	 * @return the list
+	 */
+	public void computeQuality(List<Subtrajectory> candidates, Random random, MAT<MO> trajectory) {
+		/** STEP 2.3, for this trajectory movelets: 
+		 * It transforms the training and test sets of trajectories using the movelets */
+		for (Subtrajectory candidate : candidates) {
+			// It initializes the set of distances of all movelets to null
+			candidate.setDistances(null);
+			candidate.setQuality(null);
+			// In this step the set of distances is filled by this method
+			computeDistances(candidate, this.train);
+
+			/* STEP 2.1.6: QUALIFY BEST HALF CANDIDATES 
+			 * * * * * * * * * * * * * * * * * * * * * * * * */
+			assesQuality(candidate, random); //TODO change?
+		}
+	}
 	
 	/**
-	 * @param x
+	 * @param candidate
 	 * @param random
 	 * @return
 	 */
 	public void assesQuality(Subtrajectory candidate, Random random) {
 		qualityMeasure.assesQuality(candidate, random);
-//		assesQuality(candidate);
 	}
 	
 	/**
@@ -675,12 +664,11 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> implements Traje
 //	}
 	
 	/**
- * Compute distances.
- *
- * @param candidate the candidate
- * @param trajectories the trajectories
- */
-// TODO: esse método é um problema, tem que ver como fazer isso e para que serve.
+	 * Compute distances.
+	 *
+	 * @param candidate the candidate
+	 * @param trajectories the trajectories
+	 */
 	public void computeDistances(Subtrajectory candidate, List<MAT<MO>> trajectories) {
 		/* This pairs will store the subtrajectory of the best alignment 
 		 * of the candidate into each trajectory and the distance 
