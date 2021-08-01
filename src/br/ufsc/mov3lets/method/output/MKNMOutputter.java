@@ -93,7 +93,7 @@ public class MKNMOutputter<MO> extends CSVOutputter<MO> {
 	 * @param delayOutput
 	 */
 	@Override
-	public void write(String filename, List<MAT<MO>> trajectories, List<Subtrajectory> movelets, 
+	public synchronized void write(String filename, List<MAT<MO>> trajectories, List<Subtrajectory> movelets, 
 			boolean delayOutput, Object... params) {
 		List<Map<String, Double>> attributeToTrajectories = 
 				"train".equals(filename)? attributesToTrain : attributesToTest;

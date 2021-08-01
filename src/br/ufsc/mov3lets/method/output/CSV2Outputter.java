@@ -17,11 +17,9 @@ import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.util.Pair;
 
-import br.ufsc.mov3lets.method.distancemeasure.DistanceMeasure;
 import br.ufsc.mov3lets.method.structures.descriptor.Descriptor;
 import br.ufsc.mov3lets.model.MAT;
 import br.ufsc.mov3lets.model.Subtrajectory;
-import br.ufsc.mov3lets.utils.Mov3letsUtils;
 
 /**
  * The Class CSVOutputter.
@@ -29,20 +27,15 @@ import br.ufsc.mov3lets.utils.Mov3letsUtils;
  * @author tarlis
  * @param <MO> the generic type
  */
-public class CSVOutputter<MO> extends OutputterAdapter<MO, List<Subtrajectory>> {
+public class CSV2Outputter<MO> extends OutputterAdapter<MO, List<Subtrajectory>> {
 
 	/** The medium. */
 	protected String medium = "none"; // Other values minmax, sd, interquartil
 	
 	/** The output. */
-	protected String output = "discrete"; // Other values: numeric
+	protected String output = "numeric"; 
 	
-	/** The attributes to train. */
-	protected List<Map<String, Double>> attributesToTrain = new ArrayList<Map<String,Double>>();
-	
-	/** The attributes to test. */
-	protected List<Map<String, Double>> attributesToTest = new ArrayList<Map<String,Double>>();
-//	protected List<Map<String, Double>> features = new ArrayList<Map<String,Double>>(); // TODO Necessary?
+	protected List<String> lines = new ArrayList<String>();
 	
 	/**
 	 * Instantiates a new CSV outputter.
@@ -51,9 +44,8 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO, List<Subtrajectory>> 
 	 * @param descriptor the descriptor
 	 * @param subfolderClasses the subfolder classes
 	 */
-	public CSVOutputter(String filePath, String movingObjectName, Descriptor descriptor, boolean subfolderClasses) {
+	public CSV2Outputter(String filePath, String movingObjectName, Descriptor descriptor, boolean subfolderClasses) {
 		super(filePath, movingObjectName, descriptor, subfolderClasses);
-		init();
 	}
 	
 	/**
@@ -61,9 +53,8 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO, List<Subtrajectory>> 
 	 *
 	 * @param descriptor the descriptor
 	 */
-	public CSVOutputter(Descriptor descriptor) {
+	public CSV2Outputter(Descriptor descriptor) {
 		super(descriptor);
-		init();
 	}
 
 	/**
@@ -72,14 +63,8 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO, List<Subtrajectory>> 
 	 * @param resultDirPath the result dir path
 	 * @param descriptor the descriptor
 	 */
-	public CSVOutputter(String resultDirPath, String movingObjectName, Descriptor descriptor) {
+	public CSV2Outputter(String resultDirPath, String movingObjectName, Descriptor descriptor) {
 		super(resultDirPath, movingObjectName, descriptor, true);
-		init();
-	}
-	
-	public void init() {
-		medium = getDescriptor().hasParam("medium")? getDescriptor().getParamAsText("medium") : medium;
-		output = getDescriptor().hasParam("output")? getDescriptor().getParamAsText("output") : output;
 	}
 
 	/**
@@ -94,69 +79,73 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO, List<Subtrajectory>> 
 	@Override
 	public synchronized void write(String filename, List<MAT<MO>> trajectories, List<Subtrajectory> movelets, 
 			boolean delayOutput, Object... params) {
-		List<Map<String, Double>> attributeToTrajectories = 
-				"train".equals(filename)? attributesToTrain : attributesToTest;
+		List<Map<String, Double>> attributeToTrajectories =  new ArrayList<Map<String,Double>>();
+
+		attributesToTrajectories(trajectories, movelets, attributeToTrajectories);
 		
-		if (delayOutput) {
-			attributesToTrajectories(trajectories, movelets, attributeToTrajectories);
+		decreaseDelayCount(filename);
+		boolean finish = false;
+		if (!(delayCount > 0))
+			finish = true;
+		
+		if (attributeToTrajectories.isEmpty()) return;
+		
+		String header = "";
+		if (!lines.isEmpty()) {
+			header = lines.get(0);
+		} else
+			lines.add(header);
 			
-			decreaseDelayCount(filename);
-			if (delayCount > 0)
-				return;
+//		if (!append) { //TODO incorreto, necessário adicionar as colunas (movelets) com exceção da classe
+		header += (!attributeToTrajectories.get(0).keySet().isEmpty()) ?
+				attributeToTrajectories.get(0).keySet().toString().replaceAll("[\\[|\\]|\\s]", "") + "," : ""; 
+		
+		if (finish)
+			header += "class";
+		header += System.getProperty("line.separator");
+		lines.set(0, header);
+		
+		for (int i = 0; i < trajectories.size(); i++) {
+			Map<String,Double> attributes = attributeToTrajectories.get(i);
+			String line = "";
+			if (lines.size() > i+1) {
+				line = lines.get(i+1);
+			} else 
+				lines.add(line);
+			
+			line += (!attributes.values().isEmpty()) ?
+					attributes.values().toString().replaceAll("[\\[|\\]|\\s]", "") + "," : "";
+			
+			if (finish)
+				line += "\"" + trajectories.get(i).getMovingObject() + "\"";
+			line += System.getProperty("line.separator");
+			
+			lines.set(i+1, line);
 		}
 		
-//		if (movelets.isEmpty()) {
-//			Mov3letsUtils.traceW("Empty movelets set [NOT OUTPUTTED]");
-		if (attributeToTrajectories.isEmpty()) {
-			Mov3letsUtils.traceW("Empty movelets set for class "+getMovingObject()+" [NOT OUTPUTTED]");
-			return;
-		}
-		
-		BufferedWriter writer;
-
-		try {
-			File file = getFile(getMovingObject(), filename + ".csv");
-			boolean append = !this.subfolderClasses && file.exists() // Append if it is not class separated
-					|| !delayOutput;  // OR is not delayed
-			file.getParentFile().mkdirs();
-			writer = new BufferedWriter(new FileWriter(file, append));
-
-			// TODO Features?
-//			String header = (!trajectories.get(0).getFeatures().keySet().isEmpty()) ? 
-//					trajectories.get(0).getFeatures().keySet().toString().replaceAll("[\\[|\\]|\\s]", "") + "," : "";
-				
-//			if (!append) { //TODO incorreto, necessário adicionar as colunas (movelets) com exceção da classe
-			String header = "";
-			header += (!attributeToTrajectories.get(0).keySet().isEmpty()) ?
-					attributeToTrajectories.get(0).keySet().toString().replaceAll("[\\[|\\]|\\s]", "") + "," : ""; 
-			
-			header += "class" + System.getProperty("line.separator");
-			
-			writer.write(header);
-			
-			for (int i = 0; i < trajectories.size(); i++) {
-				Map<String,Double> attributes = attributeToTrajectories.get(i);
-				String line = "";
-				// TODO Features?
-//				String line = (!trajectory.getFeatures().values().isEmpty()) ?
-//								trajectory.getFeatures().values().toString().replaceAll("[\\[|\\]|\\s]", "") + "," : "";
-				
-				line += (!attributes.values().isEmpty()) ?
-						attributes.values().toString().replaceAll("[\\[|\\]|\\s]", "") + "," : "";
-				
-				line += "\"" + trajectories.get(i).getMovingObject() + "\""+ System.getProperty("line.separator");
-				
-				writer.write(line);
+		if (finish) {
+			BufferedWriter writer;
+	
+			try {
+				File file = getFile(getMovingObject(), filename + ".csv");
+	//			boolean append = true; //!this.subfolderClasses && file.exists() // Append if it is not class separated
+	////							 || !delayOutput;  // OR is not delayed
+				file.getParentFile().mkdirs();
+				writer = new BufferedWriter(new FileWriter(file, true));
+	
+				for (String line : lines) {
+					writer.write(line);
+				}
+	
+				writer.close();
+	
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-
-			writer.close();
-			attributeToTrajectories.clear();
-
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
+		attributeToTrajectories.clear();
 	}
-
+	
 	/**
 	 * Attributes to trajectories.
 	 *
@@ -181,13 +170,13 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO, List<Subtrajectory>> 
 	}
 
 	/**
-	 * Attribute to trajectories Discrete.
+	 * Attribute to trajectories numeric.
 	 *
 	 * @param trajectories the trajectories
 	 * @param movelet the movelet
 	 * @param attributeToTrajectories the attribute to trajectories
 	 */
-	protected void attributeToTrajectoriesDiscrete(List<MAT<MO>> trajectories, Subtrajectory movelet, List<Map<String, Double>> attributeToTrajectories) {
+	protected void attributeToTrajectoriesNumeric(List<MAT<MO>> trajectories, Subtrajectory movelet, List<Map<String, Double>> attributeToTrajectories) {
 		String attributeName =  "sh_TID" + movelet.getTrajectory().getTid() + 
 								"_START" + movelet.getStart() + 
 								"_SIZE" + movelet.getSize() + 
@@ -215,13 +204,13 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO, List<Subtrajectory>> 
 	}
 
 	/**
-	 * Attribute to trajectories Numeric.
+	 * Attribute to trajectories discrete.
 	 *
 	 * @param trajectories the trajectories
 	 * @param movelet the movelet
 	 * @param attributeToTrajectories the attribute to trajectories
 	 */
-	protected void attributeToTrajectoriesNumeric(List<MAT<MO>> trajectories, Subtrajectory movelet, List<Map<String, Double>> attributeToTrajectories) {
+	protected void attributeToTrajectoriesDiscrete(List<MAT<MO>> trajectories, Subtrajectory movelet, List<Map<String, Double>> attributeToTrajectories) {
 		String attributeName =  "sh_TID" + movelet.getTrajectory().getTid() + 
 								"_START" + movelet.getStart() + 
 								"_SIZE" + movelet.getSize() + 
@@ -237,7 +226,7 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO, List<Subtrajectory>> 
 		for (int i = 0; i < trajectories.size(); i++) {
 			
 			if (isCovered(rm.getColumn(i), splitpoints)){
-				distance = normalizeCovered(rm.getColumn(i), splitpoints, maxDistances);
+				distance = normalizeCovered(rm.getColumn(i), splitpoints);
 			} else {
 				distance = normalizeNonCovered(rm.getColumn(i), splitpoints, maxDistances);
 			}
@@ -323,15 +312,6 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO, List<Subtrajectory>> 
 		
 		return true;
 	}
-
-	protected double divOrDefault(double a, double b) {
-//		double value = (a == 0.0 && b == 0.0)? 0.0 : a / b;
-//		double value = 1.0 - (b / a); //a / b;
-		double value = a / b;
-//		double value = a / def;
-//		return (Double.isNaN(value) || Double.isInfinite(value))? 1.0 : value;
-		return Double.isNaN(value)? 0.0 : (Double.isInfinite(value)? 1.0 : value);
-	}
 	
 	/**
 	 * Normalize covered.
@@ -340,13 +320,12 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO, List<Subtrajectory>> 
 	 * @param limits the limits
 	 * @return the double
 	 */
-	protected double normalizeCovered(double[] point, double[] limits, double[] maxDistances) {
+	protected double normalizeCovered(double[] point, double[] limits) {
 		int dimensions = limits.length;
 		double sumOfProportions = 0;
 		
 		for (int i = 0; i < dimensions; i++) {
-//			sumOfProportions += point[i] / limits[i];
-			sumOfProportions += divOrDefault( point[i] , limits[i] );
+			sumOfProportions += point[i] / limits[i];
 		}
 		
 		return sumOfProportions / dimensions;
@@ -366,20 +345,17 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO, List<Subtrajectory>> 
 		
 		if (maxDistances == null){
 			maxDistances = new double[point.length];
-			Arrays.fill(maxDistances, DistanceMeasure.DEFAULT_MAX_VALUE);
+			Arrays.fill(maxDistances, Double.MAX_VALUE);
 		}
 		
 		for (int i = 0; i < dimensions; i++) {
 			if (point[i] >= maxDistances[i]){
 				point[i] = maxDistances[i];				
 			}
-//			sumOfProportions += point[i] / limits[i];
-			sumOfProportions += divOrDefault( point[i] , limits[i] );
+			sumOfProportions += point[i] / limits[i];
 		}
 		
-//		return 1.0 + sumOfProportions / dimensions;
-		sumOfProportions = sumOfProportions / dimensions;
-		return sumOfProportions * sumOfProportions;
+		return 1.0 + sumOfProportions / dimensions;
 	}
 
 	/**

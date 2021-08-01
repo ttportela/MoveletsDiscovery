@@ -85,7 +85,7 @@ public class MSVMOutputter<MO> extends CSVOutputter<MO> {
 	 * @param delayOutput
 	 */
 	@Override
-	public void write(String filename, List<MAT<MO>> trajectories, List<Subtrajectory> movelets, 
+	public synchronized void write(String filename, List<MAT<MO>> trajectories, List<Subtrajectory> movelets, 
 			boolean delayOutput, Object... params) {
 		List<Map<String, Double>> attributeToTrajectories = 
 				"train".equals(filename)? attributesToTrain : attributesToTest;
@@ -184,7 +184,8 @@ public class MSVMOutputter<MO> extends CSVOutputter<MO> {
 	 * @param movelet the movelet
 	 * @param attributeToTrajectories the attribute to trajectories
 	 */
-	protected synchronized  void attributeToTrajectoriesDiscrete(List<MAT<MO>> trajectories, Subtrajectory movelet, List<Map<String, Double>> attributeToTrajectories) {
+	protected
+	void attributeToTrajectoriesDiscrete(List<MAT<MO>> trajectories, Subtrajectory movelet, List<Map<String, Double>> attributeToTrajectories) {
 //		String attributeName =  "sh_TID" + movelet.getTrajectory().getTid() + 
 //								"_START" + movelet.getStart() + 
 //								"_SIZE" + movelet.getSize() + 

@@ -108,8 +108,7 @@ public class MKNTOutputter<MO> extends CSVOutputter<MO> {
 	 * @param delayOutput
 	 */
 	@Override
-
-	public void write(String filename, List<MAT<MO>> trajectories, List<Subtrajectory> movelets, 
+	public synchronized void write(String filename, List<MAT<MO>> trajectories, List<Subtrajectory> movelets, 
 			boolean delayOutput, Object... params) {
 //		List<Map<String, Double>> attributeToTrajectories = 
 //				"train".equals(filename)? attributesToTrain : attributesToTest;
@@ -319,7 +318,7 @@ public class MKNTOutputter<MO> extends CSVOutputter<MO> {
 //		}
 //	}
 	
-	protected synchronized void attributesToSets(List<MAT<MO>> trajectories, List<Subtrajectory> movelets, List<BitSet> attributeToTrajectories) {
+	protected void attributesToSets(List<MAT<MO>> trajectories, List<Subtrajectory> movelets, List<BitSet> attributeToTrajectories) {
 		// It puts distances as trajectory attributes
 		for (Subtrajectory movelet : movelets) {
 			attributeToSetsDiscrete(trajectories, movelet, attributeToTrajectories);
@@ -333,7 +332,7 @@ public class MKNTOutputter<MO> extends CSVOutputter<MO> {
 	 * @param movelet the movelet
 	 * @param attributeToTrajectories the attribute to trajectories
 	 */
-	protected synchronized  void attributeToSetsDiscrete(List<MAT<MO>> trajectories, Subtrajectory movelet, List<BitSet> attributeToTrajectories) {
+	protected void attributeToSetsDiscrete(List<MAT<MO>> trajectories, Subtrajectory movelet, List<BitSet> attributeToTrajectories) {
 //		String attributeName =  "sh_TID" + movelet.getTrajectory().getTid() + 
 //								"_START" + movelet.getStart() + 
 //								"_SIZE" + movelet.getSize() + 

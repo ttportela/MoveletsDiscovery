@@ -74,7 +74,7 @@ public class CSVIndexOutputter<MO> extends OutputterAdapter<MO,List<IndexPoint>>
 	 * @param delayOutput
 	 */
 	@Override
-	public void write(String filename, List<MAT<MO>> trajectories, List<IndexPoint> data, boolean delayOutput, Object... params) {
+	public synchronized void write(String filename, List<MAT<MO>> trajectories, List<IndexPoint> data, boolean delayOutput, Object... params) {
 		BufferedWriter writer;
 
 		int startId = (int) params[0];

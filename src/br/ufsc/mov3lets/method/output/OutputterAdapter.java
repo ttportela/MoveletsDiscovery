@@ -58,7 +58,7 @@ public abstract class OutputterAdapter<MO, D> {
 	
 	/**
 	 * Write movelets.
-	 * (Overwrite this method)
+	 * (Overwrite this method as synchronized)
 	 *
 	 * @param filename the filename
 	 * @param trajectories the trajectories
