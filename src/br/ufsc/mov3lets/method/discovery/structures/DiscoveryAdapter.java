@@ -29,7 +29,7 @@ import br.ufsc.mov3lets.method.output.OutputterAdapter;
 import br.ufsc.mov3lets.method.structures.descriptor.Descriptor;
 import br.ufsc.mov3lets.model.MAT;
 import br.ufsc.mov3lets.model.Subtrajectory;
-import br.ufsc.mov3lets.utils.ProgressBar;
+import br.ufsc.mov3lets.utils.log.ProgressBar;
 
 /**
  * The Class DiscoveryAdapter.
@@ -73,6 +73,8 @@ public abstract class DiscoveryAdapter<MO> implements Callable<Integer> {
 	/** The max value. */
 	public double MAX_VALUE = DistanceMeasure.DEFAULT_MAX_VALUE;
 	
+	protected Lock lock; 
+	
 	/**
 	 * Instantiates a new discovery adapter.
 	 *
@@ -101,6 +103,10 @@ public abstract class DiscoveryAdapter<MO> implements Callable<Integer> {
 			Descriptor descriptor, List<OutputterAdapter<MO, ?>> outputers) {
 		init(trajectory, trajsFromClass, data, train, test, descriptor);
 		this.outputers = outputers;
+	}
+	
+	public void setLock(Lock lock) {
+		this.lock = lock;
 	}
 	
 	/**

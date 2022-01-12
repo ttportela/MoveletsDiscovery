@@ -1,7 +1,14 @@
-package br.ufsc.mov3lets.utils;
+package br.ufsc.mov3lets.utils.log;
 
-public class SimpleOutput implements ProgressBar {
-	
+import java.nio.CharBuffer;
+
+import org.apache.commons.lang3.StringUtils;
+
+public class ProgressOutput implements ProgressBar {
+    
+    /** The progress. */
+    protected StringBuilder progress;
+    
     /** The prefix. */
     protected String prefix = "";
     
@@ -11,18 +18,26 @@ public class SimpleOutput implements ProgressBar {
     /** The done. */
     protected long done = 0;
     
+    /** The control. */
+    protected char control = '\r';
+    
+    private int size = 300;
+
     /**
      * initialize progress bar properties.
      */
-    public SimpleOutput() {}
+    public ProgressOutput() {
+        init();
+    }
     
     /**
      * Instantiates a new progress bar.
      *
      * @param prefix the prefix
      */
-    public SimpleOutput(String prefix) {
-    	this.prefix = prefix;     
+    public ProgressOutput(String prefix) {
+    	this.prefix = prefix;
+    	init();        
     } 
     
     /**
@@ -31,9 +46,11 @@ public class SimpleOutput implements ProgressBar {
      * @param prefix the prefix
      * @param total the total
      */
-    public SimpleOutput(String prefix, long total) {
+    public ProgressOutput(String prefix, long total) {
     	this.prefix = prefix;
     	this.total = total;
+    	init();
+    	update(0, total, null);
     }    
 
     /**
@@ -41,7 +58,7 @@ public class SimpleOutput implements ProgressBar {
      */
     public void plus() {
     	this.done++;
-    	update(done, this.total, "");
+    	update(done, this.total, null);
     }   
 
     /**
@@ -61,7 +78,8 @@ public class SimpleOutput implements ProgressBar {
 	 */
 	public void plus(long size) {
     	this.done += size;
-    }
+//    	update(this.done, this.total, null);
+	}
 
 	/**
 	 * Plus.
@@ -83,6 +101,7 @@ public class SimpleOutput implements ProgressBar {
     public void update(long done, long total) {
     	this.done = done;
     	this.total = total;
+//    	update(done, total, null);
     }
 
     /**
@@ -93,10 +112,25 @@ public class SimpleOutput implements ProgressBar {
      * @param total an int representing the total work
      * @param message the message
      */
-    public synchronized void update(long done, long total, String message) {
-    	int percent = (int) ((done * 100) / total);
+    public synchronized void update(long done, long total, String message) { // TODO optimize
+        char[] workchars = {'|', '/', '-', '\\'};
+        String format = this.control + "%s: %c [%s%s] %3d%% %s";
+        message = (message != null? ">> "+message : "");
+        if (size - message.length() < 1) size += message.length() - size + 1;
         message = message.trim(); message = message.endsWith(".")? message : message + ".";
-        System.out.println(this.prefix + ": ["+percent+"%] "+message);
+        message += CharBuffer.allocate( size - message.length() ).toString().replace( '\0', ' ' );
+
+        int percent = (int) ((done * 100) / total);
+        int extrachars = (percent / 2) - this.progress.length();
+
+        while (extrachars-- > 0) {
+            progress.append('\u2588');
+        }
+
+        System.out.printf(format, prefix, workchars[(int) (done % workchars.length)], 
+        		progress, StringUtils.repeat(' ', 50 - progress.length()), percent,
+        		message);
+
     }
 
 	/**
@@ -113,7 +147,19 @@ public class SimpleOutput implements ProgressBar {
      *
      * @param inline the new inline
      */
-    public void setInline(boolean inline) {}
+    public void setInline(boolean inline) {
+    	if (inline)
+    		this.control = '\r';
+    	else
+    		this.control = ' ';
+	}
+
+    /**
+     * Inits the.
+     */
+    private void init() {
+        this.progress = new StringBuilder(60);
+    }
     
     /**
      * Sets the prefix.
@@ -136,5 +182,6 @@ public class SimpleOutput implements ProgressBar {
     public void reset(long total) {
 		this.total = total;
 		this.done = 0;
+		init();
 	}
 }

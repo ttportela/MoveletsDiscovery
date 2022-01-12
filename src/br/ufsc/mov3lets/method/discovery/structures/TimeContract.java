@@ -17,6 +17,7 @@
  
 package br.ufsc.mov3lets.method.discovery.structures;
 
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import br.ufsc.mov3lets.utils.Mov3letsUtils;
@@ -100,9 +101,15 @@ public class TimeContract implements Runnable {
     }
     
     private Thread thread;
+	private ExecutorService executor;
     public void start() {
     	this.thread = new Thread(this);
     	this.thread.start();
+	}
+    
+    public void start(ExecutorService executor) {
+    	this.executor = executor;
+    	start();
 	}
     
     public void stop() {
@@ -118,7 +125,11 @@ public class TimeContract implements Runnable {
     		Mov3letsUtils.trace("");
     		Mov3letsUtils.trace("[Warning] Time contract limit timeout.");
     		Mov3letsUtils.getInstance().stopTimer("[3] >> Processing time");
-    		System.exit(0);
+    		Mov3letsUtils.getInstance().ending();
+    		if (executor != null)
+    			executor.shutdownNow();
+    		else
+    			System.exit(0);
         } catch (InterruptedException e) {}
 	}
 	

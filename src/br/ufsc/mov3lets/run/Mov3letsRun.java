@@ -17,7 +17,6 @@
  */
 package br.ufsc.mov3lets.run;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -26,15 +25,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
-import org.apache.commons.io.FilenameUtils;
-
 import br.ufsc.mov3lets.method.Mov3lets;
 import br.ufsc.mov3lets.method.discovery.structures.TimeContract;
-import br.ufsc.mov3lets.method.structures.descriptor.AttributeDescriptor;
-import br.ufsc.mov3lets.method.structures.descriptor.Descriptor;
+import br.ufsc.mov3lets.method.loader.LoaderAdapter;
 import br.ufsc.mov3lets.model.MAT;
 import br.ufsc.mov3lets.utils.Mov3letsUtils;
-import br.ufsc.mov3lets.utils.TableList;
 
 /**
  * The Class Mov3letsRun.
@@ -60,30 +55,36 @@ public class Mov3letsRun {
 		
 		// Starting Date:
 		Mov3letsUtils.trace(new Date().toString());
-		
-		if (!params.containsKey("descfile")) {
-			showUsage(params, "-descfile\tDescription file must be set!");
-			return;
-		}
-		String descFile = params.get("descfile").toString();
-				
+
 		// 1.2 - RUN Configuration
 		Mov3lets<String> mov;
-		try {
-			mov = new Mov3lets<String>(descFile, params);
-		} catch (UnsupportedEncodingException | FileNotFoundException e) {
-			showUsage(params, "-descfile\tDescription file not found: " + e.getMessage());
-//			e.printStackTrace();
-			return;
+		if (!params.containsKey("descfile")) {
+			mov = new Mov3lets<String>(params);
+			
+			System.out.println(Paths.get(LoaderAdapter.getCurPath(mov.getDescriptor()), "train.mat").toString());
+			if (!Paths.get(LoaderAdapter.getCurPath(mov.getDescriptor()), "train.mat").toFile().exists()) {
+				showUsage(params, "-descfile\tDescription file must be set OR must provide .mat files!");
+				return;
+			}
+
+			mov.getDescriptor().setParam("result_dir_path", mov.configRespath(mov.getDescriptor()));
+		} else {
+//			String descFile = params.get("descfile").toString();
+			try {
+				mov = new Mov3lets<String>(params.get("descfile").toString(), params);
+			} catch (UnsupportedEncodingException | FileNotFoundException e) {
+				showUsage(params, "-descfile\tDescription file not found: " + e.getMessage());
+	//			e.printStackTrace();
+				return;
+			}
+			
+//			mov.getDescriptor().setParams(params);
+			mov.getDescriptor().setParam("result_dir_path", mov.configRespath(mov.getDescriptor()));
 		}
 
-//		mov.getDescriptor().setParams(params);
-		mov.getDescriptor().setParam("result_dir_path", configRespath(descFile, mov.getDescriptor()));
 
 		// Set Result Dir:
 		mov.setResultDirPath(mov.getDescriptor().getParamAsText("result_dir_path"));
-		// Trace configurations:
-		Mov3letsUtils.trace(showConfiguration(mov.getDescriptor()));
 		
 		// STEP 1.3 - Input:
 		Mov3letsUtils.getInstance().startTimer("[1] >> Load Input");
@@ -110,6 +111,9 @@ public class Mov3letsRun {
 			error(e);
 		}
 		
+		// Trace configurations:
+		Mov3letsUtils.trace(mov.showConfiguration(mov.getDescriptor()));
+		
 		if (mov.getTrain().isEmpty()) { 
 			showUsage(mov.getDescriptor().getParams(), "-curpath\tEmpty training set!");
 			return;
@@ -125,20 +129,26 @@ public class Mov3letsRun {
 		}
 
 		Mov3letsUtils.trace("");
-		Mov3letsUtils.trace(printAttributes(mov.getDescriptor()));
+		Mov3letsUtils.trace(mov.printAttributes(mov.getDescriptor()));
 
 		Mov3letsUtils.trace("");
 		Mov3letsUtils.printMemory();
 		
 		// STEP 2 - RUN:
-		Mov3letsUtils.getInstance().startTimer("[3] >> Processing time");
 		try {
-			mov.mov3lets();
+			if (params.containsKey("data_resample"))
+				// If re-sampling data
+				mov.sampler_mov3lets((int) params.get("data_resample"));
+			else {
+				// One hold-out run:
+				Mov3letsUtils.getInstance().startTimer("[3] >> Processing time");
+				mov.mov3lets();
+				Mov3letsUtils.trace("");
+				Mov3letsUtils.getInstance().stopTimer("[3] >> Processing time");
+			}
 		} catch (Exception e) {
 			error(e);
 		}
-		Mov3letsUtils.trace("");
-		Mov3letsUtils.getInstance().stopTimer("[3] >> Processing time");
 //		System.out.println(inputFile);
 		
 		// End Date:
@@ -154,7 +164,7 @@ public class Mov3letsRun {
 	 */
 	public static void error(Exception e) {
 		// Empty if can't
-		Mov3letsUtils.traceE("HIPERMovelets encoutered the following error.", e);
+		Mov3letsUtils.traceE("Movelets encoutered the following error.", e);
 		Mov3letsUtils.getInstance().stopTimer("[3] >> Processing time");
 		e.printStackTrace();
 		System.exit(1);
@@ -168,146 +178,8 @@ public class Mov3letsRun {
 	 */
 	public static void showUsage(HashMap<String, Object> params, String errorMessage) {
 		Mov3letsUtils.trace(errorMessage + " [ERROR]");
-		Mov3letsUtils.trace("Usage: java -jar HIPERMovelets.jar [args...]");
+		Mov3letsUtils.trace("Usage: java -jar Movelets.jar [args...]");
 //		Mov3letsUtils.trace(printParams(params, null));
-	}
-
-	/**
-	 * Prints the params.
-	 *
-	 * @param params the params
-	 * @param descriptor the descriptor
-	 * @return the string
-	 */
-	public static String printParams(HashMap<String, Object> params, Descriptor descriptor) {
-		String str = "Configurations:" + System.getProperty("line.separator");
-		
-//		String[] columns = {"Option", "Description", "Value", "Help"};
-		Object[][] data = {
-//				{"-curpath", 			"Datasets directory", 		params.get("curpath"), 						""},
-//				{"-respath", 			"Results directory", 		(params.containsKey("result_dir_path")? params.get("result_dir_path") : params.get("respath")), 				""},
-//				{"-descfile", 			"Description file", 		params.get("descfile"), 					""},
-				{"-nt", 				"Allowed Threads", 			params.get("nthreads"), 					""},
-				{"-ms", 				"Min size", 				params.get("min_size"), 					"Any positive | -1 | Log: -2"},
-				{"-Ms", 				"Max size", 				params.get("max_size"), 					"Any | All sizes: -1 | Log: -3 or -4"},
-//				{"", 					"", 						"",						 					"All sizes: -1,"},
-//				{"", 					"", 						"", 										"Log: -3"},
-				{"-mnf", 				"Max. Dimensions",			params.get("max_number_of_features"), 		"Any | Explore dim.: -1 | Log: -2 | Other: -3"},
-//				{"", 					"", 						"",						 					"Explore dim.: -1,"},
-//				{"", 					"", 						"", 										"Log: -3"},
-//				{"-ed", 				"Explore dimensions", 		params.get("explore_dimensions"), 			"Same as -mnf -1"},
-				{"-samples", 			"Samples", 					params.get("samples"), 						""},
-				{"-sampleSize", 		"Sample Size", 				params.get("sample_size"), 					""},
-				{"-q", 					"Quality Measure", 			params.get("str_quality_measure"), 			""},
-				{"-medium", 			"Medium", 					params.get("medium"), 						""},
-				{"-mpt", 				"Movelets Per Traj.", 		params.get("movelets_per_trajectory"), 		"Any | Auto: -1"},
-				{"-output", 			"Output", 					params.get("output")+
-																	" ("+params.get("outputters")+")", 			""},
-				{"", 					"", 						"", 										""},
-				{"-version", 			"Version Impl.", 			params.get("version"), 						"master, super, hiper[-pivots], random, ultra"},
-				{"", 					"-- Last Prunning",			params.get("last_prunning"), 				""},
-			};
-		
-		str += "   -curpath		Datasets directory:	" + params.get("curpath") + System.getProperty("line.separator");
-		str += "   -respath		Results directory: 	" + (params.containsKey("result_dir_path")? params.get("result_dir_path") : params.get("respath")) + System.getProperty("line.separator");
-		str += "   -descfile 		Description file : 	" + params.get("descfile") + System.getProperty("line.separator");
-//		str += "   -nt 						Allowed Threads: 				" + params.get("nthreads") + System.getProperty("line.separator");
-//		str += "   -ms						Min size: 						" + params.get("min_size") + System.getProperty("line.separator");
-//		str += "   -Ms						Max size 						" + params.get("max_size")  + System.getProperty("line.separator")
-//		    	+ "							[(Any positive) OR (all sizes, -1) OR (log, -3)]" + System.getProperty("line.separator");
-//		str += "   -mnf 					Max # of Features: 				" + params.get("max_number_of_features")  + System.getProperty("line.separator")
-//				+ "							[(Any positive) OR (explore dimensions, -1) OR (log, -2)]" + System.getProperty("line.separator");
-//		str += "   -ed 					Explore dimensions: 			" + params.get("explore_dimensions") + System.getProperty("line.separator")
-//				+ " 							[Same as -mnf -1]" + System.getProperty("line.separator");
-//		str += "   -samples 				Samples: 					" + params.get("samples") + System.getProperty("line.separator");
-//		str += "   -sampleSize  			Sample Size: 						" + params.get("sample_size") + System.getProperty("line.separator");
-//		str += "   -q						Quality Measure: 				" + params.get("str_quality_measure") + System.getProperty("line.separator");
-//		str += "   -medium 				Medium:						" + params.get("medium") + System.getProperty("line.separator");
-//		str += "   -mpt 					Movelets Per Traj.: 				" + params.get("movelets_per_trajectory") + System.getProperty("line.separator");
-//		str += "   -output 				Output:						" + params.get("output") + System.getProperty("line.separator");
-//		str += "   -version 				Mov. Discovery Impl.:			" + params.get("version") + System.getProperty("line.separator");
-		
-		TableList at = new TableList("Option", "Description", "Value", "Help");
-//		at.addRule();
-//		at.addRow("Option", "Description", "Value", "Help");
-//		at.addRule();
-		for (Object[] row : data) {
-			at.addRow(row);
-		}
-//		at.addRule();
-		
-		if (params.containsKey("tau"))
-			if (params.get("relative_tau").equals(true)) 
-				at.addRow(new Object[] {"", "-- TAU (relative)", params.get("tau"), ""});
-			else
-				at.addRow(new Object[] {"", "-- TAU (absolute)", params.get("tau"), ""});
-
-		if (params.containsKey("bucket_slice"))
-			at.addRow(new Object[] {"", "-- % Limit", params.get("bucket_slice"), ""});
-
-		if (params.containsKey("random_seed"))
-			at.addRow(new Object[] {"", "-- Random Seed", params.get("random_seed"), ""});
-		
-		if (params.containsKey("feature_extraction_strategy"))
-			at.addRow(new Object[] {"", "-- Feature Extraction", params.get("feature_extraction_strategy"), ""});
-		
-		if (params.containsKey("filter_strategy"))
-			at.addRow(new Object[] {"", "-- Feature Selection", params.get("filter_strategy"), ""});
-		
-		if (params.containsKey("time_contract"))
-			at.addRow(new Object[] {"-TC", "Time Contract", params.get("time_contract"), "Use: w(eeks), d, h, m, s(econds)"});
-		
-//		at.addRow("Optimizations:", "", "", "");
-//		at.addRow("", "Interning", 	(params.containsKey("interning")? (boolean)params.get("interning") : false), 	"");
-//		at.addRow("", "Index", 		(params.containsKey("index")? 	  (boolean)params.get("index") 	   : false), 	"");
-//		at.addRule();
-//		
-//		if (descriptor != null) {
-//			at.addRow("Attributes:", "", "Type:", "Comparrator:");
-//			int i = 1;
-//			for (AttributeDescriptor attr : descriptor.getAttributes())
-//				at.addRow(i++, attr.getOrder() + " - " + attr.getText(), attr.getType(), attr.getComparator().toString());
-//		}
-		
-		str += at.print();
-		
-//		str += System.getProperty("line.separator") + "    Optimizations: ";
-//		str += System.getProperty("line.separator")
-//				+ "\t[Index: " + (params.containsKey("index")? (boolean)params.get("index") : false) + "], "
-//				+ "[Interning: " + (params.containsKey("interning")? (boolean)params.get("interning") : false) + "]"
-//				+ System.getProperty("line.separator");
-		
-		return str;
-	}
-	
-	public static String printAttributes(Descriptor descriptor) {
-		String str = "Attributes and Features:" + System.getProperty("line.separator");
-		
-		TableList at = new TableList("#", "Attribute", "Type", "Comparator");
-//		at.addRule();
-		
-		if (descriptor != null) {
-			if (descriptor.getFeatures() == null || descriptor.getFeatures().isEmpty()) {
-				int i = 1;
-				for (AttributeDescriptor attr : descriptor.getAttributes())
-					at.addRow(i++, attr.getOrder() + " - " + attr.getText(), attr.getType(), attr.getComparator().toString());
-			} else {
-				for (int i = 0; i < descriptor.getAttributes().size(); i++) {
-					AttributeDescriptor attr = descriptor.getAttributes().get(i);
-					
-					if (i == (descriptor.getAttributes().size() - descriptor.getFeatures().size())) {
-						at.addRule();
-						at.addRow("Features:", "", "", "");
-					}
-					
-					at.addRow(i+1, attr.getOrder() + " - " + attr.getText(), attr.getType(), attr.getComparator().toString());
-				}
-			}
-		}
-		
-		str += at.print();
-		
-		return str;
 	}
 
 	/**
@@ -334,7 +206,7 @@ public class Mov3letsRun {
 		params.put("samples",					 1);			
 		params.put("sample_size",				 0.5);			
 		params.put("medium",					 "none"); // Other values minmax | sd | interquartil
-		params.put("output",					 "numeric"); // Other values: numeric | discrete	
+		params.put("output",					 "discrete"); // Other values: numeric | discrete	
 		params.put("outputters",				 "CSV,JSON"); // OUTPUTTERs Styles							
 		params.put("delay_output",				 true);			
 		params.put("pivots",					 false);						
@@ -553,6 +425,11 @@ public class Mov3letsRun {
 			case "-time_contract":
 				params.put("time_contract", new TimeContract(value));	
 				break;
+			case "-fold":
+			case "-resample":
+			case "-data_resample":
+				params.put("data_resample", Integer.valueOf(value));	
+				break;
 			default:
 				System.err.println("Parâmetro " + key + " inválido.");
 				System.exit(1);
@@ -563,101 +440,6 @@ public class Mov3letsRun {
 			params.put("explore_dimensions", true);
 
 		return params;
-	}
-	
-	
-	/**
-	 * Show configuration.
-	 *
-	 * @param descriptor the descriptor
-	 * @return the string
-	 */
-	public static String showConfiguration(Descriptor descriptor) {
-
-		String str = new String();
-		
-		if(descriptor.getFlag("pivots"))
-			str += "Starting Movelets +Pivots extractor (10%) " + System.getProperty("line.separator");
-		else if(descriptor.getParamAsInt("max_size")==-3)
-			str += "Starting Movelets +Log extractor " + System.getProperty("line.separator");
-		else
-			str += "Starting Movelets extractor " + System.getProperty("line.separator");
-		
-		if (descriptor.hasParam("outside_pivots"))
-			str += "Getting pivots from outside file:" + descriptor.getParam("outside_pivots") + System.getProperty("line.separator");
-		
-		str += printParams(descriptor.getParams(), descriptor);
-		
-//		if(descriptor.getFlag("last_prunning"))
-//			str += "\tWITH Last Prunning" + System.getProperty("line.separator");
-//		else
-//			str += "\tWITHOUT Last Prunning" + System.getProperty("line.separator");
-//		
-//		str += "\tAttributes:"+ System.getProperty("line.separator") 
-//			+ descriptor.toString() + System.getProperty("line.separator");
-		
-		return str;
-
-	}
-	
-	/**
-	 * Config respath.
-	 *
-	 * @param descFile the desc file
-	 * @param descriptor the descriptor
-	 * @return the string
-	 */
-	public static String configRespath(String descFile, Descriptor descriptor) {
-		
-		String resultDirPath = "MASTERMovelets" + System.getProperty("file.separator");
-		
-		if (descriptor.getFlag("supervised") || descriptor.getParamAsText("version").equals("super")) {
-			resultDirPath += "Super_";
-		} else if (descriptor.getParamAsText("version").equals("hiper") || descriptor.getParamAsText("version").equals("hpivots")) {
-			resultDirPath += "Hiper_";
-		} else if (descriptor.getFlag("pivots") || descriptor.getParamAsText("version").equals("pivots")) {			
-			resultDirPath += "Pivots_";		
-		} else if (descriptor.getParamAsText("version").equals("1.0")) {
-			resultDirPath += "V1_";
-		} else if (descriptor.getParamAsText("version").equals("3.0")) {
-			resultDirPath += "V3_";
-		} else if (descriptor.getParamAsText("version").equals("4.0")) {
-			resultDirPath += "V4_";
-		}
-		
-//		if (PIVOTS_FILE != null) {
-//			resultDirPath += "_PivotsBOW";
-//			outside_pivots = true;
-//		}
-//		else {
-			if(descriptor.getFlag("pivots"))
-//				resultDirPath += "Pivots_"
-				resultDirPath +=  "Porcentage_" + descriptor.getParamAsText("pivot_porcentage")
-							  + "_";
-			else {
-				if(descriptor.getParamAsInt("max_size") == -3) {
-					resultDirPath += "Log_";
-				} // else resultDirPath = + "_MM"; // No need
-			}
-//		}
-
-		String DESCRIPTION_FILE_NAME = FilenameUtils.removeExtension(
-				new File(descFile).getName());
-		
-		DESCRIPTION_FILE_NAME += "_" + descriptor.getParamAsText("str_quality_measure"); 
-				
-		if (descriptor.getFlag("explore_dimensions"))
-			DESCRIPTION_FILE_NAME += "_ED"; 
-		
-		if (descriptor.getParamAsInt("max_number_of_features") > 0)
-			DESCRIPTION_FILE_NAME += "_MNF-" + descriptor.getParamAsInt("max_number_of_features"); 
-		
-		if(descriptor.getFlag("last_prunning"))
-			DESCRIPTION_FILE_NAME += "_WithLastPrunning";
-//		else
-//			DESCRIPTION_FILE_NAME += "_Witout-Last-Prunning";
-
-		return Paths.get(descriptor.getParamAsText("respath"), resultDirPath + DESCRIPTION_FILE_NAME).toString();
 	}
 
 }

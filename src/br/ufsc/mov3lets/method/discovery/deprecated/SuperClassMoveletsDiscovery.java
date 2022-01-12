@@ -15,12 +15,13 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package br.ufsc.mov3lets.method.discovery;
+package br.ufsc.mov3lets.method.discovery.deprecated;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import br.ufsc.mov3lets.method.discovery.BaseMoveletsDiscovery;
 import br.ufsc.mov3lets.method.discovery.structures.ClassDiscovery;
 import br.ufsc.mov3lets.method.qualitymeasure.ProportionQualityMeasure;
 import br.ufsc.mov3lets.method.qualitymeasure.QualityMeasure;
@@ -34,7 +35,7 @@ import br.ufsc.mov3lets.model.Subtrajectory;
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  * @param <MO> the generic type
  */
-public class SuperClassMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> implements ClassDiscovery {
+public class SuperClassMoveletsDiscovery<MO> extends BaseMoveletsDiscovery<MO> implements ClassDiscovery {
 	
 	/**
 	 * Instantiates a new super movelets discovery.

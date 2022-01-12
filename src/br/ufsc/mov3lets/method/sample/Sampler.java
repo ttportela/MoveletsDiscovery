@@ -1,35 +1,76 @@
+/**
+ * 
+ */
 package br.ufsc.mov3lets.method.sample;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import br.ufsc.mov3lets.model.MAT;
 
+/**
+ * Stratified Random Sampler.
+ * 
+ * Adapted from the UEA Time Series Machine Learning (TSML) toolbox.
+ * 
+ * @author tarlis
+ *
+ */
 public abstract class Sampler<MO> {
 	
-	protected List<MO> classes;
-	protected List<List<MAT<MO>>> classBuckets;
+	protected List<MAT<MO>> all;
 
-	protected Random random;
-	protected int count;
-	protected int totalCount;
+	protected TreeMap<MO, Integer> trainDistribution;
+	protected Map<MO, List<MAT<MO>>> classBins;
 	
-	public Sampler(List<MAT<MO>> data) {
-		this.classes = data.stream().map(e -> (MO) e.getMovingObject()).distinct().collect(Collectors.toList());
+	protected int sample = 0;
+	
+//	protected Integer trainSize, testSize;
+	
+	public Sampler(List<MAT<MO>> train, List<MAT<MO>> test) {
+//		trainSize = train.size();
+//		testSize  = test.size();
+		this.all = Stream.concat(train.stream(), test.stream()).collect(Collectors.toList());
 		
-		this.classBuckets = new ArrayList<List<MAT<MO>>>();
-		for (MO mo : this.classes) {
-			this.classBuckets.add(
-					data.stream().filter(e-> mo.equals(e.getMovingObject())).collect(Collectors.toList())
-			);
-		}
+		trainDistribution = createClassDistribution(train);
+		classBins = createClassBinMap(all);
+	}
+
+	public TreeMap<MO, Integer> createClassDistribution(List<MAT<MO>> trajectories) {
+		TreeMap<MO, Integer> classDistribution = new TreeMap<MO, Integer>();
+        MO classValue;
+        for (MAT<MO> T : trajectories) {
+            classValue = T.getMovingObject();
+            Integer val = classDistribution.getOrDefault(T.getMovingObject(), 0) + 1;
+            classDistribution.put(classValue, val);
+        }
+        return classDistribution;
 	}
 	
-	public abstract MAT<MO> next();
+	public Map<MO, List<MAT<MO>>> createClassBinMap(List<MAT<MO>> trajectories) {
+		Map<MO, List<MAT<MO>>> instancesMap = new TreeMap<>();
+        
+		MO classValue;
+        for (MAT<MO> T : trajectories) {
+            classValue = T.getMovingObject();
 
-	public boolean hasNext() {
-        return count < totalCount;
-    }
+            List<MAT<MO>> val = instancesMap.get(classValue);
+            if(val == null)
+                val = new ArrayList<MAT<MO>>();
+            val.add(T);
+            instancesMap.put(classValue, val);
+        }
+        
+        return instancesMap;
+	}
+	
+	public abstract List<MAT<MO>>[] nextSample();
+	
+	public int getSample() {
+		return sample;
+	}
 }

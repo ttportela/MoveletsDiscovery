@@ -7,7 +7,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -39,14 +38,16 @@ public class CZIPLoader<T extends MAT<?>> extends CSVLoader<T> {
 	 * @throws IOException
 	 */
 	@Override
-	public List<T> load(String file, Descriptor descriptor) throws IOException {
+	public List<T> loadTrajectories(String file, Descriptor descriptor) throws IOException {
 
 		List<T> list = new ArrayList<>();
 		
-		String curpath = descriptor.hasParam("curpath")? descriptor.getParamAsText("curpath") : "./";
-		unzip(Paths.get(curpath, file+".zip").toString(), Paths.get(curpath, file).toString());
+//		String curpath = descriptor.hasParam("curpath")? descriptor.getParamAsText("curpath") : "./";
+//		unzip(Paths.get(curpath, file+".zip").toString(), Paths.get(curpath, file).toString());
+		unzip(file+".zip", file);
 		
-		File folder = new File(Paths.get(curpath, file).toString());
+//		File folder = new File(Paths.get(curpath, file).toString());
+		File folder = new File(file);
 		if (folder.isDirectory()) {
 			File[] listFiles = folder.listFiles();
 			Arrays.sort(listFiles, new Comparator<File>() {
@@ -68,7 +69,8 @@ public class CZIPLoader<T extends MAT<?>> extends CSVLoader<T> {
 			}
 
 			try {
-				FileUtils.deleteDirectory(new File(Paths.get(curpath, file).toString()));			
+//				FileUtils.deleteDirectory(new File(Paths.get(curpath, file).toString()));	
+				FileUtils.deleteDirectory(new File(file));			
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

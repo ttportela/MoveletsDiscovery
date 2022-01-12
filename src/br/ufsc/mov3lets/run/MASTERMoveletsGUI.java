@@ -7,7 +7,7 @@ import java.util.List;
 import javax.swing.JFileChooser;
 
 import br.ufsc.mov3lets.method.Mov3lets;
-import br.ufsc.mov3lets.utils.ProgressOutput;
+import br.ufsc.mov3lets.utils.log.ProgressOutput;
 
 /*
  * To change this license header, choose License Headers in Project Properties.

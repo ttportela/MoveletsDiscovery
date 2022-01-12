@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import br.ufsc.mov3lets.model.MAT;
+import br.ufsc.mov3lets.utils.log.LoggerAdapter;
 
 /**
  * The Class Mov3letsUtils.
@@ -45,6 +46,14 @@ public class Mov3letsUtils {
 	 */
 	private Mov3letsUtils() {
 		
+	}
+
+	/**
+	 * Gets the logger.
+	 *
+	 */
+	public LoggerAdapter getLogger() {
+		return log;
 	}
 	
 	/**
@@ -175,6 +184,10 @@ public class Mov3letsUtils {
 		double total = rt.totalMemory() / (1024.0 * 1024.0);
 		double free = rt.freeMemory() / (1024.0 * 1024.0);
         return (total - free);
+	}
+	
+	public void ending() {
+		if (getInstance().log != null) getInstance().log.end();
 	}
 
 }

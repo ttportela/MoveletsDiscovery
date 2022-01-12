@@ -1,7 +1,7 @@
 /**
  * 
  */
-package br.ufsc.mov3lets.method.discovery;
+package br.ufsc.mov3lets.method.discovery.deprecated;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,10 +12,9 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.util.Combinations;
 import org.apache.commons.math3.util.Pair;
 
-import br.ufsc.mov3lets.method.discovery.structures.DiscoveryAdapter;
+import br.ufsc.mov3lets.method.discovery.MasterMoveletsDiscovery;
 import br.ufsc.mov3lets.method.discovery.structures.TrajectoryDiscovery;
 import br.ufsc.mov3lets.method.qualitymeasure.QualityMeasure;
-import br.ufsc.mov3lets.method.structures.descriptor.AttributeDescriptor;
 import br.ufsc.mov3lets.method.structures.descriptor.Descriptor;
 import br.ufsc.mov3lets.model.MAT;
 import br.ufsc.mov3lets.model.MSubtrajectory;
@@ -28,7 +27,7 @@ import br.ufsc.mov3lets.model.Subtrajectory;
  * @author tarlis
  * @param <MO> the generic type
  */
-public class UltraMemMoveletsDiscovery<MO> extends HipertPivotsMoveletsDiscovery<MO> implements TrajectoryDiscovery {
+public class UltraSMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> implements TrajectoryDiscovery {
 
 	/** The max number of combination of features. */
 	protected int maxCombinationOfFeatures = 0;
@@ -46,7 +45,7 @@ public class UltraMemMoveletsDiscovery<MO> extends HipertPivotsMoveletsDiscovery
 	 * @param qualityMeasure the quality measure
 	 * @param descriptor the descriptor
 	 */
-	public UltraMemMoveletsDiscovery(MAT<MO> trajectory, List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test,
+	public UltraSMoveletsDiscovery(MAT<MO> trajectory, List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test,
 			QualityMeasure qualityMeasure, Descriptor descriptor) {
 		super(trajectory, trajsFromClass, data, train, test, qualityMeasure, descriptor);
 //		this.trajectory = trajectory;
@@ -70,7 +69,7 @@ public class UltraMemMoveletsDiscovery<MO> extends HipertPivotsMoveletsDiscovery
 		List<Subtrajectory> movelets = new ArrayList<Subtrajectory>();
 
 //		progressBar.trace("HiperT-Pivots Movelets Discovery for Class: " + trajsFromClass.get(0).getMovingObject());
-		
+				
 		// This guarantees the reproducibility
 		Random random = new Random(trajectory.getTid());
 		/** STEP 2.1: Starts at discovering movelets */
@@ -122,11 +121,12 @@ public class UltraMemMoveletsDiscovery<MO> extends HipertPivotsMoveletsDiscovery
 
 		List<Subtrajectory> candidatesOfSize = findPivotCandidates(trajectory, trajectories, minSize);
 //		computeQuality(candidatesOfSize, random, trajectory);
+//		calculateProportion(candidatesOfSize, random);
 		for (Subtrajectory subtrajectory : candidatesOfSize) {
 //			computeDistances(subtrajectory, trajectories);
 			assesQuality(subtrajectory, random);
 		}
-		total_size += candidates.size();
+		total_size += candidatesOfSize.size();
 
 		candidatesOfSize = filterMovelets(candidatesOfSize);
 		for(Subtrajectory candidate : candidatesOfSize) {
@@ -134,10 +134,13 @@ public class UltraMemMoveletsDiscovery<MO> extends HipertPivotsMoveletsDiscovery
 		}
 
 		addStats("Number of Candidates", total_size);
-//		addStats("Scored Candidates", total_size);
 //		addStats("Pivot Candidates", candidatesOfSize.size());
 		addStats("Selected Candidates", candidates.size());
 		
+//		for (Subtrajectory subtrajectory : candidates) {
+//			computeDistances(subtrajectory, this.train);
+//			assesQuality(subtrajectory, random);
+//		}
 		candidates = filterMovelets(candidates);
 		
 		addStats("Total of Movelets", candidates.size());
@@ -243,16 +246,13 @@ public class UltraMemMoveletsDiscovery<MO> extends HipertPivotsMoveletsDiscovery
 			return candidate;
 		
 		total_size += 1;
-		MSubtrajectory subtrajectory = new MSubtrajectory(start, end, trajectory, trajectories.size(),
+		Subtrajectory subtrajectory = new MSubtrajectory(start, end, trajectory, trajectories.size(),
 				candidate.getPointFeatures(), candidate.getK());
-		
-		subtrajectory.setDistancesForAllT(
-				resizeDistancesForAllT(((MSubtrajectory)candidate).getDistancesForAllT())
-		);
 		
 		// asses quality:
 		computeDistances(subtrajectory, trajectories);
 		assesQuality(subtrajectory, random);
+//		proportionMeasure.assesClassQuality(subtrajectory, maxDistances, random);
 		
 		return subtrajectory.best(candidate);
 	}
@@ -287,28 +287,21 @@ public class UltraMemMoveletsDiscovery<MO> extends HipertPivotsMoveletsDiscovery
 		
 		Subtrajectory subtrajectoryOfFeature = candidate;
 		for (int k : validCombs) {
-			MSubtrajectory subtrajectory = new MSubtrajectory(candidate.getStart(), candidate.getEnd(), 
+			Subtrajectory subtrajectory = new MSubtrajectory(candidate.getStart(), candidate.getEnd(), 
 					trajectory, trajectories.size(), combinations[k], k);
-			
-			int[] last = new int[] {combinations[k][combinations[k].length-1]};
-			subtrajectory.setDistancesForAllT(
-					concatDistancesForAllT(((MSubtrajectory)candidate).getDistancesForAllT(), 
-					getDistancesForAllT(trajectory, trajectories, candidate.getStart(), 
-							candidate.getSize(), last))
-			);
 			
 			total_size += 1;
 			
 			// asses quality:
 			computeDistances(subtrajectory, trajectories);
 			assesQuality(subtrajectory, random);
+//			proportionMeasure.assesClassQuality(subtrajectory, maxDistances, random);
 			
 			subtrajectoryOfFeature = subtrajectory.best(subtrajectoryOfFeature);
 		}
 		
 		return subtrajectoryOfFeature;
 	}
-
 
 	/**
 	 * [THE GREAT GAP].
@@ -329,14 +322,15 @@ public class UltraMemMoveletsDiscovery<MO> extends HipertPivotsMoveletsDiscovery
 		
 		// List of Candidates to extract from P:
 		List<Subtrajectory> candidates = new ArrayList<>();
-		
+
+		this.maxDistances = new double[getDescriptor().getAttributes().size()];
 
 		// From point 0 to (n - <candidate max. size>) 
 		for (int start = 0; start <= (n - size); start++) {
 //			Point p = trajectory.getPoints().get(start);
 			
 			// Extract possible candidates from P to max. candidate size:
-			List<Subtrajectory> list = buildSubtrajectory(start, start + size - 1, trajectory, trajectories, combinations);
+			List<Subtrajectory> list = buildSubtrajectory(start, start + size - 1, trajectory, trajectories.size(), combinations);
 									
 			// For each trajectory in the database
 			for (int i = 0; i < trajectories.size(); i++) {
@@ -346,9 +340,12 @@ public class UltraMemMoveletsDiscovery<MO> extends HipertPivotsMoveletsDiscovery
 				
 //				if (limit > 0)
 					for (Subtrajectory subtrajectory : list) {						
-						double[] distances = bestAlignmentByPointFeatures(subtrajectory, T, i).getSecond();
+						double[] distances = bestAlignmentByPointFeatures(subtrajectory, T).getSecond();
 						for (int j = 0; j < subtrajectory.getPointFeatures().length; j++) {
-							subtrajectory.getDistances()[j][i] = distances[j]; //Math.sqrt(distances[j] / size);							
+							subtrajectory.getDistances()[j][i] = distances[j]; //Math.sqrt(distances[j] / size);	
+							
+							if (maxDistances[subtrajectory.getPointFeatures()[j]] < subtrajectory.getDistances()[j][i] && subtrajectory.getDistances()[j][i] != MAX_VALUE)
+								maxDistances[subtrajectory.getPointFeatures()[j]] = subtrajectory.getDistances()[j][i];
 						}
 					}
 				
@@ -373,19 +370,17 @@ public class UltraMemMoveletsDiscovery<MO> extends HipertPivotsMoveletsDiscovery
 	 * @return the list
 	 */
 	public List<Subtrajectory> buildSubtrajectory(
-			int start, int end, MAT<MO> t, List<MAT<MO>> trajectories, int[][] combinations){
+			int start, int end, MAT<MO> t, int numberOfTrajectories, int[][] combinations){
 		
 		List<Subtrajectory> list = new ArrayList<>();
 		
 		for (int k = 0; k < combinations.length; k++) {
-			list.add(new MSubtrajectory(start, end, t, trajectories.size(), combinations[k], K++));
+			list.add(new MSubtrajectory(start, end, t, numberOfTrajectories, combinations[k], K++));
 		}
 		
-		for (Subtrajectory s : list) {
-			((MSubtrajectory) s).setDistancesForAllT(
-					getDistancesForAllT(t, trajectories, 
-							s.getStart(), s.getSize(), s.getPointFeatures()));
-		}
+//		for (Subtrajectory s : list) {
+//			((MSubtrajectory) s).initDistances(t, (List<MAT<?>>) this.train, getDescriptor());
+//		}
 				
 		return list;
 	}
@@ -411,7 +406,7 @@ public class UltraMemMoveletsDiscovery<MO> extends HipertPivotsMoveletsDiscovery
 		 */
 		for (int i = 0; i < trajectories.size(); i++) {
 			
-			distance = bestAlignmentByPointFeatures(candidate, trajectories.get(i), i);
+			distance = bestAlignmentByPointFeatures(candidate, trajectories.get(i));
 			
 			for (int j = 0; j < candidate.getPointFeatures().length; j++) {
 				trajectoryDistancesToCandidate[j][i] = distance.getSecond()[j];							
@@ -425,14 +420,13 @@ public class UltraMemMoveletsDiscovery<MO> extends HipertPivotsMoveletsDiscovery
 	}
 	
 	/**
-	 * Best alignment by point features. 
-	 * (With subtrajectory distancesToTrajs) 
+	 * Best alignment by point features.
 	 *
 	 * @param s the s
 	 * @param t the t
 	 * @return the pair
 	 */
-	public Pair<Subtrajectory, double[]> bestAlignmentByPointFeatures(Subtrajectory s, MAT<MO> t, int idxt) {
+	public Pair<Subtrajectory, double[]> bestAlignmentByPointFeatures(Subtrajectory s, MAT<MO> t) {
 		double[] maxValues = new double[numberOfFeatures];
 		Arrays.fill(maxValues, MAX_VALUE);
 				
@@ -440,55 +434,48 @@ public class UltraMemMoveletsDiscovery<MO> extends HipertPivotsMoveletsDiscovery
 			return new Pair<>(null, maxValues);
 
 		List<Point> menor = s.getPoints();
-//		List<Point> maior = t.getPoints();
+		List<Point> maior = t.getPoints();
 		
-//		int idxs = this.train.indexOf(s.getTrajectory()); 
-//		int idxt = this.train.indexOf(t); // mdist[idxs][idx];
-
 		int size =  s.getSize();
-//		int diffLength = maior.size() - size;	
-//		int limit = maior.size() - size + 1;
+		int diffLength = maior.size() - size;	
+		int limit = maior.size() - size + 1;		
 				
 		int[] comb = s.getPointFeatures();
-//		double[] currentSum = new double[comb.length];
-//		double[] values = new double[numberOfFeatures];
-//		double[][] distancesForT = new double[comb.length][diffLength+1];
-						
-//		double[] x = new double[comb.length];
-//		Arrays.fill(x, MAX_VALUE);
-		
-		double[][] mdist = ((MSubtrajectory) s).getDistancesForAllT()[idxt];
+		double[] currentSum; 
+		double[] values = new double[numberOfFeatures];
+		double[][] distancesForT = new double[comb.length][diffLength+1];
 				
-//		for (int i = 0; i <= diffLength; i++) {
-//
-//			Arrays.fill(currentSum, 0);
-//						
-//			for (int j = 0; j < menor.size(); j++) {
-//
-//				for (int k = 0; k < comb.length; k++) {
-//					if (currentSum[k] != MAX_VALUE && mdist[k][i+j] != MAX_VALUE)
-//						currentSum[k] += mdist[k][i+j];
-//					else
-//						currentSum[k] = MAX_VALUE;
-//		
-//				}
-//				
-//			}
-//			
-//			for (int k = 0; k < comb.length; k++) {
-//				distancesForT[k][i] = mdist[k][i]; //currentSum[k];
-//			}
-//		}
-		double[][] distancesForT = Arrays.stream(mdist).map(a ->  Arrays.copyOf(a, a.length)).toArray(double[][]::new);
+		for (int i = 0; i <= diffLength; i++) {
+
+			currentSum = new double[comb.length];
+						
+			for (int j = 0; j < size; j++) {
+
+				// Here we get from mdist:
+				values = getDistances(menor.get(j), maior.get(i + j), s.getPointFeatures());
+
+				for (int k = 0; k < comb.length; k++) {					
+					if (currentSum[k] != MAX_VALUE && values[k] != MAX_VALUE)
+						currentSum[k] += values[k];
+					else {
+						currentSum[k] = MAX_VALUE;
+					}
+				}											
+				
+			}
+			
+			for (int k = 0; k < comb.length; k++) {
+				distancesForT[k][i] = currentSum[k];
+			}
+		}
 		
-		double[][] ranksForT = new double[comb.length][];
+		double[][] ranksForT = new double[distancesForT.length][];
 		
-		for (int k = 0; k < comb.length; k++) {
-			ranksForT[k] = rankingAlgorithm.rank(distancesForT[k]); //Arrays.stream(distancesForT[k],0,limit).toArray());
-		} // for (int k = 0; k < numberOfFeatures; k++)
+		if (limit > 0)
+			for (int k = 0; k < comb.length; k++) 
+				ranksForT[k] = rankingAlgorithm.rank(Arrays.stream(distancesForT[k],0,limit).toArray());
 		
-		
-		int bestPosition = bestAlignmentByRanking(ranksForT, comb, true);//, (mdist == null? true : false));
+		int bestPosition = (limit > 0) ? bestAlignmentByRanking(ranksForT,comb) : -1;
 		
 		double[] bestAlignment = new double[comb.length];
 		
@@ -499,21 +486,28 @@ public class UltraMemMoveletsDiscovery<MO> extends HipertPivotsMoveletsDiscovery
 			bestAlignment[j] = (distance != MAX_VALUE) ? 
 					Math.sqrt( distance / size ) : MAX_VALUE;
 			
-		} // for (int j = 0; j < comb.length; j++)
+		}
 		
 		int start = bestPosition;
-		int end = bestPosition + menor.size() - 1;
+		int end = bestPosition + size - 1;
 		
-//		return bestAlignment;
 		return new Pair<>(new Subtrajectory(start, end , t), bestAlignment);
 	}
+	
+//	/**
+//	 * Best alignment by point features. 
+//	 * (With subtrajectory distancesToTrajs) 
+//	 *
+//	 * @param s the s
+//	 * @param t the t
+//	 * @return the pair
+//	 */
 //	public Pair<Subtrajectory, double[]> bestAlignmentByPointFeatures(Subtrajectory s, MAT<MO> t, int ti) {
-//						
-//		if (s.getSize() > t.getPoints().size()) {
-//			double[] maxValues = new double[numberOfFeatures];
-//			Arrays.fill(maxValues, MAX_VALUE);
+//		double[] maxValues = new double[numberOfFeatures];
+//		Arrays.fill(maxValues, MAX_VALUE);
+//				
+//		if (s.getSize() > t.getPoints().size())
 //			return new Pair<>(null, maxValues);
-//		}
 //
 ////		List<Point> menor = s.getPoints();
 //		List<Point> maior = t.getPoints();
@@ -527,34 +521,45 @@ public class UltraMemMoveletsDiscovery<MO> extends HipertPivotsMoveletsDiscovery
 ////		double[] values = new double[numberOfFeatures];
 //		double[][] distancesForT = ((MSubtrajectory) s).getDistancesForAllT()[ti]; //new double[comb.length][diffLength+1];
 //		
-////		double[] x = new double[comb.length];
-////		Arrays.fill(x, MAX_VALUE);
+//		// A - Get distances from candidate:
+////		double[][] distancesAux = ((MSubtrajectory) s).getDistancesForAllT()[ti];
+////		for (int k = 0; k < comb.length-1; k++) {
+////			distancesForT[k] = distancesAux[k];
+////		}
+//		
+//		// B - Calculate distances remaining:
+//		double[] x = new double[comb.length];
+//		Arrays.fill(x, MAX_VALUE);
 //				
 //		for (int i = 0; i <= diffLength; i++) {
 //
 //			currentSum = new double[comb.length];
 //						
-////			for (int j = 0; j < size; j++) {
+//			for (int j = 0; j < size; j++) {
 //
 //				// Only for the last 
 ////				distancesForT[comb[comb.length-1]][i+j] = getDistance(menor.get(j), maior.get(i + j), s.getPointFeatures()[comb.length-1]); 
 //				
 //				// Here we get from mdist:
-//				
-//				for (int k = 0; k < comb.length; k++) {	
-//					if (currentSum[k] != MAX_VALUE && distancesForT[k][i] != MAX_VALUE)
-//						currentSum[k] += distancesForT[k][i];
+//				int k = 0;
+//				for (; k < comb.length; k++) {	
+//					if (currentSum[k] != MAX_VALUE && distancesForT[comb[k]][i+j] != MAX_VALUE)
+//						currentSum[k] += distancesForT[comb[k]][i+j];
 //					else
 //						currentSum[k] = MAX_VALUE;
 //				}								
 //				
-////			}
+//			}
 //			
 //			for (int k = 0; k < comb.length; k++) {
 //				distancesForT[k][i] = currentSum[k];
 //			}
 //		}
 //		
+//		// C - Set distances for T:
+////		((MSubtrajectory) s).getDistancesForAllT()[ti] = distancesForT;
+//		
+//		// D - Ranks and best alignment
 //		double[][] ranksForT = new double[distancesForT.length][];
 //		
 //		if (limit > 0)
@@ -581,138 +586,27 @@ public class UltraMemMoveletsDiscovery<MO> extends HipertPivotsMoveletsDiscovery
 //		
 //		return new Pair<>(new Subtrajectory(start, end , t), bestAlignment);
 //	}
-	
-	/**
-	 * Gets the distances.
-	 *
-	 * @param a the a
-	 * @param b the b
-	 * @param k the attribute index
-	 * @return the distance
-	 */
-	public double getDistance(Point a, Point b, int k) {
-		double distance = 0.0;
-		
-		AttributeDescriptor attr = this.descriptor.getAttributes().get(k);
-		
-		distance = attr.getDistanceComparator().calculateDistance(
-				a.getAspects().get(k), 
-				b.getAspects().get(k), 
-				attr);
-		
-		return distance;
-		
-	}
-
-	public double[][][] getDistancesForAllT(MAT<MO> trajectory, List<MAT<MO>> trajectories, 
-			int start, int size, int[] comb) {
-//		int n = trajectory.getPoints().size();
-//		int size = s.getSize();
-//		int[] comb = s.getPointFeatures();
-//		int start = s.getStart();
-		
-		double[][][] distancesForAllT = new double[trajectories.size()][][];		
-					
-		for (int i = 0; i < trajectories.size(); i++) {
-			MAT<?> T = trajectories.get(i);
-			
-			if (T.getPoints().size() >= size) {	
-
-				for (int m = 0; m < size; m++) { 
-					Point a = trajectory.getPoints().get(start+m);		
-					distancesForAllT[i] = new double[comb.length][(T.getPoints().size()-size)+1];
-							
-					for (int j = 0; j <= (T.getPoints().size()-size); j++) {
-						Point b = T.getPoints().get(j+m);
-						
-						for (int k = 0; k < comb.length; k++) {
-							AttributeDescriptor attr = descriptor.getAttributes().get(comb[k]);
-							if (distancesForAllT[i][k][j] != MAX_VALUE)
-								distancesForAllT[i][k][j] += attr.getDistanceComparator().calculateDistance(
-										a.getAspects().get(comb[k]), 
-										b.getAspects().get(comb[k]), 
-										attr);
-							
-						} // k
-						
-					} // j 
-					
-				} // m
-				
-			} // if
-			
-		} // i
-
-		return distancesForAllT;
-	}
-
-	public double[][][] concatDistancesForAllT(double[][][] source1, double[][][] source2) {
-		double[][][] newSize = new double[source1.length][][];
-		
-		for (int i = 0; i < source1.length; i++) {	
-			newSize[i] = new double[source1[i].length + source2[i].length][];
-			
-			for (int k = 0; k < source1[i].length; k++) {
-				newSize[i][k] = source1[i][k];
-			} // for k
-			
-			// Yes, 2 counters to continue the last for (Are you impressed?)
-			for (int k = source1[i].length, k2 = 0; k2 < source2[i].length; k++, k2++) {
-				newSize[i][k] = source2[i][k2];
-			} // for k
-			
-		} // for i
-		
-		return newSize;
-	}
-
-	public double[][][] resizeDistancesForAllT(double[][][] source) {
-		double[][][] newSize = new double[source.length][][];
-		
-		for (int i = 0; i < source.length; i++) {	
-			newSize[i] = new double[source[i].length][];
-			
-			for (int k = 0; k < source[i].length; k++) {
-				newSize[i][k] = new double[source[i][k].length-1];
-						
-				for (int j = 0; j < (source[i][k].length-1); j++) {
-					if (newSize[i][k][j] != MAX_VALUE)
-						newSize[i][k][j] = source[i][k][j] + source[i][k][j+1];
-									
-				} // for j
-			
-			} // for k
-			
-		} // for i
-		
-		return newSize;
-	}
-
-	/**
-	 * Method to output movelets. It is synchronized by thread. 
-	 * 
-	 * @param movelets
-	 */
-	public void outputMovelets(List<Subtrajectory> movelets) {
-		synchronized (DiscoveryAdapter.class) {
-			super.output("train", this.train, movelets, true);
-			base =  null;
-			
-			// Compute distances and best alignments for the test trajectories:
-			/* If a test trajectory set was provided, it does the same.
-			 * and return otherwise */
-			/** STEP 2.3.2: Output Movelets (partial) */
-			if (!this.test.isEmpty()) {
-	//			base = computeBaseDistances(trajectory, this.test);
-				for (Subtrajectory candidate : movelets) {
-					// It initializes the set of distances of all movelets to null
-					candidate.setDistances(null);
-					// In this step the set of distances is filled by this method
-					super.computeDistances(candidate, this.test); //, computeBaseDistances(trajectory, this.test));
-				}
-				super.output("test", this.test, movelets, true);
-			}
-		}
-	}
+//	
+//	/**
+//	 * Gets the distances.
+//	 *
+//	 * @param a the a
+//	 * @param b the b
+//	 * @param k the attribute index
+//	 * @return the distance
+//	 */
+//	public double getDistance(Point a, Point b, int k) {
+//		double distance = 0.0;
+//		
+//		AttributeDescriptor attr = this.descriptor.getAttributes().get(k);
+//		
+//		distance = attr.getDistanceComparator().calculateDistance(
+//				a.getAspects().get(k), 
+//				b.getAspects().get(k), 
+//				attr);
+//		
+//		return distance;
+//		
+//	}
 
 }

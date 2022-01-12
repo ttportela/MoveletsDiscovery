@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import java.util.SortedSet;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.util.Combinations;
@@ -26,12 +27,12 @@ import br.ufsc.mov3lets.model.Subtrajectory;
  * @author tarlis
  * @param <MO> the generic type
  */
-public class UltraMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> implements TrajectoryDiscovery {
+public class UltraMoveletsDiscovery<MO> extends BaseMoveletsDiscovery<MO> implements TrajectoryDiscovery {
 
-	/** The max number of combination of features. */
+	/** The used max number of combination of features. */
 	protected int maxCombinationOfFeatures = 0;
 	
-	/** The max size of candidates. */
+	/** The used max size of candidates. */
 	protected int maxSizeOfCandidates = 0;
 	
 	/**
@@ -47,10 +48,6 @@ public class UltraMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> impl
 	public UltraMoveletsDiscovery(MAT<MO> trajectory, List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test,
 			QualityMeasure qualityMeasure, Descriptor descriptor) {
 		super(trajectory, trajsFromClass, data, train, test, qualityMeasure, descriptor);
-//		this.trajectory = trajectory;
-		
-//		// Ultra default is Log^2:
-//		BU 		= getDescriptor().hasParam("bucket_slice")? getDescriptor().getParamAsDouble("bucket_slice") : -2;
 	}
 
 	
@@ -129,7 +126,7 @@ public class UltraMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> impl
 
 		candidatesOfSize = filterMovelets(candidatesOfSize);
 		for(Subtrajectory candidate : candidatesOfSize) {
-			candidates.add(growPivot(candidate, trajectory, trajectories, minSize+1, maxSize, random));
+			candidates.add(growPivot(candidate, trajectory, trajectories, minSize+1, maxSize, random, null));
 		}
 
 		addStats("Number of Candidates", total_size);
@@ -196,21 +193,12 @@ public class UltraMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> impl
 	 * @param random 
 	 * @return the list
 	 */
-	public Subtrajectory growPivot(Subtrajectory candidate, MAT<MO> trajectory,
-			List<MAT<MO>> trajectories, int size, int maxSize, Random random) {
+	public Subtrajectory growPivot(Subtrajectory candidate, MAT<MO> trajectory, List<MAT<MO>> trajectories, 
+			int size, int maxSize, Random random, SortedSet<Integer> trajectory_marks) {
 				
-		Subtrajectory subtrajectoryOfSize = buildNewSize(candidate, trajectory, trajectories, size, false, random);
+		Subtrajectory subtrajectoryOfSize = buildNewSize(candidate, trajectory, trajectories, size, false, random, trajectory_marks);
 		Subtrajectory subtrajectoryOfFeatures = growFeatures(candidate, trajectory, trajectories, random);
-		
-//		// Try growing by size and/or features
-//		if (size < maxSize && !subtrajectoryOfSize.equals(candidate)) {
-//			this.maxSizeOfCandidates = Integer.max(size, this.maxSizeOfCandidates);
-//			subtrajectoryOfSize = growPivot(subtrajectoryOfSize, trajectory, trajectories, size+1, maxSize, random);
-//		}
-//		if (!subtrajectoryOfFeatures.equals(candidate))
-//			subtrajectoryOfFeatures = growPivot(subtrajectoryOfFeatures, trajectory, trajectories, size+1, maxSize, random);
 
-//		return subtrajectoryOfSize.best(subtrajectoryOfFeatures);
 		subtrajectoryOfSize = subtrajectoryOfSize.best(subtrajectoryOfFeatures);
 		
 		if (subtrajectoryOfSize.equals(candidate))
@@ -218,7 +206,7 @@ public class UltraMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> impl
 		else {
 			if (size < maxSize) {
 				this.maxSizeOfCandidates = Integer.max(size, this.maxSizeOfCandidates);
-				return growPivot(subtrajectoryOfSize, trajectory, trajectories, size+1, maxSize, random);
+				return growPivot(subtrajectoryOfSize, trajectory, trajectories, size+1, maxSize, random, trajectory_marks);
 			} else
 				return subtrajectoryOfSize;
 		}
@@ -233,15 +221,16 @@ public class UltraMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> impl
 	 * @param mdist the mdist
 	 * @param size the size
 	 * @param left the left
+	 * @param trajectory_marks 
 	 * @return the subtrajectory
 	 */
 	public Subtrajectory buildNewSize(Subtrajectory candidate, MAT<MO> trajectory, 
-			List<MAT<MO>> trajectories, int size, boolean left, Random random) {
+			List<MAT<MO>> trajectories, int size, boolean left, Random random, SortedSet<Integer> trajectory_marks) {
 		
 		int start = candidate.getStart() - (left? 1 : 0);
 		int end   = candidate.getEnd()   + (left? 0 : 1);
 		
-		if (start < 0 || end > trajectory.getPoints().size()-1)
+		if ((start < 0 || end > trajectory.getPoints().size()-1) || (trajectory_marks != null && !inRange(start, end, trajectory_marks)))
 			return candidate;
 		
 		total_size += 1;
@@ -255,6 +244,15 @@ public class UltraMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> impl
 		
 		return subtrajectory.best(candidate);
 	}
+
+	protected boolean inRange(int start, int end, SortedSet<Integer> trajectory_marks) {
+		for (int i = start; i <= end; i++) 
+			if (!trajectory_marks.contains(i))
+				return false;
+		
+		return true;
+	}
+
 
 	/**
 	 * Builds the new size.

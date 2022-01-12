@@ -36,8 +36,8 @@ import br.ufsc.mov3lets.model.MAT;
 import br.ufsc.mov3lets.model.Point;
 import br.ufsc.mov3lets.model.Subtrajectory;
 import br.ufsc.mov3lets.utils.Mov3letsUtils;
-import br.ufsc.mov3lets.utils.ProgressBar;
-import br.ufsc.mov3lets.utils.ProgressOutput;
+import br.ufsc.mov3lets.utils.log.ProgressBar;
+import br.ufsc.mov3lets.utils.log.ProgressOutput;
 
 /**
  * The Class PrecomputeMoveletsDiscovery.

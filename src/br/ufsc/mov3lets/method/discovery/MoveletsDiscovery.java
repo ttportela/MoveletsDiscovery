@@ -203,24 +203,28 @@ public class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> implements Traje
 	 */
 	public void outputMovelets(List<Subtrajectory> movelets) {
 		/** STEP 2.3.1: Output Movelets (partial) */
-		synchronized (DiscoveryAdapter.class) {
-			super.output("train", this.train, movelets, true);
-			
-			// Compute distances and best alignments for the test trajectories:
-			/* If a test trajectory set was provided, it does the same.
-			 * and return otherwise */
-			/** STEP 2.3.2: Output Movelets (partial) */
-			if (!this.test.isEmpty()) {
-	//			base = computeBaseDistances(trajectory, this.test);
-				for (Subtrajectory candidate : movelets) {
-					// It initializes the set of distances of all movelets to null
-					candidate.setDistances(null);
-					// In this step the set of distances is filled by this method
-					computeDistances(candidate, this.test); //, computeBaseDistances(trajectory, this.test));
-				}
-				super.output("test", this.test, movelets, true);
+//		synchronized (DiscoveryAdapter.class) {
+		this.lock.getWriteLock().lock();
+		
+		super.output("train", this.train, movelets, true);
+		
+		// Compute distances and best alignments for the test trajectories:
+		/* If a test trajectory set was provided, it does the same.
+		 * and return otherwise */
+		/** STEP 2.3.2: Output Movelets (partial) */
+		if (!this.test.isEmpty()) {
+//			base = computeBaseDistances(trajectory, this.test);
+			for (Subtrajectory candidate : movelets) {
+				// It initializes the set of distances of all movelets to null
+				candidate.setDistances(null);
+				// In this step the set of distances is filled by this method
+				computeDistances(candidate, this.test); //, computeBaseDistances(trajectory, this.test));
 			}
+			super.output("test", this.test, movelets, true);
 		}
+		
+		this.lock.getWriteLock().unlock();
+//		}
 	}
 
 	/**

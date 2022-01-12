@@ -1,7 +1,7 @@
 /**
  * 
  */
-package br.ufsc.mov3lets.method.discovery;
+package br.ufsc.mov3lets.method.discovery.deprecated;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,6 +12,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.util.Combinations;
 import org.apache.commons.math3.util.Pair;
 
+import br.ufsc.mov3lets.method.discovery.BaseMoveletsDiscovery;
 import br.ufsc.mov3lets.method.discovery.structures.TrajectoryDiscovery;
 import br.ufsc.mov3lets.method.qualitymeasure.ProportionQualityMeasure;
 import br.ufsc.mov3lets.method.qualitymeasure.QualityMeasure;
@@ -27,7 +28,7 @@ import br.ufsc.mov3lets.model.Subtrajectory;
  * @author tarlis
  * @param <MO> the generic type
  */
-public class UltraHpMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> implements TrajectoryDiscovery {
+public class UltraHpMoveletsDiscovery<MO> extends BaseMoveletsDiscovery<MO> implements TrajectoryDiscovery {
 
 	/** The max number of combination of features. */
 	protected int maxCombinationOfFeatures = 0;

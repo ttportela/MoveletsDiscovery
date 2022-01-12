@@ -39,7 +39,7 @@ import br.ufsc.mov3lets.model.aspect.Aspect;
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  * @param <MO> the generic type
  */
-public class SuperMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> {
+public class BaseMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> {
 	
 	/** The tau. */
 	protected double TAU 		= 0.9;
@@ -60,7 +60,7 @@ public class SuperMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> {
 	 * @param qualityMeasure the quality measure
 	 * @param descriptor the descriptor
 	 */
-	public SuperMoveletsDiscovery(MAT<MO> trajectory, List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test, QualityMeasure qualityMeasure, 
+	public BaseMoveletsDiscovery(MAT<MO> trajectory, List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test, QualityMeasure qualityMeasure, 
 			Descriptor descriptor) {
 		super(trajectory, trajsFromClass, data, train, test, qualityMeasure, descriptor);
 		

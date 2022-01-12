@@ -25,7 +25,7 @@ import br.ufsc.mov3lets.model.Subtrajectory;
  * @author tarlis
  * @param <MO> the generic type
  */
-public class HiperMoveletsDiscovery<MO> extends SuperMoveletsDiscovery<MO> implements ClassDiscovery {
+public class HiperMoveletsDiscovery<MO> extends BaseMoveletsDiscovery<MO> implements ClassDiscovery {
 
 	/**
 	 * Instantiates a new hiper movelets discovery.

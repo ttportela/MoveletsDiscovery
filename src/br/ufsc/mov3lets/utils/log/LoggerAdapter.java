@@ -1,7 +1,7 @@
 /**
  * 
  */
-package br.ufsc.mov3lets.utils;
+package br.ufsc.mov3lets.utils.log;
 
 /**
  * The Class LoggerAdapter.
@@ -33,7 +33,7 @@ public abstract class LoggerAdapter {
 	 * @param s the s
 	 */
 	public void traceW(String s) {
-		trace("Warning: " + s);
+		trace("[Warning] " + s);
 	}
 	
 	/**
@@ -61,5 +61,7 @@ public abstract class LoggerAdapter {
         
 		trace("Memory Usage (MiB), Memory Total: "+total+". Memory Free: "+free+". Memory Used: "+used+".");
 	}
+
+	public void end() { }
 
 }

@@ -1,4 +1,4 @@
-package br.ufsc.mov3lets.utils;
+package br.ufsc.mov3lets.utils.log;
 
 /**
  * Ascii progress meter. On completion this will reset itself,

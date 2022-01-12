@@ -37,6 +37,10 @@ public interface LoaderAdapter<T extends MAT<?>> {
 	 */
 	public abstract List<T> loadTrajectories(String file, Descriptor descriptor) throws IOException;
 	
+	public static String getCurPath(Descriptor descriptor) {
+		return descriptor.hasParam("curpath")? descriptor.getParamAsText("curpath") : "./";
+	}
+	
 	/**
 	 * Load.
 	 *
@@ -46,7 +50,7 @@ public interface LoaderAdapter<T extends MAT<?>> {
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
 	public default List<T> load(String file, Descriptor descriptor) throws IOException {
-		String curpath = descriptor.hasParam("curpath")? descriptor.getParamAsText("curpath") : "./";
+		String curpath = getCurPath(descriptor);
 		
 		List<T> data = loadTrajectories(Paths.get(curpath, file).toString(), descriptor);
 		return data;
@@ -99,6 +103,7 @@ public interface LoaderAdapter<T extends MAT<?>> {
 				return new Aspect<LocalTime>(LocalTime.parse(value));
 			case "foursquarevenue":
 			case "gowallacheckin":
+			case "text":
 			case "nominal":
 			default:
 				if ("?".equalsIgnoreCase(value)) return new Aspect<String>(null);

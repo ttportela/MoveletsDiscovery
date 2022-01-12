@@ -7,7 +7,7 @@ import br.ufsc.mov3lets.method.structures.descriptor.AttributeDescriptor;
 import br.ufsc.mov3lets.method.structures.descriptor.Descriptor;
 import br.ufsc.mov3lets.model.MAT;
 import br.ufsc.mov3lets.model.Point;
-import br.ufsc.mov3lets.utils.ProgressBar;
+import br.ufsc.mov3lets.utils.log.ProgressBar;
 
 /**
  * The Class PrecomputeBaseDistances.

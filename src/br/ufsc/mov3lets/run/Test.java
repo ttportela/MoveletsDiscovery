@@ -17,19 +17,15 @@
  */
 package br.ufsc.mov3lets.run;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-
-import org.apache.commons.math3.util.Combinations;
+import br.ufsc.mov3lets.method.loader.MATInternLoader;
+import br.ufsc.mov3lets.model.MAT;
 
 /**
  * The Class Test.
  *
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  */
-public class Test {
+public class Test<T extends MAT<?>> {
 
 	/**
 	 * The main method.
@@ -39,42 +35,14 @@ public class Test {
 	 */
 	public static void main(String[] arg) throws Exception {
 		
-		List<Integer> ls = new ArrayList<Integer>();
-		ls.add(1);
-		ls.add(2);
-		ls.add(3);
-
-		System.out.println(ls.toString());
-		Iterator<Integer> i = ls.iterator();
-		while (i.hasNext()) {
-		   Integer s = i.next(); // must be called before you can call i.remove()
-		   // Do something
-		   i.remove();
-		   System.out.println(ls.toString());
-		}
+//		String file = "/Users/tarlisportela/OneDrive/3 - Projetos/workdir/data/multivariate_ts/InsectWingbeat/InsectWingbeat_TEST";
+		String file = "/Users/tarlisportela/OneDrive/3 - Projetos/workdir/data/test/TEST";
 		
+//		TSReader reader = new TSReader(new FileReader(new File(file)));
+		MATInternLoader<MAT<String>> reader = new MATInternLoader<MAT<String>>();
+		System.out.println(reader.loadTrajectories(file, null).get(1));
+		System.out.println(reader.getAttributes().toString());
 				
-	}
-	
-	public static int[][] addCombinations(int minNumberOfFeatures, int maxNumberOfFeatures) {
-		int numberOfFeatures = 4;
-		int[][] combinations;
-		
-		int currentFeatures = minNumberOfFeatures;
-		ArrayList<int[]> combaux = new ArrayList<int[]>();
-		// Start in minimum size until max:
-		for (;currentFeatures <= maxNumberOfFeatures; currentFeatures++) {
-			for (int[] comb : new Combinations(numberOfFeatures,currentFeatures)) {					
-				
-				combaux.add(comb);
-				System.out.println(Arrays.toString(comb));
-				
-			}		
-		}
-		
-		combinations = combaux.stream().toArray(int[][]::new);
-		
-		return combinations;
 	}
 
 }

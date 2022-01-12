@@ -24,7 +24,6 @@ import java.util.Random;
 
 import org.apache.commons.math3.util.Pair;
 
-import br.ufsc.mov3lets.method.discovery.structures.DiscoveryAdapter;
 import br.ufsc.mov3lets.method.discovery.structures.TrajectoryDiscovery;
 import br.ufsc.mov3lets.method.qualitymeasure.QualityMeasure;
 import br.ufsc.mov3lets.method.structures.descriptor.AttributeDescriptor;
@@ -137,7 +136,9 @@ public class MasterMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> implement
 	 * @param movelets
 	 */
 	public void outputMovelets(List<Subtrajectory> movelets) {
-		synchronized (DiscoveryAdapter.class) {
+		
+		this.lock.getWriteLock().lock();
+//		synchronized (DiscoveryAdapter.class) {
 			super.output("train", this.train, movelets, true);
 			base =  null;
 			
@@ -155,7 +156,8 @@ public class MasterMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> implement
 				}
 				super.output("test", this.test, movelets, true);
 			}
-		}
+//		}
+		this.lock.getWriteLock().unlock();
 	}
 
 	/**
