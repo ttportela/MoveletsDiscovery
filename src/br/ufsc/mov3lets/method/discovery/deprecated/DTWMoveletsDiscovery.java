@@ -6,9 +6,11 @@ import java.util.Random;
 import br.ufsc.mov3lets.method.discovery.MoveletsDiscovery;
 import br.ufsc.mov3lets.method.discovery.structures.TrajectoryDiscovery;
 import br.ufsc.mov3lets.method.qualitymeasure.QualityMeasure;
+import br.ufsc.mov3lets.method.structures.descriptor.AttributeDescriptor;
 import br.ufsc.mov3lets.method.structures.descriptor.Descriptor;
 import br.ufsc.mov3lets.model.MAT;
 import br.ufsc.mov3lets.model.Subtrajectory;
+import br.ufsc.mov3lets.model.aspect.Aspect;
 
 public class DTWMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> implements TrajectoryDiscovery {
 
@@ -58,6 +60,21 @@ public class DTWMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> implements T
 		List<Subtrajectory> orderedCandidates = rankCandidates(candidates);
 
 		return bestShapelets(orderedCandidates, 0);
+	}
+
+
+
+	private List<Subtrajectory> bestShapelets(List<Subtrajectory> orderedCandidates, int i) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	@Override
+	public double calculateDistance(Aspect<?> aspect, Aspect<?> aspect2, AttributeDescriptor attr) {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 }

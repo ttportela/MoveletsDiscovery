@@ -69,7 +69,7 @@ public class HiperPivotsCeMoveletsDiscovery<MO> extends HiperPivotsMoveletsDisco
 		
 		this.sampleTrajectories = new ArrayList(sample);
 		
-		this.proportionMeasure = new EntropyQualityMeasure<MO>(this.sampleTrajectories); //, TAU);
+		this.frequencyMeasure = new EntropyQualityMeasure<MO>(this.sampleTrajectories); //, TAU);
 		
 		while (queue.size() > 0) {
 			MAT<MO> trajectory = queue.get(0);

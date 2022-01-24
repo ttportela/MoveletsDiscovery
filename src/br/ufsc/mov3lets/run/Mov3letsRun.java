@@ -251,6 +251,10 @@ public class Mov3letsRun {
 			case "-descfile":
 				params.put("descfile", value);
 				break;
+			case "-inprefix":
+			case "-input_file_prefix":
+				params.put("input_file_prefix", value);
+				break;
 			case "-outside_pivots":
 				params.put("outside_pivots", value);
 				break;

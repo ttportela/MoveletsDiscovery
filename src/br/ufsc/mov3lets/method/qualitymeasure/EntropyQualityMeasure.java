@@ -18,7 +18,7 @@ import br.ufsc.mov3lets.model.Subtrajectory;
  *
  * @param <MO> the generic type
  */
-public class EntropyQualityMeasure<MO> extends ProportionQualityMeasure<MO> {
+public class EntropyQualityMeasure<MO> extends FrequentQualityMeasure<MO> {
 	
 	/**
 	 * Instantiates a new entropy quality measure.
@@ -110,7 +110,7 @@ public class EntropyQualityMeasure<MO> extends ProportionQualityMeasure<MO> {
     	data.put("start", 1.0 * candidate.getStart() );
     	data.put("tid", 1.0 * candidate.getTrajectory().getTid() );
     	
-    	ProportionQuality quality = new ProportionQuality();
+    	FrequencyQuality quality = new FrequencyQuality();
     	quality.setData(data);	    
 //    	quality.setCoveredInClass((List) coveredInClass);
     	candidate.setCovered((List) coveredInClass);

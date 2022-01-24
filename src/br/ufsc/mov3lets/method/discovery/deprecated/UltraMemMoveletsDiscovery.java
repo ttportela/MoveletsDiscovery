@@ -488,7 +488,7 @@ public class UltraMemMoveletsDiscovery<MO> extends HipertPivotsMoveletsDiscovery
 		} // for (int k = 0; k < numberOfFeatures; k++)
 		
 		
-		int bestPosition = bestAlignmentByRanking(ranksForT, comb, true);//, (mdist == null? true : false));
+		int bestPosition = bestAlignmentByRanking(ranksForT, comb);//, (mdist == null? true : false));
 		
 		double[] bestAlignment = new double[comb.length];
 		

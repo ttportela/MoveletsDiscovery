@@ -26,9 +26,11 @@ import org.apache.commons.math3.stat.ranking.RankingAlgorithm;
 
 import br.ufsc.mov3lets.method.discovery.MoveletsDiscovery;
 import br.ufsc.mov3lets.method.qualitymeasure.QualityMeasure;
+import br.ufsc.mov3lets.method.structures.descriptor.AttributeDescriptor;
 import br.ufsc.mov3lets.method.structures.descriptor.Descriptor;
 import br.ufsc.mov3lets.model.MAT;
 import br.ufsc.mov3lets.model.Subtrajectory;
+import br.ufsc.mov3lets.model.aspect.Aspect;
 
 /**
  * The Class ProgressiveMoveletsDiscovery.
@@ -37,15 +39,6 @@ import br.ufsc.mov3lets.model.Subtrajectory;
  * @param <MO> the generic type
  */
 public class ProgressiveMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
-
-	/** The number of features. */
-	protected int numberOfFeatures = 1;
-	
-	/** The max number of features. */
-	protected int maxNumberOfFeatures = 2;
-	
-	/** The explore dimensions. */
-	protected boolean exploreDimensions;
 	
 	/** The quality measure. */
 	protected QualityMeasure qualityMeasure = null;
@@ -241,6 +234,12 @@ public class ProgressiveMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 	 */
 	private Subtrajectory nextSize(Subtrajectory s, MAT<MO> T, int numberOfTrajectories) {
 		return new Subtrajectory(s.getStart(), s.getEnd()+1, T, s.getPointFeatures(), numberOfTrajectories);
+	}
+
+	@Override
+	public double calculateDistance(Aspect<?> aspect, Aspect<?> aspect2, AttributeDescriptor attr) {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 	
 }

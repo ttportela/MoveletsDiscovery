@@ -106,7 +106,8 @@ public abstract class DistanceMeasure<A extends Aspect<?>> {
 	 * @return the double
 	 */
 	public double enhance(double distance) {
-		return (distance != MAX_VALUE) ? (distance * distance) : MAX_VALUE;
+		distance = (distance * distance);
+		return (distance >= MAX_VALUE) ? MAX_VALUE : distance;
 		// TRUE for: MAX_VALUE == (MAX_VALUE * MAX_VALUE)
 		// TRUE for: Double.POSITIVE_INFINITY == (Double.POSITIVE_INFINITY * Double.POSITIVE_INFINITY)
 	}
@@ -122,7 +123,8 @@ public abstract class DistanceMeasure<A extends Aspect<?>> {
 	public double calculateDistance(Aspect<?> asp0, Aspect<?> asp1, AttributeDescriptor attr) {
 		if (asp0.getValue() == null || asp1.getValue() == null)
 			return MAX_VALUE;
-		return enhance(distance((A) asp0, (A) asp1, attr));
+//		return enhance(distance((A) asp0, (A) asp1, attr));
+		return (distance((A) asp0, (A) asp1, attr));
 	}
 	
 }

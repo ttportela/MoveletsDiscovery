@@ -9,7 +9,7 @@ import java.util.Random;
 
 import br.ufsc.mov3lets.method.discovery.HiperPivotsMoveletsDiscovery;
 import br.ufsc.mov3lets.method.discovery.structures.TrajectoryDiscovery;
-import br.ufsc.mov3lets.method.qualitymeasure.ProportionQualityMeasure;
+import br.ufsc.mov3lets.method.qualitymeasure.FrequentQualityMeasure;
 import br.ufsc.mov3lets.method.qualitymeasure.QualityMeasure;
 import br.ufsc.mov3lets.method.structures.descriptor.Descriptor;
 import br.ufsc.mov3lets.model.MAT;
@@ -55,7 +55,7 @@ public class HipertPivotsMoveletsDiscovery<MO> extends HiperPivotsMoveletsDiscov
 
 //		progressBar.trace("HiperT-Pivots Movelets Discovery for Class: " + trajsFromClass.get(0).getMovingObject()); 
 		
-		this.proportionMeasure = new ProportionQualityMeasure<MO>(this.trajsFromClass); //, TAU);
+		this.frequencyMeasure = new FrequentQualityMeasure<MO>(this.trajsFromClass); //, TAU);
 		
 //		while (queue.size() > 0) {
 //			MAT<MO> trajectory = queue.get(0);

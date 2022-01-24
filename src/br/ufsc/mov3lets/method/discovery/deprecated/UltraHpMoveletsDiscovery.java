@@ -12,9 +12,9 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.util.Combinations;
 import org.apache.commons.math3.util.Pair;
 
-import br.ufsc.mov3lets.method.discovery.BaseMoveletsDiscovery;
+import br.ufsc.mov3lets.method.discovery.FrequentMoveletsDiscovery;
 import br.ufsc.mov3lets.method.discovery.structures.TrajectoryDiscovery;
-import br.ufsc.mov3lets.method.qualitymeasure.ProportionQualityMeasure;
+import br.ufsc.mov3lets.method.qualitymeasure.FrequentQualityMeasure;
 import br.ufsc.mov3lets.method.qualitymeasure.QualityMeasure;
 import br.ufsc.mov3lets.method.structures.descriptor.Descriptor;
 import br.ufsc.mov3lets.model.MAT;
@@ -28,7 +28,7 @@ import br.ufsc.mov3lets.model.Subtrajectory;
  * @author tarlis
  * @param <MO> the generic type
  */
-public class UltraHpMoveletsDiscovery<MO> extends BaseMoveletsDiscovery<MO> implements TrajectoryDiscovery {
+public class UltraHpMoveletsDiscovery<MO> extends FrequentMoveletsDiscovery<MO> implements TrajectoryDiscovery {
 
 	/** The max number of combination of features. */
 	protected int maxCombinationOfFeatures = 0;
@@ -71,7 +71,7 @@ public class UltraHpMoveletsDiscovery<MO> extends BaseMoveletsDiscovery<MO> impl
 
 //		progressBar.trace("HiperT-Pivots Movelets Discovery for Class: " + trajsFromClass.get(0).getMovingObject());
 		
-		this.proportionMeasure = new ProportionQualityMeasure<MO>(this.trajsFromClass); //, TAU);
+		this.frequencyMeasure = new FrequentQualityMeasure<MO>(this.trajsFromClass); //, TAU);
 		
 		// This guarantees the reproducibility
 		Random random = new Random(trajectory.getTid());
@@ -254,7 +254,7 @@ public class UltraHpMoveletsDiscovery<MO> extends BaseMoveletsDiscovery<MO> impl
 		// asses quality:
 //		computeDistances(subtrajectory, trajectories);
 //		assesQuality(subtrajectory, random);
-		proportionMeasure.assesClassQuality(subtrajectory, maxDistances, random);
+		frequencyMeasure.assesClassQuality(subtrajectory, maxDistances, random);
 		
 		return subtrajectory.best(candidate);
 	}
@@ -297,7 +297,7 @@ public class UltraHpMoveletsDiscovery<MO> extends BaseMoveletsDiscovery<MO> impl
 			// asses quality:
 //			computeDistances(subtrajectory, trajectories);
 //			assesQuality(subtrajectory, random);
-			proportionMeasure.assesClassQuality(subtrajectory, maxDistances, random);
+			frequencyMeasure.assesClassQuality(subtrajectory, maxDistances, random);
 			
 			subtrajectoryOfFeature = subtrajectory.best(subtrajectoryOfFeature);
 		}

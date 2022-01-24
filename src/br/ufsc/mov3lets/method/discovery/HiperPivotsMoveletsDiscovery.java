@@ -8,6 +8,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
+import br.ufsc.mov3lets.method.filter.EqualCandidatesFilter;
+import br.ufsc.mov3lets.method.filter.OverlappingPointsFilter;
 import br.ufsc.mov3lets.method.qualitymeasure.QualityMeasure;
 import br.ufsc.mov3lets.method.structures.descriptor.Descriptor;
 import br.ufsc.mov3lets.model.MAT;
@@ -94,7 +96,8 @@ public class HiperPivotsMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO>
 
 			calculateProportion(candidatesOfSize, random);
 //			orderCandidates(candidatesOfSize);
-			candidatesOfSize = filterOvelappingPoints(candidatesOfSize);
+//			candidatesOfSize = filterOvelappingPoints(candidatesOfSize);
+			candidatesOfSize = new OverlappingPointsFilter(bucket).filter(candidatesOfSize);
 			candidatesOfSize = filterByProportion(candidatesOfSize, relativeFrequency(candidatesOfSize), bucketSize(candidatesOfSize.size()));
 	
 			total_size = total_size + candidatesOfSize.size();
@@ -111,7 +114,8 @@ public class HiperPivotsMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO>
 		
 		/** STEP 2.2: SELECTING BEST CANDIDATES */	
 		orderCandidates(candidatesByProp);
-		List<Subtrajectory> bestCandidates = filterEqualCandidates(candidatesByProp);
+//		List<Subtrajectory> bestCandidates = filterEqualCandidates(candidatesByProp);
+		List<Subtrajectory> bestCandidates = new EqualCandidatesFilter(getDescriptor()).filter(candidatesByProp);
 		
 		if (getDescriptor().getFlag("feature_limit"))
 			bestCandidates = selectMaxFeatures(bestCandidates);
@@ -259,38 +263,38 @@ public class HiperPivotsMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO>
 //		return orderedCandidates;
 //	}
 
-	/**
-	 * Filter ovelapping points.
-	 *
-	 * @param orderedCandidates the ordered candidates
-	 * @return the list
-	 */
-	public List<Subtrajectory> filterOvelappingPoints(List<Subtrajectory> orderedCandidates) {
-		
-		List<Subtrajectory> bestCandidates = new ArrayList<>();		
-		for(Subtrajectory candidate : orderedCandidates) {
-			
-			if(bestCandidates.isEmpty())
-				bestCandidates.add(candidate);
-			else {
-				boolean similar = false;
-				for(Subtrajectory best_candidate : bestCandidates) {
-					
-					if((best_candidate.getEnd() > candidate.getStart()) &&
-					   (best_candidate.getStart() < candidate.getEnd())) {
-						similar = true;
-						break;
-					}
-					
-				}
-				if(!similar) {
-					bestCandidates.add(candidate);
-				} else
-					bucket.add(candidate);
-			}
-		}
-		
-		return bestCandidates;
-	}
+//	/**
+//	 * Filter ovelapping points.
+//	 *
+//	 * @param orderedCandidates the ordered candidates
+//	 * @return the list
+//	 */
+//	public List<Subtrajectory> filterOvelappingPoints(List<Subtrajectory> orderedCandidates) {
+//		
+//		List<Subtrajectory> bestCandidates = new ArrayList<>();		
+//		for(Subtrajectory candidate : orderedCandidates) {
+//			
+//			if(bestCandidates.isEmpty())
+//				bestCandidates.add(candidate);
+//			else {
+//				boolean similar = false;
+//				for(Subtrajectory best_candidate : bestCandidates) {
+//					
+//					if((best_candidate.getEnd() > candidate.getStart()) &&
+//					   (best_candidate.getStart() < candidate.getEnd())) {
+//						similar = true;
+//						break;
+//					}
+//					
+//				}
+//				if(!similar) {
+//					bestCandidates.add(candidate);
+//				} else
+//					bucket.add(candidate);
+//			}
+//		}
+//		
+//		return bestCandidates;
+//	}
 
 }

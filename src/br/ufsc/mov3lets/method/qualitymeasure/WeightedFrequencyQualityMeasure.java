@@ -290,7 +290,7 @@ public class WeightedFrequencyQualityMeasure<MO> extends QualityMeasure<MO> {
     	data.put("start", 1.0 * candidate.getStart() );
     	data.put("tid", 1.0 * candidate.getTrajectory().getTid() );
     	
-    	ProportionQuality quality = new ProportionQuality();
+    	FrequencyQuality quality = new FrequencyQuality();
     	quality.setData(data);	    
 //    	quality.setCoveredInClass((List) coveredInClass);
     	candidate.setCovered((List) coveredInClass);	

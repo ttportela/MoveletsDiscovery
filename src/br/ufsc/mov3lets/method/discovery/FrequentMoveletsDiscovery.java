@@ -18,18 +18,20 @@
 package br.ufsc.mov3lets.method.discovery;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
-import org.apache.commons.lang3.ArrayUtils;
-
-import br.ufsc.mov3lets.method.qualitymeasure.ProportionQualityMeasure;
+import br.ufsc.mov3lets.method.discovery.structures.TrajectoryDiscovery;
+import br.ufsc.mov3lets.method.filter.FeaturesCandidatesFilter;
+import br.ufsc.mov3lets.method.filter.FrequentCandidatesFilter;
+import br.ufsc.mov3lets.method.filter.FrequentFeaturesCandidatesFilter;
+import br.ufsc.mov3lets.method.qualitymeasure.FrequentQualityMeasure;
 import br.ufsc.mov3lets.method.qualitymeasure.QualityMeasure;
+import br.ufsc.mov3lets.method.structures.descriptor.AttributeDescriptor;
 import br.ufsc.mov3lets.method.structures.descriptor.Descriptor;
 import br.ufsc.mov3lets.model.MAT;
-import br.ufsc.mov3lets.model.Point;
 import br.ufsc.mov3lets.model.Subtrajectory;
 import br.ufsc.mov3lets.model.aspect.Aspect;
 
@@ -39,7 +41,7 @@ import br.ufsc.mov3lets.model.aspect.Aspect;
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  * @param <MO> the generic type
  */
-public class BaseMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> {
+public class FrequentMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> implements TrajectoryDiscovery {
 	
 	/** The tau. */
 	protected double TAU 		= 0.9;
@@ -48,7 +50,7 @@ public class BaseMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> {
 	protected double BU 		= 0.1;
 
 	/** The proportion measure. */
-	protected ProportionQualityMeasure<MO> proportionMeasure;
+	protected FrequentQualityMeasure<MO> frequencyMeasure;
 	
 	/**
 	 * Instantiates a new super movelets discovery.
@@ -60,7 +62,7 @@ public class BaseMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> {
 	 * @param qualityMeasure the quality measure
 	 * @param descriptor the descriptor
 	 */
-	public BaseMoveletsDiscovery(MAT<MO> trajectory, List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test, QualityMeasure qualityMeasure, 
+	public FrequentMoveletsDiscovery(MAT<MO> trajectory, List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test, QualityMeasure qualityMeasure, 
 			Descriptor descriptor) {
 		super(trajectory, trajsFromClass, data, train, test, qualityMeasure, descriptor);
 		
@@ -84,7 +86,7 @@ public class BaseMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> {
 //		progressBar.trace("SUPERMovelets Discovery for Class: " + trajsFromClass.get(0).getMovingObject() 
 //				+ ". Trajectory: " + trajectory.getTid());
 		
-		this.proportionMeasure = new ProportionQualityMeasure<MO>(this.trajsFromClass); //, TAU);
+		this.frequencyMeasure = new FrequentQualityMeasure<MO>(this.trajsFromClass); //, TAU);
 		
 //		for (MAT<MO> trajectory : trajsFromClass) {
 			// This guarantees the reproducibility
@@ -98,7 +100,8 @@ public class BaseMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> {
 			
 			/** STEP 2.4: SELECTING BEST CANDIDATES */			
 //			candidates = filterMovelets(candidates);		
-			movelets.addAll(filterMovelets(candidates));
+//			movelets.addAll(filterMovelets(candidates));
+			movelets.addAll(candidates);
 
 //			System.gc();
 //		}
@@ -110,15 +113,6 @@ public class BaseMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> {
 		/** STEP 2.2: ---------------------------- */
 		outputMovelets(movelets);
 		/** -------------------------------------- */
-		
-//		progressBar.trace("Class: " + trajsFromClass.get(0).getMovingObject() 
-//				   + ". Total of Movelets: " + movelets.size());
-
-//		/** STEP 2.5, to write all outputs: */
-//		super.output("train", this.train, movelets, false);
-//		
-//		if (!this.test.isEmpty())
-//			super.output("test", this.test, movelets, false);
 		
 		return movelets;
 	}
@@ -187,6 +181,72 @@ public class BaseMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> {
 	}
 
 	/**
+	 * [THE GREAT GAP].
+	 *
+	 * @param trajectory the trajectory
+	 * @param trajectories the trajectories
+	 * @param size the size
+	 * @param mdist the mdist
+	 * @return the list
+	 */
+	public List<Subtrajectory> findCandidates(MAT<MO> trajectory, List<MAT<MO>> trajectories, int size, double[][][][] mdist) {
+		
+		// Trajectory P size => n
+		int n = trajectory.getPoints().size();
+		int[][] combinations = makeCombinations(exploreDimensions, numberOfFeatures, maxNumberOfFeatures);
+		
+		maxDistances = new double[getDescriptor().getAttributes().size()];
+		
+		// List of Candidates to extract from P:
+		List<Subtrajectory> candidates = new ArrayList<>();
+		
+		// From point 0 to (n - <candidate max. size>) 
+		for (int start = 0; start <= (n - size); start++) {
+//			Point p = trajectory.getPoints().get(start);
+			
+			// Extract possible candidates from P to max. candidate size:
+			List<Subtrajectory> list = buildSubtrajectory(start, start + size - 1, trajectory, trajectories.size(), combinations);
+							
+			double[][][] distancesForAllT = mdist[start];
+			
+			// For each trajectory in the database
+			for (int i = 0; i < trajectories.size(); i++) {
+				MAT<MO> T = trajectories.get(i);	
+				
+				double[][] distancesForT = distancesForAllT[i];
+				double[][] ranksForT = new double[distancesForT.length][];
+				
+				int limit = T.getPoints().size() - size + 1;
+				
+				if (limit > 0)
+					for (int k = 0; k < numberOfFeatures; k++) {				
+						ranksForT[k] = rankingAlgorithm.rank(Arrays.stream(distancesForT[k],0,limit).toArray());
+					} // for (int k = 0; k < numberOfFeatures; k++)
+				
+				for (Subtrajectory subtrajectory : list) {		
+					int bestPosition = (limit > 0) ? bestAlignmentByRanking(ranksForT, subtrajectory.getPointFeatures()) : -1;
+					for (int j = 0; j < subtrajectory.getPointFeatures().length; j++) {	
+						double distance = (bestPosition >= 0) ? 
+								distancesForT[subtrajectory.getPointFeatures()[j]][bestPosition] : MAX_VALUE;
+						subtrajectory.getDistances()[j][i] = (distance != MAX_VALUE) ? 
+								Math.sqrt( distance / size ) : MAX_VALUE;	
+								
+						if (maxDistances[j] < subtrajectory.getDistances()[j][i] && subtrajectory.getDistances()[j][i] != MAX_VALUE)
+							maxDistances[j] = subtrajectory.getDistances()[j][i];
+					}
+				}
+				
+			} // for (int currentFeatures = 1; currentFeatures <= numberOfFeatures; currentFeatures++)
+			
+			candidates.addAll(list);
+
+		} // for (int start = 0; start <= (n - size); start++)
+		
+		return candidates;
+		
+	}
+
+	/**
 	 * Select best candidates.
 	 *
 	 * @param trajectory the trajectory
@@ -249,7 +309,6 @@ public class BaseMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> {
 	 * 
 	 */
 	protected int bucketSize(int candidatesByProp) {
-//		if (BU < 0) return candidatesByProp;
 		int n = candidatesByProp;
 		if (BU > 0.0) {
 			n = (int) Math.ceil((double) (candidatesByProp+bucket.size()) * BU); // By 10%
@@ -267,27 +326,7 @@ public class BaseMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> {
 	 * @return the list
 	 */
 	public List<Subtrajectory> filterByProportion(List<Subtrajectory> candidatesByProp, double rel_tau, int n) {
-//		calculateProportion(candidatesByProp, random);
-//		candidatesByProp = filterEqualCandidates(candidatesByProp);
-		
-//		// Relative TAU based on the higher proportion:
-//		double rel_tau = relativeFrequency(candidatesByProp);	
-//		
-//		int n = bucketSize(candidatesByProp.size());
-//		addStats("TAU", rel_tau);
-//		addStats("Bucket Size", n);
-
-		/* STEP 2.1.2: SELECT ONLY CANDIDATES WITH PROPORTION > 50%
-		 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-		List<Subtrajectory> orderedCandidates = new ArrayList<>();
-		for(Subtrajectory candidate : candidatesByProp)
-			if(orderedCandidates.size() <= n &&
-			   candidateQuality(candidate) >= rel_tau) //TAU)
-				orderedCandidates.add(candidate);
-			else 
-				bucket.add(candidate);
-		
-		return orderedCandidates;
+		return new FrequentCandidatesFilter(rel_tau, n, bucket).filter(candidatesByProp);
 	}
 
 	protected double relativeFrequency(List<Subtrajectory> candidatesByProp) {
@@ -299,46 +338,9 @@ public class BaseMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> {
 		int n = (int) Math.ceil((double) (candidatesByProp.size()) * BU); // By 10%
 		return candidatesByProp.subList(0, n);
 	}
-	
-	/**
-	 * Mehod overlappingCandidates. 
-	 * 
-	 * @param bestCandidates
-	 */
-	public List<Subtrajectory> overlappingCandidatesByPoints(List<Subtrajectory> bestCandidates) {
-		List<Subtrajectory> recovered = new ArrayList<Subtrajectory>();
-		for (Subtrajectory candidate1 : bestCandidates) {
-			for (Subtrajectory candidate2 : bucket) {
-				if (areSelfSimilar(candidate1, candidate2, 0)) {
-					recovered.add(candidate2);
-				}
-			}		
-		}
-//		bestCandidates.addAll(recovered);
-		bucket.removeAll(recovered);
-		
-		return recovered;
-	}
 
 	/**
-	 * Mehod overlappingCandidates. 
-	 * 
-	 * @param bestCandidates
-	 */
-	public List<Subtrajectory> overlappingCandidatesByFeatures(List<Subtrajectory> bestCandidates, int[] pointFeatures) {
-		List<Subtrajectory> recovered = new ArrayList<Subtrajectory>();
-		for (Subtrajectory candidate : bucket) {
-			if (areFeaturesSimilar(candidate, pointFeatures, 0)) {
-				recovered.add(candidate);
-			}
-		}		
-//		bestCandidates.addAll(recovered);
-		bucket.removeAll(recovered);
-		
-		return recovered;
-	}
-
-	/**
+	 * TODO Correct these
 	 * Mehod selectMaxFeatures. 
 	 * Options:
 	 * 		-2: Log Limit (not implemented here)
@@ -349,74 +351,19 @@ public class BaseMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> {
 	 * @return
 	 */
 	public List<Subtrajectory> selectMaxFeatures(List<Subtrajectory> candidatesByProp) {
-		
+		FeaturesCandidatesFilter filter;
 		if (getDescriptor().getParamAsInt("max_number_of_features") == -3) {
-			return selectMaxFeatures_3(candidatesByProp);
+			filter = new FeaturesCandidatesFilter(numberOfFeatures, maxNumberOfFeatures);
 		} else if (getDescriptor().getParamAsInt("max_number_of_features") == -4) {
-			return selectMaxFeatures_4(candidatesByProp);
+			filter = new FrequentFeaturesCandidatesFilter(numberOfFeatures, maxNumberOfFeatures, TAU);
 		} else
 			return candidatesByProp;
+		
+		candidatesByProp = filter.filter(candidatesByProp);
+		this.maxNumberOfFeatures = filter.getMaxNumberOfFeatures();
+		return candidatesByProp;
 	}
 	
-	public List<Subtrajectory> selectMaxFeatures_3(List<Subtrajectory> candidatesByProp) {
-		
-		int[] attribute_usage = new int [this.numberOfFeatures]; // array of ints
-
-		for(Subtrajectory candidate : candidatesByProp)
-			attribute_usage[candidate.getPointFeatures().length-1]++;
-		
-		// Selection of threshold:
-		// Limit by mode of dimension usage from best candidates.
-		int LAMBDA = -1;
-		for (int i = 0; i < attribute_usage.length; i++) {
-			if (LAMBDA <= attribute_usage[i])
-				LAMBDA = i+1;
-		}
-		
-		// Include every other candidate with overlapping points
-//		candidatesByProp.addAll(overlappingCandidatesByPoints(candidatesByProp));
-		
-		List<Subtrajectory> filteredCandidates = new ArrayList<>();
-		for(Subtrajectory candidate : candidatesByProp)
-			if(candidate.getPointFeatures().length <= LAMBDA)
-				filteredCandidates.add(candidate);
-		
-		this.maxNumberOfFeatures = Math.min(LAMBDA, this.maxNumberOfFeatures);
-		
-		return filteredCandidates;
-	}
-	
-	public List<Subtrajectory> selectMaxFeatures_4(List<Subtrajectory> candidatesByProp) {
-		
-		int[] attribute_usage = new int [numberOfFeatures]; // array of ints
-
-		for(Subtrajectory candidate : candidatesByProp)
-			for (int i : candidate.getPointFeatures())
-				attribute_usage[i]++;
-
-		// Selection of dimensions:
-		// Limit by most frequent dimensions from best candidates
-		List<Integer> features = new ArrayList<Integer>();
-		for (int i = 0; i < attribute_usage.length; i++) {
-			if (attribute_usage[i] >= (candidatesByProp.size() * TAU))
-				features.add(i);
-		}
-		
-		int[] pointFeatures = features.stream().mapToInt(Integer::valueOf).toArray();
-		List<Subtrajectory> filteredCandidates = new ArrayList<>();
-		for (Subtrajectory candidate : candidatesByProp) {
-			if (areFeaturesSimilar(candidate, pointFeatures, 0)) {
-				filteredCandidates.add(candidate);
-			}
-		}		
-//		candidatesByProp.removeAll(recovered);
-//		bucket.addAll(recovered);
-		
-		this.maxNumberOfFeatures = Math.min(pointFeatures.length, this.maxNumberOfFeatures);
-		
-		return filteredCandidates;
-	}
-
 	/**
 	 * Recover candidates.
 	 *
@@ -431,10 +378,9 @@ public class BaseMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> {
 		int n = bucketSize(candidatesByProp.size());
 		
 		orderCandidates(bucket);
-//		bucket = filterEqualCandidates(bucket);
+
 		List<Subtrajectory> bestCandidates = new ArrayList<Subtrajectory>();
 		
-//		bestCandidates = filterByQuality(bestCandidates, random, trajectory);
 		long recovered = 0;
 		for (int i = n; i < bucket.size(); i += n) {
 			bestCandidates = bucket.subList(i-n, (i > bucket.size()? bucket.size() : i));
@@ -450,62 +396,13 @@ public class BaseMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> {
 	}
 
 	/**
-	 * Mehod candidateQuality. 
-	 * 
-	 * @param candidate
-	 * @return
-	 */
-	protected double candidateQuality(Subtrajectory candidate) {
-		return candidate.getQuality().getData().get("quality");
-	}
-
-	/**
-	 * Filter equal candidates.
-	 *
-	 * @param orderedCandidates the ordered candidates
-	 * @return the list
-	 */
-	public List<Subtrajectory> filterEqualCandidates(List<Subtrajectory> orderedCandidates) {
-		/* STEP 2.1.4: IDENTIFY EQUAL CANDIDATES
-		 * * * * * * * * * * * * * * * * * * * * * * * * */
-		List<Subtrajectory> bestCandidates = new ArrayList<>();
-//		int[] attribute_usage = new int [numberOfFeatures]; // array of 5 ints
-		
-		for(Subtrajectory candidate : orderedCandidates) {
-			
-			if(bestCandidates.isEmpty())
-				bestCandidates.add(candidate);
-			else {
-				boolean equal = false;
-				for(Subtrajectory best_candidate : bestCandidates) {
-					
-					List<HashMap<Integer, Aspect<?>>> used_features_c1 = getDimensions(candidate);
-					List<HashMap<Integer, Aspect<?>>> used_features_c2 = getDimensions(best_candidate);
-					
-					if(used_features_c1.size()==used_features_c2.size())
-						if(areEqual(used_features_c1, used_features_c2)) {
-							equal = true;
-							break;
-						}
-					
-				}
-				if(!equal) {
-					bestCandidates.add(candidate);
-//					attribute_usage[candidate.getPointFeatures().length-1]++;
-				}
-			}
-		}
-		return bestCandidates;
-	}
-
-	/**
 	 * Calculate proportion.
 	 *
 	 * @param candidatesByProp the candidates by prop
 	 * @param random the random
 	 */
 	public void calculateProportion(List<Subtrajectory> candidatesByProp, Random random) {
-		candidatesByProp.forEach(x -> proportionMeasure.assesClassQuality(x, maxDistances, random));
+		candidatesByProp.forEach(x -> frequencyMeasure.assesClassQuality(x, maxDistances, random));
 		
 		orderCandidates(candidatesByProp);
 	}
@@ -556,78 +453,21 @@ public class BaseMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> {
 		/** STEP 2.2: SELECTING BEST CANDIDATES */	
 		return filterMovelets(bestCandidates);
 	}
-	
-	/**
-	 * Gets the dimensions.
-	 *
-	 * @param candidate the candidate
-	 * @return the dimensions
-	 */
-	public List<HashMap<Integer, Aspect<?>>> getDimensions(Subtrajectory candidate) {
-		
-		List<Integer> features_in_movelet = new ArrayList<>();
-		
-		int[] list_features = candidate.getPointFeatures();
-		
-		for(int i=0; i <= getDescriptor().getAttributes().size(); i++) {
-			
-			if(ArrayUtils.contains(list_features, i))				
-				features_in_movelet.add(i);
-			
-		}
-		
-		List<HashMap<Integer, Aspect<?>>> used_features = new ArrayList<>();
-		
-		for(int i=0; i < candidate.getPoints().size(); i++) {
-			
-			Point point = candidate.getPoints().get(i);
-			
-			HashMap<Integer, Aspect<?>> features_in_point = new HashMap<>();
-			
-			for(Integer feature : features_in_movelet) {
-				features_in_point.put(feature, point.getAspects().get(feature));
-			}
-			
-			used_features.add(features_in_point);
-		}
-		
-		return used_features;
-	}
-	
-	/**
-	 * Are equal.
-	 *
-	 * @param first the first
-	 * @param second the second
-	 * @return true, if successful
-	 */
-	public boolean areEqual(List<HashMap<Integer, Aspect<?>>> first, List<HashMap<Integer, Aspect<?>>> second) {
-		
-		if (first.size() != second.size())
-	        return false;
-		
-		if (first.get(0).size() != second.get(0).size())
-	        return false;
-	 
-		for ( Integer key : first.get(0).keySet() ) {
-			if(!second.get(0).containsKey(key)) {
-		        return false;
-		    }
-		}
-		
-		boolean all_match = true;
-		
-		for(int i=0; i<first.size();i++) {
-			
-			HashMap<Integer, Aspect<?>> f = first.get(i);
-			HashMap<Integer, Aspect<?>> s = second.get(i);
-						
-			if(!f.entrySet().stream()
-				      .allMatch(e -> e.getValue().equals(s.get(e.getKey()))))
-				return false;
-			
-		}
-	    return all_match;
+
+//	@Override
+//	public double calculateDistance(Aspect<?> a, Aspect<?> b, AttributeDescriptor attr) {
+//		return attr.getDistanceComparator().enhance(
+//				attr.getDistanceComparator().calculateDistance(a, b, attr)
+//		);
+//	}
+
+	@Override
+	public double calculateDistance(Aspect<?> a, Aspect<?> b, AttributeDescriptor attr) {
+		return attr.getDistanceComparator().enhance(
+				attr.getDistanceComparator().normalizeDistance(
+				attr.getDistanceComparator().calculateDistance(a, b, attr),
+				attr.getComparator().getMaxValue()
+		));
 	}
 	
 }

@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import org.apache.commons.math3.util.Combinations;
+
 import br.ufsc.mov3lets.method.distancemeasure.DistanceMeasure;
 import br.ufsc.mov3lets.method.output.CSVOutputter;
 import br.ufsc.mov3lets.method.output.JSONOutputter;
@@ -38,6 +40,15 @@ import br.ufsc.mov3lets.utils.log.ProgressBar;
  * @param <MO> the generic type
  */
 public abstract class DiscoveryAdapter<MO> implements Callable<Integer> {
+
+	/** The number of features. */
+	protected int numberOfFeatures = 1;
+
+	/** The max number of features. */
+	protected int maxNumberOfFeatures = 2;
+	
+	/** The explore dimensions. */
+	protected boolean exploreDimensions;
 
 	/** The descriptor. */
 	protected Descriptor descriptor;
@@ -74,6 +85,9 @@ public abstract class DiscoveryAdapter<MO> implements Callable<Integer> {
 	public double MAX_VALUE = DistanceMeasure.DEFAULT_MAX_VALUE;
 	
 	protected Lock lock; 
+	
+	/** The combinations. */
+	protected int[][] combinations = null;
 	
 	/**
 	 * Instantiates a new discovery adapter.
@@ -165,6 +179,66 @@ public abstract class DiscoveryAdapter<MO> implements Callable<Integer> {
 		this.descriptor = null;
 
 //		System.gc();
+	}
+
+	/**
+	 * Inits the.
+	 *
+	 * @param qualityMeasure the quality measure
+	 */
+	protected void init() {
+		this.numberOfFeatures = getDescriptor().numberOfFeatures();
+		this.maxNumberOfFeatures = getDescriptor().getParamAsInt("max_number_of_features");
+		this.exploreDimensions = getDescriptor().getFlag("explore_dimensions");
+		
+		switch (maxNumberOfFeatures) {
+			case -1: // All features
+			case -3: // Learn feature limits (mode)
+			case -4: this.maxNumberOfFeatures = numberOfFeatures; break; // Learn feature limits (most frequent)
+			
+			case -2: this.maxNumberOfFeatures = (int) Math.ceil(Math.log(numberOfFeatures))+1; break;
+			
+			default: break; // Fixed number of features
+		}
+	}
+	
+	/**
+	 * Make combinations.
+	 *
+	 * @param exploreDimensions the explore dimensions
+	 * @param numberOfFeatures the number of features
+	 * @param maxNumberOfFeatures the max number of features
+	 * @return the int[][]
+	 */
+	public int[][] makeCombinations(boolean exploreDimensions, int numberOfFeatures, int maxNumberOfFeatures) {
+		
+		if (combinations != null)
+			return combinations;
+		
+		int currentFeatures;
+		if (exploreDimensions){
+			currentFeatures = 1;
+		} else {
+			currentFeatures = numberOfFeatures;
+		}
+				
+//		combinations = new int[(int) (Math.pow(2, numberOfFeatures) - 1)][];
+		ArrayList<int[]> combaux = new ArrayList<int[]>();
+//		int k = 0;
+		// For each possible NumberOfFeatures and each combination of those: 
+		for (;currentFeatures <= maxNumberOfFeatures; currentFeatures++) {
+			for (int[] comb : new Combinations(numberOfFeatures,currentFeatures)) {					
+				
+//				combinations[k++] = comb;
+				combaux.add(comb);
+				
+			} // for (int[] comb : new Combinations(numberOfFeatures,currentFeatures)) 					
+		} // for (int i = 0; i < train.size(); i++
+
+//		combinations = Arrays.stream(combinations).filter(Objects::nonNull).toArray(int[][]::new);
+		combinations = combaux.stream().toArray(int[][]::new);
+		
+		return combinations;
 	}
 
 //	/**

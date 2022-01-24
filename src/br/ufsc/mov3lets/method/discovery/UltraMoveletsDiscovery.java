@@ -27,7 +27,7 @@ import br.ufsc.mov3lets.model.Subtrajectory;
  * @author tarlis
  * @param <MO> the generic type
  */
-public class UltraMoveletsDiscovery<MO> extends BaseMoveletsDiscovery<MO> implements TrajectoryDiscovery {
+public class UltraMoveletsDiscovery<MO> extends FrequentMoveletsDiscovery<MO> implements TrajectoryDiscovery {
 
 	/** The used max number of combination of features. */
 	protected int maxCombinationOfFeatures = 0;

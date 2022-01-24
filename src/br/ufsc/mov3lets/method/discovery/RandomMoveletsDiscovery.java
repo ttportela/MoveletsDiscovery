@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Random;
 
 import br.ufsc.mov3lets.method.discovery.structures.TrajectoryDiscovery;
-import br.ufsc.mov3lets.method.qualitymeasure.ProportionQualityMeasure;
+import br.ufsc.mov3lets.method.qualitymeasure.FrequentQualityMeasure;
 import br.ufsc.mov3lets.method.qualitymeasure.QualityMeasure;
 import br.ufsc.mov3lets.method.structures.descriptor.Descriptor;
 import br.ufsc.mov3lets.model.MAT;
@@ -55,7 +55,7 @@ public class RandomMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO> impl
 
 //		printStart(); 
 		
-		this.proportionMeasure = new ProportionQualityMeasure<MO>(this.trajsFromClass); //, TAU);
+		this.frequencyMeasure = new FrequentQualityMeasure<MO>(this.trajsFromClass); //, TAU);
 
 //		while (queue.size() > 0) {
 //			MAT<MO> trajectory = queue.get(0);

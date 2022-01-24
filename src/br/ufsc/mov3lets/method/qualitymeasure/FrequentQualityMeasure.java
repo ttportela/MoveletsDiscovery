@@ -19,7 +19,7 @@ import br.ufsc.mov3lets.model.Subtrajectory;
  *
  * @param <MO> the generic type
  */
-public class ProportionQualityMeasure<MO> extends QualityMeasure<MO> {
+public class FrequentQualityMeasure<MO> extends QualityMeasure<MO> {
 
 	/** The tau. */
 //	protected double TAU = 0.5;
@@ -34,7 +34,7 @@ public class ProportionQualityMeasure<MO> extends QualityMeasure<MO> {
 //		super(trajectories, 1, 1.0, "");
 ////		this.TAU = tau;
 //	}
-	public ProportionQualityMeasure(List<MAT<MO>> trajectories) {
+	public FrequentQualityMeasure(List<MAT<MO>> trajectories) {
 		super(trajectories, 1, 1.0, "");
 //		this.TAU = tau;
 	}
@@ -47,7 +47,7 @@ public class ProportionQualityMeasure<MO> extends QualityMeasure<MO> {
 	 * @param sampleSize the sample size
 	 * @param medium the medium
 	 */
-	public ProportionQualityMeasure(List<MAT<MO>> trajectories, int samples, double sampleSize, String medium) {
+	public FrequentQualityMeasure(List<MAT<MO>> trajectories, int samples, double sampleSize, String medium) {
 		super(trajectories, samples, sampleSize, medium);
 		this.trajectories = trajectories;
 	}
@@ -277,7 +277,7 @@ public class ProportionQualityMeasure<MO> extends QualityMeasure<MO> {
     	data.put("start", 		1.0 * candidate.getStart() );
     	data.put("tid", 		1.0 * candidate.getTrajectory().getTid() );
     	
-    	ProportionQuality quality = new ProportionQuality();
+    	FrequencyQuality quality = new FrequencyQuality();
     	quality.setData(data);	    
 //    	quality.setCoveredInClass((List) coveredInClass);	
 		candidate.setQuality(quality);
@@ -356,7 +356,7 @@ public class ProportionQualityMeasure<MO> extends QualityMeasure<MO> {
     	data.put("start", 1.0 * candidate.getStart() );
     	data.put("tid", 1.0 * candidate.getTrajectory().getTid() );
     	
-    	ProportionQuality quality = new ProportionQuality();
+    	FrequencyQuality quality = new FrequencyQuality();
     	quality.setData(data);	    
 //    	quality.setCoveredInClass((List) coveredInClass);
     	candidate.setCovered((List) coveredInClass);	

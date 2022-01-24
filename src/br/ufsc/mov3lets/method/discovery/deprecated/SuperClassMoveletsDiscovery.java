@@ -21,9 +21,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import br.ufsc.mov3lets.method.discovery.BaseMoveletsDiscovery;
+import br.ufsc.mov3lets.method.discovery.FrequentMoveletsDiscovery;
 import br.ufsc.mov3lets.method.discovery.structures.ClassDiscovery;
-import br.ufsc.mov3lets.method.qualitymeasure.ProportionQualityMeasure;
+import br.ufsc.mov3lets.method.qualitymeasure.FrequentQualityMeasure;
 import br.ufsc.mov3lets.method.qualitymeasure.QualityMeasure;
 import br.ufsc.mov3lets.method.structures.descriptor.Descriptor;
 import br.ufsc.mov3lets.model.MAT;
@@ -35,7 +35,7 @@ import br.ufsc.mov3lets.model.Subtrajectory;
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  * @param <MO> the generic type
  */
-public class SuperClassMoveletsDiscovery<MO> extends BaseMoveletsDiscovery<MO> implements ClassDiscovery {
+public class SuperClassMoveletsDiscovery<MO> extends FrequentMoveletsDiscovery<MO> implements ClassDiscovery {
 	
 	/**
 	 * Instantiates a new super movelets discovery.
@@ -68,7 +68,7 @@ public class SuperClassMoveletsDiscovery<MO> extends BaseMoveletsDiscovery<MO> i
 		progressBar.trace("By Class - SUPERMovelets Discovery for Class: " + trajsFromClass.get(0).getMovingObject() 
 				+ ". Trajectory: " + trajectory.getTid());
 		
-		this.proportionMeasure = new ProportionQualityMeasure<MO>(this.trajsFromClass); //, TAU);
+		this.frequencyMeasure = new FrequentQualityMeasure<MO>(this.trajsFromClass); //, TAU);
 		
 		for (MAT<MO> trajectory : trajsFromClass) {
 			// This guarantees the reproducibility

@@ -4,9 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * The Class ProportionQuality.
+ * The Class FrequencyQuality.
  */
-public class ProportionQuality extends Quality {
+public class FrequencyQuality extends Quality {
 	
 /** The data. */
 //	private List<MAT<?>> coveredInClass;
@@ -15,7 +15,7 @@ public class ProportionQuality extends Quality {
 	/**
 	 * Instantiates a new proportion quality.
 	 */
-	public ProportionQuality() {
+	public FrequencyQuality() {
 		data = new HashMap<>();
 	}
 

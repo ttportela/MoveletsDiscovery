@@ -22,8 +22,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-import org.apache.commons.math3.util.Pair;
-
 import br.ufsc.mov3lets.method.discovery.structures.TrajectoryDiscovery;
 import br.ufsc.mov3lets.method.qualitymeasure.QualityMeasure;
 import br.ufsc.mov3lets.method.structures.descriptor.AttributeDescriptor;
@@ -31,6 +29,7 @@ import br.ufsc.mov3lets.method.structures.descriptor.Descriptor;
 import br.ufsc.mov3lets.model.MAT;
 import br.ufsc.mov3lets.model.Point;
 import br.ufsc.mov3lets.model.Subtrajectory;
+import br.ufsc.mov3lets.model.aspect.Aspect;
 
 /**
  * The Class MemMoveletsDiscovery.
@@ -40,14 +39,8 @@ import br.ufsc.mov3lets.model.Subtrajectory;
  */
 public class MasterMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> implements TrajectoryDiscovery {
 	
-	/** The base. */
-	protected double[][][][] base;
-	
-	/** The max distances. */
-	protected double[] maxDistances; // Max distances by dimension
-	
 	/**
-	 * Instantiates a new mem movelets discovery.
+	 * Instantiates a new MASTERMovelets discovery (By Trajectory).
 	 *
 	 * @param trajsFromClass the trajs from class
 	 * @param data the data
@@ -60,6 +53,21 @@ public class MasterMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> implement
 			Descriptor descriptor) {
 		super(trajectory, trajsFromClass, data, train, test, qualityMeasure, descriptor);
 	}
+	
+	/**
+	 * Instantiates a new MASTERMovelets discovery (By Class).
+	 *
+	 * @param trajsFromClass the trajs from class
+	 * @param data the data
+	 * @param train the train
+	 * @param test the test
+	 * @param qualityMeasure the quality measure
+	 * @param descriptor the descriptor
+	 *	
+	public MasterMoveletsDiscovery(List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test, QualityMeasure qualityMeasure, 
+			Descriptor descriptor) {
+		super(null, trajsFromClass, data, train, test, qualityMeasure, descriptor);
+	}*/
 
 	/**
 	 * Looks for candidates in the trajectory, then compares with every other trajectory.
@@ -103,9 +111,11 @@ public class MasterMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> implement
 
 			/** STEP 2.4: SELECTING BEST CANDIDATES */			
 //			candidates = filterMovelets(candidates);		
-			movelets.addAll(filterMovelets(candidates));
+//			movelets.addAll(filterMovelets(candidates));
+			movelets.addAll(candidates);
 			
 //		}
+//		movelets = filterMovelets(movelets);
 		
 		/** STEP 2.2: Runs the pruning process */
 		if(getDescriptor().getFlag("last_prunning"))
@@ -172,15 +182,6 @@ public class MasterMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> implement
 	 * @param random the random
 	 * @return the list
 	 */
-	
-	/**
-	 * @param trajectory2
-	 * @param data2
-	 * @param minSize
-	 * @param maxSize
-	 * @param random
-	 * @return
-	 */
 	public List<Subtrajectory> moveletsDiscovery(MAT<MO> trajectory, List<MAT<MO>> trajectories, int minSize, int maxSize, Random random) {
 		List<Subtrajectory> candidates = new ArrayList<Subtrajectory>();
 
@@ -242,118 +243,6 @@ public class MasterMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> implement
 
 		return candidates;
 	}
-	
-	/**
-	 * Compute base distances.
-	 *
-	 * @param trajectory the trajectory
-	 * @param trajectories the trajectories
-	 * @return the double[][][][]
-	 */
-	public double[][][][] computeBaseDistances(MAT<?> trajectory, List<MAT<MO>> trajectories){
-		int n = trajectory.getPoints().size();
-		int size = 1;
-		
-		double[][][][] base = new double[(n - size)+1][][][];		
-		
-		for (int start = 0; start <= (n - size); start++) {
-			
-			base[start] = new double[trajectories.size()][][];				
-			
-			for (int i = 0; i < trajectories.size(); i++) {
-				
-				MAT<?> T = trajectories.get(i);
-				Point a = trajectory.getPoints().get(start);
-								
-				base[start][i] = new double[getDescriptor().getAttributes().size()][(trajectories.get(i).getPoints().size()-size)+1];
-						
-				for (int j = 0; j <= (T.getPoints().size()-size); j++) {
-					Point b = T.getPoints().get(j);
-					
-
-					for (int k = 0; k < getDescriptor().getAttributes().size(); k++) {
-						AttributeDescriptor attr = getDescriptor().getAttributes().get(k);						
-						base[start][i][k][j] = attr.getDistanceComparator().calculateDistance(
-								a.getAspects().get(k), 
-								b.getAspects().get(k), 
-								attr);
-					
-//						base[start][i][k][j] = (distance != MAX_VALUE) ? (distance) : MAX_VALUE;	// No sense				
-					
-					} // for (int k = 0; k < distance.length; k++)
-					
-				} // for (int j = 0; j <= (train.size()-size); j++)
-				
-			} //for (int i = 0; i < train.size(); i++)
-			
-		} // for (int start = 0; start <= (n - size); start++)
-
-		return base;
-	}
-	
-	/**
-	 * Clone 4 D array.
-	 *
-	 * @param source the source
-	 * @return the double[][][][]
-	 */
-	public double[][][][] clone4DArray(double [][][][] source){
-		double[][][][] dest = new double[source.length][][][];
-		for (int i = 0; i < dest.length; i++) {
-			dest[i] = new double[source[i].length][][];
-			for (int j = 0; j < dest[i].length; j++) {
-				dest[i][j] = new double[source[i][j].length][];
-				for (int k = 0; k < dest[i][j].length; k++) {
-					dest[i][j][k] = new double[source[i][j][k].length];
-					for (int k2 = 0; k2 < source[i][j][k].length; k2++) {
-						dest[i][j][k][k2] = source[i][j][k][k2];
-					}
-				}
-			}
-		}
-		return dest;		
-	}
-
-	/**
-	 * New size.
-	 *
-	 * @param trajectory the trajectory
-	 * @param trajectories the trajectories
-	 * @param base the base
-	 * @param lastSize the last size
-	 * @param size the size
-	 * @return the double[][][][]
-	 */
-	public double[][][][] newSize(MAT<?> trajectory, List<MAT<MO>> trajectories, double[][][][] base, double[][][][] lastSize, int size) {
-		
-		int n = trajectory.getPoints().size();	
-		
-		for (int start = 0; start <= (n - size); start++) {
-						
-			for (int i = 0; i < trajectories.size(); i++) {
-				
-				if (trajectories.get(i).getPoints().size() >= size) {						
-							
-					for (int j = 0; j <= (trajectories.get(i).getPoints().size()-size); j++) {
-												
-						for (int k = 0; k < lastSize[start][i].length; k++) {
-							
-							if (lastSize[start][i][k][j] != MAX_VALUE)
-								
-								lastSize[start][i][k][j] += base[start+size-1][i][k][j+size-1];
-						
-						} // for (int k = 0; k < distance.length; k++) {
-											
-					} // for (int j = 0; j <= (train.size()-size); j++)
-					
-				} // if (train.get(i).getData().size() >= size) 
-				
-			} // for (int i = 0; i < train.size(); i++)
-			
-		} // for (int start = 0; start <= (n - size); start++)
-		
-		return lastSize;
-	}
 
 	/**
 	 * [THE GREAT GAP].
@@ -403,6 +292,7 @@ public class MasterMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> implement
 					for (int j = 0; j < subtrajectory.getPointFeatures().length; j++) {	
 						double distance = (bestPosition >= 0) ? 
 								distancesForT[subtrajectory.getPointFeatures()[j]][bestPosition] : MAX_VALUE;
+						
 						subtrajectory.getDistances()[j][i] = (distance != MAX_VALUE) ? 
 								Math.sqrt( distance / size ) : MAX_VALUE;	
 								
@@ -420,7 +310,11 @@ public class MasterMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> implement
 		return candidates;
 		
 	}
-	
+
+	/**
+	 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * >>
+	 * BEST ALIGNMENT:                           * * * * * * * * * * * * * * * * * * * * * * * * * * >>
+	 * ** * * * * * * * * * * * * * * * * * * .
 	/**
 	 * Best alignment by ranking.
 	 *
@@ -429,9 +323,11 @@ public class MasterMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> implement
 	 * @param reindex the reindex
 	 * @return the int
 	 */
-	public int bestAlignmentByRanking(double[][] ranksForT, int[] comb, boolean reindex) {
+	public int bestAlignmentByRanking(double[][] ranksForT, int[] comb) { // , boolean reindex) {
 		
-		if (reindex)
+//		if (reindex)
+//			return super.bestAlignmentByRanking(ranksForT, comb);
+		if (base == null)
 			return super.bestAlignmentByRanking(ranksForT, comb);
 		
 		double[] rankMerged = new double[ranksForT[0].length];
@@ -452,160 +348,204 @@ public class MasterMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> implement
 		return minRankIndex;
 	}
 	
-	/**
-	 * Best alignment by point features.
-	 *
-	 * @param s the s
-	 * @param t the t
-	 * @param mdist the mdist
-	 * @param idxt the idxt
-	 * @return the pair
-	 */
-	public Pair<Subtrajectory, double[]> bestAlignmentByPointFeatures(Subtrajectory s, MAT<MO> t, double[][][][] mdist, int idxt) {
-		double[] maxValues = new double[numberOfFeatures];
-		Arrays.fill(maxValues, MAX_VALUE);
-				
-		if (s.getSize() > t.getPoints().size())
-			return new Pair<>(null, maxValues);
-
-		List<Point> menor = s.getPoints();
-		List<Point> maior = t.getPoints();
-		
-//		int idxs = this.train.indexOf(s.getTrajectory()); 
-//		int idxt = this.train.indexOf(t); // mdist[idxs][idx];
-
-		int size =  s.getSize();
-		int diffLength = maior.size() - size;	
-		int limit = maior.size() - size + 1;
-				
-		int[] comb = s.getPointFeatures();
-		double[] currentSum = new double[comb.length];
-		double[] values = new double[numberOfFeatures];
-		double[][] distancesForT = new double[comb.length][diffLength+1];
-						
-//		double[] x = new double[comb.length];
-//		Arrays.fill(x, MAX_VALUE);
-				
-		for (int i = 0; i <= diffLength; i++) {
-
-			Arrays.fill(currentSum, 0);
-						
-			for (int j = 0; j < menor.size(); j++) {
-
-				if (mdist == null) {
-					values = getDistances(menor.get(j), maior.get(i + j), comb);
-					
-					for (int k = 0; k < comb.length; k++) {					
-						if (currentSum[k] != MAX_VALUE && values[k] != MAX_VALUE)
-							currentSum[k] += values[k];
-						else 
-							currentSum[k] = MAX_VALUE;
-						
-					}
-				} else {
-					for (int k = 0; k < comb.length; k++) {
-						if (currentSum[k] != MAX_VALUE && mdist[s.getStart()+j][idxt][comb[k]][i+j] != MAX_VALUE)
-							currentSum[k] += mdist[s.getStart()+j][idxt][comb[k]][i+j]; //values[comb[k]] * values[comb[k]];
-						else
-							currentSum[k] = MAX_VALUE;
-			
-					}
-				}	
-			}
-			
-			for (int k = 0; k < comb.length; k++) {
-				distancesForT[k][i] = currentSum[k];
-			}
-		}
-		
-		double[][] ranksForT = new double[comb.length][];
-		
-		for (int k = 0; k < comb.length; k++) {
-			ranksForT[k] = rankingAlgorithm.rank(Arrays.stream(distancesForT[k],0,limit).toArray());
-		} // for (int k = 0; k < numberOfFeatures; k++)
-		
-		
-		int bestPosition = bestAlignmentByRanking(ranksForT, comb, (mdist == null? true : false));
-		
-		double[] bestAlignment = new double[comb.length];
-		
-		for (int j = 0; j < comb.length; j++) {
-			
-			double distance = (bestPosition >= 0) ? distancesForT[j][bestPosition] : MAX_VALUE;
-			
-			bestAlignment[j] = (distance != MAX_VALUE) ? 
-					Math.sqrt( distance / size ) : MAX_VALUE;
-			
-		} // for (int j = 0; j < comb.length; j++)
-		
-		int start = bestPosition;
-		int end = bestPosition + menor.size() - 1;
-		
-//		return bestAlignment;
-		return new Pair<>(new Subtrajectory(start, end , t), bestAlignment);
-	}
+//	/**
+//	 * Best alignment by point features.
+//	 *
+//	 * @param s the s
+//	 * @param t the t
+//	 * @param mdist the mdist
+//	 * @param idxt the idxt
+//	 * @return the pair
+//	 */
+//	public Pair<Subtrajectory, double[]> bestAlignmentByPointFeatures(Subtrajectory s, MAT<MO> t, double[][][][] mdist, int idxt) {
+//		double[] maxValues = new double[numberOfFeatures];
+//		Arrays.fill(maxValues, MAX_VALUE);
+//				
+//		if (s.getSize() > t.getPoints().size())
+//			return new Pair<>(null, maxValues);
+//
+//		List<Point> menor = s.getPoints();
+//		List<Point> maior = t.getPoints();
+//		
+////		int idxs = this.train.indexOf(s.getTrajectory()); 
+////		int idxt = this.train.indexOf(t); // mdist[idxs][idx];
+//
+//		int size =  s.getSize();
+//		int diffLength = maior.size() - size;	
+//		int limit = maior.size() - size + 1;
+//				
+//		int[] comb = s.getPointFeatures();
+//		double[] currentSum = new double[comb.length];
+//		double[] values = new double[numberOfFeatures];
+//		double[][] distancesForT = new double[comb.length][diffLength+1];
+//						
+////		double[] x = new double[comb.length];
+////		Arrays.fill(x, MAX_VALUE);
+//				
+//		for (int i = 0; i <= diffLength; i++) {
+//
+//			Arrays.fill(currentSum, 0);
+//						
+//			for (int j = 0; j < menor.size(); j++) {
+//
+//				if (mdist == null) {
+//					values = getDistances(menor.get(j), maior.get(i + j), comb);
+//					
+//					for (int k = 0; k < comb.length; k++) {					
+//						if (currentSum[k] != MAX_VALUE && values[k] != MAX_VALUE)
+//							currentSum[k] += values[k];
+//						else 
+//							currentSum[k] = MAX_VALUE;
+//						
+//					}
+//				} else {
+//					for (int k = 0; k < comb.length; k++) {
+//						if (currentSum[k] != MAX_VALUE && mdist[s.getStart()+j][idxt][comb[k]][i+j] != MAX_VALUE)
+//							currentSum[k] += mdist[s.getStart()+j][idxt][comb[k]][i+j]; //values[comb[k]] * values[comb[k]];
+//						else
+//							currentSum[k] = MAX_VALUE;
+//			
+//					}
+//				}	
+//			}
+//			
+//			for (int k = 0; k < comb.length; k++) {
+//				distancesForT[k][i] = currentSum[k];
+//			}
+//		}
+//		
+//		double[][] ranksForT = new double[comb.length][];
+//		
+//		for (int k = 0; k < comb.length; k++) {
+//			ranksForT[k] = rankingAlgorithm.rank(Arrays.stream(distancesForT[k],0,limit).toArray());
+//		} // for (int k = 0; k < numberOfFeatures; k++)
+//		
+//		
+//		int bestPosition = bestAlignmentByRanking(ranksForT, comb);//, (mdist == null? true : false));
+//		
+//		double[] bestAlignment = new double[comb.length];
+//		
+//		for (int j = 0; j < comb.length; j++) {
+//			
+//			double distance = (bestPosition >= 0) ? distancesForT[j][bestPosition] : MAX_VALUE;
+//			
+//			bestAlignment[j] = (distance != MAX_VALUE) ? 
+//					Math.sqrt( distance / size ) : MAX_VALUE;
+//			
+//		} // for (int j = 0; j < comb.length; j++)
+//		
+//		int start = bestPosition;
+//		int end = bestPosition + menor.size() - 1;
+//		
+////		return bestAlignment;
+//		return new Pair<>(new Subtrajectory(start, end , t), bestAlignment);
+//	}
 	
 	/**
 	 * * * * * * * * * * * * * * * * * * * * ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * >>
 	 * HERE FOLLOWS THE OUTPUT TRANSFORMATIONS:     * * * * * * * * * * * * * * * * * * * * * * * * * * >>
 	 * ** * * * * * * * * * * * * * * * * * * .
-	 *
-	 * @param candidates the candidates
-	 * @param trajectories the trajectories
-	 * @param file the file
-	 * @param mdist *
 	 */
 	
-	public void transformTrajectoryOutput(List<Subtrajectory> candidates, List<MAT<MO>> trajectories, 
-			String file, double[][][][] mdist) {
-		
-		for (Subtrajectory movelet : candidates) {
-			// It initializes the set of distances of all movelets to null
-			movelet.setDistances(null);
-			
-			// In this step the set of distances is filled by this method
-			computeDistances(movelet, trajectories, mdist); // computeDistances(movelet, trajectories);
-		}
-		
-		/** STEP 3.0: Output Movelets (partial) */
-		super.output(file, trajectories, candidates, true);
-		
-	}
+//	/**
+//	 * 
+//	 * @param candidates the candidates
+//	 * @param trajectories the trajectories
+//	 * @param file the file
+//	 * @param mdist *
+//	 */
+//	public void transformTrajectoryOutput(List<Subtrajectory> candidates, List<MAT<MO>> trajectories, 
+//			String file, double[][][][] mdist) {
+//		
+//		for (Subtrajectory movelet : candidates) {
+//			// It initializes the set of distances of all movelets to null
+//			movelet.setDistances(null);
+//			
+//			// In this step the set of distances is filled by this method
+//			computeDistances(movelet, trajectories, mdist); // computeDistances(movelet, trajectories);
+//		}
+//		
+//		/** STEP 3.0: Output Movelets (partial) */
+//		super.output(file, trajectories, candidates, true);
+//		
+//	}
+	
+//	/**
+//	 * Compute distances.
+//	 *
+//	 * @param candidate the candidate
+//	 * @param trajectories the trajectories
+//	 * @param mdist the mdist
+//	 */
+//	public void computeDistances(Subtrajectory candidate, List<MAT<MO>> trajectories, double[][][][] mdist) {
+//		/* This pairs will store the subtrajectory of the best alignment 
+//		 * of the candidate into each trajectory and the distance 
+//		 * */
+//		Pair<Subtrajectory, double[]> distance;
+//		
+//		double[][] trajectoryDistancesToCandidate = new double[candidate.getSplitpoints().length]
+//															  [trajectories.size()];
+//		
+//		List<Subtrajectory> bestAlignments = new ArrayList<Subtrajectory>();
+//				
+//		/* It calculates the distance of trajectories to the candidate
+//		 */
+//		for (int i = 0; i < trajectories.size(); i++) {
+//			
+//			distance = bestAlignmentByPointFeatures(candidate, trajectories.get(i), mdist, i);
+//			
+//			for (int j = 0; j < candidate.getSplitpoints().length; j++) {
+//				trajectoryDistancesToCandidate[j][i] = distance.getSecond()[j];							
+//			}
+//						
+//			bestAlignments.add(distance.getFirst());
+////			trajectoryDistancesToCandidate[i] = distance.getSecond();			
+//		}
+//		
+//		candidate.setDistances(trajectoryDistancesToCandidate);
+//		candidate.setBestAlignments(bestAlignments);
+//	}
 	
 	/**
-	 * Compute distances.
+	 * Gets the distances.
 	 *
-	 * @param candidate the candidate
-	 * @param trajectories the trajectories
-	 * @param mdist the mdist
+	 * @param a the a
+	 * @param b the b
+	 * @param comb the comb
+	 * @return the distances
 	 */
-	public void computeDistances(Subtrajectory candidate, List<MAT<MO>> trajectories, double[][][][] mdist) {
-		/* This pairs will store the subtrajectory of the best alignment 
-		 * of the candidate into each trajectory and the distance 
-		 * */
-		Pair<Subtrajectory, double[]> distance;
+	public double[] getDistances(Point a, Point b, int[] comb) {
+
+//		double[] distances = new double[this.descriptor.getAttributes().size()];
+		double[] distances = new double[comb.length];
 		
-		double[][] trajectoryDistancesToCandidate = new double[candidate.getSplitpoints().length]
-															  [trajectories.size()];
-		
-		List<Subtrajectory> bestAlignments = new ArrayList<Subtrajectory>();
-				
-		/* It calculates the distance of trajectories to the candidate
-		 */
-		for (int i = 0; i < trajectories.size(); i++) {
+		int i = 0;
+		for (int k : comb) {
+			AttributeDescriptor attr = this.descriptor.getAttributes().get(k);
 			
-			distance = bestAlignmentByPointFeatures(candidate, trajectories.get(i), mdist, i);
-			
-			for (int j = 0; j < candidate.getSplitpoints().length; j++) {
-				trajectoryDistancesToCandidate[j][i] = distance.getSecond()[j];							
-			}
-						
-			bestAlignments.add(distance.getFirst());
-//			trajectoryDistancesToCandidate[i] = distance.getSecond();			
+			distances[i++] =
+					calculateDistance(
+							a.getAspects().get(k), 
+							b.getAspects().get(k), 
+							attr
+					);
+//					attr.getDistanceComparator().normalizeDistance(
+//							attr.getDistanceComparator().calculateDistance(a.getAspects().get(k), b.getAspects().get(k), attr),
+//							attr.getComparator().getMaxValue()
+//					); // This also enhance distances
 		}
 		
-		candidate.setDistances(trajectoryDistancesToCandidate);
-		candidate.setBestAlignments(bestAlignments);
+		return distances;
+		
+	}
+
+	@Override
+	public double calculateDistance(Aspect<?> a, Aspect<?> b, AttributeDescriptor attr) {
+		return attr.getDistanceComparator().enhance(
+				attr.getDistanceComparator().normalizeDistance(
+				attr.getDistanceComparator().calculateDistance(a, b, attr),
+				attr.getComparator().getMaxValue()
+		));
 	}
 
 }

@@ -60,7 +60,7 @@ import br.ufsc.mov3lets.method.qualitymeasure.LeftSidePureCVLigth;
 import br.ufsc.mov3lets.method.qualitymeasure.LeftSidePureCVLigthBS;
 import br.ufsc.mov3lets.method.qualitymeasure.LeftSidePureCVLigthEA;
 import br.ufsc.mov3lets.method.qualitymeasure.PLSPQualityMeasure;
-import br.ufsc.mov3lets.method.qualitymeasure.ProportionQualityMeasure;
+import br.ufsc.mov3lets.method.qualitymeasure.FrequentQualityMeasure;
 import br.ufsc.mov3lets.method.qualitymeasure.QualityMeasure;
 import br.ufsc.mov3lets.method.sample.RandomSampler;
 import br.ufsc.mov3lets.method.sample.Sampler;
@@ -461,7 +461,7 @@ public class Mov3lets<MO> {
 		QualityMeasure qualityMeasure;
 		switch (getDescriptor().getParamAsText("str_quality_measure")) {
 		case "PROP":
-			qualityMeasure = new ProportionQualityMeasure<MO>(this.train,
+			qualityMeasure = new FrequentQualityMeasure<MO>(this.train,
 		    		getDescriptor().getParamAsInt("samples"), 
 		    		getDescriptor().getParamAsDouble("sample_size"), 
 		    		getDescriptor().getParamAsText("medium"));

@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import br.ufsc.mov3lets.method.filter.EqualCandidatesFilter;
+import br.ufsc.mov3lets.method.filter.OverlappingPointsFilter;
 import br.ufsc.mov3lets.method.qualitymeasure.QualityMeasure;
 import br.ufsc.mov3lets.method.structures.descriptor.Descriptor;
 import br.ufsc.mov3lets.model.MAT;
@@ -89,7 +91,8 @@ public class HiperFrequentMoveletsDiscovery<MO> extends HiperPivotsMoveletsDisco
 
 			calculateProportion(candidatesOfSize, random);
 //			orderCandidates(candidatesOfSize);
-			candidatesOfSize = filterOvelappingPoints(candidatesOfSize);
+//			candidatesOfSize = filterOvelappingPoints(candidatesOfSize);
+			candidatesOfSize = new OverlappingPointsFilter(bucket).filter(candidatesOfSize);
 			candidatesOfSize = filterByProportion(candidatesOfSize, relativeFrequency(candidatesOfSize), bucketSize(candidatesOfSize.size()));
 	
 			total_size = total_size + candidatesOfSize.size();
@@ -106,7 +109,8 @@ public class HiperFrequentMoveletsDiscovery<MO> extends HiperPivotsMoveletsDisco
 		
 		/** STEP 2.2: SELECTING BEST CANDIDATES */	
 		orderCandidates(candidatesByProp);
-		candidatesByProp = filterEqualCandidates(candidatesByProp);
+//		candidatesByProp = filterEqualCandidates(candidatesByProp);
+		candidatesByProp = new EqualCandidatesFilter(getDescriptor()).filter(candidatesByProp);
 		
 		if (getDescriptor().getFlag("feature_limit"))
 			candidatesByProp = selectMaxFeatures(candidatesByProp);

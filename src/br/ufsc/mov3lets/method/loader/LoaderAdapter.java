@@ -41,6 +41,12 @@ public interface LoaderAdapter<T extends MAT<?>> {
 		return descriptor.hasParam("curpath")? descriptor.getParamAsText("curpath") : "./";
 	}
 	
+	public default String getFileName(String fileName, Descriptor descriptor) {
+		return Paths.get(getCurPath(descriptor), 
+					(descriptor.hasParam("input_file_prefix")? descriptor.getParamAsText("input_file_prefix") + "_" : "") + fileName
+				).toString();
+	}
+	
 	/**
 	 * Load.
 	 *
@@ -50,10 +56,7 @@ public interface LoaderAdapter<T extends MAT<?>> {
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
 	public default List<T> load(String file, Descriptor descriptor) throws IOException {
-		String curpath = getCurPath(descriptor);
-		
-		List<T> data = loadTrajectories(Paths.get(curpath, file).toString(), descriptor);
-		return data;
+		return loadTrajectories(getFileName(file, descriptor), descriptor);
 	}
 	
 	/** The date formatter. */

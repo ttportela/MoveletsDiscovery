@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import br.ufsc.mov3lets.method.discovery.structures.DiscoveryAdapter;
 import br.ufsc.mov3lets.method.discovery.structures.GlobalDiscovery;
 import br.ufsc.mov3lets.method.output.OutputterAdapter;
 import br.ufsc.mov3lets.method.qualitymeasure.QualityMeasure;
@@ -46,7 +47,7 @@ import br.ufsc.mov3lets.model.Subtrajectory;
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  * @param <MO> the generic type
  */
-public class IndexedMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> implements GlobalDiscovery {
+public class IndexedMoveletsDiscovery<MO> extends DiscoveryAdapter<MO> implements GlobalDiscovery {
 
 	protected double spatialThreshold;
 	protected int temporalThreshold;
@@ -66,13 +67,16 @@ public class IndexedMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> implemen
 	 */
 	public IndexedMoveletsDiscovery(List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test,
 			QualityMeasure qualityMeasure, Descriptor descriptor) {
-		super(null, null, data, train, test, qualityMeasure, descriptor);
+		super(null, null, data, train, test, descriptor);
+//		super(null, null, data, train, test, qualityMeasure, descriptor);
 		
 		spatialThreshold 	= getDescriptor().hasParam("spatial_threshold")? 
 				getDescriptor().getParamAsDouble("spatial_threshold") : 0.00142;
 		temporalThreshold	= getDescriptor().hasParam("temporal_threshold")? 
 				getDescriptor().getParamAsInt("temporal_threshold") : 30;
 		featuresThreshold = (int) Math.ceil(Math.log(getDescriptor().getAttributes().size()));
+		
+		init();
 	}
 
 	/**
