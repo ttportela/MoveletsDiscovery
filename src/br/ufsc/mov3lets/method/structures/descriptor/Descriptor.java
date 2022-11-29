@@ -49,6 +49,9 @@ public class Descriptor {
 	
 	/** The label feature. */
 	private AttributeDescriptor labelFeature = null;
+
+	/** The trajectory attributes. */
+	private List<AttributeDescriptor> trajectoryAttributes = null;
 	
 	/** The attributes. */
 	private List<AttributeDescriptor> attributes = null;
@@ -96,6 +99,24 @@ public class Descriptor {
 	 */
 	public void setLabelFeature(AttributeDescriptor labelFeature) {
 		this.labelFeature = labelFeature;
+	}
+	
+	/**
+	 * Gets the trajectory attributes.
+	 *
+	 * @return the attributes
+	 */
+	public List<AttributeDescriptor> getTrajectoryAttributes() {
+		return trajectoryAttributes;
+	}
+
+	/**
+	 * Sets the trajectory attributes.
+	 *
+	 * @param trajectoryAttributes the attributes to set
+	 */
+	public void setTrajectoryAttributes(List<AttributeDescriptor> trajectoryAttributes) {
+		this.trajectoryAttributes = trajectoryAttributes;
 	}
 	
 	/**
@@ -472,6 +493,10 @@ public class Descriptor {
 	 */
 	public int numberOfFeatures() {
 		return getAttributes().size();
+	}
+
+	public boolean notSet() {
+		return getParam("desfile") == null && getAttributes().isEmpty();
 	}
 
 }

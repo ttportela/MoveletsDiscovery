@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.StreamTokenizer;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.HashMap;
 import java.util.List;
 
@@ -13,6 +14,7 @@ import br.ufsc.mov3lets.method.structures.descriptor.Descriptor;
 import br.ufsc.mov3lets.model.MAT;
 import br.ufsc.mov3lets.model.Point;
 import br.ufsc.mov3lets.model.aspect.Aspect;
+import br.ufsc.mov3lets.utils.Mov3letsUtils;
 
 /**
  * The Class CSVLoader.
@@ -235,23 +237,24 @@ public class TSInternLoader<T extends MAT<?>> implements InterningLoaderAdapter<
 	    			}
 	    			
 	    			// Hack for composite attributes:
-	    			if (attr.getType().startsWith("composite")) {
-	    				// Temporarily same values in an aspect class 
+	    			if (composite >= 0) { // attr.getType().startsWith("composite")) {
+	    				// Temporarily save values in a temp aspect sub-class 
 	    				if (poi.getAspects().size()-1 == attrCt) {
 	    					((TempAspect) poi.getAspects().get(attrCt)).add(value);
 	    					
-	    					if (composite == 0)
+//	    					if (composite == 0)
 //								try {
-								poi.getAspects().set(attrCt, this.instantiateAspect(attr, (String) poi.getAspects().get(attrCt).getValue()));
+//								poi.getAspects().set(attrCt, this.instantiateAspect(attr, (String) poi.getAspects().get(attrCt).getValue()));
 //								} catch (Exception e) {
-//									Mov3letsUtils.traceW("Missing values on TID="+tid+" - "+attr.toString());
+//									diffLength.set(tid);
+////									Mov3letsUtils.traceW("Missing values on TID="+tid+" - "+attr.toString());
 //									poi.getAspects().set(attrCt, this.instantiateAspect(attr, "?"));
 //								}
 	    						
-	    				} else // Temporarily same values in an aspect class 
+	    				} else // Temporarily save values in a temp aspect sub-class 
 	    					poi.getAspects().add(new TempAspect(value));
 	    				
-	    			} else // Normal addition:
+	    			} else // Single values instantiation:
 	    				poi.getAspects().add(this.instantiateAspect(attr, value));
 	    			
 	    			i++;
@@ -265,6 +268,28 @@ public class TSInternLoader<T extends MAT<?>> implements InterningLoaderAdapter<
 //		mo = (MO) new MovingObject<String>(label);
 		// OR -- this for typing String:
 		mat.setMovingObject(value);
+		
+		// We trim trajectories when dimensions have different length
+		for (i = 0; i < mat.getPoints().size(); i++) {
+			Point p = mat.getPoints().get(i); 
+			if (p.getAspects().size() < getAttributes().size()-1) { // -1 because it adds one fake attr. at the end
+				diffLength.set(mat.getTid());
+				mat.setPoints(mat.getPoints().subList(0, i));
+				break;
+			}
+			
+			// Instantiate all dimensions for TempAspect(s):
+			for (int k = 0; k < getAttributes().size()-1; k++) {
+				if (p.getAspects().get(k) instanceof TempAspect) {
+					try {
+						p.getAspects().set(k, this.instantiateAspect(getAttributes().get(k), (String) p.getAspects().get(k).getValue()));
+					} catch (Exception e) {
+						diffLength.set(mat.getTid());
+						p.getAspects().set(k, this.instantiateAspect(getAttributes().get(k), "?"));
+					}
+				}
+			}
+		}
 
 //        if (m_Tokenizer.ttype == StreamTokenizer.TT_EOL)
 //        	throw new RuntimeException("OK");
@@ -272,6 +297,8 @@ public class TSInternLoader<T extends MAT<?>> implements InterningLoaderAdapter<
         return mat;
     }
 
+    protected BitSet diffLength = new BitSet();
+    
 //    private void print() {
 //		System.out.println(m_Tokenizer.ttype+"|"+m_Tokenizer.nval+"|"+m_Tokenizer.sval);
 //	}
@@ -314,6 +341,9 @@ public class TSInternLoader<T extends MAT<?>> implements InterningLoaderAdapter<
 			trajectories.add(mat);
 		}
 		
+		if (diffLength.cardinality() > 0)
+			Mov3letsUtils.traceW("[1] >> Load Input: Missing composite values on TIDs: " + diffLength.toString());
+		
 		return (List<T>) trajectories;
 	}
 	
@@ -334,7 +364,7 @@ class TempAspect extends Aspect<String> {
 	}
 	
 	public void add(String value) {
-		if ("?".equals(this.getValue()) || !"?".equals(value)) // for missing values
+		if ("?".equals(this.getValue()) || "?".equals(value)) // for missing values
 			this.setValue("?");
 		else
 			this.setValue(this.getValue() + " " + value);

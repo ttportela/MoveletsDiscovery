@@ -19,7 +19,6 @@ package br.ufsc.mov3lets.method.discovery;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
@@ -31,6 +30,9 @@ import br.ufsc.mov3lets.method.discovery.structures.DiscoveryAdapter;
 import br.ufsc.mov3lets.method.discovery.structures.TrajectoryDiscovery;
 import br.ufsc.mov3lets.method.filter.BestMoveletsFilter;
 import br.ufsc.mov3lets.method.filter.LastPrunningMoveletsFilter;
+import br.ufsc.mov3lets.method.filter.MoveletsFilter;
+import br.ufsc.mov3lets.method.filter.MoveletsFilterRanker;
+import br.ufsc.mov3lets.method.filter.MoveletsRanker;
 import br.ufsc.mov3lets.method.qualitymeasure.QualityMeasure;
 import br.ufsc.mov3lets.method.structures.descriptor.AttributeDescriptor;
 import br.ufsc.mov3lets.method.structures.descriptor.Descriptor;
@@ -58,6 +60,9 @@ public abstract class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> impleme
 	
 	/** The max distances. */
 	protected double[] maxDistances; // Max distances by dimension
+	
+	protected MoveletsFilter bestFilter = new BestMoveletsFilter(0.0, 0.0);
+	protected MoveletsRanker qualityRanker = new MoveletsFilterRanker(0.0);
 	
 	/**
 	 * Instantiates a new movelets discovery.
@@ -207,7 +212,7 @@ public abstract class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> impleme
 						
 		} // for (int size = 2; size <= max; size++)	
 		
-		candidates = filterMovelets(candidates);
+		candidates = this.bestFilter.filter(candidates);
 		
 		progressBar.plus("Class: " + trajectory.getMovingObject() 
 						+ ". Trajectory: " + trajectory.getTid() 
@@ -241,6 +246,7 @@ public abstract class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> impleme
 			// LOG Window size:
 			case -4: maxSize = minSize + ((int) Math.ceil(Math.log(n))+1); break;	
 			
+			// Max Size is the value set:
 			default: break;
 		}
 		return maxSize;
@@ -713,42 +719,42 @@ public abstract class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> impleme
 	 * @return the list
 	 */
 	
-	/**
-	 * 
-	 * @param candidates
-	 * @return
-	 */
-	public List<Subtrajectory> filterMovelets(List<Subtrajectory> candidates) {
-
-		List<Subtrajectory> orderedCandidates = rankCandidates(candidates);
-
-//		return bestShapelets(orderedCandidates, 0);
-		return new BestMoveletsFilter(0).filter(orderedCandidates);
-	}
+//	/**
+//	 * 
+//	 * @param candidates
+//	 * @return
+//	 */
+//	public List<Subtrajectory> filterMovelets(List<Subtrajectory> candidates) {
+//
+////		List<Subtrajectory> orderedCandidates = rankCandidates(candidates);
+//
+////		return bestShapelets(orderedCandidates, 0);
+//		return new BestMoveletsFilter(0).filter(candidates);
+//	}
 	
-	/**
-	 * Rank candidates.
-	 *
-	 * @param candidates the candidates
-	 * @return the list
-	 */
-	public List<Subtrajectory> rankCandidates(List<Subtrajectory> candidates) {
-
-		List<Subtrajectory> orderedCandidates = new ArrayList<>(candidates);
-		
-		orderedCandidates.removeIf(e -> e == null);
-		
-		orderedCandidates.sort(new Comparator<Subtrajectory>() {
-			@Override
-			public int compare(Subtrajectory o1, Subtrajectory o2) {
-				
-				return o1.getQuality().compareTo(o2.getQuality());				
-				
-			}
-		});
-
-		return orderedCandidates;
-	}
+//	/**
+//	 * Rank candidates.
+//	 *
+//	 * @param candidates the candidates
+//	 * @return the list
+//	 */
+//	public List<Subtrajectory> rankCandidates(List<Subtrajectory> candidates) {
+//
+//		List<Subtrajectory> orderedCandidates = new ArrayList<>(candidates);
+//		
+//		orderedCandidates.removeIf(e -> e == null);
+//		
+//		orderedCandidates.sort(new Comparator<Subtrajectory>() {
+//			@Override
+//			public int compare(Subtrajectory o1, Subtrajectory o2) {
+//				
+//				return o1.getQuality().compareTo(o2.getQuality());				
+//				
+//			}
+//		});
+//
+//		return orderedCandidates;
+//	}
 	
 
 	/**

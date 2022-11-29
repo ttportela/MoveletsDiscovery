@@ -79,7 +79,7 @@ public class UltraHpMoveletsDiscovery<MO> extends FrequentMoveletsDiscovery<MO> 
 		List<Subtrajectory> candidates = moveletsDiscovery(trajectory, this.trajsFromClass, minSize, maxSize, random);
 		
 		/** STEP 2.4: SELECTING BEST CANDIDATES */		
-		movelets.addAll(filterMovelets(candidates));
+		movelets.addAll(this.bestFilter.filter(candidates));
 		
 		setStats("");
 		
@@ -143,7 +143,7 @@ public class UltraHpMoveletsDiscovery<MO> extends FrequentMoveletsDiscovery<MO> 
 			computeDistances(subtrajectory, this.train);
 			assesQuality(subtrajectory, random);
 		}
-		candidates = filterMovelets(candidates);
+		candidates = this.bestFilter.filter(candidates);
 		
 		addStats("Total of Movelets", candidates.size());
 		addStats("Max Size", this.maxSizeOfCandidates);

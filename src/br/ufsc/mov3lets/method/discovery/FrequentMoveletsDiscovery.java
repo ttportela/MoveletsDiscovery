@@ -451,7 +451,7 @@ public class FrequentMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> impleme
 		}
 
 		/** STEP 2.2: SELECTING BEST CANDIDATES */	
-		return filterMovelets(bestCandidates);
+		return this.bestFilter.filter(bestCandidates);
 	}
 
 //	@Override

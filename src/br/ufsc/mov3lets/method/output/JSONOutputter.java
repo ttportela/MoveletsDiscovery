@@ -31,7 +31,8 @@ import br.ufsc.mov3lets.model.Subtrajectory;
 public class JSONOutputter<MO> extends OutputterAdapter<MO,List<Subtrajectory>> {
 	
 	/** The movelets */
-	protected List<Subtrajectory> movelets = new ArrayList<Subtrajectory>();
+	//protected List<Subtrajectory> movelets = new ArrayList<Subtrajectory>();
+	protected List <SubtrajectoryGSON> subtrajectoryToGSONs = new ArrayList<>();
 
 	/**
 	 * Instantiates a new JSON outputter.
@@ -79,7 +80,11 @@ public class JSONOutputter<MO> extends OutputterAdapter<MO,List<Subtrajectory>> 
 		if ("test".equals(filename))
 			return;
 		
-		this.movelets.addAll(moveletsToAdd);
+		//this.movelets.addAll(moveletsToAdd);
+		
+		for (Subtrajectory movelet : moveletsToAdd) {
+			subtrajectoryToGSONs.add(new SubtrajectoryGSON(movelet, getDescriptor()));
+		}
 		
 		if (delayOutput) { // Do nothing
 			decreaseDelayCount(filename);
@@ -87,7 +92,7 @@ public class JSONOutputter<MO> extends OutputterAdapter<MO,List<Subtrajectory>> 
 				return;
 		}
 		
-		if (movelets.isEmpty()) {
+		if (subtrajectoryToGSONs.isEmpty()) {
 //			Mov3letsUtils.traceW("Empty movelets set [NOT OUTPUTTED]");
 			return;
 		}
@@ -101,12 +106,12 @@ public class JSONOutputter<MO> extends OutputterAdapter<MO,List<Subtrajectory>> 
 			classOfTrajectories.add(classOfT);
 		}
 				
-		List <SubtrajectoryGSON> subtrajectoryToGSONs = new ArrayList<>();
-		
-		for (Subtrajectory movelet : movelets) {
-//			subtrajectoryToGSONs.add(fromSubtrajectory(movelet));
-			subtrajectoryToGSONs.add(new SubtrajectoryGSON(movelet, getDescriptor()));
-		}
+//		List <SubtrajectoryGSON> subtrajectoryToGSONs = new ArrayList<>();
+//		
+//		for (Subtrajectory movelet : movelets) {
+////			subtrajectoryToGSONs.add(fromSubtrajectory(movelet));
+//			subtrajectoryToGSONs.add(new SubtrajectoryGSON(movelet, getDescriptor()));
+//		}
 		
 		TOGSON toGSON = new TOGSON(classOfTrajectories, subtrajectoryToGSONs);
 		
@@ -123,7 +128,7 @@ public class JSONOutputter<MO> extends OutputterAdapter<MO,List<Subtrajectory>> 
 			
 			gson.toJson(toGSON, fileWriter);
 			fileWriter.close();
-			movelets = null;
+			subtrajectoryToGSONs = null;
 
 			
 		} catch (IOException e) {

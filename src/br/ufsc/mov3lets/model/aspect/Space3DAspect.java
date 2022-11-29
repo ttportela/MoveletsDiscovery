@@ -42,11 +42,16 @@ public class Space3DAspect extends Aspect<String> {
 		super(value);
 		
 		if (value != null) {
-			String[] row = value.split(" ");
+			String[] row = value.trim().split(" ");
 			
-			this.x = Double.parseDouble(row[0]);
-			this.y = Double.parseDouble(row[1]);
-			this.z = Double.parseDouble(row[2]);
+			if (row.length < 3)
+//				System.out.println(value);
+				value = null;
+			else {
+				this.x = Double.parseDouble(row[0]);
+				this.y = Double.parseDouble(row[1]);
+				this.z = Double.parseDouble(row[2]);
+			}
 		}
 	}
 

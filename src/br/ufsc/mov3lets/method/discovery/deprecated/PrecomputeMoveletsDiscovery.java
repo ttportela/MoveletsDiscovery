@@ -88,7 +88,7 @@ public class PrecomputeMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO>
 			
 			/** STEP 2.4: SELECTING BEST CANDIDATES */			
 //			candidates = filterMovelets(candidates);		
-			movelets.addAll(filterMovelets(candidates));
+			movelets.addAll(this.bestFilter.filter(candidates));
 			
 //			System.gc();
 //		}
@@ -268,7 +268,7 @@ public class PrecomputeMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO>
 //		base =  null;
 //		lastSize = null;
 
-		candidates = filterMovelets(candidates);
+		candidates = this.bestFilter.filter(candidates);
 		
 		progressBar.trace("Class: " + trajectory.getMovingObject() + ". Trajectory: " + trajectory.getTid() + ". Trajectory Size: " + trajectory.getPoints().size() + ". Number of Candidates: " + total_size + ". Total of Movelets: " + candidates.size() + ". Max Size: " + maxSize+ ". Used Features: " + this.maxNumberOfFeatures);
 

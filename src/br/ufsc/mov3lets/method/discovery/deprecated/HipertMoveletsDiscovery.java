@@ -74,7 +74,7 @@ public class HipertMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO> impl
 			
 			/** STEP 2.4: SELECTING BEST CANDIDATES */			
 //			candidates = filterMovelets(candidates);		
-			movelets.addAll(filterMovelets(candidates));
+			movelets.addAll(this.bestFilter.filter(candidates));
 			
 			setStats("");
 			

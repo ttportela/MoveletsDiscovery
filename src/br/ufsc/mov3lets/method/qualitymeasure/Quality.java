@@ -55,6 +55,15 @@ public abstract class Quality {
 	 * @return the int
 	 */
 	public abstract <Q extends Quality> int compareTo(Q other);
+	
+	/**
+	 * Gets the quality.
+	 *
+	 * @return quality value
+	 */
+	public double getValue() {
+		return getData().get("quality");
+	}
 
 	/**
 	 * Overridden method. 

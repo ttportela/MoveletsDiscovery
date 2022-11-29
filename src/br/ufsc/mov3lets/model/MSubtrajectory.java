@@ -17,6 +17,9 @@
  */
 package br.ufsc.mov3lets.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * The Class Subtrajectory.
  *
@@ -64,6 +67,29 @@ public class MSubtrajectory extends Subtrajectory {
 	 */
 	public MSubtrajectory(int start, int end, MAT<?> t, int numberOfTrajectories, int[] pointFeatures, int k) {
 		super(start, end, t, numberOfTrajectories, pointFeatures, k);
+		this.distancesForAllT = new double[numberOfTrajectories][pointFeatures.length][];
+	}
+	
+	/**
+	 * Instantiates a new subtrajectory.
+	 *
+	 * @param start the start
+	 * @param end the end
+	 * @param t the t
+	 * @param numberOfTrajectories the number of trajectories
+	 * @param pointFeatures the point features
+	 * @param k the k
+	 */
+	public MSubtrajectory(int start, int end, MAT<?> t, int numberOfTrajectories, int[] pointFeatures, int k, List<Point> points) {
+		super();
+		this.start = start;
+		this.end = end;
+		this.trajectory = t;
+		this.points = points;
+		this.k = k;
+		this.pointFeatures = pointFeatures;
+		this.distances = new double[pointFeatures.length][numberOfTrajectories];
+		this.bestAlignments = new ArrayList<Subtrajectory>();
 		this.distancesForAllT = new double[numberOfTrajectories][pointFeatures.length][];
 	}
 	

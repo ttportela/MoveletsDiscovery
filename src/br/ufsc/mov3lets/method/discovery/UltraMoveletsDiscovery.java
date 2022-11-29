@@ -14,6 +14,7 @@ import org.apache.commons.math3.util.Combinations;
 import org.apache.commons.math3.util.Pair;
 
 import br.ufsc.mov3lets.method.discovery.structures.TrajectoryDiscovery;
+import br.ufsc.mov3lets.method.filter.OverlappingFeaturesFilter;
 import br.ufsc.mov3lets.method.qualitymeasure.QualityMeasure;
 import br.ufsc.mov3lets.method.structures.descriptor.Descriptor;
 import br.ufsc.mov3lets.model.MAT;
@@ -30,7 +31,7 @@ import br.ufsc.mov3lets.model.Subtrajectory;
 public class UltraMoveletsDiscovery<MO> extends FrequentMoveletsDiscovery<MO> implements TrajectoryDiscovery {
 
 	/** The used max number of combination of features. */
-	protected int maxCombinationOfFeatures = 0;
+	protected int currentMaxCombinationOfFeatures = 0;
 	
 	/** The used max size of candidates. */
 	protected int maxSizeOfCandidates = 0;
@@ -48,6 +49,8 @@ public class UltraMoveletsDiscovery<MO> extends FrequentMoveletsDiscovery<MO> im
 	public UltraMoveletsDiscovery(MAT<MO> trajectory, List<MAT<MO>> trajsFromClass, List<MAT<MO>> data, List<MAT<MO>> train, List<MAT<MO>> test,
 			QualityMeasure qualityMeasure, Descriptor descriptor) {
 		super(trajectory, trajsFromClass, data, train, test, qualityMeasure, descriptor);
+		
+		TAU 	= getDescriptor().hasParam("tau")? getDescriptor().getParamAsDouble("tau") : 0.0;
 	}
 
 	
@@ -62,17 +65,17 @@ public class UltraMoveletsDiscovery<MO> extends FrequentMoveletsDiscovery<MO> im
 		int maxSize = getDescriptor().getParamAsInt("max_size");
 		int minSize = getDescriptor().getParamAsInt("min_size");
 
-		List<Subtrajectory> movelets = new ArrayList<Subtrajectory>();
+//		List<Subtrajectory> movelets = new ArrayList<Subtrajectory>();
 
 //		progressBar.trace("HiperT-Pivots Movelets Discovery for Class: " + trajsFromClass.get(0).getMovingObject());
-				
+		
 		// This guarantees the reproducibility
 		Random random = new Random(trajectory.getTid());
 		/** STEP 2.1: Starts at discovering movelets */
-		List<Subtrajectory> candidates = moveletsDiscovery(trajectory, this.train, minSize, maxSize, random);
+		List<Subtrajectory> movelets = moveletsDiscovery(trajectory, this.train, minSize, maxSize, random);
 		
 		/** STEP 2.4: SELECTING BEST CANDIDATES */		
-		movelets.addAll(filterMovelets(candidates));
+//		movelets.addAll(this.bestFilter.filter(candidates));
 		
 		setStats("");
 		
@@ -101,7 +104,8 @@ public class UltraMoveletsDiscovery<MO> extends FrequentMoveletsDiscovery<MO> im
 	 * @return the list
 	 */
 	public List<Subtrajectory> moveletsDiscovery(MAT<MO> trajectory, List<MAT<MO>> trajectories, int minSize, int maxSize, Random random) {
-		List<Subtrajectory> candidates = new ArrayList<Subtrajectory>();
+		
+		//List<Subtrajectory> candidates = new ArrayList<Subtrajectory>();
 		
 		int n = trajectory.getPoints().size();
 
@@ -109,6 +113,8 @@ public class UltraMoveletsDiscovery<MO> extends FrequentMoveletsDiscovery<MO> im
 		maxSize = maxSize(maxSize, minSize, n);
 		
 		if( minSize <= 1 ) minSize = 1;
+		
+		this.bestFilter = new OverlappingFeaturesFilter(0.0, TAU, null);  // ULTRA-C (default), TAU default = 0.0 min quality
 
 		// It starts with the base case
 		addStats("Class", trajectory.getMovingObject()); 
@@ -123,29 +129,28 @@ public class UltraMoveletsDiscovery<MO> extends FrequentMoveletsDiscovery<MO> im
 			assesQuality(subtrajectory, random);
 		}
 		total_size += candidatesOfSize.size();
-
-		candidatesOfSize = filterMovelets(candidatesOfSize);
+		
+		candidatesOfSize = this.bestFilter.filter(candidatesOfSize); // ULTRA-C
+		
+		List<Subtrajectory> bestCandidates = new ArrayList<Subtrajectory>();
 		for(Subtrajectory candidate : candidatesOfSize) {
-			candidates.add(growPivot(candidate, trajectory, trajectories, minSize+1, maxSize, random, null));
+			bestCandidates.add(growPivot(candidate, trajectory, trajectories, minSize+1, maxSize, random, null));
 		}
 
 		addStats("Number of Candidates", total_size);
 //		addStats("Pivot Candidates", candidatesOfSize.size());
-		addStats("Selected Candidates", candidates.size());
+//		addStats("Selected Candidates", bestCandidates.size());
 		
-//		for (Subtrajectory subtrajectory : candidates) {
-//			computeDistances(subtrajectory, this.train);
-//			assesQuality(subtrajectory, random);
-//		}
-		candidates = filterMovelets(candidates);
+//		bestCandidates = this.bestFilter.filter(bestCandidates); // ULTRA-C
 		
-		addStats("Total of Movelets", candidates.size());
+		addStats("Total of Movelets", bestCandidates.size());
 		addStats("Max Size", this.maxSizeOfCandidates);
-		addStats("Used Features", this.maxCombinationOfFeatures);
+		addStats("Used Features", this.currentMaxCombinationOfFeatures);
 		
 		progressBar.plus(getStats());
 				
-		return candidates;
+		return bestCandidates;
+
 	}
 	
 	/**
@@ -158,7 +163,7 @@ public class UltraMoveletsDiscovery<MO> extends FrequentMoveletsDiscovery<MO> im
 	 */
 	public int[][] addCombinations(int minNumberOfFeatures, int maxNumberOfFeatures) {
 		
-		this.maxCombinationOfFeatures = Integer.max(maxNumberOfFeatures, this.maxCombinationOfFeatures);
+		this.currentMaxCombinationOfFeatures = Integer.max(maxNumberOfFeatures, this.currentMaxCombinationOfFeatures);
 		
 		int currentFeatures = minNumberOfFeatures;
 		ArrayList<int[]> combaux = new ArrayList<int[]>();
@@ -196,7 +201,7 @@ public class UltraMoveletsDiscovery<MO> extends FrequentMoveletsDiscovery<MO> im
 	public Subtrajectory growPivot(Subtrajectory candidate, MAT<MO> trajectory, List<MAT<MO>> trajectories, 
 			int size, int maxSize, Random random, SortedSet<Integer> trajectory_marks) {
 				
-		Subtrajectory subtrajectoryOfSize = buildNewSize(candidate, trajectory, trajectories, size, false, random, trajectory_marks);
+		Subtrajectory subtrajectoryOfSize = growSize(candidate, trajectory, trajectories, size, false, random, trajectory_marks);
 		Subtrajectory subtrajectoryOfFeatures = growFeatures(candidate, trajectory, trajectories, random);
 
 		subtrajectoryOfSize = subtrajectoryOfSize.best(subtrajectoryOfFeatures);
@@ -224,7 +229,7 @@ public class UltraMoveletsDiscovery<MO> extends FrequentMoveletsDiscovery<MO> im
 	 * @param trajectory_marks 
 	 * @return the subtrajectory
 	 */
-	public Subtrajectory buildNewSize(Subtrajectory candidate, MAT<MO> trajectory, 
+	public Subtrajectory growSize(Subtrajectory candidate, MAT<MO> trajectory, 
 			List<MAT<MO>> trajectories, int size, boolean left, Random random, SortedSet<Integer> trajectory_marks) {
 		
 		int start = candidate.getStart() - (left? 1 : 0);
@@ -234,8 +239,12 @@ public class UltraMoveletsDiscovery<MO> extends FrequentMoveletsDiscovery<MO> im
 			return candidate;
 		
 		total_size += 1;
-		Subtrajectory subtrajectory = new MSubtrajectory(start, end, trajectory, trajectories.size(),
-				candidate.getPointFeatures(), candidate.getK());
+
+		List<Point> points = trajectory.getPoints().subList(start, end+1);
+		Subtrajectory subtrajectory = instantiateCandidate(start, end, 
+				trajectory, trajectories, candidate.getPointFeatures(), candidate.getK(), points);
+							//		new MSubtrajectory(start, end, trajectory, trajectories.size(),
+							//				candidate.getPointFeatures(), candidate.getK());
 		
 		// asses quality:
 		computeDistances(subtrajectory, trajectories);
@@ -244,15 +253,6 @@ public class UltraMoveletsDiscovery<MO> extends FrequentMoveletsDiscovery<MO> im
 		
 		return subtrajectory.best(candidate);
 	}
-
-	protected boolean inRange(int start, int end, SortedSet<Integer> trajectory_marks) {
-		for (int i = start; i <= end; i++) 
-			if (!trajectory_marks.contains(i))
-				return false;
-		
-		return true;
-	}
-
 
 	/**
 	 * Builds the new size.
@@ -269,7 +269,7 @@ public class UltraMoveletsDiscovery<MO> extends FrequentMoveletsDiscovery<MO> im
 		if (combSize > this.maxNumberOfFeatures)
 			return candidate;
 		
-		if (combSize > this.maxCombinationOfFeatures) {
+		if (combSize > this.currentMaxCombinationOfFeatures) {
 			addCombinations(combSize, combSize);
 		}
 		
@@ -284,8 +284,9 @@ public class UltraMoveletsDiscovery<MO> extends FrequentMoveletsDiscovery<MO> im
 		
 		Subtrajectory subtrajectoryOfFeature = candidate;
 		for (int k : validCombs) {
-			Subtrajectory subtrajectory = new MSubtrajectory(candidate.getStart(), candidate.getEnd(), 
-					trajectory, trajectories.size(), combinations[k], k);
+			List<Point> points = trajectory.getPoints().subList(candidate.getStart(), candidate.getEnd()+1);
+			Subtrajectory subtrajectory = instantiateCandidate(candidate.getStart(), candidate.getEnd(), 
+					trajectory, trajectories, combinations[k], k, points);
 			
 			total_size += 1;
 			
@@ -298,6 +299,20 @@ public class UltraMoveletsDiscovery<MO> extends FrequentMoveletsDiscovery<MO> im
 		}
 		
 		return subtrajectoryOfFeature;
+	}
+
+	protected boolean inRange(int start, int end, SortedSet<Integer> trajectory_marks) {
+		for (int i = start; i <= end; i++) 
+			if (!trajectory_marks.contains(i))
+				return false;
+		
+		return true;
+	}
+
+	protected MSubtrajectory instantiateCandidate(int start, int end, MAT<MO> trajectory, List<MAT<MO>> trajectories,
+			int[] pointFeatures, int k, List<Point> points) {
+		return new MSubtrajectory(start, end, 
+				trajectory, trajectories.size(), pointFeatures, k, points);
 	}
 
 	/**
@@ -424,11 +439,12 @@ public class UltraMoveletsDiscovery<MO> extends FrequentMoveletsDiscovery<MO> im
 	 * @return the pair
 	 */
 	public Pair<Subtrajectory, double[]> bestAlignmentByPointFeatures(Subtrajectory s, MAT<MO> t) {
-		double[] maxValues = new double[numberOfFeatures];
-		Arrays.fill(maxValues, MAX_VALUE);
-				
-		if (s.getSize() > t.getPoints().size())
+		
+		if (s.getSize() > t.getPoints().size()) {
+			double[] maxValues = new double[numberOfFeatures];
+			Arrays.fill(maxValues, MAX_VALUE);
 			return new Pair<>(null, maxValues);
+		}
 
 		List<Point> menor = s.getPoints();
 		List<Point> maior = t.getPoints();

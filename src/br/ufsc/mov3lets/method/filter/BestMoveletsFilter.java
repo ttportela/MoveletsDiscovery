@@ -4,14 +4,17 @@ import java.util.List;
 
 import br.ufsc.mov3lets.model.Subtrajectory;
 
-public class BestMoveletsFilter extends MoveletsFilter {
+public class BestMoveletsFilter extends MoveletsFilterRanker {
 
 	protected double selfSimilarityProp = 0.0;
 	
+	protected double minimumQuality = 0.0;
+	
 	public BestMoveletsFilter() {}
 	
-	public BestMoveletsFilter(double selfSimilarityProp) {
+	public BestMoveletsFilter(double selfSimilarityProp, double minimumQuality) {
 		this.selfSimilarityProp = selfSimilarityProp;
+		this.minimumQuality = minimumQuality;
 	}
 	
 	/**
@@ -22,7 +25,10 @@ public class BestMoveletsFilter extends MoveletsFilter {
 	 * @param bucket NOT REQUIRED
 	 * @return the list
 	 */
-	public List<Subtrajectory> filter(List<Subtrajectory> rankedCandidates) {
+	public List<Subtrajectory> filter(List<Subtrajectory> candidates) {
+		
+		List<Subtrajectory> rankedCandidates = rank(candidates);
+		
 		// Realiza o loop até que acabem os atributos ou até que atinga o número
 		// máximo de nBestShapelets
 		// Isso é importante porque vários candidatos bem rankeados podem ser
@@ -30,8 +36,9 @@ public class BestMoveletsFilter extends MoveletsFilter {
 		for (int i = 0; (i < rankedCandidates.size()); i++) {
 
 			// Se a shapelet candidata tem score 0 então já termina o processo
-			// de busca
-			if (rankedCandidates.get(i).getQuality().hasZeroQuality())
+			// de busca 
+			if (rankedCandidates.get(i).getQuality().getValue() < minimumQuality || 
+				rankedCandidates.get(i).getQuality().hasZeroQuality())
 				return rankedCandidates.subList(0, i);
 
 			Subtrajectory candidate = rankedCandidates.get(i);
@@ -122,23 +129,20 @@ public class BestMoveletsFilter extends MoveletsFilter {
 	 * @param selfSimilarityProp the self similarity prop
 	 * @return true, if successful
 	 */
-	public boolean areFeaturesSimilar(Subtrajectory candidate, int[] pointFeatures,
+	public boolean areFeaturesSimilar(int[] pointFeaturesA, int[] pointFeaturesB,
 			double featuresSimilarityProp) {
-		
-		if (featuresSimilarityProp == 0)
-			return true;
 		
 		double intersection = 0.0;
 		
-		for (int k : candidate.getPointFeatures())
-			for (int j : pointFeatures)
+		for (int k : pointFeaturesA)
+			for (int j : pointFeaturesB)
 				if (k == j)
 					intersection += 1.0;
 
 		intersection = intersection
-				/ (double) Math.min(candidate.getPointFeatures().length, pointFeatures.length);
+				/ (double) Math.min(pointFeaturesA.length, pointFeaturesB.length);
 		
-		return intersection >= featuresSimilarityProp;
+		return intersection <= featuresSimilarityProp;
 
 	}
 	

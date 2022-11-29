@@ -23,7 +23,7 @@ package br.ufsc.mov3lets.model.aspect;
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  * @param <T> the generic type
  */
-public class Aspect<T> {
+public class Aspect<T extends Comparable> implements Comparable<Aspect<T>> {
 
 	/** The value. */
 	private T value;
@@ -73,6 +73,11 @@ public class Aspect<T> {
 			return ((Integer) value).doubleValue();
 		else
 			return null;
+	}
+
+	@Override
+	public int compareTo(Aspect<T> o) {
+		return this.value.compareTo(o.getValue());
 	}
 	
 }

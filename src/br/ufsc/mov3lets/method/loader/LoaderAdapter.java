@@ -41,7 +41,7 @@ public interface LoaderAdapter<T extends MAT<?>> {
 		return descriptor.hasParam("curpath")? descriptor.getParamAsText("curpath") : "./";
 	}
 	
-	public default String getFileName(String fileName, Descriptor descriptor) {
+	public static String getFileName(String fileName, Descriptor descriptor) {
 		return Paths.get(getCurPath(descriptor), 
 					(descriptor.hasParam("input_file_prefix")? descriptor.getParamAsText("input_file_prefix") + "_" : "") + fileName
 				).toString();
@@ -75,22 +75,22 @@ public interface LoaderAdapter<T extends MAT<?>> {
 		
 		switch (attr.getType()) {
 			case "numeric":
-				if ("NaN".equalsIgnoreCase(value) || "?".equalsIgnoreCase(value)) return new Aspect<Double>(null);
+				if (isMissing(value)) return new Aspect<Double>(null);
 				return new Aspect<Double>(Double.parseDouble(value));
 			case "space2d":
 			case "composite_space2d":
 			case "composite2_space2d":
-				if ("?".equalsIgnoreCase(value)) return new Space2DAspect(null);
+				if (isMissing(value)) return new Space2DAspect(null);
 				return new Space2DAspect(value);
 			case "space3d":
 			case "composite3_space3d":
-				if ("?".equalsIgnoreCase(value)) return new Space3DAspect(null);
+				if (isMissing(value)) return new Space3DAspect(null);
 				return new Space3DAspect(value);
 			case "time":
-				if ("?".equalsIgnoreCase(value)) return new Aspect<Integer>(null);
+				if (isMissing(value)) return new Aspect<Integer>(null);
 				return new Aspect<Integer>(Integer.parseInt(value));
 			case "datetime":
-				if ("?".equalsIgnoreCase(value)) return new Aspect<Date>(null);
+				if (isMissing(value)) return new Aspect<Date>(null);
 				try {
 //					SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 					return new Aspect<Date>(dateFormatter.parse(value));
@@ -99,19 +99,23 @@ public interface LoaderAdapter<T extends MAT<?>> {
 					return new Aspect<Date>(new Date());
 				}
 			case "localdate":
-				if ("?".equalsIgnoreCase(value)) return new Aspect<LocalDate>(null);
+				if (isMissing(value)) return new Aspect<LocalDate>(null);
 				return new Aspect<LocalDate>(LocalDate.parse(value));
 			case "localtime":
-				if ("?".equalsIgnoreCase(value)) return new Aspect<LocalTime>(null);
+				if (isMissing(value)) return new Aspect<LocalTime>(null);
 				return new Aspect<LocalTime>(LocalTime.parse(value));
 			case "foursquarevenue":
 			case "gowallacheckin":
 			case "text":
 			case "nominal":
 			default:
-				if ("?".equalsIgnoreCase(value)) return new Aspect<String>(null);
+				if (isMissing(value)) return new Aspect<String>(null);
 				return new Aspect<String>(value);
 		}
+	}
+	
+	public default boolean isMissing(String value) {
+		return "?".equalsIgnoreCase(value) || "NaN".equalsIgnoreCase(value) || "".equalsIgnoreCase(value);
 	}
 
 }

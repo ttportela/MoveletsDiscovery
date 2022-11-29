@@ -39,10 +39,14 @@ public class Space2DAspect extends Aspect<String> {
 		super(value);
 		
 		if (value != null) {
-			String[] row = value.split(" ");
+			String[] row = value.trim().split(" ");
 			
-			this.x = Double.parseDouble(row[0]);
-			this.y = Double.parseDouble(row[1]);
+			if (row.length < 2)
+				value = null;
+			else {
+				this.x = Double.parseDouble(row[0]);
+				this.y = Double.parseDouble(row[1]);
+			}
 		}
 	}
 

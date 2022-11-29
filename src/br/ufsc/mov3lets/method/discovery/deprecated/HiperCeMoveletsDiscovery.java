@@ -91,7 +91,7 @@ public class HiperCeMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO> {
 			
 			/** STEP 2.4: SELECTING BEST CANDIDATES */			
 //			candidates = filterMovelets(candidates);		
-			movelets.addAll(filterMovelets(candidates));
+			movelets.addAll(this.bestFilter.filter(candidates));
 			
 //			System.gc();
 		}

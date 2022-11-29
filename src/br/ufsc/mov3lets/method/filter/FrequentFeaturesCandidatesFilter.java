@@ -40,7 +40,7 @@ public class FrequentFeaturesCandidatesFilter extends FeaturesCandidatesFilter {
 		int[] pointFeatures = features.stream().mapToInt(Integer::valueOf).toArray();
 		List<Subtrajectory> filteredCandidates = new ArrayList<>();
 		for (Subtrajectory candidate : candidatesByProp) {
-			if (areFeaturesSimilar(candidate, pointFeatures, 1.0)) {
+			if (areFeaturesSimilar(candidate.getPointFeatures(), pointFeatures, 1.0)) {
 				filteredCandidates.add(candidate);
 			}
 		}		

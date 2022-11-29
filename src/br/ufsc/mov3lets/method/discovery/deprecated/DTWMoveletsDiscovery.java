@@ -57,7 +57,7 @@ public class DTWMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> implements T
 	 */
 	public List<Subtrajectory> filterMovelets(List<Subtrajectory> candidates) {
 
-		List<Subtrajectory> orderedCandidates = rankCandidates(candidates);
+		List<Subtrajectory> orderedCandidates = this.qualityRanker.rank(candidates);
 
 		return bestShapelets(orderedCandidates, 0);
 	}

@@ -70,7 +70,7 @@ public class PivotsMoveletsDiscovery<MO> extends UltraMoveletsDiscovery<MO> {
 		}
 		total_size += pivots.size();
 
-		pivots = filterTopCandidates(rankCandidates(pivots));
+		pivots = filterTopCandidates(this.qualityRanker.rank(pivots));
 		
 		// Marks pivot points of trajectory to limit candidate extraction 
 		SortedSet<Integer> trajectory_marks = new TreeSet<Integer>(); 
@@ -90,11 +90,11 @@ public class PivotsMoveletsDiscovery<MO> extends UltraMoveletsDiscovery<MO> {
 		addStats("Number of Candidates", total_size);
 		addStats("Selected Candidates", candidates.size());
 		
-		candidates = filterMovelets(candidates);
+		candidates = this.bestFilter.filter(candidates);
 		
 		addStats("Total of Movelets", candidates.size());
 		addStats("Max Size", this.maxSizeOfCandidates);
-		addStats("Used Features", this.maxCombinationOfFeatures);
+		addStats("Used Features", this.currentMaxCombinationOfFeatures);
 		
 		progressBar.plus(getStats());
 				

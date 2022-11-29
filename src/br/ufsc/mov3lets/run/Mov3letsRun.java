@@ -61,13 +61,13 @@ public class Mov3letsRun {
 		if (!params.containsKey("descfile")) {
 			mov = new Mov3lets<String>(params);
 			
-			System.out.println(Paths.get(LoaderAdapter.getCurPath(mov.getDescriptor()), "train.mat").toString());
-			if (!Paths.get(LoaderAdapter.getCurPath(mov.getDescriptor()), "train.mat").toFile().exists()) {
-				showUsage(params, "-descfile\tDescription file must be set OR must provide .mat files!");
+//			System.out.println(Paths.get(LoaderAdapter.getFileName("train.mat", mov.getDescriptor())).toString());
+			if (!Paths.get(LoaderAdapter.getFileName("train.mat", mov.getDescriptor())).toFile().exists()) {
+				showUsage(params, "-descfile\tDescription file must be set OR must provide .mat files at -curpath!");
 				return;
 			}
 
-			mov.getDescriptor().setParam("result_dir_path", mov.configRespath(mov.getDescriptor()));
+//			mov.getDescriptor().setParam("result_dir_path", mov.configRespath(mov.getDescriptor()));
 		} else {
 //			String descFile = params.get("descfile").toString();
 			try {
@@ -79,12 +79,8 @@ public class Mov3letsRun {
 			}
 			
 //			mov.getDescriptor().setParams(params);
-			mov.getDescriptor().setParam("result_dir_path", mov.configRespath(mov.getDescriptor()));
+//			mov.getDescriptor().setParam("result_dir_path", mov.configRespath(mov.getDescriptor()));
 		}
-
-
-		// Set Result Dir:
-		mov.setResultDirPath(mov.getDescriptor().getParamAsText("result_dir_path"));
 		
 		// STEP 1.3 - Input:
 		Mov3letsUtils.getInstance().startTimer("[1] >> Load Input");
@@ -105,11 +101,15 @@ public class Mov3letsRun {
 		} catch (IOException e) {
 			// Empty if can't
 			Mov3letsUtils.trace("Empty test dataset: "+ e.getMessage() +" [continuing]");
-			e.printStackTrace();
+//			e.printStackTrace();
 			mov.setTest(new ArrayList<MAT<String>>());
 		} catch (Exception e) {
 			error(e);
 		}
+
+		// Set Result Dir:
+		mov.getDescriptor().setParam("result_dir_path", mov.configRespath(mov.getDescriptor()));
+		mov.setResultDirPath(mov.getDescriptor().getParamAsText("result_dir_path"));
 		
 		// Trace configurations:
 		Mov3letsUtils.trace(mov.showConfiguration(mov.getDescriptor()));
@@ -218,7 +218,7 @@ public class Mov3letsRun {
 		params.put("only_pivots",				 false);
 		params.put("interning",  				 true);
 		params.put("verbose",				 	 true);
-		params.put("version",				 	 "2.0");
+		params.put("version",				 	 "hiper-pivots");
 //		params.put("tau",					 	 0.9);
 		params.put("relative_tau",			 	 true);
 //		params.put("bucket_slice",				 0.1);
@@ -433,6 +433,9 @@ public class Mov3letsRun {
 			case "-resample":
 			case "-data_resample":
 				params.put("data_resample", Integer.valueOf(value));	
+				break;
+			case "-data_trim":
+				params.put("data_trim", Double.valueOf(value));	
 				break;
 			default:
 				System.err.println("Parâmetro " + key + " inválido.");

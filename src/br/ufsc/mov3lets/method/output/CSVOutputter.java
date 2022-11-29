@@ -19,8 +19,8 @@ import org.apache.commons.math3.util.Pair;
 
 import br.ufsc.mov3lets.method.distancemeasure.DistanceMeasure;
 import br.ufsc.mov3lets.method.structures.descriptor.Descriptor;
+import br.ufsc.mov3lets.model.Feature;
 import br.ufsc.mov3lets.model.MAT;
-import br.ufsc.mov3lets.model.Subtrajectory;
 import br.ufsc.mov3lets.utils.Mov3letsUtils;
 
 /**
@@ -29,7 +29,7 @@ import br.ufsc.mov3lets.utils.Mov3letsUtils;
  * @author tarlis
  * @param <MO> the generic type
  */
-public class CSVOutputter<MO> extends OutputterAdapter<MO, List<Subtrajectory>> {
+public class CSVOutputter<MO> extends OutputterAdapter<MO, List<Feature>> {
 
 	/** The medium. */
 	protected String medium = "none"; // Other values minmax, sd, interquartil
@@ -92,7 +92,7 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO, List<Subtrajectory>> 
 	 * @param delayOutput
 	 */
 	@Override
-	public synchronized void write(String filename, List<MAT<MO>> trajectories, List<Subtrajectory> movelets, 
+	public synchronized void write(String filename, List<MAT<MO>> trajectories, List<Feature> movelets, 
 			boolean delayOutput, Object... params) {
 		List<Map<String, Double>> attributeToTrajectories = 
 				"train".equals(filename)? attributesToTrain : attributesToTest;
@@ -164,9 +164,9 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO, List<Subtrajectory>> 
 	 * @param movelets the movelets
 	 * @param attributeToTrajectories the attribute to trajectories
 	 */
-	protected void attributesToTrajectories(List<MAT<MO>> trajectories, List<Subtrajectory> movelets, List<Map<String, Double>> attributeToTrajectories) {
+	protected void attributesToTrajectories(List<MAT<MO>> trajectories, List<Feature> movelets, List<Map<String, Double>> attributeToTrajectories) {
 		// It puts distances as trajectory attributes
-		for (Subtrajectory movelet : movelets) {
+		for (Feature movelet : movelets) {
 			switch (output){
 				case "numeric" :
 					attributeToTrajectoriesNumeric(trajectories, movelet, attributeToTrajectories);
@@ -187,11 +187,11 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO, List<Subtrajectory>> 
 	 * @param movelet the movelet
 	 * @param attributeToTrajectories the attribute to trajectories
 	 */
-	protected void attributeToTrajectoriesDiscrete(List<MAT<MO>> trajectories, Subtrajectory movelet, List<Map<String, Double>> attributeToTrajectories) {
-		String attributeName =  "sh_TID" + movelet.getTrajectory().getTid() + 
-								"_START" + movelet.getStart() + 
-								"_SIZE" + movelet.getSize() + 
-								"_CLASS" + movelet.getTrajectory().getMovingObject();
+	protected void attributeToTrajectoriesDiscrete(List<MAT<MO>> trajectories, Feature movelet, List<Map<String, Double>> attributeToTrajectories) {
+//		String attributeName =  "sh_TID" + movelet.getTrajectory().getTid() + 
+//								"_START" + movelet.getStart() + 
+//								"_SIZE" + movelet.getSize() + 
+//								"_CLASS" + movelet.getTrajectory().getMovingObject();
 
 		double[][] distances = movelet.getDistances();		
 		RealMatrix rm = new Array2DRowRealMatrix(distances);
@@ -210,7 +210,7 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO, List<Subtrajectory>> 
 			else 
 				distance = 2;
 			
-			getAttributes(i, attributeToTrajectories).put(attributeName, distance);
+			getAttributes(i, attributeToTrajectories).put(movelet.getFeatureName(), distance);
 		}
 	}
 
@@ -221,11 +221,11 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO, List<Subtrajectory>> 
 	 * @param movelet the movelet
 	 * @param attributeToTrajectories the attribute to trajectories
 	 */
-	protected void attributeToTrajectoriesNumeric(List<MAT<MO>> trajectories, Subtrajectory movelet, List<Map<String, Double>> attributeToTrajectories) {
-		String attributeName =  "sh_TID" + movelet.getTrajectory().getTid() + 
-								"_START" + movelet.getStart() + 
-								"_SIZE" + movelet.getSize() + 
-								"_CLASS" + movelet.getTrajectory().getMovingObject();
+	protected void attributeToTrajectoriesNumeric(List<MAT<MO>> trajectories, Feature movelet, List<Map<String, Double>> attributeToTrajectories) {
+//		String attributeName =  "sh_TID" + movelet.getTrajectory().getTid() + 
+//								"_START" + movelet.getStart() + 
+//								"_SIZE" + movelet.getSize() + 
+//								"_CLASS" + movelet.getTrajectory().getMovingObject();
 
 		RealMatrix rm = new Array2DRowRealMatrix(movelet.getDistances());
 				
@@ -242,7 +242,7 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO, List<Subtrajectory>> 
 				distance = normalizeNonCovered(rm.getColumn(i), splitpoints, maxDistances);
 			}
 				
-			getAttributes(i, attributeToTrajectories).put(attributeName, distance);
+			getAttributes(i, attributeToTrajectories).put(movelet.getFeatureName(), distance);
 		}
 	}
 

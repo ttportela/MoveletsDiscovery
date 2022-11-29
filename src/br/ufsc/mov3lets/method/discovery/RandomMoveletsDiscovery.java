@@ -77,7 +77,7 @@ public class RandomMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO> impl
 			
 			/** STEP 2.4: SELECTING BEST CANDIDATES */			
 //			candidates = filterMovelets(candidates);		
-			movelets.addAll(filterMovelets(candidates));
+			movelets.addAll(this.bestFilter.filter(candidates));
 			
 //			System.gc();
 //		}
@@ -145,7 +145,7 @@ public class RandomMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO> impl
 		addStats("Trajectory", trajectory.getTid());
 		addStats("Trajectory Size", trajectory.getPoints().size()); 
 		addStats("Number of Candidates", candidatesByProp.size());
-				
+
 		bestCandidates = randomPop(candidatesByProp, n, randSelection);
 		
 		long scored = bestCandidates.size();
@@ -156,7 +156,7 @@ public class RandomMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO> impl
 		 * * * * * * * * *
 		 */
 		if (bestCandidates.isEmpty())
-			for (int i = n; i < candidatesByProp.size(); i += n) {
+			for (int i = n*2; i < candidatesByProp.size(); i += n) {
 				bestCandidates = randomPop(candidatesByProp, n, randSelection);
 				
 				scored += bestCandidates.size();

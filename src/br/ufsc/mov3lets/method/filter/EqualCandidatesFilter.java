@@ -11,7 +11,7 @@ import br.ufsc.mov3lets.model.Point;
 import br.ufsc.mov3lets.model.Subtrajectory;
 import br.ufsc.mov3lets.model.aspect.Aspect;
 
-public class EqualCandidatesFilter extends MoveletsFilter {
+public class EqualCandidatesFilter implements MoveletsFilter {
 	
 	protected Descriptor descriptor;
 	

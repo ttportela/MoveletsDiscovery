@@ -121,7 +121,7 @@ public class ProgressiveMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> {
 			
 		}
 		
-		candidates = filterMovelets(candidates);
+		candidates = this.bestFilter.filter(candidates);
 
 		System.out.println("\nMOVELETS:");
 		for (int i = 0; i < candidates.size(); i++) {

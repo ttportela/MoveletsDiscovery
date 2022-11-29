@@ -77,7 +77,7 @@ public class UltraMemMoveletsDiscovery<MO> extends HipertPivotsMoveletsDiscovery
 		List<Subtrajectory> candidates = moveletsDiscovery(trajectory, this.train, minSize, maxSize, random);
 		
 		/** STEP 2.4: SELECTING BEST CANDIDATES */		
-		movelets.addAll(filterMovelets(candidates));
+		movelets.addAll(this.bestFilter.filter(candidates));
 		
 		setStats("");
 		
@@ -128,7 +128,7 @@ public class UltraMemMoveletsDiscovery<MO> extends HipertPivotsMoveletsDiscovery
 		}
 		total_size += candidates.size();
 
-		candidatesOfSize = filterMovelets(candidatesOfSize);
+		candidatesOfSize = this.bestFilter.filter(candidatesOfSize);
 		for(Subtrajectory candidate : candidatesOfSize) {
 			candidates.add(growPivot(candidate, trajectory, trajectories, minSize+1, maxSize, random));
 		}
@@ -138,7 +138,7 @@ public class UltraMemMoveletsDiscovery<MO> extends HipertPivotsMoveletsDiscovery
 //		addStats("Pivot Candidates", candidatesOfSize.size());
 		addStats("Selected Candidates", candidates.size());
 		
-		candidates = filterMovelets(candidates);
+		candidates = this.bestFilter.filter(candidates);
 		
 		addStats("Total of Movelets", candidates.size());
 		addStats("Max Size", this.maxSizeOfCandidates);

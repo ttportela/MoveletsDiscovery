@@ -42,13 +42,13 @@ import br.ufsc.mov3lets.utils.log.ProgressBar;
 public abstract class DiscoveryAdapter<MO> implements Callable<Integer> {
 
 	/** The number of features. */
-	protected int numberOfFeatures = 1;
+	public int numberOfFeatures = 1;
 
 	/** The max number of features. */
-	protected int maxNumberOfFeatures = 2;
+	public int maxNumberOfFeatures = 2;
 	
 	/** The explore dimensions. */
-	protected boolean exploreDimensions;
+	public boolean exploreDimensions;
 
 	/** The descriptor. */
 	protected Descriptor descriptor;
@@ -87,7 +87,7 @@ public abstract class DiscoveryAdapter<MO> implements Callable<Integer> {
 	protected Lock lock; 
 	
 	/** The combinations. */
-	protected int[][] combinations = null;
+	public int[][] combinations = null;
 	
 	/**
 	 * Instantiates a new discovery adapter.

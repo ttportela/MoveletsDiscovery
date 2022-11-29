@@ -76,7 +76,7 @@ public class UltraSMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> imp
 		List<Subtrajectory> candidates = moveletsDiscovery(trajectory, this.train, minSize, maxSize, random);
 		
 		/** STEP 2.4: SELECTING BEST CANDIDATES */		
-		movelets.addAll(filterMovelets(candidates));
+		movelets.addAll(this.bestFilter.filter(candidates));
 		
 		setStats("");
 		
@@ -128,7 +128,7 @@ public class UltraSMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> imp
 		}
 		total_size += candidatesOfSize.size();
 
-		candidatesOfSize = filterMovelets(candidatesOfSize);
+		candidatesOfSize = this.bestFilter.filter(candidatesOfSize);
 		for(Subtrajectory candidate : candidatesOfSize) {
 			candidates.add(growPivot(candidate, trajectory, trajectories, minSize+1, maxSize, random));
 		}
@@ -141,7 +141,7 @@ public class UltraSMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> imp
 //			computeDistances(subtrajectory, this.train);
 //			assesQuality(subtrajectory, random);
 //		}
-		candidates = filterMovelets(candidates);
+		candidates = this.bestFilter.filter(candidates);
 		
 		addStats("Total of Movelets", candidates.size());
 		addStats("Max Size", this.maxSizeOfCandidates);

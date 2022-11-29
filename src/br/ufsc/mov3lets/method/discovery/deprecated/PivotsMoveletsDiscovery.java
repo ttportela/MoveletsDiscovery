@@ -239,7 +239,7 @@ public class PivotsMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO> {
 		}
 
 		/** STEP 2.2: SELECTING BEST CANDIDATES */	
-		return filterMovelets(bestCandidates);
+		return this.bestFilter.filter(bestCandidates);
 	}
 	
 }

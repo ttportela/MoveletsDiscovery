@@ -17,7 +17,6 @@
  */
 package br.ufsc.mov3lets.run;
 
-import br.ufsc.mov3lets.method.loader.MATInternLoader;
 import br.ufsc.mov3lets.model.MAT;
 
 /**
@@ -35,22 +34,8 @@ public class Test<T extends MAT<?>> {
 	 */
 	public static void main(String[] arg) throws Exception {
 		
-////		String file = "/Users/tarlisportela/OneDrive/3 - Projetos/workdir/data/multivariate_ts/InsectWingbeat/InsectWingbeat_TEST";
-//		String file = "/Users/tarlisportela/OneDrive/3 - Projetos/workdir/data/test/TEST";
-//		
-////		TSReader reader = new TSReader(new FileReader(new File(file)));
-//		MATInternLoader<MAT<String>> reader = new MATInternLoader<MAT<String>>();
-//		System.out.println(reader.loadTrajectories(file, null).get(1));
-//		System.out.println(reader.getAttributes().toString());
+		System.out.println(Integer.max(2, 1));
 		
-
-		System.out.println(
-		Double.POSITIVE_INFINITY == (Double.POSITIVE_INFINITY * Double.POSITIVE_INFINITY)
-		);
-
-		System.out.println(
-		(Double.MAX_VALUE * Double.MAX_VALUE) >= Double.MAX_VALUE
-		);
 	}
 
 }

@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import br.ufsc.mov3lets.model.aspect.Aspect;
+
 
 /**
  * Moving object can be anything, including an instance of MovingObject.
@@ -38,7 +40,7 @@ public class MAT<MO> {
 	private MO movingObject;
 	
 	/** The aspects. */
-	private List<?> aspects = null;
+	private List<Aspect<?>> aspects = null;
 	
 	/** The points. */
 	private List<Point> points = new ArrayList<Point>();
@@ -88,7 +90,7 @@ public class MAT<MO> {
 	 *
 	 * @return the aspects
 	 */
-	public List<?> getAspects() {
+	public List<Aspect<?>> getAspects() {
 		return aspects;
 	}
 	
@@ -97,7 +99,7 @@ public class MAT<MO> {
 	 *
 	 * @param aspects the aspects to set
 	 */
-	public void setAspects(List<?> aspects) {
+	public void setAspects(List<Aspect<?>> aspects) {
 		this.aspects = aspects;
 	}
 	

@@ -227,7 +227,7 @@ public class MasterMoveletsDiscovery<MO> extends MoveletsDiscovery<MO> implement
 						
 		} // for (int size = 2; size <= max; size++)	
 		
-		candidates = filterMovelets(candidates);
+		candidates = this.bestFilter.filter(candidates);
 		
 		progressBar.plus("Class: " + trajectory.getMovingObject() 
 						+ ". Trajectory: " + trajectory.getTid() 

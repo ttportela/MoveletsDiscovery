@@ -50,17 +50,16 @@ import br.ufsc.mov3lets.method.feature.extraction.FeatureExtractor;
 import br.ufsc.mov3lets.method.feature.extraction.PointFeature;
 import br.ufsc.mov3lets.method.feature.selection.FeatureSelector;
 import br.ufsc.mov3lets.method.loader.LoaderAdapter;
-import br.ufsc.mov3lets.method.loader.MATInternLoader;
-import br.ufsc.mov3lets.method.output.CSVIndexOutputter;
-import br.ufsc.mov3lets.method.output.MKNMOutputter;
-import br.ufsc.mov3lets.method.output.MKNTOutputter;
-import br.ufsc.mov3lets.method.output.MSVMOutputter;
+import br.ufsc.mov3lets.method.loader.MATLoader;
 import br.ufsc.mov3lets.method.output.OutputterAdapter;
+import br.ufsc.mov3lets.method.output.classifiers.MKNMOutputter;
+import br.ufsc.mov3lets.method.output.classifiers.MKNTOutputter;
+import br.ufsc.mov3lets.method.output.classifiers.MSVMOutputter;
+import br.ufsc.mov3lets.method.qualitymeasure.FrequentQualityMeasure;
 import br.ufsc.mov3lets.method.qualitymeasure.LeftSidePureCVLigth;
 import br.ufsc.mov3lets.method.qualitymeasure.LeftSidePureCVLigthBS;
 import br.ufsc.mov3lets.method.qualitymeasure.LeftSidePureCVLigthEA;
 import br.ufsc.mov3lets.method.qualitymeasure.PLSPQualityMeasure;
-import br.ufsc.mov3lets.method.qualitymeasure.FrequentQualityMeasure;
 import br.ufsc.mov3lets.method.qualitymeasure.QualityMeasure;
 import br.ufsc.mov3lets.method.sample.RandomSampler;
 import br.ufsc.mov3lets.method.sample.Sampler;
@@ -166,9 +165,10 @@ public class Mov3lets<MO> {
 		
 		scheduleIfTimeContractable();
 		
-		List<DiscoveryAdapter<MO>> lsMDs = instantiate(classes, progressBar);	
+		Class cdc = getDiscoveryClass();
+		List<DiscoveryAdapter<MO>> lsMDs = instantiate(cdc, classes, progressBar);	
 
-		if (N_THREADS > 1) {
+		if (N_THREADS > 1 && !GlobalDiscovery.class.equals(getTypeOf(cdc))) {
 			ExecutorService executor = (ExecutorService) 
 					Executors.newFixedThreadPool(N_THREADS);
 			List<Future<Integer>> resultList = new ArrayList<>();
@@ -292,6 +292,7 @@ public class Mov3lets<MO> {
 
 	/**
 	 * Instantiate.
+	 * @param cdc2 
 	 *
 	 * @param classes the classes
 	 * @param qualityMeasure the quality measure
@@ -305,11 +306,11 @@ public class Mov3lets<MO> {
 	 * @throws InstantiationException 
 	 * @throws ClassNotFoundException 
 	 */
-	private List<DiscoveryAdapter<MO>> instantiate(List<MO> classes, ProgressBar progressBar)  
+	private List<DiscoveryAdapter<MO>> instantiate(Class cdc, List<MO> classes, ProgressBar progressBar)  
 			throws Exception {
 		List<DiscoveryAdapter<MO>> lsMDs = new ArrayList<DiscoveryAdapter<MO>>();
 		
-		Class cdc = getDiscoveryClass();
+//		Class cdc = getDiscoveryClass();
 //		QualityMeasure qualityMeasure = instatiateQuality();
 		
 		/** STEP 2.1: Starts at discovering movelets */
@@ -321,8 +322,11 @@ public class Mov3lets<MO> {
 			
 			// TODO Configure Outputs:
 			moveletsDiscovery.setLock(newLock());
-			moveletsDiscovery.getOutputers().add(
-					new CSVIndexOutputter<MO>(descriptor.getParamAsText("respath"), null, descriptor, false));
+//			moveletsDiscovery.getOutputers().add(
+//					new CSVIndexOutputter<MO>(descriptor.getParamAsText("respath"), null, descriptor, false));
+			
+			moveletsDiscovery.setOutputers(configOutput(1, null));
+			
 			lsMDs.add(moveletsDiscovery);
 
 			return lsMDs;
@@ -553,6 +557,8 @@ public class Mov3lets<MO> {
         		return TrajectoryDiscovery.class;
         	} else if (Arrays.asList(clazz.getInterfaces()).contains(ClassDiscovery.class)) {
         		return ClassDiscovery.class;
+        	} else if (Arrays.asList(clazz.getInterfaces()).contains(GlobalDiscovery.class)) {
+        		return GlobalDiscovery.class;
         	} else { 
 	            clazz = clazz.getSuperclass();
 	            return getTypeOf(clazz);
@@ -599,25 +605,45 @@ public class Mov3lets<MO> {
 		
 		OutputterAdapter o;
 		
-		// For Singleton outputters:
-		if ("MSVM".equalsIgnoreCase(outx)) {
-			
+		switch (outx) {
+		// For Singleton CLASSIFIER outputters:
+		case "MSVM":
 			o = MSVMOutputter.getInstance(resultDirPath, getDescriptor());
-			
-		} else if ("MKNM".equalsIgnoreCase(outx)) {
-			
+			break;
+		case "MKNM":
 			o = MKNMOutputter.getInstance(resultDirPath, getDescriptor());
-			
-		} else if ("MKNT".equalsIgnoreCase(outx)) {
-			
+			break;
+		case "MKNT":
 			o = MKNTOutputter.getInstance(resultDirPath, getDescriptor());
-			
-		} else {
-		
+			break;
+
+		// For Movelets and Features Output:
+		default:
 			o = (OutputterAdapter) Class.forName("br.ufsc.mov3lets.method.output."+outx+"Outputter")
-				.getDeclaredConstructor(String.class, String.class, Descriptor.class)
-				.newInstance(resultDirPath, String.valueOf(myclass), getDescriptor());
+					.getDeclaredConstructor(String.class, String.class, Descriptor.class)
+					.newInstance(resultDirPath, (myclass == null? null : myclass.toString()), getDescriptor());
+			break;
 		}
+		
+		// For Singleton outputters:
+//		if ("MSVM".equalsIgnoreCase(outx)) {
+//			
+//			o = MSVMOutputter.getInstance(resultDirPath, getDescriptor());
+//			
+//		} else if ("MKNM".equalsIgnoreCase(outx)) {
+//			
+//			o = MKNMOutputter.getInstance(resultDirPath, getDescriptor());
+//			
+//		} else if ("MKNT".equalsIgnoreCase(outx)) {
+//			
+//			o = MKNTOutputter.getInstance(resultDirPath, getDescriptor());
+//			
+//		} else {
+//		
+//			o = (OutputterAdapter) Class.forName("br.ufsc.mov3lets.method.output."+outx+"Outputter")
+//				.getDeclaredConstructor(String.class, String.class, Descriptor.class)
+//				.newInstance(resultDirPath, (myclass == null? null : myclass.toString()), getDescriptor());
+//		}
 			
 		return o;
 	}
@@ -635,13 +661,14 @@ public class Mov3lets<MO> {
 			for (String file : getDescriptor().getInput().getTrain()) {
 				getTrain().addAll(loader.load(file, getDescriptor()));
 			}
-		} else {
+		} else if (getDescriptor().notSet()) {
 			setTrain(loader.load("train", getDescriptor()));
-		}
-		
-		if (descriptor.getParam("desfile") == null && descriptor.getAttributes().isEmpty()) {
-			descriptor.setAttributes(((MATInternLoader<MAT<?>>) loader).getAttributes());
-			descriptor.configure();
+			
+			getDescriptor().setAttributes(((MATLoader<MAT<?>>) loader).getAttributes());
+			getDescriptor().setTrajectoryAttributes(((MATLoader<MAT<?>>) loader).getTrajectoryAttributes());
+			getDescriptor().configure();
+		} else {
+			throw new RuntimeException("Provide a valid train input file.");
 		}
 			
 	}
@@ -692,12 +719,20 @@ public class Mov3lets<MO> {
 			Mov3letsUtils.getInstance().stopTimer( "[1.3] >> Feature Selection");
 		}
 		
+		// Trajectory Trimming
+		if (getDescriptor().hasParam("data_trim")) {
+			Mov3letsUtils.getInstance().startTimer("[1.4] >> Triming Data");
+			trimTrajectoryEnd(this.train);
+			trimTrajectoryEnd(this.test);
+			Mov3letsUtils.getInstance().stopTimer( "[1.4] >> Triming Data");
+		}
+		
 		// Update Attributes at the end
 		if (!newAttr.isEmpty())
 			getDescriptor().getAttributes().addAll(newAttr);
 		
 	}
-	
+
 	public List<AttributeDescriptor> pointFeatureExtraction(ArrayList<AttributeDescriptor> attributes) throws Exception {
 		
 		ArrayList<PointFeature> features = instantiatePointFeatures();	
@@ -795,6 +830,17 @@ public class Mov3lets<MO> {
 		
 		return unusedAttr;
 	}
+	
+	public void trimTrajectoryEnd(List<MAT<MO>> trajectories) {
+		
+		double p = getDescriptor().getParamAsDouble("data_trim");
+		
+		// Trim trajectories:
+		for (MAT<MO> T : trajectories) {
+			int ns = (int) ( T.getPoints().size() * p) + 1;
+			T.setPoints(T.getPoints().subList(0, ns));
+		}
+	}
 
 	/**
 	 * STEP 1.
@@ -818,26 +864,6 @@ public class Mov3lets<MO> {
 		
 		LoaderAdapter loader = (LoaderAdapter) Class.forName("br.ufsc.mov3lets.method.loader."+cname+"Loader")
 				.getDeclaredConstructor().newInstance();
-		
-		
-//		if (getDescriptor().getFlag("indexed")) { // For future implementations
-//			data = new IndexedLoaderAdapter<MAT<MO>>().load(file, getDescriptor());
-//		} else 
-//		if (getDescriptor().getFlag("interning")) {
-//
-//			if ("CSV".equals(getDescriptor().getParamAsText("data_format")))			
-//				loader = new CSVInternLoader<MAT<MO>>();
-//			else
-//				loader = new ZippedInternLoader<MAT<MO>>(); // DEFAULT
-//			
-//		} else {
-//
-//			if ("CSV".equals(getDescriptor().getParamAsText("data_format")))			
-//				loader = new CSVLoader<MAT<MO>>();
-//			else
-//				loader = new ZippedLoader<MAT<MO>>();
-//			
-//		}
 		
 		return loader;
 	}
@@ -1054,7 +1080,7 @@ public class Mov3lets<MO> {
 //		}
 
 		String DESCRIPTION_FILE_NAME = descriptor.hasParam("descfile")? FilenameUtils.removeExtension(
-				new File(descriptor.getParamAsText("descfile")).getName()) : descriptor.getParamAsText("curpath").toString();
+				new File(descriptor.getParamAsText("descfile")).getName()) : descriptor.getParamAsText("problemName").toString();
 		
 		DESCRIPTION_FILE_NAME += "_" + descriptor.getParamAsText("str_quality_measure"); 
 				

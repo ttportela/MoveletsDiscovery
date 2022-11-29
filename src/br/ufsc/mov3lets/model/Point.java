@@ -38,6 +38,13 @@ public class Point {
 	/** The aspects. */
 	private List<Aspect<?>> aspects = new ArrayList<Aspect<?>>();
 	
+	public Point() {}
+	
+	public Point(MAT<?> trajectory, List<Aspect<?>> aspects) {
+		this.trajectory = trajectory;
+		this.aspects.addAll(aspects);
+	}
+	
 //	/**
 //	 * Gets the id.
 //	 *
@@ -109,6 +116,10 @@ public class Point {
 		string += i + ": " + aspects.get(i).toString() + "}";
 		
 		return string;
+	}
+	
+	public Point copy() {
+		return new Point(trajectory, aspects);
 	}
 
 }

@@ -33,13 +33,13 @@ public class SubtrajectoryGSON {
 	/** The label. */
 	private String label;
 
-//	private List<HashMap<String, Object>> features;
+	private HashMap<Integer, String> featuresNames;
 	
 	/** The points with only the used features. */
-private List<HashMap<String, Object>> points_with_only_the_used_features;
+	private List<HashMap<String, Object>> points_with_only_the_used_features;
 		
 	/** The max values. */
-	private HashMap<String, Double> maxValues;
+//	private HashMap<String, Double> maxValues;
 	
 	/** The point features. */
 	private int[] pointFeatures;
@@ -51,7 +51,7 @@ private List<HashMap<String, Object>> points_with_only_the_used_features;
 	private double[][] distances;
 	
 	/** The positions. */
-	private int[] positions;
+//	private int[] positions;
 	
 /** The data. */
 //	private List<Point> data;
@@ -137,7 +137,7 @@ private List<HashMap<String, Object>> points_with_only_the_used_features;
 		this.pointFeatures = pointFeatures;
 		this.splitpoints = splitpoints;
 		this.distances = distances;
-		this.positions = bestAlignments.stream().mapToInt(e -> (e!=null) ? e.getStart() : -1).toArray();
+//		this.positions = bestAlignments.stream().mapToInt(e -> (e!=null) ? e.getStart() : -1).toArray();
 		this.quality = quality.getData();
 //		this.points_with_only_the_used_features = only_used_features;
 	}
@@ -168,11 +168,14 @@ private List<HashMap<String, Object>> points_with_only_the_used_features;
 			HashMap<String, Object> features_in_point = new HashMap<>();
 			HashMap<String, Object> used_features_in_point = new HashMap<>();
 			
-			for(int j=0; j < descriptor.getAttributes().size(); j++) {
-				features_in_point.put(descriptor.getAttributes().get(j).getText(), point.getAspects().get(j).getValue());				
+//			for(int j=0; j < descriptor.getAttributes().size(); j++) {
+			for(int j=0; j < subtrajectory.getPointFeatures().length; j++) {
+				int k = subtrajectory.getPointFeatures()[j];
+				String attxt = descriptor.getAttributes().get(k).getText();
+				features_in_point.put(attxt, point.getAspects().get(k).getValue());				
 				
-				if(ArrayUtils.contains(list_features, j))
-					used_features_in_point.put(descriptor.getAttributes().get(j).getText(), point.getAspects().get(j).getValue());
+//				if(ArrayUtils.contains(list_features, j))	
+				used_features_in_point.put(attxt, point.getAspects().get(k).getValue());
 			}
 
 			features.add(features_in_point);
@@ -183,6 +186,13 @@ private List<HashMap<String, Object>> points_with_only_the_used_features;
 				subtrajectory.getTrajectory().getMovingObject().toString(), features, subtrajectory.getPointFeatures(), 
 				maxValues, subtrajectory.getSplitpoints(), subtrajectory.getDistances(), subtrajectory.getBestAlignments(),
 				subtrajectory.getQuality(), used_features);
+		
+		HashMap<Integer, String> features_in_movelet = new HashMap<Integer, String>();
+		for(int j=0; j < subtrajectory.getPointFeatures().length; j++) {
+			String attxt = descriptor.getAttributes().get(subtrajectory.getPointFeatures()[j]).getText();
+			features_in_movelet.put(subtrajectory.getPointFeatures()[j], attxt);
+		}
+		this.featuresNames = features_in_movelet;
 	}
 	
 	/**
@@ -212,11 +222,11 @@ private List<HashMap<String, Object>> points_with_only_the_used_features;
 		this.label = label;
 //		this.features = features;		
 		this.distances = distances;
-		this.positions = bestAlignments.stream().mapToInt(e -> (e!=null) ? e.getStart() : -1).toArray();
+//		this.positions = bestAlignments.stream().mapToInt(e -> (e!=null) ? e.getStart() : -1).toArray();
 		this.pointFeatures = pointFeatures;
 		this.splitpoints = splitpoints;
 		this.quality = quality.getData();
-		this.maxValues = maxValues;
+//		this.maxValues = maxValues;
 		this.points_with_only_the_used_features = only_used_features;
 		this.data = features;
 	}
@@ -309,6 +319,24 @@ private List<HashMap<String, Object>> points_with_only_the_used_features;
 	 */
 	public void setData(List<HashMap<String, Object>> data) {
 		this.data = data;
+	}
+
+	/**
+	 * Gets the used features names.
+	 *
+	 * @return the used features
+	 */
+	public HashMap<Integer, String> getFeaturesNames() {
+		return featuresNames;
+	}
+	
+	/**
+	 * Sets the used features names.
+	 *
+	 * @param data the features names
+	 */
+	public void setFeaturesNames(HashMap<Integer, String> featuresNames) {
+		this.featuresNames = featuresNames;
 	}
 	
 	/**
