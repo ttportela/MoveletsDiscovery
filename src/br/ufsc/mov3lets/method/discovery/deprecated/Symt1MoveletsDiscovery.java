@@ -88,7 +88,7 @@ public class Symt1MoveletsDiscovery<MO> extends UltraMoveletsDiscovery<MO> imple
 		setStats("");
 		
 		/** STEP 2.2: Runs the pruning process */
-		if(getDescriptor().getFlag("last_prunning"))
+		if(getDescriptor().getFlag("last_pruning"))
 			movelets = lastPrunningFilter(movelets);
 
 		/** STEP 2.2: ---------------------------- */

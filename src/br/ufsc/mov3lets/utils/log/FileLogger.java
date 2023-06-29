@@ -25,6 +25,7 @@ public class FileLogger extends LoggerAdapter {
 	@Override
 	public void trace(String s) {
 		writer.write(s + "\n");
+		writer.flush();
 	}
 
 	public void end() {

@@ -1,13 +1,14 @@
 /**
  * 
  */
-package br.ufsc.mov3lets.method.discovery;
+package br.ufsc.mov3lets.method.discovery.deprecated;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import br.ufsc.mov3lets.method.discovery.UltraMoveletsDiscovery;
 import br.ufsc.mov3lets.method.filter.OverlappingFeaturesFilter;
 import br.ufsc.mov3lets.method.output.FeatureOutputter;
 import br.ufsc.mov3lets.method.output.OutputterAdapter;

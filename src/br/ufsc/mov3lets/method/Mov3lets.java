@@ -27,9 +27,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -61,8 +61,8 @@ import br.ufsc.mov3lets.method.qualitymeasure.LeftSidePureCVLigthBS;
 import br.ufsc.mov3lets.method.qualitymeasure.LeftSidePureCVLigthEA;
 import br.ufsc.mov3lets.method.qualitymeasure.PLSPQualityMeasure;
 import br.ufsc.mov3lets.method.qualitymeasure.QualityMeasure;
-import br.ufsc.mov3lets.method.sample.RandomSampler;
 import br.ufsc.mov3lets.method.sample.Sampler;
+import br.ufsc.mov3lets.method.sample.StratifiedRandomSampler;
 import br.ufsc.mov3lets.method.structures.descriptor.AttributeDescriptor;
 import br.ufsc.mov3lets.method.structures.descriptor.Descriptor;
 import br.ufsc.mov3lets.model.MAT;
@@ -83,20 +83,20 @@ public class Mov3lets<MO> {
 	
 	/** The descriptor. */
 	// CONFIG:
-	private Descriptor descriptor = null;
+	protected Descriptor descriptor = null;
 	
 	/** The result dir path. */
-	private String resultDirPath = "MasterMovelets";
+	protected String resultDirPath = "Movelets";
 	
 	/** The data. */
 	// TRAJS:
-	private List<MAT<MO>> data = null;
+	protected List<MAT<MO>> data = null;
 	
 	/** The train. */
-	private List<MAT<MO>> train = null;
+	protected List<MAT<MO>> train = null;
 	
 	/** The test. */
-	private List<MAT<MO>> test = null;
+	protected List<MAT<MO>> test = null;
 	
 	/** The progress bar. */
 	public static ProgressBar progressBar = new SimpleOutput();
@@ -109,12 +109,12 @@ public class Mov3lets<MO> {
 	 * @throws UnsupportedEncodingException the unsupported encoding exception
 	 * @throws FileNotFoundException the file not found exception
 	 */
-	public Mov3lets(String descriptorFile, HashMap<String, Object> params) 
+	public Mov3lets(String descriptorFile, Map<String, Object> params) 
 			throws UnsupportedEncodingException, FileNotFoundException {
 		this.descriptor = Descriptor.load(descriptorFile, params);
 	}
 
-	public Mov3lets(HashMap<String, Object> params) {
+	public Mov3lets(Map<String, Object> params) {
 		this.descriptor = new Descriptor();
 
         descriptor.setParams(params);
@@ -234,7 +234,9 @@ public class Mov3lets<MO> {
 		String folder = Paths.get(descriptor.getParamAsText("respath")).getFileName().toString();
 		
 		// STEP 1 - SAMPLES:
-		Sampler<MO> sampler = new RandomSampler<MO>(train, test, nsamples);
+		double resampleTrain = descriptor.hasParam("resample_train")? descriptor.getParamAsDouble("resample_train") : 0.7;
+		double resampleProp  = descriptor.hasParam("resample_prop")? descriptor.getParamAsDouble("resample_prop") : 1.0;
+		Sampler<MO> sampler = new StratifiedRandomSampler<MO>(train, test, nsamples, resampleTrain, resampleProp);
 		List<MAT<MO>>[] inst;
 		while ((inst = sampler.nextSample()) != null) {
 			// STEP 2 - Configure path and output:
@@ -907,11 +909,11 @@ public class Mov3lets<MO> {
 	/**
 	 * Prints the params.
 	 *
-	 * @param params the params
+	 * @param map the params
 	 * @param descriptor the descriptor
 	 * @return the string
 	 */
-	public String printParams(HashMap<String, Object> params, Descriptor descriptor) {
+	public String printParams(Map<String, Object> map, Descriptor descriptor) {
 		String str = "Configurations:" + System.getProperty("line.separator");
 		
 //		String[] columns = {"Option", "Description", "Value", "Help"};
@@ -919,30 +921,30 @@ public class Mov3lets<MO> {
 //				{"-curpath", 			"Datasets directory", 		params.get("curpath"), 						""},
 //				{"-respath", 			"Results directory", 		(params.containsKey("result_dir_path")? params.get("result_dir_path") : params.get("respath")), 				""},
 //				{"-descfile", 			"Description file", 		params.get("descfile"), 					""},
-				{"-nt", 				"Allowed Threads", 			params.get("nthreads"), 					""},
-				{"-ms", 				"Min size", 				params.get("min_size"), 					"Any positive | -1 | Log: -2"},
-				{"-Ms", 				"Max size", 				params.get("max_size"), 					"Any | All sizes: -1 | Log: -3 or -4"},
+				{"-nt", 				"Allowed Threads", 			map.get("nthreads"), 					""},
+				{"-ms", 				"Min size", 				map.get("min_size"), 					"Any positive | -1 | Log: -2"},
+				{"-Ms", 				"Max size", 				map.get("max_size"), 					"Any | All sizes: -1 | Log: -3 or -4"},
 //				{"", 					"", 						"",						 					"All sizes: -1,"},
 //				{"", 					"", 						"", 										"Log: -3"},
-				{"-mnf", 				"Max. Dimensions",			params.get("max_number_of_features"), 		"Any | Explore dim.: -1 | Log: -2 | Other: -3"},
+				{"-mnf", 				"Max. Dimensions",			map.get("max_number_of_features"), 		"Any | Explore dim.: -1 | Log: -2 | Other: -3"},
 //				{"", 					"", 						"",						 					"Explore dim.: -1,"},
 //				{"", 					"", 						"", 										"Log: -3"},
 //				{"-ed", 				"Explore dimensions", 		params.get("explore_dimensions"), 			"Same as -mnf -1"},
-				{"-samples", 			"Samples", 					params.get("samples"), 						""},
-				{"-sampleSize", 		"Sample Size", 				params.get("sample_size"), 					""},
-				{"-q", 					"Quality Measure", 			params.get("str_quality_measure"), 			""},
-				{"-medium", 			"Medium", 					params.get("medium"), 						""},
-				{"-mpt", 				"Movelets Per Traj.", 		params.get("movelets_per_trajectory"), 		"Any | Auto: -1"},
-				{"-output", 			"Output", 					params.get("output")+
-																	" ("+params.get("outputters")+")", 			""},
+				{"-samples", 			"Samples", 					map.get("samples"), 						""},
+				{"-sampleSize", 		"Sample Size", 				map.get("sample_size"), 					""},
+				{"-q", 					"Quality Measure", 			map.get("str_quality_measure"), 	 		""},
+				{"-medium", 			"Medium", 					map.get("medium"), 							""},
+				{"-mpt", 				"Movelets Per Traj.", 		map.get("movelets_per_trajectory"), 		"Any | Auto: -1"},
+				{"-output", 			"Output", 					map.get("output")+
+																	" ("+map.get("outputters")+")", 			""},
 				{"", 					"", 						"", 										""},
-				{"-version", 			"Version Impl.", 			params.get("version"), 						"master, super, hiper[-pivots], random, ultra"},
-				{"", 					"-- Last Prunning",			params.get("last_prunning"), 				""},
+				{"-version", 			"Version Impl.", 			map.get("version"), 						"master, super, hiper[-pivots], random, ultra"},
+				{"", 					"-- Last Prunning",			map.get("last_pruning"),    				""},
 			};
 		
-		str += "   -curpath		Datasets directory:	" + params.get("curpath") + System.getProperty("line.separator");
-		str += "   -respath		Results directory: 	" + (params.containsKey("result_dir_path")? params.get("result_dir_path") : params.get("respath")) + System.getProperty("line.separator");
-		str += "   -descfile 		Description file : 	" + params.get("descfile") + System.getProperty("line.separator");
+		str += "   -curpath		Datasets directory:	" + map.get("curpath") + System.getProperty("line.separator");
+		str += "   -respath		Results directory: 	" + (map.containsKey("result_dir_path")? map.get("result_dir_path") : map.get("respath")) + System.getProperty("line.separator");
+		str += "   -descfile 		Description file : 	" + map.get("descfile") + System.getProperty("line.separator");
 //		str += "   -nt 						Allowed Threads: 				" + params.get("nthreads") + System.getProperty("line.separator");
 //		str += "   -ms						Min size: 						" + params.get("min_size") + System.getProperty("line.separator");
 //		str += "   -Ms						Max size 						" + params.get("max_size")  + System.getProperty("line.separator")
@@ -968,29 +970,33 @@ public class Mov3lets<MO> {
 		}
 //		at.addRule();
 		
-		if (params.containsKey("tau"))
-			if (params.get("relative_tau").equals(true)) 
-				at.addRow(new Object[] {"", "-- TAU (relative)", params.get("tau"), ""});
+		if (map.containsKey("tau"))
+			if (map.get("relative_tau").equals(true)) 
+				at.addRow(new Object[] {"", "-- TAU (relative)", map.get("tau"), ""});
 			else
-				at.addRow(new Object[] {"", "-- TAU (absolute)", params.get("tau"), ""});
+				at.addRow(new Object[] {"", "-- TAU (absolute)", map.get("tau"), ""});
 
-		if (params.containsKey("bucket_slice"))
-			at.addRow(new Object[] {"", "-- % Limit", params.get("bucket_slice"), ""});
+		if (map.containsKey("bucket_slice"))
+			at.addRow(new Object[] {"", "-- % Limit", map.get("bucket_slice"), ""});
 
-		if (params.containsKey("random_seed"))
-			at.addRow(new Object[] {"", "-- Random Seed", params.get("random_seed"), ""});
+		if (map.containsKey("random_seed"))
+			at.addRow(new Object[] {"", "-- Random Seed", map.get("random_seed"), ""});
 		
-		if (params.containsKey("feature_extraction_strategy"))
-			at.addRow(new Object[] {"", "-- Feature Extraction", params.get("feature_extraction_strategy"), ""});
+		if (map.containsKey("feature_extraction_strategy"))
+			at.addRow(new Object[] {"", "-- Feature Extraction", map.get("feature_extraction_strategy"), ""});
 		
-		if (params.containsKey("filter_strategy"))
-			at.addRow(new Object[] {"", "-- Feature Selection", params.get("filter_strategy"), ""});
+		if (map.containsKey("filter_strategy"))
+			at.addRow(new Object[] {"", "-- Feature Selection", map.get("filter_strategy"), ""});
 		
-		if (params.containsKey("time_contract"))
-			at.addRow(new Object[] {"-TC", "Time Contract", params.get("time_contract"), "Use: w(eeks), d, h, m, s(econds)"});
+		if (map.containsKey("data_resample"))
+			at.addRow(new Object[] {"-fold", "Resample Runs", map.get("data_resample"), "# of runs with random resample"});
+		if (map.containsKey("resample_train"))
+			at.addRow(new Object[] {"", "-- R. Train Size", map.get("resample_train"), "Train hold-out proportion"});
+		if (map.containsKey("resample_prop"))
+			at.addRow(new Object[] {"", "-- Resample Prop.", map.get("resample_prop"), "Sample proportion of the data"});
 		
-		if (params.containsKey("data_resample"))
-			at.addRow(new Object[] {"", "-- Data Resample", params.get("data_resample"), ""});
+		if (map.containsKey("time_contract"))
+			at.addRow(new Object[] {"-TC", "Time Contract", map.get("time_contract"), "Use: w(eeks), d, h, m, s(econds)"});
 		
 //		at.addRow("Optimizations:", "", "", "");
 //		at.addRow("", "Interning", 	(params.containsKey("interning")? (boolean)params.get("interning") : false), 	"");
@@ -1054,29 +1060,29 @@ public class Mov3lets<MO> {
 	 */
 	public String configRespath(Descriptor descriptor) {
 		
-		String resultDirPath = "MASTERMovelets" + System.getProperty("file.separator");
+		String resultDirPath = "Movelets" + System.getProperty("file.separator");
 		
-		if (descriptor.getFlag("supervised") || descriptor.getParamAsText("version").equals("super")) {
-			resultDirPath += "Super_";
-		} else if (descriptor.getFlag("pivots") || descriptor.getParamAsText("version").equals("pivots")) {		
-			resultDirPath += "Pivots_";		
-		} else
-			resultDirPath += descriptor.getParamAsText("version").toUpperCase() + "_";
+//		if (descriptor.getFlag("supervised") || descriptor.getParamAsText("version").equals("super")) {
+//			resultDirPath += "Super_";
+//		} else if (descriptor.getFlag("pivots") || descriptor.getParamAsText("version").equals("pivots")) {		
+//			resultDirPath += "Pivots_";		
+//		} else
+		resultDirPath += descriptor.getParamAsText("version").toUpperCase() + "_";
 		
 //		if (PIVOTS_FILE != null) {
 //			resultDirPath += "_PivotsBOW";
 //			outside_pivots = true;
 //		}
 //		else {
-			if(descriptor.getFlag("pivots"))
-//				resultDirPath += "Pivots_"
-				resultDirPath +=  "Porcentage_" + descriptor.getParamAsText("pivot_porcentage")
-							  + "_";
-			else {
+//			if(descriptor.getFlag("pivots"))
+////				resultDirPath += "Pivots_"
+//				resultDirPath +=  "Porcentage_" + descriptor.getParamAsText("pivot_porcentage")
+//							  + "_";
+//			else {
 				if(descriptor.getParamAsInt("max_size") == -3) {
 					resultDirPath += "Log_";
 				} // else resultDirPath = + "_MM"; // No need
-			}
+//			}
 //		}
 
 		String DESCRIPTION_FILE_NAME = descriptor.hasParam("descfile")? FilenameUtils.removeExtension(

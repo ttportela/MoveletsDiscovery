@@ -33,6 +33,7 @@ public class FrequentCandidatesFilter implements MoveletsFilter {
 			if(i >= n || candidatesByProp.get(i).getQuality().getData().get("quality") < rel_tau) {
 				orderedCandidates = candidatesByProp.subList(0, i);
 				bucket.addAll(candidatesByProp.subList(i, candidatesByProp.size()));
+				break;
 			}
 		}
 //		for(Subtrajectory candidate : candidatesByProp)

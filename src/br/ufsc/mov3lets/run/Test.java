@@ -17,7 +17,14 @@
  */
 package br.ufsc.mov3lets.run;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import org.apache.commons.math3.util.Combinations;
+
 import br.ufsc.mov3lets.model.MAT;
+import br.ufsc.mov3lets.model.Subtrajectory;
 
 /**
  * The Class Test.
@@ -25,7 +32,15 @@ import br.ufsc.mov3lets.model.MAT;
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  */
 public class Test<T extends MAT<?>> {
+	
+	public Subtrajectory a, b;
+	
+	public void setAB(Subtrajectory a, Subtrajectory b) {
+		this.a = a;
+		this.b = b;
+	}
 
+	
 	/**
 	 * The main method.
 	 *
@@ -34,8 +49,30 @@ public class Test<T extends MAT<?>> {
 	 */
 	public static void main(String[] arg) throws Exception {
 		
-		System.out.println(Integer.max(2, 1));
-		
+		long classCount = 13;
+		for (int recall = 1; recall <= 10; recall++) {
+			long meTarget = Math.max(Math.round((classCount - 1) * recall / 10.0), 1);
+			System.out.println(meTarget);
+		}
+	}
+
+	private static void extracted(int n, double trainProp, double stratifyProp) {
+		int size      = (int) (n * stratifyProp);
+        int trainSize = (int) Math.round(size * trainProp);
+        
+        List<Integer> list = new ArrayList<Integer>();
+        for (int i = 0; i < n; i++) list.add(i % 2);
+        
+        List<Integer> train = list.subList(0,trainSize);
+        List<Integer> test = list.subList(trainSize, size);
+        
+        System.out.println("N: " + n + " \t " +
+        		"trainProp: " + trainProp + " \t " +
+        		"stratifyProp: " + stratifyProp + " \t " +
+        		"size: " + size + " \t " +
+        		"trainSize: " + trainSize + " \t " +
+        		"train.size(): " + train.size() + " \t " +
+        		"test.size(): " + test.size());
 	}
 
 }

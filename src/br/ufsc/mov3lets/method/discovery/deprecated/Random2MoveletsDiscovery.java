@@ -1,12 +1,13 @@
 /**
  * 
  */
-package br.ufsc.mov3lets.method.discovery;
+package br.ufsc.mov3lets.method.discovery.deprecated;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import br.ufsc.mov3lets.method.discovery.FrequentMoveletsDiscovery;
 import br.ufsc.mov3lets.method.discovery.structures.TrajectoryDiscovery;
 import br.ufsc.mov3lets.method.filter.OverlappingFeaturesFilter;
 import br.ufsc.mov3lets.method.qualitymeasure.QualityMeasure;
@@ -86,7 +87,7 @@ public class Random2MoveletsDiscovery<MO> extends FrequentMoveletsDiscovery<MO> 
 //		}
 		
 		/** STEP 2.2: Runs the pruning process */
-		if(getDescriptor().getFlag("last_prunning"))
+		if(getDescriptor().getFlag("last_pruning"))
 			movelets = lastPrunningFilter(movelets);
 
 		/** STEP 2.2: ---------------------------- */

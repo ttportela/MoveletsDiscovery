@@ -84,7 +84,7 @@ public class UltraClusterMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<M
 		setStats("");
 		
 		/** STEP 2.2: Runs the pruning process */
-		if(getDescriptor().getFlag("last_prunning"))
+		if(getDescriptor().getFlag("last_pruning"))
 			movelets = lastPrunningFilter(movelets);
 
 		/** STEP 2.2: ---------------------------- */

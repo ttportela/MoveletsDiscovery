@@ -123,7 +123,7 @@ public abstract class MoveletsDiscovery<MO> extends DiscoveryAdapter<MO> impleme
 //		}
 		
 		/** STEP 2.2: Runs the pruning process */
-		if(getDescriptor().getFlag("last_prunning"))
+		if(getDescriptor().getFlag("last_pruning"))
 			movelets = lastPrunningFilter(movelets);
 
 		/** STEP 2.2: ---------------------------- */

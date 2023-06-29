@@ -24,7 +24,7 @@ public abstract class Sampler<MO> {
 	
 	protected List<MAT<MO>> all;
 
-	protected TreeMap<MO, Integer> trainDistribution;
+//	protected TreeMap<MO, Integer> trainDistribution;
 	protected Map<MO, List<MAT<MO>>> classBins;
 	
 	protected int sample = 0;
@@ -34,9 +34,12 @@ public abstract class Sampler<MO> {
 	public Sampler(List<MAT<MO>> train, List<MAT<MO>> test) {
 //		trainSize = train.size();
 //		testSize  = test.size();
-		this.all = Stream.concat(train.stream(), test.stream()).collect(Collectors.toList());
+		if (test != null && !test.isEmpty())
+			this.all = Stream.concat(train.stream(), test.stream()).collect(Collectors.toList());
+		else
+			this.all = train;
 		
-		trainDistribution = createClassDistribution(train);
+//		trainDistribution = createClassDistribution(train);
 		classBins = createClassBinMap(all);
 	}
 

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package br.ufsc.mov3lets.method.discovery;
+package br.ufsc.mov3lets.method.discovery.deprecated;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.SortedSet;
 
+import br.ufsc.mov3lets.method.discovery.UltraMoveletsDiscovery;
 import br.ufsc.mov3lets.method.discovery.structures.TrajectoryDiscovery;
 import br.ufsc.mov3lets.method.filter.OverlappingFeaturesFilter;
 import br.ufsc.mov3lets.method.qualitymeasure.FrequentQualityMeasure;

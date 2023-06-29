@@ -3,6 +3,7 @@ package br.ufsc.mov3lets.method.loader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +41,7 @@ public class CSVLoader<T extends MAT<?>> implements LoaderAdapter<T> {
 		MAT<String> mat = new MAT<String>();
 
 		file += ".csv";
-		CSVParser csvParser = CSVFormat.DEFAULT.parse(new InputStreamReader((new FileInputStream(file))));
+		CSVParser csvParser = CSVFormat.DEFAULT.parse(new InputStreamReader((new FileInputStream(file)), StandardCharsets.UTF_8));
 		csvParser.iterator().next();
 		for (CSVRecord line : csvParser) {
 			int tid = Integer.parseInt(line.get(descriptor.getIdFeature().getOrder()-1));

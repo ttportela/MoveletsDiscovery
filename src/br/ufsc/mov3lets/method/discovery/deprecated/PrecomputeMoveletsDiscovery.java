@@ -94,7 +94,7 @@ public class PrecomputeMoveletsDiscovery<MO> extends MasterMoveletsDiscovery<MO>
 //		}
 		
 		/** STEP 2.2: Runs the pruning process */
-		if(getDescriptor().getFlag("last_prunning"))
+		if(getDescriptor().getFlag("last_pruning"))
 			movelets = lastPrunningFilter(movelets);
 
 		/** STEP 2.2: ---------------------------- */

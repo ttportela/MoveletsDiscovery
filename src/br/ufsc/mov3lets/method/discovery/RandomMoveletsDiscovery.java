@@ -83,7 +83,7 @@ public class RandomMoveletsDiscovery<MO> extends HiperMoveletsDiscovery<MO> impl
 //		}
 		
 		/** STEP 2.2: Runs the pruning process */
-		if(getDescriptor().getFlag("last_prunning"))
+		if(getDescriptor().getFlag("last_pruning"))
 			movelets = lastPrunningFilter(movelets);
 
 		/** STEP 2.2: ---------------------------- */

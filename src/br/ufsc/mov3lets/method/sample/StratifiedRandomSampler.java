@@ -19,13 +19,21 @@ import br.ufsc.mov3lets.model.MAT;
  * @author tarlis
  *
  */
-public class RandomSampler<MO> extends Sampler<MO> {
+public class StratifiedRandomSampler<MO> extends Sampler<MO> {
 	
 	protected int numSamples;
+	protected double trainProp = 0.7;    // Default: 70% train | 30% test 
+	protected double stratifyProp = 1.0; // Default: 100% - no stratification
 
-	public RandomSampler(List<MAT<MO>> train, List<MAT<MO>> test, int numSamples) {
+	public StratifiedRandomSampler(List<MAT<MO>> train, List<MAT<MO>> test, int numSamples) {
 		super(train, test);
 		this.numSamples = numSamples;
+	}
+
+	public StratifiedRandomSampler(List<MAT<MO>> train, List<MAT<MO>> test, int numSamples, double trainProp, double stratifyProp) {
+		this(train, test, numSamples);
+		this.trainProp = trainProp;
+		this.stratifyProp = stratifyProp;
 	}
 
 	@Override
@@ -37,13 +45,15 @@ public class RandomSampler<MO> extends Sampler<MO> {
 			Iterator<MO> keys = classBins.keySet().iterator();
 	        while(keys.hasNext()){
 	        	MO classVal = keys.next();
-	            int occurences = trainDistribution.get(classVal);
 	            List<MAT<MO>> bin = classBins.get(classVal);
+	            
+	            int size      = (int) (bin.size() * this.stratifyProp);
+	            int trainSize = (int) Math.round(size * this.trainProp);
 	            
 	            Collections.shuffle(bin, rand); //randomise the bin.
 
-	            outputTrain.addAll(bin.subList(0,occurences));//copy the first portion of the bin into the train set
-	            outputTest.addAll(bin.subList(occurences, bin.size()));//copy the remaining portion of the bin into the test set.
+	            outputTrain.addAll(bin.subList(0,trainSize));//copy the first portion of the bin into the train set
+	            outputTest.addAll(bin.subList(trainSize, size));//copy the remaining portion of the bin into the test set.
 	        }
 			
 			return new List[]{ outputTrain, outputTest };

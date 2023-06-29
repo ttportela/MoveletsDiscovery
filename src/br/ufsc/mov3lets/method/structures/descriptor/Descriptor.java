@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -63,7 +64,7 @@ public class Descriptor {
 	private LoaderDescriptor input = null;
 	
 	/** The params. */
-	private HashMap<String, Object> params;
+	private Map<String, Object> params;
 
 	/**
 	 * Gets the id feature.
@@ -179,8 +180,8 @@ public class Descriptor {
 	public void configure() {
 		attributes.removeAll(Collections.singletonList(null));
 				
-		if (getFlag("LDM"))
-			attributes = LDMAttributes();
+//		if (getFlag("LDM")) // NOT USED THIS STRATEGY - TOO SLOW
+//			attributes = LDMAttributes();
 		
 		for (AttributeDescriptor attr : attributes) {
 			if (attr.getComparator() != null && attr.getComparator().getDistance() != null) {
@@ -331,18 +332,18 @@ public class Descriptor {
 	 * Load.
 	 *
 	 * @param fileName the file name
-	 * @param params the params
+	 * @param params2 the params
 	 * @return the descriptor
 	 * @throws UnsupportedEncodingException the unsupported encoding exception
 	 * @throws FileNotFoundException the file not found exception
 	 */
-	public static Descriptor load(String fileName, HashMap<String, Object> params) throws UnsupportedEncodingException, FileNotFoundException {
+	public static Descriptor load(String fileName, Map<String, Object> params2) throws UnsupportedEncodingException, FileNotFoundException {
 		Reader reader = new InputStreamReader(
 				new FileInputStream(fileName), "UTF-8");
         Gson gson = new GsonBuilder().create();
         Descriptor descriptor = gson.fromJson(reader, Descriptor.class);
         
-        descriptor.setParams(params);
+        descriptor.setParams(params2);
         descriptor.configure();
 
 //		System.out.println(descriptor);
@@ -473,17 +474,17 @@ public class Descriptor {
 	 *
 	 * @return the params
 	 */
-	public HashMap<String, Object> getParams() {
+	public Map<String, Object> getParams() {
 		return params;
 	}
 	
 	/**
 	 * Sets the params.
 	 *
-	 * @param params the params
+	 * @param params2 the params
 	 */
-	public void setParams(HashMap<String, Object> params) {
-		this.params = params;
+	public void setParams(Map<String, Object> params2) {
+		this.params = params2;
 	}
 
 	/**

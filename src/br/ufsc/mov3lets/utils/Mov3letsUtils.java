@@ -94,9 +94,10 @@ public class Mov3letsUtils {
 	 * @param timer the timer
 	 */
 	public void startTimer(String timer) {
-//		timers.put(timer, System.nanoTime());
-		timers.put(timer, System.currentTimeMillis());
-//		this.log.trace("[Timer Set] " + timer);
+		if (this.log != null)
+	//		timers.put(timer, System.nanoTime());
+			timers.put(timer, System.currentTimeMillis());
+	//		this.log.trace("[Timer Set] " + timer);
 	}
 	
 	/**
@@ -106,7 +107,7 @@ public class Mov3letsUtils {
 	 * @return the long
 	 */
 	public long stopTimer(String timer) {
-		if (timers.containsKey(timer)) {
+		if (this.log != null && timers.containsKey(timer)) {
 //			long time = (System.nanoTime() - timers.get(timer));
 			long time = (System.currentTimeMillis() - timers.get(timer));
 			this.log.printTimer(timer, time);

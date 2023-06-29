@@ -219,7 +219,7 @@ public abstract class DiscoveryAdapter<MO> implements Callable<Integer> {
 		if (exploreDimensions){
 			currentFeatures = 1;
 		} else {
-			currentFeatures = numberOfFeatures;
+			currentFeatures = Math.min(numberOfFeatures, maxNumberOfFeatures);
 		}
 				
 //		combinations = new int[(int) (Math.pow(2, numberOfFeatures) - 1)][];
