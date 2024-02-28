@@ -130,7 +130,7 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO, List<Feature>> {
 			header += (!attributeToTrajectories.get(0).keySet().isEmpty()) ?
 					attributeToTrajectories.get(0).keySet().toString().replaceAll("[\\[|\\]|\\s]", "") + "," : ""; 
 			
-			header += "class" + System.getProperty("line.separator");
+			header += "tid,label" + System.getProperty("line.separator");
 			
 			writer.write(header);
 			
@@ -144,7 +144,8 @@ public class CSVOutputter<MO> extends OutputterAdapter<MO, List<Feature>> {
 				line += (!attributes.values().isEmpty()) ?
 						attributes.values().toString().replaceAll("[\\[|\\]|\\s]", "") + "," : "";
 				
-				line += "\"" + trajectories.get(i).getMovingObject() + "\""+ System.getProperty("line.separator");
+				MAT<MO> T = trajectories.get(i);
+				line += T.getTid() + "," + "\"" + T.getMovingObject() + "\""+ System.getProperty("line.separator");
 				
 				writer.write(line);
 			}

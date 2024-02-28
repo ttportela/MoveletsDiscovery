@@ -17,14 +17,9 @@
  */
 package br.ufsc.mov3lets.run;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import org.apache.commons.math3.util.Combinations;
+import java.util.Random;
 
 import br.ufsc.mov3lets.model.MAT;
-import br.ufsc.mov3lets.model.Subtrajectory;
 
 /**
  * The Class Test.
@@ -32,15 +27,7 @@ import br.ufsc.mov3lets.model.Subtrajectory;
  * @author Tarlis Portela <tarlis@tarlis.com.br>
  */
 public class Test<T extends MAT<?>> {
-	
-	public Subtrajectory a, b;
-	
-	public void setAB(Subtrajectory a, Subtrajectory b) {
-		this.a = a;
-		this.b = b;
-	}
 
-	
 	/**
 	 * The main method.
 	 *
@@ -48,31 +35,35 @@ public class Test<T extends MAT<?>> {
 	 * @throws Exception the exception
 	 */
 	public static void main(String[] arg) throws Exception {
+		//int n = 1000; // 1. 0.081501958| 2. 1.395447458
+		//int n = 1500; // 1. 0.083571084| 2. 7.923277292000001
+		int n = 2000; // 1. 0.152417417| 2. 26.792661083000002
 		
-		long classCount = 13;
-		for (int recall = 1; recall <= 10; recall++) {
-			long meTarget = Math.max(Math.round((classCount - 1) * recall / 10.0), 1);
-			System.out.println(meTarget);
-		}
-	}
+		Random r = new Random();
 
-	private static void extracted(int n, double trainProp, double stratifyProp) {
-		int size      = (int) (n * stratifyProp);
-        int trainSize = (int) Math.round(size * trainProp);
-        
-        List<Integer> list = new ArrayList<Integer>();
-        for (int i = 0; i < n; i++) list.add(i % 2);
-        
-        List<Integer> train = list.subList(0,trainSize);
-        List<Integer> test = list.subList(trainSize, size);
-        
-        System.out.println("N: " + n + " \t " +
-        		"trainProp: " + trainProp + " \t " +
-        		"stratifyProp: " + stratifyProp + " \t " +
-        		"size: " + size + " \t " +
-        		"trainSize: " + trainSize + " \t " +
-        		"train.size(): " + train.size() + " \t " +
-        		"test.size(): " + test.size());
+		double[][] A = new double[n][n];
+		double[][] B = new double[n][n];
+		double[][] C = new double[n][n];
+
+		long start = System.nanoTime();
+		for (int i=0; i < n; i++)
+			for (int j=0; j < n; j++) {
+				A[i][j] = r.nextDouble();
+				B[i][j] = r.nextDouble();
+				C[i][j] = 0;
+			}
+		long end = System.nanoTime();
+		System.out.println("1. Elapsed Time in seconds " + ((end-start) * 1e-9));
+
+		start = System.nanoTime();
+		for (int i=0; i < n; i++)
+			for (int j=0; j < n; j++)
+				for (int k=0; k < n; k++)
+		            C[i][j] += A[i][k] * B[k][j];
+
+		end = System.nanoTime();
+		System.out.println("2. Elapsed Time in seconds " + ((end-start) * 1e-9));
+		
 	}
 
 }

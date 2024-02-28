@@ -103,7 +103,7 @@ public class PrecomputeBaseDistances<MO> implements Callable<Integer> {
 				
 			} //for (int i = 0; i < train.size(); i++)
 			
-			bar.plus();
+			// bar.plus();
 			
 		} // for (int start = 0; start <= (n - size); start++)
 

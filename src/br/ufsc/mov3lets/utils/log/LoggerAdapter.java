@@ -59,7 +59,7 @@ public abstract class LoggerAdapter {
 		double free = rt.freeMemory() / (1024.0 * 1024.0);
         double used = (total - free);
         
-		trace("Memory Usage (MiB), Memory Total: "+total+". Memory Free: "+free+". Memory Used: "+used+".");
+		trace("[Memory Usage (MiB)] Memory Total: "+total+"; Memory Free: "+free+"; Memory Used: "+used+";");
 	}
 
 	public void end() { }

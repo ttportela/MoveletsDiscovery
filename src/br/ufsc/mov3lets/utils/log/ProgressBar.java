@@ -11,7 +11,7 @@ public interface ProgressBar {
 	/**
 	 * Plus.
 	 */
-	void plus();
+//	void plus();
 
 	/**
 	 * Plus.
@@ -25,7 +25,7 @@ public interface ProgressBar {
 	 *
 	 * @param size the size
 	 */
-	void plus(long size);
+//	void plus(long size);
 
 	/**
 	 * Plus.
@@ -41,7 +41,7 @@ public interface ProgressBar {
 	 * @param done the done
 	 * @param total the total
 	 */
-	void update(long done, long total);
+//	void update(long done, long total);
 
 	/**
 	 * called whenever the progress bar needs to be updated.
@@ -51,7 +51,7 @@ public interface ProgressBar {
 	 * @param total an int representing the total work
 	 * @param message the message
 	 */
-	void update(long done, long total, String message);
+//	void update(long done, long total, String message);
 
 	/**
 	 * Trace.
@@ -65,7 +65,7 @@ public interface ProgressBar {
 	 *
 	 * @param inline the new inline
 	 */
-	void setInline(boolean inline);
+//	void setInline(boolean inline);
 
 	/**
 	 * Sets the prefix.
@@ -79,7 +79,7 @@ public interface ProgressBar {
 	 *
 	 * @param total the new total
 	 */
-	void setTotal(long total);
+//	void setTotal(long total);
 
 	void reset(long total);
 

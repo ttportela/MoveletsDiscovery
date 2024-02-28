@@ -11,12 +11,16 @@ Source code of the paper **HIPERMovelets: a greedy approach for efficient movele
 This is a project with the HIPERMovelets (Portela, 2020) implementation, with three options of optimizations.
 
 
-- *HIPERMovelets*: new optimization for MASTERMovelets, with greedy search (`-version hiper`).
-- *HIPERMovelets-Log*: plus, limits the movelets size to the ln size of the trajectory (`-version hiper -Ms -3`).
+- *HiPerMovelets*: new optimization for MASTERMovelets, with greedy search (`-version hiper`).
+- *HiPerMovelets-Log*: plus, limits the movelets size to the ln size of the trajectory (`-version hiper -Ms -3`).
 
 
-- *HIPERPivots*: limits the movelets search space to the points that are neighbour of well qualified movelets of size one (`-version hiper-pvt`).
-- *HIPERPivots-Log*: plus, limits the movelets size to the ln size of the trajectory (`-version hiper-pvt -Ms -3`).
+- *HiPerPivots*: limits the movelets search space to the points that are neighbour of well qualified movelets of size one (`-version hiper-pvt`).
+- *HiPerPivots-Log*: plus, limits the movelets size to the ln size of the trajectory (`-version hiper-pvt -Ms -3`).
+
+
+- *RandomMovelets*: randomly evaluates subtrajectories to discover movelets (`-version random`).
+- *UltraMovelets*: uses a recursive incremental strategy to limit the search space (`-version ultra`). Most memory efficient method. Use `-Ms -1` to disable Log limit, as it is set by default.
 
 
 **Includes re-implementations of the following methods (NOT EQUAL!):**
@@ -147,6 +151,25 @@ java -jar HIPERMovelets.jar
 -curpath "$BASIC_PATH" -respath "$RESULT_PATH" -descfile "$DESC_FILE" 
 -version hiper-pvt -nt 8 -Ms -3
 ```
+
+**UltraMovelets**
+
+
+```Shell
+java -jar HIPERMovelets.jar 
+-curpath "$BASIC_PATH" -respath "$RESULT_PATH" -descfile "$DESC_FILE" 
+-version ultra -nt 8 
+```
+
+**To a complete list of parameters:**
+
+```Shell
+java -jar HIPERMovelets.jar --help
+```
+
+## Change Log
+
+Refer to [CHANGELOG.md](./CHANGELOG.md).
 
 
 ## Extras

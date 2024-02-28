@@ -115,7 +115,7 @@ public class SimpleOutput implements ProgressBar {
      *
      * @param inline the new inline
      */
-    public void setInline(boolean inline) {}
+//    public void setInline(boolean inline) {}
     
     /**
      * Sets the prefix.

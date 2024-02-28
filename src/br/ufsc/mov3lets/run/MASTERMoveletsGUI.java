@@ -7,7 +7,7 @@ import java.util.List;
 import javax.swing.JFileChooser;
 
 import br.ufsc.mov3lets.method.Mov3lets;
-import br.ufsc.mov3lets.utils.log.ProgressOutput;
+import br.ufsc.mov3lets.utils.log.SimpleOutput;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -27,22 +27,23 @@ public class MASTERMoveletsGUI extends javax.swing.JFrame {
      */
     public MASTERMoveletsGUI() {
         initComponents();
-        Mov3lets.progressBar = new ProgressOutput() {
-        	
-        	public void setPrefix(String prefix) {
-        		super.setPrefix(prefix);
-        		println(prefix);
-        	}
-        	
-            public synchronized void update(long done, long total, String message) {
-                message = (message != null? ">> "+message + "." : "");
-        		println(message);
-                
-                bar.setMaximum((int) total);
-                bar.setValue((int) done);
-            }
-        	
-        };
+        Mov3lets.progressBar = new SimpleOutput();
+//        new ProgressOutput() {
+//        	
+//        	public void setPrefix(String prefix) {
+//        		super.setPrefix(prefix);
+//        		println(prefix);
+//        	}
+//        	
+//            public synchronized void update(long done, long total, String message) {
+//                message = (message != null? ">> "+message + "." : "");
+//        		println(message);
+//                
+//                bar.setMaximum((int) total);
+//                bar.setValue((int) done);
+//            }
+//        	
+//        };
     }
 
     /**

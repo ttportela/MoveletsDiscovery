@@ -306,7 +306,11 @@ public class Mov3letsRun {
 //				.choices(true, false)
 				.setDefault(true)
 				.help("specify whether to compute distances (true) or similarities (false)");
-
+		
+		parser.addArgument("-vmem", "--memory-verbose")
+				.type(Boolean.class)
+				.setDefault(false)
+				.help("specify whether to verbose memory use at each progress update.");
 
 		parser.addArgument("-d", "-version", "--version")
 			.type(String.class)

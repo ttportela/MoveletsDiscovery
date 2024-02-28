@@ -99,7 +99,7 @@ public class Mov3lets<MO> {
 	protected List<MAT<MO>> test = null;
 	
 	/** The progress bar. */
-	public static ProgressBar progressBar = new SimpleOutput();
+	public static SimpleOutput progressBar = new SimpleOutput();
 
 	/**
 	 * Instantiates a new mov 3 lets.

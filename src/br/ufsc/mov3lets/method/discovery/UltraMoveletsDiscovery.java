@@ -15,6 +15,7 @@ import org.apache.commons.math3.util.Pair;
 
 import br.ufsc.mov3lets.method.discovery.structures.TrajectoryDiscovery;
 import br.ufsc.mov3lets.method.filter.OverlappingFeaturesFilter;
+import br.ufsc.mov3lets.method.filter.OverlappingFeaturesRelativeFilter;
 import br.ufsc.mov3lets.method.qualitymeasure.QualityMeasure;
 import br.ufsc.mov3lets.method.structures.descriptor.Descriptor;
 import br.ufsc.mov3lets.model.MAT;
@@ -114,7 +115,12 @@ public class UltraMoveletsDiscovery<MO> extends FrequentMoveletsDiscovery<MO> im
 		
 		if( minSize <= 1 ) minSize = 1;
 		
-		this.bestFilter = new OverlappingFeaturesFilter(0.0, TAU, null);  // ULTRA-C (default), TAU default = 0.0 min quality
+		// UPDATED: possibility to use fixed quality value filter or a relative quality filter (become default):
+		if (getDescriptor().getFlag("relative_tau")) {
+			this.bestFilter = new OverlappingFeaturesRelativeFilter(0.0, TAU, null); // NEW default behavior, uses relative quality filter when set
+		} else {
+			this.bestFilter = new OverlappingFeaturesFilter(0.0, TAU, null);  // ULTRA-C (default), TAU default = 0.0 min quality
+		}
 
 		// It starts with the base case
 		addStats("Class", trajectory.getMovingObject()); 
