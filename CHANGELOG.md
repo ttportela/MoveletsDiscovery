@@ -17,6 +17,4 @@
 - Published first release of HiPerMovelets (and variations).
 - Tests with new output formats.
 
-```
-Tarlis Tortelli Portela; Jonata Tyska Carvalho; Vania Bogorny. HiPerMovelets: high-performance movelet extraction for trajectory classification, International Journal of Geographical Information Science, 2022. DOI: 10.1080/13658816.2021.2018593.
-```
+	Tarlis Tortelli Portela; Jonata Tyska Carvalho; Vania Bogorny. HiPerMovelets: high-performance movelet extraction for trajectory classification. International Journal of Geographical Information Science, 2022. DOI: 10.1080/13658816.2021.2018593.
