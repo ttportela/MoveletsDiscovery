@@ -146,4 +146,12 @@ public class BestMoveletsFilter extends MoveletsFilterRanker {
 
 	}
 	
+	public double getMinimumQuality() {
+		return minimumQuality;
+	}
+	
+	public double getSelfSimilarityProp() {
+		return selfSimilarityProp;
+	}
+	
 }
