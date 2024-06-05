@@ -18,14 +18,12 @@ This is a project with the HIPERMovelets (Portela, 2020) implementation, with th
 
 
 - *HiPerMovelets*: new optimization for MASTERMovelets, with greedy search (`-version hiper`).
-- *HiPerMovelets-Log*: plus, limits the movelets size to the ln size of the trajectory (`-version hiper -Ms -3`).
 - *HiPerPivots*: limits the movelets search space to the points that are neighbour of well qualified movelets of size one (`-version hiper-pivots`).
-- *HiPerPivots-Log*: plus, limits the movelets size to the ln size of the trajectory (`-version hiper-pivots -Ms -3`).
 
+- *RandomMovelets*: randomly evaluates subtrajectories to discover movelets (`-version random`). 
+- *UltraMovelets*: uses a recursive incremental strategy to limit the search space (`-version ultra`). Most memory efficient method. 
 
-- *RandomMovelets*: randomly evaluates subtrajectories to discover movelets (`-version random`).
-- *UltraMovelets*: uses a recursive incremental strategy to limit the search space (`-version ultra`). Most memory efficient method. Use `-Ms -1` to disable Log limit, as it is set by default.
-
+\* Most methods use Log limit for trajectory size, use `-Ms -1` to disable Log limit if is set by default.
 
 ## Setup
 
