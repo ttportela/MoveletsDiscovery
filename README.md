@@ -1,8 +1,14 @@
 # HIPERMovelets
 
-Source code of the paper **HIPERMovelets: a greedy approach for efficient movelet extraction and dimensionality reduction**, accepted for publication in ...
+Source code for the papers:
 
-\[ [publication](https://#) ] \[ [preprint](./reference/preprint.pdf) ] \[ [bibtex](./reference/bibliography.bib) ]
+a) **HiPerMovelets: high-performance movelet extraction for trajectory classification**, published in International Journal of Geographical Information Science
+\[ [publication](https://doi.org/10.1080/13658816.2021.2018593) ] 
+b) **UltraMovelets: Efficient Movelet Extraction for Multiple Aspect Trajectory Classification**, published in The 35th International Conference on Database and Expert Systems Applications (DEXA 2024)
+\[ [publication](https://#) ] 
+
+
+References: \[ [bibtex](./bibliography.bib) ]
 
 
 ## Versions
@@ -13,62 +19,19 @@ This is a project with the HIPERMovelets (Portela, 2020) implementation, with th
 
 - *HiPerMovelets*: new optimization for MASTERMovelets, with greedy search (`-version hiper`).
 - *HiPerMovelets-Log*: plus, limits the movelets size to the ln size of the trajectory (`-version hiper -Ms -3`).
-
-
-- *HiPerPivots*: limits the movelets search space to the points that are neighbour of well qualified movelets of size one (`-version hiper-pvt`).
-- *HiPerPivots-Log*: plus, limits the movelets size to the ln size of the trajectory (`-version hiper-pvt -Ms -3`).
+- *HiPerPivots*: limits the movelets search space to the points that are neighbour of well qualified movelets of size one (`-version hiper-pivots`).
+- *HiPerPivots-Log*: plus, limits the movelets size to the ln size of the trajectory (`-version hiper-pivots -Ms -3`).
 
 
 - *RandomMovelets*: randomly evaluates subtrajectories to discover movelets (`-version random`).
 - *UltraMovelets*: uses a recursive incremental strategy to limit the search space (`-version ultra`). Most memory efficient method. Use `-Ms -1` to disable Log limit, as it is set by default.
 
 
-**Includes re-implementations of the following methods (NOT EQUAL!):**
-
-
-- *MASTERMovelets*: limits the movelets size to the ln size of the trajectory (`-version 2.0`).
-- *MASTERMovelets-Log*: limits the movelets size to the ln size of the trajectory (`-version 2.0 -Ms -3`).
-
-
-- *MASTERMovelets-Pivots*: it limit the movelets search space to the points that are neighbour of well qualified movelets of size one (`-version pivots`).
-- *MASTERMovelets-Pivots-Log*: it limit the movelets search space to the points that are neighbour of well qualified movelets of size one (`-version pivots -Ms -3`).
-
-
-- *SUPERMovelets*: a optimized approach that identifies the better regions for finding movelets (`-version super`).
-- *SUPERMovelets-Log*: a optimized approach that identifies the better regions for finding movelets (`-version super -Ms -3`).
-
-
 ## Setup
 
 A. In order to run the code you first need to install Java 8 (or superior). Be sure to have enough RAM memory available. 
 
-
-------
-
-(Optional) 
-
-B. If you opt to use the test automatization in Python (under [dist/automatize](./dist/automatize/) folder), you first need to install Python, R, and dependencies. 
-
-See [requirements.txt](./dist/automatize/requirements.txt) to Python dependencies. To install all dependencies you can use:
-
-```Shell
-pip install -r ./dist/automatize/requirements.txt
-```
-
-Install R, and the dependent packages. To enter the R environment:
-
-```Shell
-sudo apt-get install r-base
-R
-```
-
-Install `data.table` and `dplyr` packages, and exit.
-
-```R
-install.packages("data.table")
-install.packages("dplyr")
-q()
-```
+B. Download the `MoveletDiscovery.jar` file from the releases, or compile and export the jar file for the main class: `br.ufsc.mov3lets.run.Mov3letsRun`
 
 ## Usage
 
@@ -97,7 +60,7 @@ To run the HIPERMovelets you can run the java code with the following default en
 
 
 ```Shell
-java -Xmx80G -jar HIPERMovelets.jar 
+java -Xmx80G -jar MoveletDiscovery.jar 
 -curpath "$BASIC_PATH" -respath "$RESULT_PATH" -descfile "$DESC_FILE" 
 -version hiper -nt 8 -ed true -samples 1 -sampleSize 0.5 -medium "none" -output "discrete" -lowm "false" -ms 1 -Ms -3 | tee -a "output.txt"
 ```
@@ -109,69 +72,59 @@ It is the same as (without the output file):
 
 
 ```Shell
-java -Xmx80G -jar HIPERMovelets.jar 
+java -Xmx80G -jar MoveletDiscovery.jar 
 -curpath "$BASIC_PATH" -respath "$RESULT_PATH" -descfile "$DESC_FILE" 
 -version hiper -nt 8
 ```
 
 ### Examples
 
-**HIPERMovelets**
+**HIPERMovelets** (with log)
 
 
 ```Shell
-java -jar HIPERMovelets.jar 
+java -jar MoveletDiscovery.jar 
 -curpath "$BASIC_PATH" -respath "$RESULT_PATH" -descfile "$DESC_FILE" 
--version hiper -nt 8 
+-version hiper 
 ```
 
-**HIPERMovelets-Log**
+**HIPERMovelets-Pivots** (with log)
 
 
 ```Shell
-java -jar HIPERMovelets.jar 
+java -jar MoveletDiscovery.jar 
 -curpath "$BASIC_PATH" -respath "$RESULT_PATH" -descfile "$DESC_FILE" 
--version hiper -nt 8 -Ms -3
-```
-
-**HIPERMovelets-Pivots**
-
-
-```Shell
-java -jar HIPERMovelets.jar 
--curpath "$BASIC_PATH" -respath "$RESULT_PATH" -descfile "$DESC_FILE" 
--version hiper-pvt -nt 8 
-```
-
-**HIPERMovelets-Pivots-Log**
-
-
-```Shell
-java -jar HIPERMovelets.jar 
--curpath "$BASIC_PATH" -respath "$RESULT_PATH" -descfile "$DESC_FILE" 
--version hiper-pvt -nt 8 -Ms -3
+-version hiper-pivots 
 ```
 
 **UltraMovelets**
 
 
 ```Shell
-java -jar HIPERMovelets.jar 
+java -jar MoveletDiscovery.jar 
 -curpath "$BASIC_PATH" -respath "$RESULT_PATH" -descfile "$DESC_FILE" 
--version ultra -nt 8 
+-version ultra 
+```
+
+**RandomMovelets**
+
+
+```Shell
+java -jar MoveletDiscovery.jar 
+-curpath "$BASIC_PATH" -respath "$RESULT_PATH" -descfile "$DESC_FILE" 
+-version random 
 ```
 
 **To a complete list of parameters:**
 
 ```Shell
-java -jar HIPERMovelets.jar --help
+java -jar MoveletDiscovery.jar --help
 ```
 
 ## Change Log
 
 Refer to [CHANGELOG.md](./CHANGELOG.md).
 
+## Author
 
-## Extras
-
-To run HIPERMovelts and classification methods with Python automatization ([automatize](./dist/automatize/)) see the exemaples in the jupyter notebook: [Automatize - Sample Code.ipynb](./dist/Automatize_Sample_Code.ipynb)
+Tarlis Portela
