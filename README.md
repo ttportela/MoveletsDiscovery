@@ -4,6 +4,7 @@ Source code for the papers:
 
 a) **HiPerMovelets: high-performance movelet extraction for trajectory classification**, published in International Journal of Geographical Information Science
 \[ [publication](https://doi.org/10.1080/13658816.2021.2018593) ] 
+
 b) **UltraMovelets: Efficient Movelet Extraction for Multiple Aspect Trajectory Classification**, published in The 35th International Conference on Database and Expert Systems Applications (DEXA 2024)
 \[ [publication](https://#) ] 
 
